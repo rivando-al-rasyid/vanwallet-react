@@ -1,6 +1,7 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEnvelope, faLock } from "@fortawesome/free-solid-svg-icons";
-import { faGoogle, faFacebookF } from "@fortawesome/free-brands-svg-icons";
+import Brand from "../../components/Brand";
+import LoginHeadline from "../../components/LoginHeadline";
 
 export default function Login() {
   return (
@@ -9,30 +10,18 @@ export default function Login() {
       <section className="flex flex-col justify-center items-center px-6 py-12 lg:px-20 bg-white xl:rounded-r-[60px] shadow-2xl z-20">
         <div className="w-full max-w-125">
           {/* Logo & Brand */}
-          <div className="flex items-center gap-3 mb-10 group cursor-pointer">
-            <div className="p-2 bg-[#6379F415] rounded-lg group-hover:bg-[#6379F4] transition-colors">
-              <img
-                src="../../../src/assets/img/logo.png"
-                alt="Logo"
-                className="w-6 h-6 object-contain"
-              />
-            </div>
-            <h1 className="text-2xl font-bold text-[#6379F4] tracking-tight">
-              E-Wallet
-            </h1>
-          </div>
-
+          <Brand />
           {/* Headline and Description */}
           <div className="mb-10">
-            <h2 className="text-[32px] font-extrabold text-[#3A3D42] leading-[1.2] mb-4">
-              Hello Welcome Back 👋
-            </h2>
-            <p className="text-base text-slate-400 leading-relaxed">
-              Fill out the form correctly or you can login with several options.
-            </p>
+            <h2 className="text-[32px] font-extrabold text-[#3A3D42] leading-[1.2] mb-4"></h2>
+            <p className="text-base text-slate-400 leading-relaxed"></p>
           </div>
-
-          {/* Social Sign In Buttons - Matches UI closer with white bg */}
+          <LoginHeadline
+            title={"Hello Welcome Back 👋"}
+            text={
+              "Fill out the form correctly or you can login with several options."
+            }
+          />
           <div className="grid grid-cols-1 gap-4 mb-8">
             {/* Google Button */}
             <button className="flex items-center justify-center gap-3 py-3 px-6 border border-slate-100 rounded-2xl bg-white shadow-sm hover:shadow-md hover:border-slate-200 transition-all text-slate-600 font-medium">

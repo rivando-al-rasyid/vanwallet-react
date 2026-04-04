@@ -5,7 +5,7 @@ import "./style.css";
 
 import App from "./App.jsx";
 import Login from "./pages/auth/Login.jsx";
-import Dashboard from "./pages/auth/Dashboard.jsx";
+import Dashboard from "./pages/Dashboard/Index.jsx";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <BrowserRouter>
