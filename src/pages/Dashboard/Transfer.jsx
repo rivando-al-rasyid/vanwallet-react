@@ -1,28 +1,210 @@
+import { useState } from "react";
 import Navbar from "../../layouts/Navbar";
 import Sidebar from "../../layouts/Sidebar";
+
+// Mock data based on the image content
+const contactData = [
+  {
+    id: 1,
+    name: "Ghaluh 1",
+    phone: "(239) 555-0108",
+    img: "https://i.pravatar.cc/150?u=1",
+  },
+  {
+    id: 2,
+    name: "Ghaluh 2",
+    phone: "(480) 555-0103",
+    img: "https://i.pravatar.cc/150?u=2",
+  },
+  {
+    id: 3,
+    name: "Ghaluh 3",
+    phone: "(225) 555-0118",
+    img: "https://i.pravatar.cc/150?u=3",
+  },
+  {
+    id: 4,
+    name: "Ghaluh 4",
+    phone: "(406) 555-0120",
+    img: "https://i.pravatar.cc/150?u=4",
+  },
+  {
+    id: 5,
+    name: "Ghaluh 5",
+    phone: "(303) 555-0105",
+    img: "https://i.pravatar.cc/150?u=5",
+  },
+  {
+    id: 6,
+    name: "Ghaluh 6",
+    phone: "(808) 555-0111",
+    img: "https://i.pravatar.cc/150?u=6",
+  },
+  {
+    id: 7,
+    name: "Ghaluh 7",
+    phone: "(671) 555-0110",
+    img: "https://i.pravatar.cc/150?u=7",
+  },
+  {
+    id: 8,
+    name: "Ghaluh 8",
+    phone: "(270) 555-0117",
+    img: "https://i.pravatar.cc/150?u=8",
+  },
+];
+
 export default function Transfer() {
+  const [search, setSearch] = useState("");
+
+  const filteredContacts = contactData.filter(
+    (c) =>
+      c.name.toLowerCase().includes(search.toLowerCase()) ||
+      c.phone.includes(search),
+  );
+
   return (
     <>
       <Navbar />
       <main className="flex">
         <Sidebar />
-        <section className="flex-1 flex flex-col gap-6 p-8 overflow-auto">
-          <div className="flex gap-6">
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                fill-rule="evenodd"
-                clip-rule="evenodd"
-                d="M19.5039 2.07729C20.1889 1.87802 20.931 2.07025 21.434 2.58253C21.937 3.0938 22.123 3.83957 21.918 4.52999L20.669 8.73188C20.55 9.13144 20.1339 9.35789 19.7359 9.23913C19.3389 9.11936 19.1129 8.69867 19.2319 8.30012L20.481 4.09722C20.551 3.86171 20.4259 3.7027 20.3689 3.64533C20.3119 3.58696 20.1519 3.46014 19.9209 3.52758L3.82937 8.20652C3.57336 8.281 3.51736 8.49537 3.50536 8.58394C3.49436 8.6725 3.49036 8.89392 3.71837 9.03482L7.10449 11.1182C7.4575 11.3355 7.5695 11.8005 7.35249 12.1568C7.21149 12.3883 6.96548 12.5171 6.71247 12.5171C6.57947 12.5171 6.44446 12.4819 6.32246 12.4064L2.93634 10.3221C2.26532 9.90942 1.91331 9.16667 2.01831 8.38265C2.12331 7.59762 2.65833 6.97464 3.41336 6.75523L19.5039 2.07729ZM18.0282 12.3492C18.1482 11.9487 18.5652 11.7212 18.9622 11.842C19.3592 11.9618 19.5852 12.3824 19.4662 12.782L17.1441 20.596C16.9191 21.3519 16.2971 21.8833 15.5201 21.9829C15.4331 21.995 15.3471 22 15.2611 22C14.583 22 13.963 21.6518 13.602 21.0539L9.50187 14.2645C9.32286 13.9666 9.36786 13.5841 9.61287 13.3386L15.4341 7.48007C15.7271 7.18518 16.2011 7.18518 16.4941 7.48007C16.7871 7.77496 16.7871 8.25302 16.4941 8.54791L11.0899 13.9877L14.8841 20.2699C15.0221 20.4984 15.2391 20.4964 15.3291 20.4863C15.4171 20.4742 15.6301 20.4199 15.7061 20.1643L18.0282 12.3492Z"
-                fill="#2948FF"
-              />
-            </svg>
-            Transfer Money
+        <section className="flex-1 p-8 bg-gray-50 min-h-screen">
+          {/* Header & Stepper */}
+          <div className="mb-8">
+            <div className="flex items-center gap-3 mb-6">
+              <span className="text-blue-600">
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
+                </svg>
+              </span>
+              <h1 className="text-xl font-bold text-gray-800">
+                Transfer Money
+              </h1>
+            </div>
+
+            {/* Stepper UI */}
+            <div className="flex items-center gap-4 text-sm font-medium">
+              <div className="flex items-center gap-2 text-blue-600">
+                <span className="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs">
+                  1
+                </span>
+                <span>Find People</span>
+              </div>
+              <div className="h-[1px] w-16 border-t border-dashed border-gray-400"></div>
+              <div className="flex items-center gap-2 text-gray-500">
+                <span className="w-6 h-6 rounded-full bg-gray-400 text-white flex items-center justify-center text-xs">
+                  2
+                </span>
+                <span>Set Nominal</span>
+              </div>
+              <div className="h-[1px] w-16 border-t border-dashed border-gray-400"></div>
+              <div className="flex items-center gap-2 text-gray-500">
+                <span className="w-6 h-6 rounded-full bg-gray-400 text-white flex items-center justify-center text-xs">
+                  3
+                </span>
+                <span>Finish</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Main Content Card */}
+          <div className="bg-white rounded-2xl shadow-sm p-8 min-h-[600px]">
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <h2 className="text-lg font-bold text-gray-800">Find People</h2>
+                <p className="text-xs text-gray-400">
+                  {filteredContacts.length} Result Found For{" "}
+                  {search || "Ghaluh"}
+                </p>
+              </div>
+
+              {/* Search Bar */}
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Enter Number Or Full Name"
+                  className="w-80 pl-4 pr-10 py-2 border border-gray-200 rounded-lg text-sm outline-none focus:border-blue-400"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+                <svg
+                  className="absolute right-3 top-2.5 text-gray-400"
+                  width="16"
+                  height="16"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
+                </svg>
+              </div>
+            </div>
+            {/* Contact List */}
+            <div className="overflow-x-auto">
+              <table className="w-full border-separate border-spacing-y-2">
+                <tbody className="space-y-1">
+                  {filteredContacts.map((contact, index) => (
+                    <tr
+                      key={contact.id}
+                      className={`group cursor-pointer transition-colors hover:bg-blue-50 ${
+                        index % 2 !== 0 ? "bg-gray-50/50" : "bg-white"
+                      }`}
+                    >
+                      <td>
+                        <img
+                          src={contact.img}
+                          alt={contact.name}
+                          className="w-12 h-12 rounded-xl object-cover"
+                        />
+                      </td>
+                      {/* Contact Info Column */}
+                      <td className="px-4 py-4 rounded-l-xl">
+                        <div className="flex items-center gap-4">
+                          <span className="font-semibold text-gray-700">
+                            {contact.name}
+                          </span>
+                        </div>
+                      </td>
+
+                      {/* Phone Column */}
+                      <td className="px-4 py-4">
+                        <span className="text-sm text-gray-500 font-medium">
+                          {contact.phone}
+                        </span>
+                      </td>
+
+                      {/* Favorite Action Column */}
+                      <td className="px-4 py-4 text-right rounded-r-xl">
+                        <button className="text-gray-400 hover:text-yellow-500 transition-colors">
+                          <svg
+                            width="20"
+                            height="20"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            viewBox="0 0 24 24"
+                          >
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                          </svg>
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </section>
       </main>

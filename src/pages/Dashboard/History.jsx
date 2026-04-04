@@ -1,29 +1,401 @@
+import { useState } from "react";
 import Navbar from "../../layouts/Navbar";
 import Sidebar from "../../layouts/Sidebar";
 
+const ITEMS_PER_PAGE = 7;
+
+const historyData = [
+  {
+    id: 1,
+    img: "https://i.pravatar.cc/150?u=1",
+    name: "Ghaluh 1",
+    phone: "082116304337",
+    amount: "Rp.50.000",
+    type: "income",
+  },
+  {
+    id: 2,
+    name: "Cameron Williamson",
+    phone: "(308) 555-0121",
+    amount: "Rp.50.000",
+    type: "expense",
+  },
+  {
+    id: 3,
+    name: "Cody Fisher",
+    phone: "(704) 555-0127",
+    amount: "Rp.50.000",
+    type: "income",
+  },
+  {
+    id: 4,
+    name: "Kristin Watson",
+    phone: "(603) 555-0123",
+    amount: "Rp.50.000",
+    type: "expense",
+  },
+  {
+    id: 5,
+    name: "Floyd Miles",
+    phone: "(671) 555-0110",
+    amount: "Rp.50.000",
+    type: "income",
+  },
+  {
+    id: 6,
+    name: "Wade Warren",
+    phone: "(225) 555-0118",
+    amount: "Rp.50.000",
+    type: "expense",
+  },
+  {
+    id: 7,
+    name: "Savannah Nguyen",
+    phone: "(217) 555-0113",
+    amount: "Rp.50.000",
+    type: "income",
+  },
+  {
+    id: 8,
+    name: "Jerome Bell",
+    phone: "(302) 555-0107",
+    amount: "Rp.75.000",
+    type: "expense",
+  },
+  {
+    id: 9,
+    name: "Annette Lewis",
+    phone: "(406) 555-0120",
+    amount: "Rp.75.000",
+    type: "income",
+  },
+  {
+    id: 10,
+    name: "Marvin Park",
+    phone: "(505) 555-0125",
+    amount: "Rp.100.000",
+    type: "expense",
+  },
+  {
+    id: 11,
+    name: "Ralph Scott",
+    phone: "(907) 555-0101",
+    amount: "Rp.25.000",
+    type: "income",
+  },
+  {
+    id: 12,
+    name: "Theresa Kim",
+    phone: "(212) 555-0199",
+    amount: "Rp.50.000",
+    type: "expense",
+  },
+  {
+    id: 13,
+    name: "Brooklyn Nash",
+    phone: "(313) 555-0142",
+    amount: "Rp.60.000",
+    type: "income",
+  },
+  {
+    id: 14,
+    name: "Leslie Ortiz",
+    phone: "(404) 555-0167",
+    amount: "Rp.50.000",
+    type: "expense",
+  },
+  {
+    id: 15,
+    name: "Philip Reed",
+    phone: "(619) 555-0134",
+    amount: "Rp.80.000",
+    type: "income",
+  },
+];
+
+// --- UPDATED AVATAR COMPONENT ---
+function Avatar({ src, name }) {
+  // Replace this URL with your desired default placeholder image
+  const defaultPlaceholder =
+    "https://ui-avatars.com/api/?name=User&background=EBF4FF&color=7F9CF5";
+
+  return (
+    <div className="w-11 h-11 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0">
+      <img
+        src={src || defaultPlaceholder}
+        alt={name}
+        className="w-full h-full object-cover"
+        onError={(e) => {
+          e.target.src = defaultPlaceholder;
+        }}
+      />
+    </div>
+  );
+}
+
+function TrashIcon() {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M20.25 5.25L3.75 5.25001"
+        stroke="#D00000"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M9.75 9.75V15.75"
+        stroke="#D00000"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M14.25 9.75V15.75"
+        stroke="#D00000"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M18.75 5.25V19.5C18.75 19.6989 18.671 19.8897 18.5303 20.0303C18.3897 20.171 18.1989 20.25 18 20.25H6C5.80109 20.25 5.61032 20.171 5.46967 20.0303C5.32902 19.8897 5.25 19.6989 5.25 19.5V5.25"
+        stroke="#D00000"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M15.75 5.25V3.75C15.75 3.35218 15.592 2.97064 15.3107 2.68934C15.0294 2.40804 14.6478 2.25 14.25 2.25H9.75C9.35218 2.25 8.97064 2.40804 8.68934 2.68934C8.40804 2.97064 8.25 3.35218 8.25 3.75V5.25"
+        stroke="#D00000"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function SearchIcon() {
+  return (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M21 21L16.65 16.65M19 11C19 15.4183 15.4183 19 11 19C6.58172 19 3 15.4183 3 11C3 6.58172 6.58172 3 11 3C15.4183 3 19 6.58172 19 11Z"
+        stroke="#9CA3AF"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function HistoryIcon() {
+  return (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M12 8V12L14.5 14.5"
+        stroke="#2563EB"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M5.07183 10.9999C5.55612 9.21564 6.62741 7.64082 8.11101 6.52659C9.59461 5.41236 11.4065 4.82128 13.2618 4.84455C15.1171 4.86782 16.9133 5.50418 18.3677 6.65488C19.8221 7.80559 20.8528 9.40555 21.2932 11.2019C21.7336 12.9982 21.5584 14.8905 20.7949 16.5757C20.0314 18.2608 18.7232 19.6435 17.0777 20.5031C15.4323 21.3627 13.5468 21.6497 11.7186 21.3185C9.89037 20.9872 8.22449 20.0567 6.99998 18.6799"
+        stroke="#2563EB"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+      <path
+        d="M2 9H7V4"
+        stroke="#2563EB"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 export default function History() {
+  const [search, setSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [data, setData] = useState(historyData);
+
+  const filtered = data.filter(
+    (item) =>
+      item.name.toLowerCase().includes(search.toLowerCase()) ||
+      item.phone.includes(search),
+  );
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
+  const paginated = filtered.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE,
+  );
+
+  const handleSearch = (e) => {
+    setSearch(e.target.value);
+    setCurrentPage(1);
+  };
+
+  const handleDelete = (id) => {
+    setData((prev) => prev.filter((item) => item.id !== id));
+  };
+
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= totalPages) setCurrentPage(page);
+  };
+
+  const getPageNumbers = () => {
+    const pages = [];
+    const max = Math.min(totalPages, 9);
+    for (let i = 1; i <= max; i++) pages.push(i);
+    return pages;
+  };
+
   return (
     <>
       <Navbar />
       <main className="flex">
         <Sidebar />
-        <section className="flex-1 flex flex-col gap-6 p-8 overflow-auto">
-          <div className="flex gap-6">
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                fill-rule="evenodd"
-                clip-rule="evenodd"
-                d="M19.5039 2.07729C20.1889 1.87802 20.931 2.07025 21.434 2.58253C21.937 3.0938 22.123 3.83957 21.918 4.52999L20.669 8.73188C20.55 9.13144 20.1339 9.35789 19.7359 9.23913C19.3389 9.11936 19.1129 8.69867 19.2319 8.30012L20.481 4.09722C20.551 3.86171 20.4259 3.7027 20.3689 3.64533C20.3119 3.58696 20.1519 3.46014 19.9209 3.52758L3.82937 8.20652C3.57336 8.281 3.51736 8.49537 3.50536 8.58394C3.49436 8.6725 3.49036 8.89392 3.71837 9.03482L7.10449 11.1182C7.4575 11.3355 7.5695 11.8005 7.35249 12.1568C7.21149 12.3883 6.96548 12.5171 6.71247 12.5171C6.57947 12.5171 6.44446 12.4819 6.32246 12.4064L2.93634 10.3221C2.26532 9.90942 1.91331 9.16667 2.01831 8.38265C2.12331 7.59762 2.65833 6.97464 3.41336 6.75523L19.5039 2.07729ZM18.0282 12.3492C18.1482 11.9487 18.5652 11.7212 18.9622 11.842C19.3592 11.9618 19.5852 12.3824 19.4662 12.782L17.1441 20.596C16.9191 21.3519 16.2971 21.8833 15.5201 21.9829C15.4331 21.995 15.3471 22 15.2611 22C14.583 22 13.963 21.6518 13.602 21.0539L9.50187 14.2645C9.32286 13.9666 9.36786 13.5841 9.61287 13.3386L15.4341 7.48007C15.7271 7.18518 16.2011 7.18518 16.4941 7.48007C16.7871 7.77496 16.7871 8.25302 16.4941 8.54791L11.0899 13.9877L14.8841 20.2699C15.0221 20.4984 15.2391 20.4964 15.3291 20.4863C15.4171 20.4742 15.6301 20.4199 15.7061 20.1643L18.0282 12.3492Z"
-                fill="#2948FF"
-              />
-            </svg>
-            History
+        <section className="flex-1 flex flex-col gap-6 p-8 bg-gray-50 min-h-screen overflow-auto">
+          {/* Page Title */}
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+              <HistoryIcon />
+            </div>
+            <h1 className="text-xl font-bold text-gray-800">
+              History Transaction
+            </h1>
+          </div>
+
+          {/* Main Card */}
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col overflow-hidden">
+            {/* Card Header */}
+            <div className="flex items-center justify-between px-8 py-5 border-b border-gray-100">
+              <h2 className="text-base font-bold text-gray-800">
+                Find Transaction
+              </h2>
+
+              {/* Search Input */}
+              <div className="relative">
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                  <SearchIcon />
+                </span>
+                <input
+                  type="text"
+                  value={search}
+                  onChange={handleSearch}
+                  placeholder="Enter Number Or Full Name"
+                  className="w-72 pl-4 pr-10 py-2.5 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition"
+                />
+              </div>
+            </div>
+
+            {/* Transaction Rows */}
+            <div className="flex flex-col">
+              {paginated.length > 0 ? (
+                paginated.map((item, idx) => (
+                  <div
+                    key={item.id}
+                    className={`flex items-center gap-6 px-8 py-4 hover:bg-blue-50/30 transition-colors ${
+                      idx % 2 !== 0 ? "bg-gray-50/60" : "bg-white"
+                    }`}
+                  >
+                    {/* UPDATED: Passing item.img as src */}
+                    <Avatar src={item.img} name={item.name} />
+
+                    <span className="flex-1 text-sm font-medium text-gray-700">
+                      {item.name}
+                    </span>
+
+                    <span className="flex-1 text-sm text-gray-500 text-center">
+                      {item.phone}
+                    </span>
+
+                    <span
+                      className={`flex-1 text-sm font-semibold text-center ${
+                        item.type === "income"
+                          ? "text-green-500"
+                          : "text-red-600"
+                      }`}
+                    >
+                      {item.amount}
+                    </span>
+
+                    <button
+                      onClick={() => handleDelete(item.id)}
+                      className="p-1.5 rounded-lg hover:bg-red-50 transition-colors"
+                      title="Delete transaction"
+                    >
+                      <TrashIcon />
+                    </button>
+                  </div>
+                ))
+              ) : (
+                <div className="py-20 text-center text-gray-400 text-sm">
+                  No transactions found.
+                </div>
+              )}
+            </div>
+
+            {/* Pagination */}
+            <div className="flex items-center justify-between px-8 py-4 border-t border-gray-100">
+              <span className="text-sm text-gray-400">
+                Show {Math.min(ITEMS_PER_PAGE, filtered.length)} History of{" "}
+                {filtered.length} History
+              </span>
+
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="px-3 py-1.5 text-sm font-medium text-gray-500 hover:text-blue-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                >
+                  Prev
+                </button>
+
+                {getPageNumbers().map((page) => (
+                  <button
+                    key={page}
+                    onClick={() => handlePageChange(page)}
+                    className={`w-8 h-8 text-sm font-medium rounded-full transition-colors ${
+                      currentPage === page
+                        ? "bg-blue-600 text-white"
+                        : "text-gray-500 hover:text-blue-600 hover:bg-blue-50"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                ))}
+
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className="px-3 py-1.5 text-sm font-medium text-gray-500 hover:text-blue-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
           </div>
         </section>
       </main>
