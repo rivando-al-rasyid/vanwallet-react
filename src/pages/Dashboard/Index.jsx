@@ -1,6 +1,6 @@
 import Sidebar from "../../layouts/Sidebar";
 import Navbar from "../../layouts/Navbar";
-import { useState, useRef, useEffect } from "react";
+import { useState, useMemo } from "react";
 
 import { Bar } from "react-chartjs-2";
 import {
@@ -14,19 +14,46 @@ import {
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
-export default function Index() {
-  const [open, setOpen] = useState(false);
-  const wrapperRef = useRef(null);
+const ALL_LABELS = ["Sat", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri"];
+const ALL_INCOME = [80000, 78000, 85000, 22000, 20000, 70000, 8000];
+const ALL_EXPENSE = [15000, 52000, 65000, 32000, 8000, 60000, 48000];
 
-  useEffect(() => {
-    function handleClickOutside(e) {
-      if (wrapperRef.current && !wrapperRef.current.contains(e.target)) {
-        setOpen(false);
-      }
+export default function Index() {
+  const [days, setDays] = useState("7");
+  const [typeFilter, setTypeFilter] = useState("All");
+
+  const chartData = useMemo(() => {
+    const count = Math.min(parseInt(days), ALL_LABELS.length);
+    const labels = ALL_LABELS.slice(-count);
+    const income = ALL_INCOME.slice(-count);
+    const expense = ALL_EXPENSE.slice(-count);
+
+    const datasets = [];
+
+    if (typeFilter === "All" || typeFilter === "Income") {
+      datasets.push({
+        label: "Income",
+        data: income,
+        backgroundColor: "#4D7CFF",
+        borderRadius: 10,
+        borderSkipped: false,
+        barPercentage: 0.45,
+      });
     }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+
+    if (typeFilter === "All" || typeFilter === "Expense") {
+      datasets.push({
+        label: "Expense",
+        data: expense,
+        backgroundColor: "#CC0000",
+        borderRadius: 10,
+        borderSkipped: false,
+        barPercentage: 0.45,
+      });
+    }
+
+    return { labels, datasets };
+  }, [days, typeFilter]);
 
   const options = {
     responsive: true,
@@ -48,14 +75,14 @@ export default function Index() {
     },
     scales: {
       x: {
-        offset: true, // ← centers grid lines between groups
+        offset: true,
         grid: {
-          drawOnChartArea: false, // ← removes grid lines from chart area
+          drawOnChartArea: false,
           color: "rgba(0,0,0,0.06)",
-          drawTicks: true, // ← enables the small dash
-          tickLength: 15, // ← length of the dash
-          tickColor: "#000", // ← dash color
-          offset: false, // ← draws line at label position (center)
+          drawTicks: true,
+          tickLength: 15,
+          tickColor: "#000",
+          offset: false,
         },
         border: { display: false },
         ticks: {
@@ -66,7 +93,6 @@ export default function Index() {
           minRotation: 0,
         },
       },
-
       y: {
         beginAtZero: true,
         border: { display: false },
@@ -76,51 +102,29 @@ export default function Index() {
         },
         grid: {
           color: "rgba(0,0,0,0.06)",
-          drawTicks: true, // ← enables the small dash
-          tickLength: 7, // ← length of the dash
-          tickColor: "#000", // ← dash color
+          drawTicks: true,
+          tickLength: 7,
+          tickColor: "#000",
         },
       },
     },
   };
 
-  // In JSX — keep your original white card, just update bar colors:
-  const data = {
-    labels: ["Sat", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri"],
-    datasets: [
-      {
-        label: "Income",
-        data: [80000, 78000, 85000, 22000, 20000, 70000, 8000],
-        backgroundColor: "#4D7CFF", // ← brighter blue, pops on white
-        borderRadius: 10,
-        borderSkipped: false,
-        barPercentage: 0.45,
-      },
-      {
-        label: "Expense",
-        data: [15000, 52000, 65000, 32000, 8000, 60000, 48000],
-        backgroundColor: "#CC0000",
-        borderRadius: 10,
-        borderSkipped: false,
-        barPercentage: 0.45,
-      },
-    ],
-  };
-
   return (
     <>
       <Navbar />
-      <main className="flex ">
+      <main className="flex">
         <Sidebar />
-        <section className="flex-1 flex flex-col gap-6 p-8  overflow-auto">
+        <section className="flex-1 flex flex-col gap-6 p-8 overflow-auto">
           <div className="grid grid-cols-3 gap-5">
+            {/* Balance Card */}
             <div className="fade-in delay-1 col-span-1 bg-white rounded-lg p-6 shadow-sm border border-slate-100 flex flex-col gap-4">
               <div className="flex items-center gap-2 text-slate-500 text-sm font-medium">
                 <svg
                   className="w-4 h-4"
                   fill="none"
                   stroke="currentColor"
-                  stroke-width="2.2"
+                  strokeWidth="2.2"
                   viewBox="0 0 24 24"
                 >
                   <rect x="2" y="5" width="20" height="14" rx="3" />
@@ -139,7 +143,7 @@ export default function Index() {
                   <p className="text-sm font-semibold text-emerald-500 flex items-center gap-1">
                     Rp.200.000
                     <span className="text-xs bg-emerald-50 text-emerald-500 px-1.5 py-0.5 rounded-full">
-                      +2%{" "}
+                      +2%
                     </span>
                     <svg
                       width="16"
@@ -149,8 +153,8 @@ export default function Index() {
                       xmlns="http://www.w3.org/2000/svg"
                     >
                       <path
-                        fill-rule="evenodd"
-                        clip-rule="evenodd"
+                        fillRule="evenodd"
+                        clipRule="evenodd"
                         d="M8.45488 5.60777L14 4L12.6198 9.6061L10.898 7.9532L8.12069 10.8463C8.02641 10.9445 7.89615 11 7.76 11C7.62385 11 7.49359 10.9445 7.39931 10.8463L5.36 8.72199L2.36069 11.8463C2.16946 12.0455 1.85294 12.0519 1.65373 11.8607C1.45453 11.6695 1.44807 11.3529 1.63931 11.1537L4.99931 7.65373C5.09359 7.55552 5.22385 7.5 5.36 7.5C5.49615 7.5 5.62641 7.55552 5.72069 7.65373L7.76 9.77801L10.1766 7.26067L8.45488 5.60777Z"
                         fill="#00A700"
                       />
@@ -162,7 +166,7 @@ export default function Index() {
                   <p className="text-sm font-semibold text-red-500 flex items-center gap-1">
                     Rp.100.000
                     <span className="text-xs bg-red-50 text-red-500 px-1.5 py-0.5 rounded-full">
-                      +5%{" "}
+                      +5%
                     </span>
                     <svg
                       width="16"
@@ -172,8 +176,8 @@ export default function Index() {
                       xmlns="http://www.w3.org/2000/svg"
                     >
                       <path
-                        fill-rule="evenodd"
-                        clip-rule="evenodd"
+                        fillRule="evenodd"
+                        clipRule="evenodd"
                         d="M7.54512 10.3922L2 12L3.38019 6.3939L5.10196 8.0468L7.87931 5.15373C7.97359 5.05552 8.10385 5 8.24 5C8.37615 5 8.50641 5.05552 8.60069 5.15373L10.64 7.27801L13.6393 4.15373C13.8305 3.95453 14.1471 3.94807 14.3463 4.13931C14.5455 4.33054 14.5519 4.64706 14.3607 4.84627L11.0007 8.34627C10.9064 8.44448 10.7761 8.5 10.64 8.5C10.5039 8.5 10.3736 8.44448 10.2793 8.34627L8.24 6.22199L5.82335 8.73933L7.54512 10.3922Z"
                         fill="#D00000"
                       />
@@ -183,12 +187,13 @@ export default function Index() {
               </div>
             </div>
 
+            {/* Fast Service Card */}
             <div className="fade-in delay-1 col-span-2 bg-white rounded-lg p-6 shadow-sm border border-slate-100 flex items-center justify-between">
               <div>
-                <h2 className=" text-xl font-bold">Fast Service</h2>
+                <h2 className="text-xl font-bold">Fast Service</h2>
               </div>
               <div className="flex gap-3">
-                <button className="flex items-center gap-2 bg-blue-600 text-white font-semibold text-sm px-5 py-3 rounded-lg hover:bg-blue-50 transition-all shadow-md">
+                <button className="flex items-center gap-2 bg-blue-600 text-white font-semibold text-sm px-5 py-3 rounded-lg hover:bg-blue-700 transition-all shadow-md">
                   <svg
                     width="24"
                     height="24"
@@ -203,7 +208,7 @@ export default function Index() {
                   </svg>
                   Top Up
                 </button>
-                <button className="flex items-center gap-2 bg-blue-600 text-white font-semibold text-sm px-5 py-3 rounded-lg hover:bg-blue-50 transition-all shadow-md">
+                <button className="flex items-center gap-2 bg-blue-600 text-white font-semibold text-sm px-5 py-3 rounded-lg hover:bg-blue-700 transition-all shadow-md">
                   <svg
                     width="24"
                     height="24"
@@ -212,8 +217,8 @@ export default function Index() {
                     xmlns="http://www.w3.org/2000/svg"
                   >
                     <path
-                      fill-rule="evenodd"
-                      clip-rule="evenodd"
+                      fillRule="evenodd"
+                      clipRule="evenodd"
                       d="M19.5039 2.07729C20.1889 1.87802 20.931 2.07025 21.434 2.58253C21.937 3.0938 22.123 3.83957 21.918 4.52999L20.669 8.73188C20.55 9.13144 20.1339 9.35789 19.7359 9.23913C19.3389 9.11936 19.1129 8.69867 19.2319 8.30012L20.481 4.09722C20.551 3.86171 20.4259 3.7027 20.3689 3.64533C20.3119 3.58696 20.1519 3.46014 19.9209 3.52758L3.82937 8.20652C3.57336 8.281 3.51736 8.49537 3.50536 8.58394C3.49436 8.6725 3.49036 8.89392 3.71837 9.03482L7.10449 11.1182C7.4575 11.3355 7.5695 11.8005 7.35249 12.1568C7.21149 12.3883 6.96548 12.5171 6.71247 12.5171C6.57947 12.5171 6.44446 12.4819 6.32246 12.4064L2.93634 10.3221C2.26532 9.90942 1.91331 9.16667 2.01831 8.38265C2.12331 7.59762 2.65833 6.97464 3.41336 6.75523L19.5039 2.07729ZM18.0282 12.3492C18.1482 11.9487 18.5652 11.7212 18.9622 11.842C19.3592 11.9618 19.5852 12.3824 19.4662 12.782L17.1441 20.596C16.9191 21.3519 16.2971 21.8833 15.5201 21.9829C15.4331 21.995 15.3471 22 15.2611 22C14.583 22 13.963 21.6518 13.602 21.0539L9.50187 14.2645C9.32286 13.9666 9.36786 13.5841 9.61287 13.3386L15.4341 7.48007C15.7271 7.18518 16.2011 7.18518 16.4941 7.48007C16.7871 7.77496 16.7871 8.25302 16.4941 8.54791L11.0899 13.9877L14.8841 20.2699C15.0221 20.4984 15.2391 20.4964 15.3291 20.4863C15.4171 20.4742 15.6301 20.4199 15.7061 20.1643L18.0282 12.3492Z"
                       fill="white"
                     />
@@ -225,6 +230,7 @@ export default function Index() {
           </div>
 
           <div className="grid grid-cols-3 gap-5 fade-in delay-3">
+            {/* Chart */}
             <div className="col-span-2 bg-white rounded-lg p-5 shadow-sm border border-slate-100">
               <div className="rounded-lg w-full">
                 <div className="flex items-center justify-between mb-6">
@@ -232,22 +238,31 @@ export default function Index() {
                     Financial Chart
                   </h2>
                   <div className="flex gap-3">
-                    <select className="text-xs font-semibold text-slate-600 border border-slate-200 rounded-lg px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-200">
-                      <option>7 Days</option>
-                      <option>14 Days</option>
-                      <option>30 Days</option>
+                    <select
+                      value={days}
+                      onChange={(e) => setDays(e.target.value)}
+                      className="text-xs font-semibold text-slate-600 border border-slate-200 rounded-lg px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-200"
+                    >
+                      <option value="7">7 Days</option>
+                      <option value="14">14 Days</option>
+                      <option value="30">30 Days</option>
                     </select>
-                    <select className="text-xs font-semibold text-slate-600 border border-slate-200 rounded-lg px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-200">
-                      <option>All</option>
-                      <option>Income</option>
-                      <option>Expense</option>
+                    <select
+                      value={typeFilter}
+                      onChange={(e) => setTypeFilter(e.target.value)}
+                      className="text-xs font-semibold text-slate-600 border border-slate-200 rounded-lg px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-200"
+                    >
+                      <option value="All">All</option>
+                      <option value="Income">Income</option>
+                      <option value="Expense">Expense</option>
                     </select>
                   </div>
                 </div>
-                <Bar data={data} options={options} />
+                <Bar data={chartData} options={options} />
               </div>
             </div>
 
+            {/* Transaction History */}
             <div className="col-span-1 bg-white rounded-lg p-5 shadow-sm border border-slate-100 flex flex-col gap-4 fade-in delay-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-base font-bold text-slate-800">
@@ -260,109 +275,73 @@ export default function Index() {
                   See All
                 </a>
               </div>
-
               <div className="flex flex-col gap-3 overflow-y-auto max-h-100 pr-1">
-                <div className="flex items-center gap-3 hover:bg-slate-50 p-2 rounded-lg transition-colors cursor-pointer">
-                  <img
-                    src="https://i.pravatar.cc/40?img=5"
-                    className="w-10 h-10 rounded-full object-cover"
-                    alt="Robert Fox"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-slate-800 truncate">
-                      Robert Fox
-                    </p>
-                    <p className="text-xs text-slate-400">Transfer</p>
+                {[
+                  {
+                    img: 5,
+                    name: "Robert Fox",
+                    type: "Transfer",
+                    amount: "+Rp50.000",
+                    positive: true,
+                  },
+                  {
+                    img: 47,
+                    name: "Floyd Miles",
+                    type: "Send",
+                    amount: "-Rp50.000",
+                    positive: false,
+                  },
+                  {
+                    img: 23,
+                    name: "Ujang",
+                    type: "Send",
+                    amount: "-Rp50.000",
+                    positive: false,
+                  },
+                  {
+                    img: 5,
+                    name: "Robert Fox",
+                    type: "Transfer",
+                    amount: "+Rp50.000",
+                    positive: true,
+                  },
+                  {
+                    img: 47,
+                    name: "Floyd Miles",
+                    type: "Send",
+                    amount: "-Rp50.000",
+                    positive: false,
+                  },
+                  {
+                    img: 23,
+                    name: "Ujang",
+                    type: "Send",
+                    amount: "-Rp50.000",
+                    positive: false,
+                  },
+                ].map((tx, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center gap-3 hover:bg-slate-50 p-2 rounded-lg transition-colors cursor-pointer"
+                  >
+                    <img
+                      src={`https://i.pravatar.cc/40?img=${tx.img}`}
+                      className="w-10 h-10 rounded-full object-cover"
+                      alt={tx.name}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-slate-800 truncate">
+                        {tx.name}
+                      </p>
+                      <p className="text-xs text-slate-400">{tx.type}</p>
+                    </div>
+                    <span
+                      className={`text-sm font-bold shrink-0 ${tx.positive ? "text-emerald-500" : "text-red-500"}`}
+                    >
+                      {tx.amount}
+                    </span>
                   </div>
-                  <span className="text-sm font-bold text-emerald-500 shrink-0">
-                    +Rp50.000
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-3 hover:bg-slate-50 p-2 rounded-lg transition-colors cursor-pointer">
-                  <img
-                    src="https://i.pravatar.cc/40?img=47"
-                    className="w-10 h-10 rounded-full object-cover"
-                    alt="Floyd Miles"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-slate-800 truncate">
-                      Floyd Miles
-                    </p>
-                    <p className="text-xs text-slate-400">Send</p>
-                  </div>
-                  <span className="text-sm font-bold text-red-500 shrink-0">
-                    -Rp50.000
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-3 hover:bg-slate-50 p-2 rounded-lg transition-colors cursor-pointer">
-                  <img
-                    src="https://i.pravatar.cc/40?img=23"
-                    className="w-10 h-10 rounded-full object-cover"
-                    alt="Ujang"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-slate-800 truncate">
-                      Ujang
-                    </p>
-                    <p className="text-xs text-slate-400">Send</p>
-                  </div>
-                  <span className="text-sm font-bold text-red-500 shrink-0">
-                    -Rp50.000
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-3 hover:bg-slate-50 p-2 rounded-lg transition-colors cursor-pointer">
-                  <img
-                    src="https://i.pravatar.cc/40?img=5"
-                    className="w-10 h-10 rounded-full object-cover"
-                    alt="Robert Fox"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-slate-800 truncate">
-                      Robert Fox
-                    </p>
-                    <p className="text-xs text-slate-400">Transfer</p>
-                  </div>
-                  <span className="text-sm font-bold text-emerald-500 shrink-0">
-                    +Rp50.000
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-3 hover:bg-slate-50 p-2 rounded-lg transition-colors cursor-pointer">
-                  <img
-                    src="https://i.pravatar.cc/40?img=47"
-                    className="w-10 h-10 rounded-full object-cover"
-                    alt="Floyd Miles"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-slate-800 truncate">
-                      Floyd Miles
-                    </p>
-                    <p className="text-xs text-slate-400">Send</p>
-                  </div>
-                  <span className="text-sm font-bold text-red-500 shrink-0">
-                    -Rp50.000
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-3 hover:bg-slate-50 p-2 rounded-lg transition-colors cursor-pointer">
-                  <img
-                    src="https://i.pravatar.cc/40?img=23"
-                    className="w-10 h-10 rounded-full object-cover"
-                    alt="Ujang"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-slate-800 truncate">
-                      Ujang
-                    </p>
-                    <p className="text-xs text-slate-400">Send</p>
-                  </div>
-                  <span className="text-sm font-bold text-red-500 shrink-0">
-                    -Rp50.000
-                  </span>
-                </div>
+                ))}
               </div>
             </div>
           </div>
