@@ -1,3 +1,5 @@
+import Sidebar from "../../layouts/Sidebar";
+import Navbar from "../../layouts/Navbar";
 import { useState, useRef, useEffect } from "react";
 
 import { Bar } from "react-chartjs-2";
@@ -107,189 +109,9 @@ export default function Index() {
 
   return (
     <>
-      <header className="w-full bg-white border-b border-slate-100 shadow-sm sticky top-0 z-50">
-        <nav className="flex items-center justify-between px-8 h-16">
-          {/* Logo */}
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-lg bg-blue-500/10 flex items-center justify-center">
-              <svg
-                className="w-5 h-5 text-blue-500"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.2"
-                viewBox="0 0 24 24"
-              >
-                <rect x="2" y="5" width="20" height="14" rx="3" />
-                <path d="M2 10h20" />
-              </svg>
-            </div>
-            <span className="text-base font-extrabold text-blue-500 tracking-tight">
-              E-Wallet
-            </span>
-          </div>
-
-          <div className="flex items-center gap-5">
-            {/* Search */}
-            <button className="text-slate-400 hover:text-blue-500 transition-colors">
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                viewBox="0 0 24 24"
-              >
-                <circle cx="11" cy="11" r="7" />
-                <path d="M21 21l-4.35-4.35" />
-              </svg>
-            </button>
-            {/* Cart */}
-            <button className="text-slate-400 hover:text-blue-500 transition-colors">
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                viewBox="0 0 24 24"
-              >
-                <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
-                <path d="M3 6h18" />
-                <path d="M16 10a4 4 0 01-8 0" />
-              </svg>
-            </button>
-
-            {/* Avatar + Dropdown */}
-            <div className="relative" ref={wrapperRef}>
-              <button
-                onClick={() => setOpen((v) => !v)}
-                className="flex items-center gap-1.5 px-1.5 py-1 rounded-full hover:bg-slate-100 transition-colors"
-              >
-                <img
-                  src="https://i.pravatar.cc/32?img=12"
-                  className="w-8 h-8 rounded-full object-cover ring-2 ring-blue-100"
-                  alt="avatar"
-                />
-                <svg
-                  className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M6 9l6 6 6-6" />
-                </svg>
-              </button>
-
-              {/* Dropdown Panel */}
-              <div
-                className={`absolute right-0 top-[calc(100%+10px)] w-56 bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden transition-all duration-200 origin-top-right z-50
-  ${open ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 -translate-y-1 pointer-events-none"}`}
-              >
-                <div className="p-1.5">
-                  <button className="flex items-center gap-2.5 w-full px-2.5 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors">
-                    <svg
-                      className="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
-                      <circle cx="12" cy="7" r="4" />
-                    </svg>
-                    Profile
-                  </button>
-                </div>
-
-                <div className="p-1.5">
-                  <button className="flex items-center gap-2.5 w-full px-2.5 py-2 rounded-lg text-sm text-red-500 hover:bg-red-50 transition-colors">
-                    <svg
-                      className="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
-                      <polyline points="16 17 21 12 16 7" />
-                      <line x1="21" y1="12" x2="9" y2="12" />
-                    </svg>
-                    Keluar
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </nav>
-      </header>
-
+      <Navbar />
       <main className="flex ">
-        <aside className="w-56 shrink-0 bg-white border-r border-slate-100 flex flex-col py-8 px-4 gap-1 sticky top-0 ">
-          <nav className="flex flex-col gap-1 flex-1">
-            <a
-              href="#"
-              className="flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-semibold bg-blue-600 text-white"
-            >
-              {/* Dashboard icon */}
-              Dashboard
-            </a>
-            <a
-              href="#"
-              className="flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium text-slate-500 hover:bg-blue-50 hover:text-blue-600 transition-all"
-            >
-              {/* Transfer icon */}
-              Transfer
-            </a>
-
-            <a
-              href="#"
-              className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
-            >
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.2"
-                viewBox="0 0 24 24"
-              >
-                <circle cx="12" cy="12" r="9" />
-                <path d="M12 7v5l3 3" />
-              </svg>
-              History
-            </a>
-            <a
-              href="#"
-              className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
-            >
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.2"
-                viewBox="0 0 24 24"
-              >
-                <path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 12V4m0 0L8 8m4-4l4 4" />
-              </svg>
-              Top Up
-            </a>
-            <a
-              href="#"
-              className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
-            >
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.2"
-                viewBox="0 0 24 24"
-              >
-                <circle cx="12" cy="8" r="4" />
-                <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
-              </svg>
-              Profile
-            </a>
-          </nav>
-        </aside>
-
+        <Sidebar />
         <section className="flex-1 flex flex-col gap-6 p-8  overflow-auto">
           <div className="grid grid-cols-3 gap-5">
             <div className="fade-in delay-1 col-span-1 bg-white rounded-lg p-6 shadow-sm border border-slate-100 flex flex-col gap-4">
@@ -317,8 +139,22 @@ export default function Index() {
                   <p className="text-sm font-semibold text-emerald-500 flex items-center gap-1">
                     Rp.200.000
                     <span className="text-xs bg-emerald-50 text-emerald-500 px-1.5 py-0.5 rounded-full">
-                      +2% ↑
+                      +2%{" "}
                     </span>
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        clip-rule="evenodd"
+                        d="M8.45488 5.60777L14 4L12.6198 9.6061L10.898 7.9532L8.12069 10.8463C8.02641 10.9445 7.89615 11 7.76 11C7.62385 11 7.49359 10.9445 7.39931 10.8463L5.36 8.72199L2.36069 11.8463C2.16946 12.0455 1.85294 12.0519 1.65373 11.8607C1.45453 11.6695 1.44807 11.3529 1.63931 11.1537L4.99931 7.65373C5.09359 7.55552 5.22385 7.5 5.36 7.5C5.49615 7.5 5.62641 7.55552 5.72069 7.65373L7.76 9.77801L10.1766 7.26067L8.45488 5.60777Z"
+                        fill="#00A700"
+                      />
+                    </svg>
                   </p>
                 </div>
                 <div>
@@ -326,8 +162,22 @@ export default function Index() {
                   <p className="text-sm font-semibold text-red-500 flex items-center gap-1">
                     Rp.100.000
                     <span className="text-xs bg-red-50 text-red-500 px-1.5 py-0.5 rounded-full">
-                      +5% ↑
+                      +5%{" "}
                     </span>
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        clip-rule="evenodd"
+                        d="M7.54512 10.3922L2 12L3.38019 6.3939L5.10196 8.0468L7.87931 5.15373C7.97359 5.05552 8.10385 5 8.24 5C8.37615 5 8.50641 5.05552 8.60069 5.15373L10.64 7.27801L13.6393 4.15373C13.8305 3.95453 14.1471 3.94807 14.3463 4.13931C14.5455 4.33054 14.5519 4.64706 14.3607 4.84627L11.0007 8.34627C10.9064 8.44448 10.7761 8.5 10.64 8.5C10.5039 8.5 10.3736 8.44448 10.2793 8.34627L8.24 6.22199L5.82335 8.73933L7.54512 10.3922Z"
+                        fill="#D00000"
+                      />
+                    </svg>
                   </p>
                 </div>
               </div>

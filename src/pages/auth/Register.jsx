@@ -12,7 +12,7 @@ export default function Register() {
     <main className="grid grid-cols-1 lg:grid-cols-2 min-h-screen bg-[#2948FF]">
       {/* LEFT FORM SECTION */}
       <section className="flex flex-col justify-center items-center px-6 py-12 lg:px-20 bg-white xl:rounded-r-[60px] shadow-2xl z-20">
-        <div className="w-full max-w-125">
+        <div className="w-full max-w-175">
           {/* Logo & Brand */}
           <Brand />
           {/* Headline and Description */}
