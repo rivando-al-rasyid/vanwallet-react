@@ -1,6 +1,8 @@
 import { useState } from "react";
 import Navbar from "../../layouts/Navbar";
 import Sidebar from "../../layouts/Sidebar";
+import Stepper from "../../components/Stepper";
+import SearchInput from "../../components/SearchInput";
 
 // Mock data based on the image content
 const contactData = [
@@ -90,32 +92,11 @@ export default function Transfer() {
             </div>
 
             {/* Stepper UI */}
-            <div className="flex items-center gap-4 text-sm font-medium">
-              <div className="flex items-center gap-2 text-blue-600">
-                <span className="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs">
-                  1
-                </span>
-                <span>Find People</span>
-              </div>
-              <div className="h-[1px] w-16 border-t border-dashed border-gray-400"></div>
-              <div className="flex items-center gap-2 text-gray-500">
-                <span className="w-6 h-6 rounded-full bg-gray-400 text-white flex items-center justify-center text-xs">
-                  2
-                </span>
-                <span>Set Nominal</span>
-              </div>
-              <div className="h-[1px] w-16 border-t border-dashed border-gray-400"></div>
-              <div className="flex items-center gap-2 text-gray-500">
-                <span className="w-6 h-6 rounded-full bg-gray-400 text-white flex items-center justify-center text-xs">
-                  3
-                </span>
-                <span>Finish</span>
-              </div>
-            </div>
+            <Stepper currentStep={1} />
           </div>
 
           {/* Main Content Card */}
-          <div className="bg-white rounded-2xl shadow-sm p-8 min-h-[600px]">
+          <div className="bg-white rounded-2xl shadow-sm p-8 min-h-150">
             <div className="flex justify-between items-center mb-6">
               <div>
                 <h2 className="text-lg font-bold text-gray-800">Find People</h2>
@@ -126,30 +107,10 @@ export default function Transfer() {
               </div>
 
               {/* Search Bar */}
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Enter Number Or Full Name"
-                  className="w-80 pl-4 pr-10 py-2 border border-gray-200 rounded-lg text-sm outline-none focus:border-blue-400"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                />
-                <svg
-                  className="absolute right-3 top-2.5 text-gray-400"
-                  width="16"
-                  height="16"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
-              </div>
+              <SearchInput
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
             </div>
             {/* Contact List */}
             <div className="overflow-x-auto">
