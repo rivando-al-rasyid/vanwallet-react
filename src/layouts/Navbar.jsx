@@ -1,3 +1,4 @@
+import Brand from "../components/Brand";
 import { useState, useRef, useEffect } from "react";
 
 export default function Navbar() {
@@ -32,24 +33,7 @@ export default function Navbar() {
   return (
     <header className="w-full bg-white border-b border-slate-100 shadow-sm sticky top-0 z-50 font-sans">
       <nav className="flex items-center justify-between px-8 h-16">
-        {/* Logo */}
-        <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-lg bg-blue-500/10 flex items-center justify-center">
-            <svg
-              className="w-5 h-5 text-blue-500"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.2"
-              viewBox="0 0 24 24"
-            >
-              <rect x="2" y="5" width="20" height="14" rx="3" />
-              <path d="M2 10h20" />
-            </svg>
-          </div>
-          <span className="text-base font-extrabold text-blue-500 tracking-tight">
-            E-Wallet
-          </span>
-        </div>
+        <Brand />
 
         <div className="flex items-center gap-5">
           {/* Search & Cart (Tampil hanya jika login atau sesuai kebutuhan) */}
