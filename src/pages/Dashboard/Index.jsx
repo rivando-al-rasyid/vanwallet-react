@@ -12,7 +12,7 @@ import {
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
-export default function Dashboard() {
+export default function Index() {
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef(null);
 
@@ -227,37 +227,19 @@ export default function Dashboard() {
           <nav className="flex flex-col gap-1 flex-1">
             <a
               href="#"
-              className="nav-active flex items-center gap-3 px-4 py-3 text-sm font-semibold transition-all"
+              className="flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-semibold bg-blue-600 text-white"
             >
-              <svg
-                className="w-4.5 h-4.5 w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.2"
-                viewBox="0 0 24 24"
-              >
-                <rect x="3" y="3" width="7" height="7" rx="1.5" />
-                <rect x="14" y="3" width="7" height="7" rx="1.5" />
-                <rect x="3" y="14" width="7" height="7" rx="1.5" />
-                <rect x="14" y="14" width="7" height="7" rx="1.5" />
-              </svg>
+              {/* Dashboard icon */}
               Dashboard
             </a>
             <a
               href="#"
-              className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+              className="flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium text-slate-500 hover:bg-blue-50 hover:text-blue-600 transition-all"
             >
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.2"
-                viewBox="0 0 24 24"
-              >
-                <path d="M5 12h14M12 5l7 7-7 7" />
-              </svg>
+              {/* Transfer icon */}
               Transfer
             </a>
+
             <a
               href="#"
               className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
@@ -351,7 +333,7 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div className="fade-in delay-2 col-span-2  rounded-lg p-6 shadow-lg shadow-blue-200 flex items-center justify-between">
+            <div className="fade-in delay-1 col-span-2 bg-white rounded-lg p-6 shadow-sm border border-slate-100 flex items-center justify-between">
               <div>
                 <h2 className=" text-xl font-bold">Fast Service</h2>
               </div>
