@@ -3,6 +3,7 @@ import Navbar from "../../layouts/Navbar";
 import Sidebar from "../../layouts/Sidebar";
 import Stepper from "../../components/Stepper";
 import SearchInput from "../../components/SearchInput";
+import TableRow from "../../components/TableRow";
 
 // Mock data based on the image content
 const contactData = [
@@ -113,59 +114,7 @@ export default function Transfer() {
               />
             </div>
             {/* Contact List */}
-            <div className="overflow-x-auto">
-              <table className="w-full border-separate border-spacing-y-2">
-                <tbody className="space-y-1">
-                  {filteredContacts.map((contact, index) => (
-                    <tr
-                      key={contact.id}
-                      className={`group cursor-pointer transition-colors hover:bg-blue-50 ${
-                        index % 2 !== 0 ? "bg-gray-50/50" : "bg-white"
-                      }`}
-                    >
-                      <td>
-                        <img
-                          src={contact.img}
-                          alt={contact.name}
-                          className="w-12 h-12 rounded-xl object-cover"
-                        />
-                      </td>
-                      {/* Contact Info Column */}
-                      <td className="px-4 py-4 rounded-l-xl">
-                        <div className="flex items-center gap-4">
-                          <span className="font-semibold text-gray-700">
-                            {contact.name}
-                          </span>
-                        </div>
-                      </td>
-
-                      {/* Phone Column */}
-                      <td className="px-4 py-4">
-                        <span className="text-sm text-gray-500 font-medium">
-                          {contact.phone}
-                        </span>
-                      </td>
-
-                      {/* Favorite Action Column */}
-                      <td className="px-4 py-4 text-right rounded-r-xl">
-                        <button className="text-gray-400 hover:text-yellow-500 transition-colors">
-                          <svg
-                            width="20"
-                            height="20"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            viewBox="0 0 24 24"
-                          >
-                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                          </svg>
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <TableRow items={filteredContacts} />
           </div>
         </section>
       </main>

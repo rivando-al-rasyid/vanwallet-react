@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Navbar from "../../layouts/Navbar";
 import Sidebar from "../../layouts/Sidebar";
+import TableRow from "../../components/TableRow";
 
 const ITEMS_PER_PAGE = 7;
 
@@ -288,7 +289,7 @@ export default function History() {
           </div>
 
           {/* Main Card */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col overflow-hidden">
+          <div className="bg-white rounded-2xl shadow-sm p-8 min-h-150">
             {/* Card Header */}
             <div className="flex items-center justify-between px-8 py-5 border-b border-gray-100">
               <h2 className="text-base font-bold text-gray-800">
@@ -311,45 +312,10 @@ export default function History() {
             </div>
 
             {/* Transaction Rows */}
+
             <div className="flex flex-col">
               {paginated.length > 0 ? (
-                paginated.map((item, idx) => (
-                  <div
-                    key={item.id}
-                    className={`flex items-center gap-6 px-8 py-4 hover:bg-blue-50/30 transition-colors ${
-                      idx % 2 !== 0 ? "bg-gray-50/60" : "bg-white"
-                    }`}
-                  >
-                    {/* UPDATED: Passing item.img as src */}
-                    <Avatar src={item.img} name={item.name} />
-
-                    <span className="flex-1 text-sm font-medium text-gray-700">
-                      {item.name}
-                    </span>
-
-                    <span className="flex-1 text-sm text-gray-500 text-center">
-                      {item.phone}
-                    </span>
-
-                    <span
-                      className={`flex-1 text-sm font-semibold text-center ${
-                        item.type === "income"
-                          ? "text-green-500"
-                          : "text-red-600"
-                      }`}
-                    >
-                      {item.amount}
-                    </span>
-
-                    <button
-                      onClick={() => handleDelete(item.id)}
-                      className="p-1.5 rounded-lg hover:bg-red-50 transition-colors"
-                      title="Delete transaction"
-                    >
-                      <TrashIcon />
-                    </button>
-                  </div>
-                ))
+                <TableRow items={paginated} remove={true} />
               ) : (
                 <div className="py-20 text-center text-gray-400 text-sm">
                   No transactions found.
