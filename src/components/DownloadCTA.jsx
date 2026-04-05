@@ -1,6 +1,8 @@
 // DownloadCTA.jsx
 import Phonesmall from "../assets/img/phonesmall.png";
 import Phonebig from "../assets/img/phonebig.png";
+import { faApple, faGooglePlay } from "@fortawesome/free-brands-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Play, Apple } from "lucide-react";
 
 export default function DownloadCTA() {
@@ -28,18 +30,18 @@ export default function DownloadCTA() {
           Download The App
         </h2>
         <p className="mt-5 max-w-lg text-base leading-7 text-gray-500">
-          Ready to experience the future of payments? Download e-wallet now
-          and enjoy a world of convenience at your fingertips.
+          Ready to experience the future of payments? Download e-wallet now and
+          enjoy a world of convenience at your fingertips.
         </p>
 
         <div className="mt-8 flex flex-wrap gap-4">
           <button className="flex min-w-45 items-center justify-center gap-3 rounded-lg bg-blue-600 px-6 py-3 font-medium text-white transition hover:bg-blue-700">
-            <Play size={18} fill="currentColor" />
+            <FontAwesomeIcon icon={faGooglePlay} />
             <span>Play Store</span>
           </button>
 
           <button className="flex min-w-45 items-center justify-center gap-3 rounded-lg border border-blue-600 px-6 py-3 font-medium text-blue-600 transition hover:bg-blue-50">
-            <Apple size={18} />
+            <FontAwesomeIcon icon={faApple} />
             <span>Apps Store</span>
           </button>
         </div>
