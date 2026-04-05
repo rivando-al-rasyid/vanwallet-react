@@ -38,7 +38,7 @@ export default function Navbar() {
   }, []);
 
   return (
-    <header className="w-full bg-white border-b border-slate-100 shadow-sm sticky top-0 z-50 font-sans">
+    <header className="fixed top-0 left-0 right-0 z-50 w-full bg-white border-b border-slate-100 shadow-sm font-sans">
       <nav className="flex items-center justify-between px-8 h-16">
         <Brand />
 

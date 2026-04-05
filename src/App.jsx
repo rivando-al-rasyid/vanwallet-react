@@ -10,17 +10,19 @@ import DownloadCTA from "./components/DownloadCTA";
 import Footer from "./layouts/Footer";
 function App() {
   return (
-    <div className="min-h-screen overflow-x-hidden bg-white font-sans text-gray-800">
+    <>
       <Navbar />
-      <Hero />
-      <Features />
-      <About />
-      <FeatureList />
-      <Partners />
-      <Testimonial />
-      <DownloadCTA />
-      <Footer />
-    </div>
+      <div className="min-h-screen overflow-x-hidden bg-white font-sans text-gray-800">
+        <Hero />
+        <Features />
+        <About />
+        <FeatureList />
+        <Partners />
+        <Testimonial />
+        <DownloadCTA />
+        <Footer />
+      </div>
+    </>
   );
 }
 

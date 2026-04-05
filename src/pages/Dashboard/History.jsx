@@ -134,7 +134,7 @@ function Avatar({ src, name }) {
     "https://ui-avatars.com/api/?name=User&background=EBF4FF&color=7F9CF5";
 
   return (
-    <div className="w-11 h-11 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0">
+    <div className="w-11 h-11 rounded-xl overflow-hidden bg-gray-100 shrink-0">
       <img
         src={src || defaultPlaceholder}
         alt={name}
@@ -293,7 +293,7 @@ export default function History() {
         <section className="flex-1 flex flex-col gap-6 p-8 bg-gray-50 min-h-screen overflow-auto">
           {/* Page Title */}
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+            <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
               <HistoryIcon />
             </div>
             <h1 className="text-xl font-bold text-gray-800">
