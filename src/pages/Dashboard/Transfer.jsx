@@ -1,69 +1,50 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navbar from "../../layouts/Navbar";
 import Sidebar from "../../layouts/Sidebar";
 import Stepper from "../../components/Stepper";
 import SearchInput from "../../components/SearchInput";
 import TableRow from "../../components/TableRow";
-
-// Mock data based on the image content
-const contactData = [
-  {
-    id: 1,
-    name: "Ghaluh 1",
-    phone: "(239) 555-0108",
-    img: "https://i.pravatar.cc/150?u=1",
-  },
-  {
-    id: 2,
-    name: "Ghaluh 2",
-    phone: "(480) 555-0103",
-    img: "https://i.pravatar.cc/150?u=2",
-  },
-  {
-    id: 3,
-    name: "Ghaluh 3",
-    phone: "(225) 555-0118",
-    img: "https://i.pravatar.cc/150?u=3",
-  },
-  {
-    id: 4,
-    name: "Ghaluh 4",
-    phone: "(406) 555-0120",
-    img: "https://i.pravatar.cc/150?u=4",
-  },
-  {
-    id: 5,
-    name: "Ghaluh 5",
-    phone: "(303) 555-0105",
-    img: "https://i.pravatar.cc/150?u=5",
-  },
-  {
-    id: 6,
-    name: "Ghaluh 6",
-    phone: "(808) 555-0111",
-    img: "https://i.pravatar.cc/150?u=6",
-  },
-  {
-    id: 7,
-    name: "Ghaluh 7",
-    phone: "(671) 555-0110",
-    img: "https://i.pravatar.cc/150?u=7",
-  },
-  {
-    id: 8,
-    name: "Ghaluh 8",
-    phone: "(270) 555-0117",
-    img: "https://i.pravatar.cc/150?u=8",
-  },
-];
+import { getUsers } from "../../services/auth";
 
 export default function Transfer() {
   const [search, setSearch] = useState("");
+  const [contacts, setContacts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const filteredContacts = contactData.filter(
+  useEffect(() => {
+    async function fetchUsers() {
+      setLoading(true);
+      setError("");
+      try {
+        // Reqres punya 2 halaman, kita ambil keduanya sekaligus
+        const [page1, page2] = await Promise.all([getUsers(1), getUsers(2)]);
+
+        const allUsers = [...page1.data, ...page2.data];
+
+        // Mapping dari format reqres ke format yang dipakai TableRow
+        const mapped = allUsers.map((u) => ({
+          id: u.id,
+          name: `${u.first_name} ${u.last_name}`,
+          phone: `reqres-id-${u.id}@example.com`,
+          img: u.avatar,
+        }));
+
+        setContacts(mapped);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchUsers();
+  }, []);
+
+  const filteredContacts = contacts.filter(
     (c) =>
       c.name.toLowerCase().includes(search.toLowerCase()) ||
-      c.phone.includes(search),
+      c.phone.toLowerCase().includes(search.toLowerCase()),
   );
 
   return (
@@ -76,23 +57,12 @@ export default function Transfer() {
           <div className="mb-8">
             <div className="flex items-center gap-3 mb-6">
               <span className="text-blue-600">
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
                 </svg>
               </span>
-              <h1 className="text-xl font-bold text-gray-800">
-                Transfer Money
-              </h1>
+              <h1 className="text-xl font-bold text-gray-800">Transfer Money</h1>
             </div>
-
-            {/* Stepper UI */}
             <Stepper currentStep={1} />
           </div>
 
@@ -102,19 +72,43 @@ export default function Transfer() {
               <div>
                 <h2 className="text-lg font-bold text-gray-800">Find People</h2>
                 <p className="text-xs text-gray-400">
-                  {filteredContacts.length} Result Found For{" "}
-                  {search || "Ghaluh"}
+                  {loading
+                    ? "Memuat kontak..."
+                    : `${filteredContacts.length} Result Found${search ? ` For "${search}"` : ""}`}
                 </p>
               </div>
-
-              {/* Search Bar */}
               <SearchInput
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
-            {/* Contact List */}
-            <TableRow items={filteredContacts} />
+
+            {/* States: loading / error / data */}
+            {loading && (
+              <div className="flex flex-col items-center justify-center py-20 gap-3 text-gray-400">
+                <svg className="animate-spin w-8 h-8 text-blue-500" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                </svg>
+                <span className="text-sm">Mengambil data dari reqres.in...</span>
+              </div>
+            )}
+
+            {!loading && error && (
+              <div className="flex flex-col items-center justify-center py-20 gap-3">
+                <p className="text-red-500 font-semibold text-sm">{error}</p>
+                <button
+                  onClick={() => window.location.reload()}
+                  className="text-xs text-blue-600 underline"
+                >
+                  Coba lagi
+                </button>
+              </div>
+            )}
+
+            {!loading && !error && (
+              <TableRow items={filteredContacts} />
+            )}
           </div>
         </section>
       </main>
