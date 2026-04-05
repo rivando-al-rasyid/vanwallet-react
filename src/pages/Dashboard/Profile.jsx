@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router";
 import Header from "../../layouts/Dashboard/Header";
 import Sidebar from "../../layouts/Dashboard/Sidebar";
 import { getUserById, updateUser, getSession } from "../../services/auth";
 
 export default function Profile() {
   const { id } = getSession();
+  const navigate = useNavigate();
 
   const [form, setForm] = useState({
     name: "",
@@ -35,6 +37,7 @@ export default function Profile() {
         setLoading(false);
       }
     }
+
     if (id) fetchProfile();
   }, [id]);
 
@@ -45,9 +48,11 @@ export default function Profile() {
   const handleAvatarChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
+
     const reader = new FileReader();
-    reader.onload = () =>
+    reader.onload = () => {
       setForm((prev) => ({ ...prev, avatar: reader.result }));
+    };
     reader.readAsDataURL(file);
   };
 
@@ -59,6 +64,7 @@ export default function Profile() {
     setSaving(true);
     setError("");
     setSuccess("");
+
     try {
       await updateUser(id, {
         name: form.name,
@@ -80,7 +86,6 @@ export default function Profile() {
       <main className="flex pt-16 min-h-screen">
         <Sidebar />
         <section className="flex-1 flex flex-col gap-6 p-8 overflow-auto">
-          {/* Page Title */}
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -95,7 +100,6 @@ export default function Profile() {
             <h1 className="text-xl font-bold text-gray-800">Profile</h1>
           </div>
 
-          {/* Main Card */}
           <div className="bg-white rounded-2xl shadow-sm p-8">
             {loading ? (
               <div className="flex items-center justify-center py-20 text-gray-400 text-sm">
@@ -103,13 +107,12 @@ export default function Profile() {
               </div>
             ) : (
               <>
-                {/* Profile Picture */}
                 <div className="mb-8">
                   <h2 className="text-base font-bold text-gray-800 mb-4">
                     Profile Picture
                   </h2>
+
                   <div className="flex items-center gap-6">
-                    {/* Avatar Preview */}
                     <div className="w-20 h-20 rounded-xl border-2 border-gray-200 overflow-hidden bg-gray-100 flex items-center justify-center shrink-0">
                       {form.avatar ? (
                         <img
@@ -137,7 +140,6 @@ export default function Profile() {
                       )}
                     </div>
 
-                    {/* Buttons */}
                     <div className="flex flex-col gap-2">
                       <button
                         onClick={() => fileInputRef.current?.click()}
@@ -156,6 +158,7 @@ export default function Profile() {
                         </svg>
                         Change Profile
                       </button>
+
                       <button
                         onClick={handleDeleteAvatar}
                         className="flex items-center gap-2 px-5 py-2.5 border border-red-400 text-red-500 text-sm font-medium rounded-xl hover:bg-red-50 transition"
@@ -175,6 +178,7 @@ export default function Profile() {
                         </svg>
                         Delete Profile
                       </button>
+
                       <input
                         ref={fileInputRef}
                         type="file"
@@ -184,6 +188,7 @@ export default function Profile() {
                       />
                     </div>
                   </div>
+
                   <p className="text-xs text-gray-400 mt-3">
                     The profile picture must be 512 x 512 pixels or less
                   </p>
@@ -191,11 +196,7 @@ export default function Profile() {
 
                 <div className="border-t border-gray-100 mb-8" />
 
-                {/* Form Fields */}
                 <div className="flex flex-col gap-5 w-full">
-                  {" "}
-                  {/* Changed: w-full instead of max-w-2xl */}
-                  {/* Full Name */}
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
                       Full Name
@@ -224,7 +225,7 @@ export default function Profile() {
                       />
                     </div>
                   </div>
-                  {/* Phone */}
+
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
                       Phone
@@ -252,7 +253,7 @@ export default function Profile() {
                       />
                     </div>
                   </div>
-                  {/* Email */}
+
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
                       Email
@@ -281,30 +282,38 @@ export default function Profile() {
                       />
                     </div>
                   </div>
-                  {/* Password */}
+
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-1">
                       Password
                     </label>
-                    <button className="text-sm text-blue-600 hover:underline font-medium">
+                    <button
+                      type="button"
+                      onClick={() => navigate("/profile/change-password")}
+                      className="text-sm text-blue-600 hover:underline font-medium"
+                    >
                       Change Password
                     </button>
                   </div>
-                  {/* Pin */}
+
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-1">
                       Pin
                     </label>
-                    <button className="text-sm text-blue-600 hover:underline font-medium">
+                    <button
+                      type="button"
+                      onClick={() => navigate("/profile/change-pin")}
+                      className="text-sm text-blue-600 hover:underline font-medium"
+                    >
                       Change Pin
                     </button>
                   </div>
-                  {/* Feedback */}
+
                   {error && <p className="text-sm text-red-500">{error}</p>}
                   {success && (
                     <p className="text-sm text-green-600">{success}</p>
                   )}
-                  {/* Submit */}
+
                   <button
                     onClick={handleSubmit}
                     disabled={saving}
