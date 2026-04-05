@@ -1,5 +1,4 @@
 // Brand.jsx
-import logoImg from "../assets/img/logo.png";
 
 function Brand({ isWhite = false }) {
   return (
@@ -11,7 +10,11 @@ function Brand({ isWhite = false }) {
             : "bg-[#6379F415] group-hover:bg-[#6379F4]"
         }`}
       >
-        <img src={logoImg} alt="Logo" className="w-6 h-6 object-contain" />
+        <img
+          src="/img/logo.png"
+          alt="Logo"
+          className="w-6 h-6 object-contain"
+        />
       </div>
 
       <h1
