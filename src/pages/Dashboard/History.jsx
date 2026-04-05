@@ -4,8 +4,6 @@ import Sidebar from "../../layouts/Dashboard/Sidebar";
 import TableRow from "../../components/TableRow";
 import { getUsers } from "../../services/auth";
 
-const ITEMS_PER_PAGE = 7;
-
 // Hardcoded transaction metadata — amount & type cycled per user
 const hardcodedMeta = [
   { amount: "Rp.50.000", type: "income" },
@@ -22,7 +20,6 @@ const hardcodedMeta = [
 
 export default function History() {
   const [search, setSearch] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -38,7 +35,6 @@ export default function History() {
           img: u.avatar,
           name: u.name,
           phone: u.phone,
-          // cycle through hardcodedMeta if users exceed meta length
           amount: hardcodedMeta[index % hardcodedMeta.length].amount,
           type: hardcodedMeta[index % hardcodedMeta.length].type,
         }));
@@ -59,30 +55,12 @@ export default function History() {
       item.phone.includes(search),
   );
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
-  const paginated = filtered.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE,
-  );
-
   const handleSearch = (e) => {
     setSearch(e.target.value);
-    setCurrentPage(1);
   };
 
   const handleDelete = (id) => {
     setData((prev) => prev.filter((item) => item.id !== id));
-  };
-
-  const handlePageChange = (page) => {
-    if (page >= 1 && page <= totalPages) setCurrentPage(page);
-  };
-
-  const getPageNumbers = () => {
-    const pages = [];
-    const max = Math.min(totalPages, 9);
-    for (let i = 1; i <= max; i++) pages.push(i);
-    return pages;
   };
 
   return (
@@ -148,59 +126,14 @@ export default function History() {
               </div>
             )}
 
-            {/* Transaction Rows */}
+            {/* Transaction Rows — pagination handled inside TableRow */}
             {!loading && !error && (
-              <div className="flex flex-col">
-                {paginated.length > 0 ? (
-                  <TableRow
-                    items={paginated}
-                    remove={true}
-                    onDelete={handleDelete}
-                  />
-                ) : (
-                  <div className="py-20 text-center text-gray-400 text-sm">
-                    No transactions found.
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Pagination */}
-            {!loading && !error && (
-              <div className="flex items-center justify-between px-8 py-4 border-t border-gray-100">
-                <span className="text-sm text-gray-400">
-                  Show {Math.min(ITEMS_PER_PAGE, filtered.length)} History of {filtered.length} History
-                </span>
-                <div className="flex items-center gap-1">
-                  <button
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    disabled={currentPage === 1}
-                    className="px-3 py-1.5 text-sm font-medium text-gray-500 hover:text-blue-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                  >
-                    Prev
-                  </button>
-                  {getPageNumbers().map((page) => (
-                    <button
-                      key={page}
-                      onClick={() => handlePageChange(page)}
-                      className={`w-8 h-8 text-sm font-medium rounded-full transition-colors ${
-                        currentPage === page
-                          ? "bg-blue-600 text-white"
-                          : "text-gray-500 hover:text-blue-600 hover:bg-blue-50"
-                      }`}
-                    >
-                      {page}
-                    </button>
-                  ))}
-                  <button
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    disabled={currentPage === totalPages}
-                    className="px-3 py-1.5 text-sm font-medium text-gray-500 hover:text-blue-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                  >
-                    Next
-                  </button>
-                </div>
-              </div>
+              <TableRow
+                items={filtered}
+                remove={true}
+                onDelete={handleDelete}
+                paginate={true}
+              />
             )}
           </div>
         </section>

@@ -18,14 +18,12 @@ export default function Transfer() {
       setError("");
       try {
         const users = await getUsers();
-
         const mapped = users.map((u) => ({
           id: u.id,
           name: u.name,
           phone: u.phone,
           img: u.avatar,
         }));
-
         setContacts(mapped);
       } catch (err) {
         setError(err.message);
@@ -64,9 +62,7 @@ export default function Transfer() {
                   <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
                 </svg>
               </span>
-              <h1 className="text-xl font-bold text-gray-800">
-                Transfer Money
-              </h1>
+              <h1 className="text-xl font-bold text-gray-800">Transfer Money</h1>
             </div>
             <Stepper currentStep={1} />
           </div>
@@ -127,8 +123,10 @@ export default function Transfer() {
               </div>
             )}
 
-            {/* Data */}
-            {!loading && !error && <TableRow items={filteredContacts} />}
+            {/* Data — filteredContacts dikirim langsung agar search langsung reaktif */}
+            {!loading && !error && (
+              <TableRow items={filteredContacts} paginate={true} />
+            )}
           </div>
         </section>
       </main>
