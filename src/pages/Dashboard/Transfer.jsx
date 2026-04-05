@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import Header from "../../layouts/Dashboard/Header";
 import Sidebar from "../../layouts/Dashboard/Sidebar";
 import Stepper from "../../components/Stepper";
@@ -64,7 +64,9 @@ export default function Transfer() {
                   <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
                 </svg>
               </span>
-              <h1 className="text-xl font-bold text-gray-800">Transfer Money</h1>
+              <h1 className="text-xl font-bold text-gray-800">
+                Transfer Money
+              </h1>
             </div>
             <Stepper currentStep={1} />
           </div>
