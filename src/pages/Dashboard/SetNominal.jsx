@@ -1,6 +1,6 @@
 import { useState } from "react";
-import Navbar from "../../layouts/Navbar";
-import Sidebar from "../../layouts/Sidebar";
+import Navbar from "../../layouts/Dashboard/Header";
+import Sidebar from "../../layouts/Dashboard/Sidebar";
 import Stepper from "../../components/Stepper";
 import SearchInput from "../../components/SearchInput";
 import TableRow from "../../components/TableRow";

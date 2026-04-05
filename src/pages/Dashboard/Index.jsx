@@ -1,5 +1,5 @@
-import Sidebar from "../../layouts/Sidebar";
-import Navbar from "../../layouts/Navbar";
+import Navbar from "../../layouts/Dashboard/Header";
+import Sidebar from "../../layouts/Dashboard/Sidebar";
 import { useState, useMemo } from "react";
 
 import { Bar } from "react-chartjs-2";

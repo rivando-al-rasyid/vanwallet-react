@@ -1,5 +1,5 @@
-import Navbar from "../../layouts/Navbar";
-import Sidebar from "../../layouts/Sidebar";
+import Navbar from "../../layouts/Dashboard/Header";
+import Sidebar from "../../layouts/Dashboard/Sidebar";
 
 export default function TopUp() {
   return (

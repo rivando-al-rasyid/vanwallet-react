@@ -1,6 +1,6 @@
 import { useState } from "react";
-import Navbar from "../../layouts/Navbar";
-import Sidebar from "../../layouts/Sidebar";
+import Navbar from "../../layouts/Dashboard/Header";
+import Sidebar from "../../layouts/Dashboard/Sidebar";
 import TableRow from "../../components/TableRow";
 
 const ITEMS_PER_PAGE = 7;
