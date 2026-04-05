@@ -5,18 +5,9 @@ import { getSession, clearSession, isLoggedIn } from "../../services/auth";
 
 export default function Navbar() {
   const navigate = useNavigate();
-  const { email } = getSession();
+  const session = getSession();
 
-  const [user, setUser] = useState(
-    isLoggedIn()
-      ? {
-          name: email || "User",
-          // Pakai avatar generik berbasis email
-          avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(email || "U")}&background=2948FF&color=fff&size=64`,
-        }
-      : null,
-  );
-
+  const [user, setUser] = useState(isLoggedIn() ? session : null);
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef(null);
 
@@ -33,6 +24,7 @@ export default function Navbar() {
         setOpen(false);
       }
     }
+
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
@@ -56,6 +48,7 @@ export default function Navbar() {
                 <path d="M21 21l-4.35-4.35" />
               </svg>
             </button>
+
             <button className="text-slate-400 hover:text-blue-500 transition-colors">
               <svg
                 className="w-5 h-5"
@@ -76,16 +69,18 @@ export default function Navbar() {
                 onClick={() => setOpen((v) => !v)}
                 className="flex items-center gap-2 p-1 pr-3 rounded-full hover:bg-slate-50 border border-transparent hover:border-slate-100 transition-all"
               >
+                <span className="text-sm font-medium text-slate-700 max-w-28 truncate">
+                  {user.name}
+                </span>
                 <img
                   src={user.avatar}
                   className="w-8 h-8 rounded-full object-cover ring-2 ring-white shadow-sm"
                   alt="avatar"
                 />
-                <span className="text-sm font-medium text-slate-700 max-w-28 truncate">
-                  {user.name}
-                </span>
                 <svg
-                  className={`w-4 h-4 text-slate-400 transition-transform duration-300 ${open ? "rotate-180" : ""}`}
+                  className={`w-4 h-4 text-slate-400 transition-transform duration-300 ${
+                    open ? "rotate-180" : ""
+                  }`}
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="2.5"
@@ -95,10 +90,12 @@ export default function Navbar() {
                 </svg>
               </button>
 
-              {/* Dropdown Panel */}
               <div
-                className={`absolute right-0 top-[calc(100%+12px)] w-60 bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden transition-all duration-200 origin-top-right
-                ${open ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 -translate-y-2 pointer-events-none"}`}
+                className={`absolute right-0 top-[calc(100%+12px)] w-60 bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden transition-all duration-200 origin-top-right ${
+                  open
+                    ? "opacity-100 scale-100 translate-y-0"
+                    : "opacity-0 scale-95 -translate-y-2 pointer-events-none"
+                }`}
               >
                 <div className="px-4 py-3 bg-slate-50/50 border-b border-slate-100">
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
