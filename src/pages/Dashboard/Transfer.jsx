@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Header from "../../layouts/Dashboard/Header";
 import Sidebar from "../../layouts/Dashboard/Sidebar";
 import Stepper from "../../components/Stepper";
@@ -7,6 +8,7 @@ import TableRow from "../../components/TableRow";
 import { getUsers } from "../../services/auth";
 
 export default function Transfer() {
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -125,7 +127,11 @@ export default function Transfer() {
 
             {/* Data — filteredContacts dikirim langsung agar search langsung reaktif */}
             {!loading && !error && (
-              <TableRow items={filteredContacts} paginate={true} />
+              <TableRow
+                items={filteredContacts}
+                paginate={true}
+                onRowClick={(contact) => navigate(`/transfer/${contact.id}`)}
+              />
             )}
           </div>
         </section>

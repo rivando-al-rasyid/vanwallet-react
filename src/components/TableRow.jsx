@@ -10,6 +10,7 @@ export default function TableRow({
   remove = false,
   onDelete,
   paginate = false,
+  onRowClick,
 }) {
   const [rows, setRows] = useState(
     items.map((item) => ({ ...item, isFavorite: false })),
@@ -75,9 +76,10 @@ export default function TableRow({
             {displayRows.map((contact, index) => (
               <tr
                 key={contact.id}
-                className={`group cursor-pointer transition-colors hover:bg-blue-50 ${
-                  index % 2 !== 0 ? "bg-gray-50/50" : "bg-white"
-                }`}
+                onClick={() => onRowClick && onRowClick(contact)}
+                className={`group transition-colors hover:bg-blue-50 ${
+                  onRowClick ? "cursor-pointer" : "cursor-default"
+                } ${index % 2 !== 0 ? "bg-gray-50/50" : "bg-white"}`}
               >
                 {/* Avatar */}
                 <td className="py-3 pl-2 rounded-l-xl">
@@ -122,7 +124,7 @@ export default function TableRow({
                 {!remove && (
                   <td className="px-4 py-3 text-right rounded-r-xl">
                     <button
-                      onClick={() => toggleFavorite(contact.id)}
+                      onClick={(e) => { e.stopPropagation(); toggleFavorite(contact.id); }}
                       className={`transition-colors ${
                         contact.isFavorite
                           ? "text-yellow-400 hover:text-yellow-500"
@@ -141,7 +143,7 @@ export default function TableRow({
                 {remove && (
                   <td className="px-4 py-3 text-right rounded-r-xl">
                     <button
-                      onClick={() => handleDelete(contact.id)}
+                      onClick={(e) => { e.stopPropagation(); handleDelete(contact.id); }}
                       className="text-red-400 hover:text-red-500 transition-colors"
                       title="Hapus"
                     >
