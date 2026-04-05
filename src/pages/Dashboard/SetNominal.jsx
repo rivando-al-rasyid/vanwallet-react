@@ -2,122 +2,83 @@ import { useState } from "react";
 import Header from "../../layouts/Dashboard/Header";
 import Sidebar from "../../layouts/Dashboard/Sidebar";
 import Stepper from "../../components/Stepper";
-import SearchInput from "../../components/SearchInput";
-import TableRow from "../../components/TableRow";
-
-// Mock data based on the image content
-const contactData = [
-  {
-    id: 1,
-    name: "Ghaluh 1",
-    phone: "(239) 555-0108",
-    img: "https://i.pravatar.cc/150?u=1",
-  },
-  {
-    id: 2,
-    name: "Ghaluh 2",
-    phone: "(480) 555-0103",
-    img: "https://i.pravatar.cc/150?u=2",
-  },
-  {
-    id: 3,
-    name: "Ghaluh 3",
-    phone: "(225) 555-0118",
-    img: "https://i.pravatar.cc/150?u=3",
-  },
-  {
-    id: 4,
-    name: "Ghaluh 4",
-    phone: "(406) 555-0120",
-    img: "https://i.pravatar.cc/150?u=4",
-  },
-  {
-    id: 5,
-    name: "Ghaluh 5",
-    phone: "(303) 555-0105",
-    img: "https://i.pravatar.cc/150?u=5",
-  },
-  {
-    id: 6,
-    name: "Ghaluh 6",
-    phone: "(808) 555-0111",
-    img: "https://i.pravatar.cc/150?u=6",
-  },
-  {
-    id: 7,
-    name: "Ghaluh 7",
-    phone: "(671) 555-0110",
-    img: "https://i.pravatar.cc/150?u=7",
-  },
-  {
-    id: 8,
-    name: "Ghaluh 8",
-    phone: "(270) 555-0117",
-    img: "https://i.pravatar.cc/150?u=8",
-  },
-];
-
-import React from "react";
 
 export default function SetNominal() {
-  const [search, setSearch] = useState("");
+  const [amount, setAmount] = useState("");
+  const [notes, setNotes] = useState("");
 
-  const filteredContacts = contactData.filter(
-    (c) =>
-      c.name.toLowerCase().includes(search.toLowerCase()) ||
-      c.phone.includes(search),
-  );
+  const selectedContact = {
+    id: 1,
+    name: "George Bluth",
+    phone: "(239) 555-0108",
+    img: "https://reqres.in/img/faces/1-image.jpg",
+    verified: true,
+  };
 
   return (
     <>
       <Header />
-      <main className="flex pt-16 min-h-screen">
-        <Sidebar />
-        <section className="flex-1 flex flex-col gap-6 p-8 overflow-auto">
-          {" "}
-          {/* Header & Stepper */}
-          <div className="mb-8">
-            <div className="flex items-center gap-3 mb-6">
-              <span className="text-blue-600">
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
-                </svg>
-              </span>
-              <h1 className="text-xl font-bold text-gray-800">
-                Transfer Money
-              </h1>
-            </div>
+      <Sidebar />
 
-            {/* Stepper UI */}
-            <Stepper currentStep={2} />
-          </div>
-          {/* Main Content Card */}
-          <div className="bg-white rounded-2xl shadow-sm p-8 min-h-150">
-            <div className="flex justify-between items-center mb-6">
-              <div>
-                <h2 className="text-lg font-bold text-gray-800">Find People</h2>
-                <p className="text-xs text-gray-400">
-                  {filteredContacts.length} Result Found For{" "}
-                  {search || "Ghaluh"}
-                </p>
-              </div>
+      <main className="p-6">
+        <h1 className="text-2xl font-semibold mb-4">Transfer Money</h1>
 
-              {/* Search Bar */}
-              <SearchInput
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
+        <Stepper
+          steps={["Find People", "Set Nominal", "Finish"]}
+          currentStep={2}
+        />
+
+        <section className="bg-white rounded-xl p-6 mt-6 shadow-sm border">
+          <h2 className="text-lg font-semibold mb-4">People Information</h2>
+
+          <div className="flex items-center justify-between rounded-xl bg-gray-50 p-4 mb-6">
+            <div className="flex items-center gap-3">
+              <img
+                src={selectedContact.img}
+                alt={selectedContact.name}
+                className="w-14 h-14 rounded-lg object-cover"
+                onError={(e) => {
+                  e.currentTarget.src =
+                    "https://ui-avatars.com/api/?name=User&background=EBF4FF&color=7F9CF5";
+                }}
               />
+              <div>
+                <p className="font-semibold">{selectedContact.name}</p>
+                <p className="text-sm text-gray-500">{selectedContact.phone}</p>
+                {selectedContact.verified && (
+                  <span className="inline-block mt-1 text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full">
+                    Verified
+                  </span>
+                )}
+              </div>
             </div>
-            {/* Contact List */}
-            <TableRow items={filteredContacts} />
           </div>
+
+          <div className="mb-4">
+            <label className="block font-medium mb-2">Amount</label>
+            <input
+              type="text"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              placeholder="Enter Nominal Transfer"
+              className="w-full border rounded-lg px-4 py-3"
+            />
+          </div>
+
+          <div className="mb-6">
+            <label className="block font-medium mb-2">Notes</label>
+            <textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Enter Some Notes"
+              rows={6}
+              className="w-full border rounded-lg px-4 py-3"
+            />
+          </div>
+
+          <button className="w-full bg-blue-600 text-white rounded-lg py-3 font-medium">
+            Submit & Transfer
+          </button>
         </section>
       </main>
     </>
