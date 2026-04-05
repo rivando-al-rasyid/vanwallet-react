@@ -17,16 +17,12 @@ export default function Transfer() {
       setLoading(true);
       setError("");
       try {
-        // Reqres punya 2 halaman, kita ambil keduanya sekaligus
-        const [page1, page2] = await Promise.all([getUsers(1), getUsers(2)]);
+        const users = await getUsers();
 
-        const allUsers = [...page1.data, ...page2.data];
-
-        // Mapping dari format reqres ke format yang dipakai TableRow
-        const mapped = allUsers.map((u) => ({
+        const mapped = users.map((u) => ({
           id: u.id,
-          name: `${u.first_name} ${u.last_name}`,
-          phone: `reqres-id-${u.id}@example.com`,
+          name: u.name,
+          phone: u.phone,
           img: u.avatar,
         }));
 
@@ -53,7 +49,6 @@ export default function Transfer() {
       <main className="flex pt-16 min-h-screen">
         <Sidebar />
         <section className="flex-1 flex flex-col gap-6 p-8 overflow-auto">
-          {" "}
           {/* Header & Stepper */}
           <div className="mb-8">
             <div className="flex items-center gap-3 mb-6">
@@ -75,6 +70,7 @@ export default function Transfer() {
             </div>
             <Stepper currentStep={1} />
           </div>
+
           {/* Main Content Card */}
           <div className="bg-white rounded-2xl shadow-sm p-8 min-h-150">
             <div className="flex justify-between items-center mb-6">
@@ -92,7 +88,7 @@ export default function Transfer() {
               />
             </div>
 
-            {/* States: loading / error / data */}
+            {/* Loading */}
             {loading && (
               <div className="flex flex-col items-center justify-center py-20 gap-3 text-gray-400">
                 <svg
@@ -114,12 +110,11 @@ export default function Transfer() {
                     d="M4 12a8 8 0 018-8v8H4z"
                   />
                 </svg>
-                <span className="text-sm">
-                  Mengambil data dari reqres.in...
-                </span>
+                <span className="text-sm">Mengambil data kontak...</span>
               </div>
             )}
 
+            {/* Error */}
             {!loading && error && (
               <div className="flex flex-col items-center justify-center py-20 gap-3">
                 <p className="text-red-500 font-semibold text-sm">{error}</p>
@@ -132,6 +127,7 @@ export default function Transfer() {
               </div>
             )}
 
+            {/* Data */}
             {!loading && !error && <TableRow items={filteredContacts} />}
           </div>
         </section>

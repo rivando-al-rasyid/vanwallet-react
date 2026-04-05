@@ -1,30 +1,272 @@
+import { useState, useEffect, useRef } from "react";
 import Header from "../../layouts/Dashboard/Header";
 import Sidebar from "../../layouts/Dashboard/Sidebar";
+import { getUserById, updateUser, getSession } from "../../services/auth";
 
 export default function Profile() {
+  const { id } = getSession();
+
+  const [form, setForm] = useState({
+    name: "",
+    phone: "",
+    email: "",
+    avatar: "",
+  });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    async function fetchProfile() {
+      setLoading(true);
+      try {
+        const user = await getUserById(id);
+        setForm({
+          name: user.name || "",
+          phone: user.phone || "",
+          email: user.email || "",
+          avatar: user.avatar || "",
+        });
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+    if (id) fetchProfile();
+  }, [id]);
+
+  const handleChange = (e) => {
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const handleAvatarChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => setForm((prev) => ({ ...prev, avatar: reader.result }));
+    reader.readAsDataURL(file);
+  };
+
+  const handleDeleteAvatar = () => {
+    setForm((prev) => ({ ...prev, avatar: "" }));
+  };
+
+  const handleSubmit = async () => {
+    setSaving(true);
+    setError("");
+    setSuccess("");
+    try {
+      await updateUser(id, {
+        name: form.name,
+        phone: form.phone,
+        email: form.email,
+        avatar: form.avatar,
+      });
+      setSuccess("Profile berhasil diupdate!");
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <>
       <Header />
       <main className="flex pt-16 min-h-screen">
         <Sidebar />
         <section className="flex-1 flex flex-col gap-6 p-8 overflow-auto">
-          {" "}
-          <div className="flex gap-6">
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                fill-rule="evenodd"
-                clip-rule="evenodd"
-                d="M19.5039 2.07729C20.1889 1.87802 20.931 2.07025 21.434 2.58253C21.937 3.0938 22.123 3.83957 21.918 4.52999L20.669 8.73188C20.55 9.13144 20.1339 9.35789 19.7359 9.23913C19.3389 9.11936 19.1129 8.69867 19.2319 8.30012L20.481 4.09722C20.551 3.86171 20.4259 3.7027 20.3689 3.64533C20.3119 3.58696 20.1519 3.46014 19.9209 3.52758L3.82937 8.20652C3.57336 8.281 3.51736 8.49537 3.50536 8.58394C3.49436 8.6725 3.49036 8.89392 3.71837 9.03482L7.10449 11.1182C7.4575 11.3355 7.5695 11.8005 7.35249 12.1568C7.21149 12.3883 6.96548 12.5171 6.71247 12.5171C6.57947 12.5171 6.44446 12.4819 6.32246 12.4064L2.93634 10.3221C2.26532 9.90942 1.91331 9.16667 2.01831 8.38265C2.12331 7.59762 2.65833 6.97464 3.41336 6.75523L19.5039 2.07729ZM18.0282 12.3492C18.1482 11.9487 18.5652 11.7212 18.9622 11.842C19.3592 11.9618 19.5852 12.3824 19.4662 12.782L17.1441 20.596C16.9191 21.3519 16.2971 21.8833 15.5201 21.9829C15.4331 21.995 15.3471 22 15.2611 22C14.583 22 13.963 21.6518 13.602 21.0539L9.50187 14.2645C9.32286 13.9666 9.36786 13.5841 9.61287 13.3386L15.4341 7.48007C15.7271 7.18518 16.2011 7.18518 16.4941 7.48007C16.7871 7.77496 16.7871 8.25302 16.4941 8.54791L11.0899 13.9877L14.8841 20.2699C15.0221 20.4984 15.2391 20.4964 15.3291 20.4863C15.4171 20.4742 15.6301 20.4199 15.7061 20.1643L18.0282 12.3492Z"
-                fill="#2948FF"
-              />
-            </svg>
-            History
+
+          {/* Page Title */}
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <path
+                  fillRule="evenodd"
+                  clipRule="evenodd"
+                  d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"
+                  fill="#2563EB"
+                />
+              </svg>
+            </div>
+            <h1 className="text-xl font-bold text-gray-800">Profile</h1>
+          </div>
+
+          {/* Main Card */}
+          <div className="bg-white rounded-2xl shadow-sm p-8">
+
+            {loading ? (
+              <div className="flex items-center justify-center py-20 text-gray-400 text-sm">
+                Memuat data profile...
+              </div>
+            ) : (
+              <>
+                {/* Profile Picture */}
+                <div className="mb-8">
+                  <h2 className="text-base font-bold text-gray-800 mb-4">Profile Picture</h2>
+                  <div className="flex items-center gap-6">
+                    {/* Avatar Preview */}
+                    <div className="w-20 h-20 rounded-xl border-2 border-gray-200 overflow-hidden bg-gray-100 flex items-center justify-center shrink-0">
+                      {form.avatar ? (
+                        <img
+                          src={form.avatar}
+                          alt="avatar"
+                          className="w-full h-full object-cover"
+                          onError={(e) => { e.currentTarget.src = ""; }}
+                        />
+                      ) : (
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                          <path
+                            fillRule="evenodd"
+                            clipRule="evenodd"
+                            d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"
+                            fill="#9CA3AF"
+                          />
+                        </svg>
+                      )}
+                    </div>
+
+                    {/* Buttons */}
+                    <div className="flex flex-col gap-2">
+                      <button
+                        onClick={() => fileInputRef.current?.click()}
+                        className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
+                          <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
+                        </svg>
+                        Change Profile
+                      </button>
+                      <button
+                        onClick={handleDeleteAvatar}
+                        className="flex items-center gap-2 px-5 py-2.5 border border-red-400 text-red-500 text-sm font-medium rounded-xl hover:bg-red-50 transition"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <polyline points="3 6 5 6 21 6" />
+                          <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
+                          <path d="M10 11v6M14 11v6" />
+                          <path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" />
+                        </svg>
+                        Delete Profile
+                      </button>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handleAvatarChange}
+                        className="hidden"
+                      />
+                    </div>
+                  </div>
+                  <p className="text-xs text-gray-400 mt-3">The profile picture must be 512 x 512 pixels or less</p>
+                </div>
+
+                <div className="border-t border-gray-100 mb-8" />
+
+                {/* Form Fields */}
+                <div className="flex flex-col gap-5 max-w-2xl">
+
+                  {/* Full Name */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Full Name</label>
+                    <div className="relative">
+                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+                          <circle cx="12" cy="7" r="4" />
+                        </svg>
+                      </span>
+                      <input
+                        type="text"
+                        name="name"
+                        value={form.name}
+                        onChange={handleChange}
+                        placeholder="Enter Full Name"
+                        className="w-full pl-10 pr-4 py-3 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Phone */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Phone</label>
+                    <div className="relative">
+                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.68A2 2 0 012 .99h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" />
+                        </svg>
+                      </span>
+                      <input
+                        type="text"
+                        name="phone"
+                        value={form.phone}
+                        onChange={handleChange}
+                        placeholder="Enter Your Number Phone"
+                        className="w-full pl-10 pr-4 py-3 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Email */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Email</label>
+                    <div className="relative">
+                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                          <polyline points="22,6 12,13 2,6" />
+                        </svg>
+                      </span>
+                      <input
+                        type="email"
+                        name="email"
+                        value={form.email}
+                        onChange={handleChange}
+                        placeholder="Enter Your Email"
+                        className="w-full pl-10 pr-4 py-3 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Password */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1">Password</label>
+                    <button className="text-sm text-blue-600 hover:underline font-medium">
+                      Change Password
+                    </button>
+                  </div>
+
+                  {/* Pin */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1">Pin</label>
+                    <button className="text-sm text-blue-600 hover:underline font-medium">
+                      Change Pin
+                    </button>
+                  </div>
+
+                  {/* Feedback */}
+                  {error && (
+                    <p className="text-sm text-red-500">{error}</p>
+                  )}
+                  {success && (
+                    <p className="text-sm text-green-600">{success}</p>
+                  )}
+
+                  {/* Submit */}
+                  <button
+                    onClick={handleSubmit}
+                    disabled={saving}
+                    className="w-full py-3.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 disabled:opacity-60 transition mt-2"
+                  >
+                    {saving ? "Menyimpan..." : "Submit"}
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </section>
       </main>

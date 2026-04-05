@@ -17,13 +17,11 @@ ReactDOM.createRoot(document.getElementById("root")).render(
   <BrowserRouter>
     <Routes>
       <Route path="/" element={<App />} />
-
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/transfer" element={<Transfer />} />
-      <Route path="/setdominal" element={<SetNominal />} />
+      <Route path="/transfer/:id" element={<SetNominal />} />
       <Route path="/history" element={<History />} />
       <Route path="/topup" element={<TopUp />} />
       <Route path="/profile" element={<Profile />} />
