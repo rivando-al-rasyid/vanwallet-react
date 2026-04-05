@@ -21,7 +21,7 @@ export default function TableRow({ items: initialItems, remove = false }) {
   };
 
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto p-10">
       <table className="w-full border-separate border-spacing-y-2">
         <tbody className="space-y-1">
           {items.map((contact, index) => (

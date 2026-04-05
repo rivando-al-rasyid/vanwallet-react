@@ -11,6 +11,7 @@ import Transfer from "./pages/Dashboard/Transfer.jsx";
 import History from "./pages/Dashboard/History.jsx";
 import TopUp from "./pages/Dashboard/TopUp.jsx";
 import Profile from "./pages/Dashboard/Profile.jsx";
+import SetNominal from "./pages/Dashboard/SetNominal.jsx";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <BrowserRouter>
@@ -22,6 +23,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
 
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/transfer" element={<Transfer />} />
+      <Route path="/setdominal" element={<SetNominal />} />
       <Route path="/history" element={<History />} />
       <Route path="/topup" element={<TopUp />} />
       <Route path="/profile" element={<Profile />} />

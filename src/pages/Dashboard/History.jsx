@@ -16,6 +16,7 @@ const historyData = [
   },
   {
     id: 2,
+    img: "https://i.pravatar.cc/150?u=2",
     name: "Cameron Williamson",
     phone: "(308) 555-0121",
     amount: "Rp.50.000",
@@ -23,6 +24,7 @@ const historyData = [
   },
   {
     id: 3,
+    img: "https://i.pravatar.cc/150?u=3",
     name: "Cody Fisher",
     phone: "(704) 555-0127",
     amount: "Rp.50.000",
@@ -30,6 +32,7 @@ const historyData = [
   },
   {
     id: 4,
+    img: "https://i.pravatar.cc/150?u=4",
     name: "Kristin Watson",
     phone: "(603) 555-0123",
     amount: "Rp.50.000",
@@ -37,6 +40,7 @@ const historyData = [
   },
   {
     id: 5,
+    img: "https://i.pravatar.cc/150?u=5",
     name: "Floyd Miles",
     phone: "(671) 555-0110",
     amount: "Rp.50.000",
@@ -44,6 +48,7 @@ const historyData = [
   },
   {
     id: 6,
+    img: "https://i.pravatar.cc/150?u=6",
     name: "Wade Warren",
     phone: "(225) 555-0118",
     amount: "Rp.50.000",
@@ -51,6 +56,7 @@ const historyData = [
   },
   {
     id: 7,
+    img: "https://i.pravatar.cc/150?u=7",
     name: "Savannah Nguyen",
     phone: "(217) 555-0113",
     amount: "Rp.50.000",
@@ -58,6 +64,7 @@ const historyData = [
   },
   {
     id: 8,
+    img: "https://i.pravatar.cc/150?u=8",
     name: "Jerome Bell",
     phone: "(302) 555-0107",
     amount: "Rp.75.000",
@@ -65,6 +72,7 @@ const historyData = [
   },
   {
     id: 9,
+    img: "https://i.pravatar.cc/150?u=9",
     name: "Annette Lewis",
     phone: "(406) 555-0120",
     amount: "Rp.75.000",
@@ -72,6 +80,7 @@ const historyData = [
   },
   {
     id: 10,
+    img: "https://i.pravatar.cc/150?u=10",
     name: "Marvin Park",
     phone: "(505) 555-0125",
     amount: "Rp.100.000",
@@ -79,6 +88,7 @@ const historyData = [
   },
   {
     id: 11,
+    img: "https://i.pravatar.cc/150?u=11",
     name: "Ralph Scott",
     phone: "(907) 555-0101",
     amount: "Rp.25.000",
@@ -86,6 +96,7 @@ const historyData = [
   },
   {
     id: 12,
+    img: "https://i.pravatar.cc/150?u=12",
     name: "Theresa Kim",
     phone: "(212) 555-0199",
     amount: "Rp.50.000",
@@ -93,6 +104,7 @@ const historyData = [
   },
   {
     id: 13,
+    img: "https://i.pravatar.cc/150?u=13",
     name: "Brooklyn Nash",
     phone: "(313) 555-0142",
     amount: "Rp.60.000",
@@ -100,6 +112,7 @@ const historyData = [
   },
   {
     id: 14,
+    img: "https://i.pravatar.cc/150?u=14",
     name: "Leslie Ortiz",
     phone: "(404) 555-0167",
     amount: "Rp.50.000",
@@ -107,13 +120,13 @@ const historyData = [
   },
   {
     id: 15,
+    img: "https://i.pravatar.cc/150?u=15",
     name: "Philip Reed",
     phone: "(619) 555-0134",
     amount: "Rp.80.000",
     type: "income",
   },
 ];
-
 // --- UPDATED AVATAR COMPONENT ---
 function Avatar({ src, name }) {
   // Replace this URL with your desired default placeholder image
@@ -289,7 +302,7 @@ export default function History() {
           </div>
 
           {/* Main Card */}
-          <div className="bg-white rounded-2xl shadow-sm p-8 min-h-150">
+          <div className="bg-white rounded-2xl shadow-sm min-h-150">
             {/* Card Header */}
             <div className="flex items-center justify-between px-8 py-5 border-b border-gray-100">
               <h2 className="text-base font-bold text-gray-800">
