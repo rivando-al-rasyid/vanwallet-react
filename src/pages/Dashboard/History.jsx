@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Navbar from "../../layouts/Dashboard/Header";
+import Header from "../../layouts/Dashboard/Header";
 import Sidebar from "../../layouts/Dashboard/Sidebar";
 import TableRow from "../../components/TableRow";
 
@@ -287,10 +287,10 @@ export default function History() {
 
   return (
     <>
-      <Navbar />
-      <main className="flex">
+      <Header />
+      <main className="flex pt-16 min-h-screen">
         <Sidebar />
-        <section className="flex-1 flex flex-col gap-6 p-8 bg-gray-50 min-h-screen overflow-auto">
+        <section className="flex-1 flex flex-col gap-6 p-8 overflow-auto">
           {/* Page Title */}
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center shrink-0">

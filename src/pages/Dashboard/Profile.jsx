@@ -1,13 +1,14 @@
-import Navbar from "../../layouts/Dashboard/Header";
+import Header from "../../layouts/Dashboard/Header";
 import Sidebar from "../../layouts/Dashboard/Sidebar";
 
 export default function Profile() {
   return (
     <>
-      <Navbar />
-      <main className="flex">
+      <Header />
+      <main className="flex pt-16 min-h-screen">
         <Sidebar />
         <section className="flex-1 flex flex-col gap-6 p-8 overflow-auto">
+          {" "}
           <div className="flex gap-6">
             <svg
               width="24"

@@ -1,4 +1,4 @@
-import Navbar from "../../layouts/Dashboard/Header";
+import Header from "../../layouts/Dashboard/Header";
 import Sidebar from "../../layouts/Dashboard/Sidebar";
 import { useState, useMemo } from "react";
 
@@ -112,8 +112,8 @@ export default function Index() {
 
   return (
     <>
-      <Navbar />
-      <main className="flex">
+      <Header />
+      <main className="flex pt-16 min-h-screen">
         <Sidebar />
         <section className="flex-1 flex flex-col gap-6 p-8 overflow-auto">
           <div className="grid grid-cols-3 gap-5">

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Navbar from "../../layouts/Dashboard/Header";
+import Header from "../../layouts/Dashboard/Header";
 import Sidebar from "../../layouts/Dashboard/Sidebar";
 import Stepper from "../../components/Stepper";
 import SearchInput from "../../components/SearchInput";
@@ -70,10 +70,11 @@ export default function SetNominal() {
 
   return (
     <>
-      <Navbar />
-      <main className="flex">
+      <Header />
+      <main className="flex pt-16 min-h-screen">
         <Sidebar />
-        <section className="flex-1 p-8 bg-gray-50 min-h-screen">
+        <section className="flex-1 flex flex-col gap-6 p-8 overflow-auto">
+          {" "}
           {/* Header & Stepper */}
           <div className="mb-8">
             <div className="flex items-center gap-3 mb-6">
@@ -97,7 +98,6 @@ export default function SetNominal() {
             {/* Stepper UI */}
             <Stepper currentStep={2} />
           </div>
-
           {/* Main Content Card */}
           <div className="bg-white rounded-2xl shadow-sm p-8 min-h-150">
             <div className="flex justify-between items-center mb-6">

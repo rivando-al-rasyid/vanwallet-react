@@ -1,7 +1,7 @@
 import { NavLink } from "react-router";
 export default function Sidebar() {
   return (
-    <aside className="w-56 shrink-0 bg-white border-r border-slate-100 flex flex-col py-8 px-4 gap-1 sticky top-0 ">
+    <aside className="w-56 shrink-0 bg-white border-r border-slate-100 flex flex-col py-8 px-4 gap-1 sticky top-16 h-[calc(100vh-4rem)]">
       <nav className="flex flex-col gap-1 flex-1">
         <NavLink
           to="/dashboard"

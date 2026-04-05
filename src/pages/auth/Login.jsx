@@ -50,7 +50,9 @@ export default function Login() {
           <Brand />
           <LoginHeadline
             title={"Hello Welcome Back 👋"}
-            text={"Fill out the form correctly or you can login with several options."}
+            text={
+              "Fill out the form correctly or you can login with several options."
+            }
           />
           <SocialLogin />
 
@@ -59,12 +61,6 @@ export default function Login() {
               {error}
             </div>
           )}
-
-          <div className="mb-4 px-4 py-3 rounded-xl bg-blue-50 border border-blue-100 text-xs text-blue-500">
-            <span className="font-bold">Demo:</span> gunakan{" "}
-            <code className="bg-blue-100 px-1 rounded">eve.holt@reqres.in</code>{" "}
-            dengan password apa saja.
-          </div>
 
           <form className="space-y-6" onSubmit={handleSubmit}>
             <Input

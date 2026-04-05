@@ -13,7 +13,11 @@ import { registerUser, saveSession } from "../../services/auth";
 export default function Register() {
   const navigate = useNavigate();
 
-  const [form, setForm] = useState({ email: "", password: "", confirmPassword: "" });
+  const [form, setForm] = useState({
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -38,7 +42,10 @@ export default function Register() {
 
     setLoading(true);
     try {
-      const data = await registerUser({ email: form.email, password: form.password });
+      const data = await registerUser({
+        email: form.email,
+        password: form.password,
+      });
       saveSession(data.token, form.email);
       navigate("/dashboard");
     } catch (err) {
@@ -54,8 +61,12 @@ export default function Register() {
         <div className="w-full max-w-175">
           <Brand />
           <LoginHeadline
-            title={"Start Accessing Banking Needs With All Devices and All Platforms With 30.000+ Users"}
-            text={"Transfering money is eassier than ever, you can access Zwallet wherever you are. Desktop, laptop, mobile phone? we cover all of that for you!"}
+            title={
+              "Start Accessing Banking Needs With All Devices and All Platforms With 30.000+ Users"
+            }
+            text={
+              "Transfering money is eassier than ever, you can access Zwallet wherever you are. Desktop, laptop, mobile phone? we cover all of that for you!"
+            }
           />
           <SocialLogin />
 
@@ -64,11 +75,6 @@ export default function Register() {
               {error}
             </div>
           )}
-
-          <div className="mb-4 px-4 py-3 rounded-xl bg-blue-50 border border-blue-100 text-xs text-blue-500">
-            <span className="font-bold">Demo:</span> reqres.in hanya menerima email terdaftar mereka, contoh:{" "}
-            <code className="bg-blue-100 px-1 rounded">eve.holt@reqres.in</code>
-          </div>
 
           <form className="space-y-6" onSubmit={handleSubmit}>
             <Input
