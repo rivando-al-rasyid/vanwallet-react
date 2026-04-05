@@ -14,7 +14,7 @@ export default function Footer() {
     <footer className="bg-blue-600 px-6 pb-10 pt-16 text-white lg:px-10">
       <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-4">
         <div>
-          <Brand />
+          <Brand isWhite={true} />
           <p className="mt-6 max-w-xs text-sm leading-7 text-white/80">
             Clarity gives you the blocks and components you need to create a
             truly professional website.
@@ -42,40 +42,52 @@ export default function Footer() {
             Social Media
           </h4>
           <div className="flex gap-4">
+            {/* Repeating this structure for all icons */}
             <a
               href="#"
-              className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 transition hover:bg-white/20"
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-white transition hover:bg-gray-100"
               aria-label="Twitter"
             >
-              <FontAwesomeIcon icon={faTwitter} className="text-base" />
+              <FontAwesomeIcon
+                icon={faTwitter}
+                className="text-base text-blue-600"
+              />
             </a>
 
             <a
               href="#"
-              className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 transition hover:bg-white/20"
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-white transition hover:bg-gray-100"
               aria-label="Facebook"
             >
-              <FontAwesomeIcon icon={faFacebookF} className="text-base" />
+              <FontAwesomeIcon
+                icon={faFacebookF}
+                className="text-base text-blue-600"
+              />
             </a>
 
             <a
               href="#"
-              className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 transition hover:bg-white/20"
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-white transition hover:bg-gray-100"
               aria-label="Instagram"
             >
-              <FontAwesomeIcon icon={faInstagram} className="text-base" />
+              <FontAwesomeIcon
+                icon={faInstagram}
+                className="text-base text-blue-600"
+              />
             </a>
 
             <a
               href="#"
-              className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 transition hover:bg-white/20"
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-white transition hover:bg-gray-100"
               aria-label="GitHub"
             >
-              <FontAwesomeIcon icon={faGithub} className="text-base" />
+              <FontAwesomeIcon
+                icon={faGithub}
+                className="text-base text-blue-600"
+              />
             </a>
           </div>
         </div>
-
         <div>
           <h4 className="mb-5 text-sm font-semibold uppercase tracking-wider text-white">
             Newsletter

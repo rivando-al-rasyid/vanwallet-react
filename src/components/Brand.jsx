@@ -1,12 +1,24 @@
+// Brand.jsx
 import logoImg from "../assets/img/logo.png";
 
-function Brand() {
+function Brand({ isWhite = false }) {
   return (
-    <div className="flex gap-4 items-center">
-      <div className="p-2 bg-[#6379F415] rounded-lg group-hover:bg-[#6379F4] transition-colors">
+    <div className="flex gap-4 items-center group">
+      <div
+        className={`p-2 rounded-lg transition-colors ${
+          isWhite
+            ? "bg-white/20 group-hover:bg-white/40"
+            : "bg-[#6379F415] group-hover:bg-[#6379F4]"
+        }`}
+      >
         <img src={logoImg} alt="Logo" className="w-6 h-6 object-contain" />
       </div>
-      <h1 className="text-2xl font-bold text-[#6379F4] tracking-tight">
+
+      <h1
+        className={`text-2xl font-bold tracking-tight transition-colors ${
+          isWhite ? "text-white" : "text-[#6379F4]"
+        }`}
+      >
         E-Wallet
       </h1>
     </div>
