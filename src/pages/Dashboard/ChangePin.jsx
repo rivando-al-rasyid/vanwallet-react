@@ -1,39 +1,42 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import Header from "../../layouts/Dashboard/Header";
 import Sidebar from "../../layouts/Dashboard/Sidebar";
 import { getSession, updateUser } from "../../services/auth";
+import PinInput from "../../components/PinInput";
 
 export default function ChangePin() {
   const { id } = getSession();
   const navigate = useNavigate();
 
-  const [pin, setPin] = useState("");
+  const [pin, setPin] = useState(["", "", "", "", "", ""]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
   const handleSubmit = async () => {
+    const pinValue = pin.join("");
+
     setSaving(true);
     setError("");
     setSuccess("");
 
-    if (!pin) {
+    if (!pinValue) {
       setError("PIN wajib diisi.");
       setSaving(false);
       return;
     }
 
-    if (!/^[0-9]{6}$/.test(pin)) {
+    if (!/^[0-9]{6}$/.test(pinValue)) {
       setError("PIN harus 6 digit angka.");
       setSaving(false);
       return;
     }
 
     try {
-      await updateUser(id, { pin });
+      await updateUser(id, { pin: pinValue });
       setSuccess("PIN berhasil diupdate!");
-      setPin("");
+      setPin(["", "", "", "", "", ""]);
 
       setTimeout(() => {
         navigate("/profile");
@@ -43,11 +46,6 @@ export default function ChangePin() {
     } finally {
       setSaving(false);
     }
-  };
-
-  const handlePinChange = (e) => {
-    const value = e.target.value.replace(/\D/g, "").slice(0, 6);
-    setPin(value);
   };
 
   return (
@@ -80,15 +78,7 @@ export default function ChangePin() {
               </p>
 
               <div className="flex flex-col items-center">
-                <input
-                  type="password"
-                  inputMode="numeric"
-                  maxLength={6}
-                  value={pin}
-                  onChange={handlePinChange}
-                  className="w-60 text-center text-3xl tracking-[1rem] border-0 border-b-2 border-gray-300 focus:border-blue-500 outline-none py-3 bg-transparent text-gray-800"
-                  placeholder="______"
-                />
+                <PinInput pin={pin} onChange={setPin} />
               </div>
 
               {error && <p className="text-sm text-red-500 mt-6">{error}</p>}
