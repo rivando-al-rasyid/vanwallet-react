@@ -42,11 +42,11 @@ export default function Register() {
 
     setLoading(true);
     try {
-      const data = await registerUser({
+      const user = await registerUser({
         email: form.email,
         password: form.password,
       });
-      saveSession(data.token, form.email);
+      saveSession(user); // ✅ pass the full user object, not data.token
       navigate("/dashboard");
     } catch (err) {
       setError(err.message);
@@ -114,7 +114,7 @@ export default function Register() {
           />
         </div>
       </section>
-      <LoginImage img="../../../src/assets/img/3d-hand-phone.png" />
+      <LoginImage img="/img/3d-hand-wallet.png" />
     </main>
   );
 }

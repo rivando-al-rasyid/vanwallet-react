@@ -17,7 +17,7 @@ const partners = [
   },
   {
     name: "Canon",
-    logo: "/public/canon.svg",
+    logo: "canon.svg",
   },
   {
     name: "Dell",

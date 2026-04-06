@@ -1,5 +1,4 @@
 // FeatureList.jsx
-import Imagez from "../assets/img/imagez.png";
 import { CheckCircle2 } from "lucide-react";
 
 export default function FeatureList() {
@@ -10,7 +9,7 @@ export default function FeatureList() {
       <div className="mx-auto grid max-w-7xl items-center gap-14 px-6 py-16 lg:grid-cols-2 lg:px-10 lg:py-20">
         <div className="flex justify-center">
           <img
-            src={Imagez}
+            src="/img/imagez.png"
             alt="Payment illustration"
             className="w-full max-w-sm"
           />

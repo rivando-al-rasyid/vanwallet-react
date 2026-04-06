@@ -1,5 +1,14 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+
+/**
+ * A semantic search input component.
+ *
+ * @param {Object} props
+ * @param {string|number} props.value
+ * @param {function(React.ChangeEvent<HTMLInputElement>): void} props.onChange
+ * @param {string} [props.placeholder="Enter Number Or Full Name"]
+ */
 export default function SearchInput({
   value,
   onChange,

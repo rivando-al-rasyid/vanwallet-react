@@ -33,8 +33,8 @@ export default function Login() {
 
     setLoading(true);
     try {
-      const data = await loginUser(form);
-      saveSession(data.token, form.email);
+      const user = await loginUser(form);
+      saveSession(user); // ✅ pass the full user object, not data.token
       navigate("/dashboard");
     } catch (err) {
       setError(err.message);
@@ -91,7 +91,7 @@ export default function Login() {
           />
         </div>
       </section>
-      <LoginImage img="../../../src/assets/img/3d-hand-phone.png" />
+      <LoginImage img="/img/3d-hand-phone.png" />
     </main>
   );
 }

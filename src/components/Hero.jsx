@@ -1,6 +1,4 @@
 // Hero.jsx
-import Phonesmall from "../assets/img/phonesmall.png";
-import Phonebig from "../assets/img/phonebig.png";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGooglePlay, faApple } from "@fortawesome/free-brands-svg-icons";
 
@@ -17,12 +15,12 @@ export default function Hero() {
           <div className="relative flex justify-center lg:justify-start">
             <div className="relative w-fit">
               <img
-                src={Phonebig}
+                src="/img/phonebig.png"
                 alt="Main app screen"
                 className="relative z-10 w-52 drop-shadow-2xl sm:w-60 lg:w-72"
               />
               <img
-                src={Phonesmall}
+                src="/img/phonesmall.png"
                 alt="Secondary app screen"
                 className="absolute bottom-0 -right-10 z-20 w-36 drop-shadow-2xl sm:w-44 lg:w-52"
               />

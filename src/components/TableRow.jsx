@@ -3,8 +3,21 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar, faTrashCan } from "@fortawesome/free-regular-svg-icons";
 import { faStar as faStarSolid } from "@fortawesome/free-solid-svg-icons";
 
+/**
+ * The number of rows displayed per page when pagination is enabled.
+ * @type {number}
+ */
 const ITEMS_PER_PAGE = 7;
 
+/**
+ * A versatile table component for displaying contact or transaction lists.
+ * @param {Object} props
+ * @param {Array<Object>} props.items
+ * @param {boolean} [props.remove=false]
+ * @param {function(string|number): void} [props.onDelete]
+ * @param {boolean} [props.paginate=false]
+ * @param {function(Object): void} [props.onRowClick]
+ */
 export default function TableRow({
   items,
   remove = false,
@@ -124,7 +137,10 @@ export default function TableRow({
                 {!remove && (
                   <td className="px-4 py-3 text-right rounded-r-xl">
                     <button
-                      onClick={(e) => { e.stopPropagation(); toggleFavorite(contact.id); }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleFavorite(contact.id);
+                      }}
                       className={`transition-colors ${
                         contact.isFavorite
                           ? "text-yellow-400 hover:text-yellow-500"
@@ -143,7 +159,10 @@ export default function TableRow({
                 {remove && (
                   <td className="px-4 py-3 text-right rounded-r-xl">
                     <button
-                      onClick={(e) => { e.stopPropagation(); handleDelete(contact.id); }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(contact.id);
+                      }}
                       className="text-red-400 hover:text-red-500 transition-colors"
                       title="Hapus"
                     >
@@ -156,7 +175,10 @@ export default function TableRow({
 
             {displayRows.length === 0 && (
               <tr>
-                <td colSpan={5} className="py-20 text-center text-gray-400 text-sm">
+                <td
+                  colSpan={5}
+                  className="py-20 text-center text-gray-400 text-sm"
+                >
                   No data found.
                 </td>
               </tr>
