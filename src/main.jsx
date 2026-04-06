@@ -10,7 +10,7 @@ import Register from "./pages/auth/Register.jsx";
 import ForgotPassword from "./pages/auth/ForgotPassword.jsx";
 import PinOtp from "./pages/auth/PinOtp.jsx";
 
-import Dashboard from "./layouts/Dashboard.jsx";
+import Dashboard from "./layouts/DashboardLayout.jsx";
 
 import Index from "./pages/dashboard/Index.jsx";
 import Transfer from "./pages/dashboard/Transfer.jsx";
