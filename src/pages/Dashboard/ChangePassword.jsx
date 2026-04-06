@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import Header from "../../layouts/Dashboard/Header";
-import Sidebar from "../../layouts/Dashboard/Sidebar";
+import Header from "../../layouts/dashboard/Header";
+import Sidebar from "../../layouts/dashboard/Sidebar";
 import { getSession, updateUser } from "../../services/auth";
 
 export default function ChangePassword() {

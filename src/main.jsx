@@ -10,15 +10,15 @@ import Register from "./pages/auth/Register.jsx";
 import ForgotPassword from "./pages/auth/ForgotPassword.jsx";
 import PinOtp from "./pages/auth/PinOtp.jsx";
 
-import Dashboard from "./pages/Dashboard/Index.jsx";
-import Transfer from "./pages/Dashboard/Transfer.jsx";
-import History from "./pages/Dashboard/History.jsx";
-import TopUp from "./pages/Dashboard/TopUp.jsx";
-import SetNominal from "./pages/Dashboard/SetNominal.jsx";
+import Dashboard from "./pages/dashboard/Index.jsx";
+import Transfer from "./pages/dashboard/Transfer.jsx";
+import History from "./pages/dashboard/History.jsx";
+import TopUp from "./pages/dashboard/TopUp.jsx";
+import SetNominal from "./pages/dashboard/SetNominal.jsx";
 
-import Profile from "./pages/Dashboard/Profile";
-import ChangePassword from "./pages/Dashboard/ChangePassword";
-import ChangePin from "./pages/Dashboard/ChangePin";
+import Profile from "./pages/dashboard/Profile";
+import ChangePassword from "./pages/dashboard/ChangePassword";
+import ChangePin from "./pages/dashboard/ChangePin";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <BrowserRouter>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
-import Header from "../../layouts/Dashboard/Header";
-import Sidebar from "../../layouts/Dashboard/Sidebar";
+import Header from "../../layouts/dashboard/Header";
+import Sidebar from "../../layouts/dashboard/Sidebar";
 import Stepper from "../../components/Stepper";
 import SearchInput from "../../components/SearchInput";
 import TableRow from "../../components/TableRow";

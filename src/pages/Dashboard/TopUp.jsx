@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import Header from "../../layouts/Dashboard/Header";
-import Sidebar from "../../layouts/Dashboard/Sidebar";
+import Header from "../../layouts/dashboard/Header";
+import Sidebar from "../../layouts/dashboard/Sidebar";
 import { getSession } from "../../services/auth";
 
 const TAX_RATE = 0.1; // 10%
@@ -10,9 +10,24 @@ const PAYMENT_METHODS = [
     id: "bri",
     name: "Bank Rakyat Indonesia",
     logo: (
-      <svg width="40" height="28" viewBox="0 0 80 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="80" height="40" rx="4" fill="#003F87"/>
-        <text x="8" y="26" fontFamily="Arial" fontSize="13" fontWeight="bold" fill="white">BANK BRI</text>
+      <svg
+        width="40"
+        height="28"
+        viewBox="0 0 80 40"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <rect width="80" height="40" rx="4" fill="#003F87" />
+        <text
+          x="8"
+          y="26"
+          fontFamily="Arial"
+          fontSize="13"
+          fontWeight="bold"
+          fill="white"
+        >
+          BANK BRI
+        </text>
       </svg>
     ),
   },
@@ -20,8 +35,23 @@ const PAYMENT_METHODS = [
     id: "dana",
     name: "Dana",
     logo: (
-      <svg width="48" height="20" viewBox="0 0 96 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <text x="0" y="24" fontFamily="Arial" fontSize="22" fontWeight="bold" fill="#108EE9">dana</text>
+      <svg
+        width="48"
+        height="20"
+        viewBox="0 0 96 32"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <text
+          x="0"
+          y="24"
+          fontFamily="Arial"
+          fontSize="22"
+          fontWeight="bold"
+          fill="#108EE9"
+        >
+          dana
+        </text>
       </svg>
     ),
   },
@@ -29,8 +59,23 @@ const PAYMENT_METHODS = [
     id: "bca",
     name: "Bank Central Asia",
     logo: (
-      <svg width="40" height="24" viewBox="0 0 80 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <text x="0" y="26" fontFamily="Arial" fontSize="18" fontWeight="bold" fill="#005BAA">BCA</text>
+      <svg
+        width="40"
+        height="24"
+        viewBox="0 0 80 36"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <text
+          x="0"
+          y="26"
+          fontFamily="Arial"
+          fontSize="18"
+          fontWeight="bold"
+          fill="#005BAA"
+        >
+          BCA
+        </text>
       </svg>
     ),
   },
@@ -38,8 +83,23 @@ const PAYMENT_METHODS = [
     id: "gopay",
     name: "Gopay",
     logo: (
-      <svg width="52" height="20" viewBox="0 0 104 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <text x="0" y="24" fontFamily="Arial" fontSize="20" fontWeight="bold" fill="#00AED6">gopay</text>
+      <svg
+        width="52"
+        height="20"
+        viewBox="0 0 104 32"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <text
+          x="0"
+          y="24"
+          fontFamily="Arial"
+          fontSize="20"
+          fontWeight="bold"
+          fill="#00AED6"
+        >
+          gopay
+        </text>
       </svg>
     ),
   },
@@ -47,8 +107,23 @@ const PAYMENT_METHODS = [
     id: "ovo",
     name: "Ovo",
     logo: (
-      <svg width="44" height="20" viewBox="0 0 80 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <text x="0" y="24" fontFamily="Arial" fontSize="22" fontWeight="bold" fill="#4C3494">OVO</text>
+      <svg
+        width="44"
+        height="20"
+        viewBox="0 0 80 32"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <text
+          x="0"
+          y="24"
+          fontFamily="Arial"
+          fontSize="22"
+          fontWeight="bold"
+          fill="#4C3494"
+        >
+          OVO
+        </text>
       </svg>
     ),
   },
@@ -80,7 +155,9 @@ export default function TopUp() {
 
   const handleSubmit = () => {
     if (!amount || order <= 0) return alert("Masukkan nominal top up");
-    alert(`Top Up ${fmt(subTotal)} via ${PAYMENT_METHODS.find((m) => m.id === selectedMethod)?.name} berhasil!`);
+    alert(
+      `Top Up ${fmt(subTotal)} via ${PAYMENT_METHODS.find((m) => m.id === selectedMethod)?.name} berhasil!`,
+    );
   };
 
   return (
@@ -89,11 +166,16 @@ export default function TopUp() {
       <main className="flex pt-16 min-h-screen">
         <Sidebar />
         <section className="flex-1 flex flex-col gap-6 p-8 overflow-auto">
-
           {/* Page Title */}
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
                 <path
                   fillRule="evenodd"
                   clipRule="evenodd"
@@ -107,12 +189,12 @@ export default function TopUp() {
 
           {/* Two-column layout */}
           <div className="flex gap-6 items-start">
-
             {/* Left — main form */}
             <div className="flex-1 bg-white rounded-2xl shadow-sm p-8">
-
               {/* Account Information */}
-              <h2 className="text-base font-bold text-gray-800 mb-4">Account Information</h2>
+              <h2 className="text-base font-bold text-gray-800 mb-4">
+                Account Information
+              </h2>
               <div className="bg-gray-50 rounded-xl p-4 mb-8">
                 {user ? (
                   <div className="flex items-center gap-4">
@@ -129,8 +211,19 @@ export default function TopUp() {
                       <p className="font-semibold text-gray-800">{user.name}</p>
                       <p className="text-sm text-gray-500">{user.phone}</p>
                       <span className="inline-flex items-center gap-1 mt-1 text-xs bg-blue-600 text-white px-2.5 py-0.5 rounded-full font-medium">
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
-                          <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        <svg
+                          width="11"
+                          height="11"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                        >
+                          <path
+                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                            stroke="white"
+                            strokeWidth="2.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
                         </svg>
                         Verified
                       </span>
@@ -149,13 +242,25 @@ export default function TopUp() {
 
               {/* Amount */}
               <div className="mb-8">
-                <h2 className="text-base font-bold text-gray-800 mb-1">Amount</h2>
-                <p className="text-sm text-gray-400 mb-3">Type the amount you want to transfer to your e-wallet account</p>
+                <h2 className="text-base font-bold text-gray-800 mb-1">
+                  Amount
+                </h2>
+                <p className="text-sm text-gray-400 mb-3">
+                  Type the amount you want to transfer to your e-wallet account
+                </p>
                 <div className="relative">
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                      <rect x="2" y="5" width="20" height="14" rx="2" stroke="#9CA3AF" strokeWidth="1.8"/>
-                      <path d="M2 10h20" stroke="#9CA3AF" strokeWidth="1.8"/>
+                      <rect
+                        x="2"
+                        y="5"
+                        width="20"
+                        height="14"
+                        rx="2"
+                        stroke="#9CA3AF"
+                        strokeWidth="1.8"
+                      />
+                      <path d="M2 10h20" stroke="#9CA3AF" strokeWidth="1.8" />
                     </svg>
                   </span>
                   <input
@@ -170,8 +275,12 @@ export default function TopUp() {
 
               {/* Payment Method */}
               <div>
-                <h2 className="text-base font-bold text-gray-800 mb-1">Payment Method</h2>
-                <p className="text-sm text-gray-400 mb-4">Choose your payment method for top up account</p>
+                <h2 className="text-base font-bold text-gray-800 mb-1">
+                  Payment Method
+                </h2>
+                <p className="text-sm text-gray-400 mb-4">
+                  Choose your payment method for top up account
+                </p>
                 <div className="flex flex-col gap-3">
                   {PAYMENT_METHODS.map((method) => (
                     <label
@@ -193,7 +302,9 @@ export default function TopUp() {
                       <span className="w-12 flex items-center justify-center shrink-0">
                         {method.logo}
                       </span>
-                      <span className="text-sm font-medium text-gray-700">{method.name}</span>
+                      <span className="text-sm font-medium text-gray-700">
+                        {method.name}
+                      </span>
                     </label>
                   ))}
                 </div>
@@ -202,24 +313,36 @@ export default function TopUp() {
 
             {/* Right — payment summary */}
             <div className="w-72 shrink-0 bg-white rounded-2xl shadow-sm p-6 sticky top-6">
-              <h2 className="text-base font-bold text-gray-800 mb-6">Payment</h2>
+              <h2 className="text-base font-bold text-gray-800 mb-6">
+                Payment
+              </h2>
 
               <div className="flex flex-col gap-4 mb-6">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-500">Order</span>
-                  <span className="text-sm font-semibold text-gray-800">{fmt(order)}</span>
+                  <span className="text-sm font-semibold text-gray-800">
+                    {fmt(order)}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-500">Delivery</span>
-                  <span className="text-sm font-semibold text-gray-800">{fmt(delivery)}</span>
+                  <span className="text-sm font-semibold text-gray-800">
+                    {fmt(delivery)}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-500">Tax</span>
-                  <span className="text-sm font-semibold text-gray-800">{fmt(tax)}</span>
+                  <span className="text-sm font-semibold text-gray-800">
+                    {fmt(tax)}
+                  </span>
                 </div>
                 <div className="border-t border-gray-100 pt-4 flex items-center justify-between">
-                  <span className="text-sm font-bold text-gray-800">Sub Total</span>
-                  <span className="text-sm font-bold text-gray-800">{fmt(subTotal)}</span>
+                  <span className="text-sm font-bold text-gray-800">
+                    Sub Total
+                  </span>
+                  <span className="text-sm font-bold text-gray-800">
+                    {fmt(subTotal)}
+                  </span>
                 </div>
               </div>
 
@@ -235,7 +358,6 @@ export default function TopUp() {
               </p>
             </div>
           </div>
-
         </section>
       </main>
     </>
