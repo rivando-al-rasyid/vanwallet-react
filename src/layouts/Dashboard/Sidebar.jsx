@@ -4,7 +4,7 @@ export default function Sidebar() {
     <aside className="w-56 shrink-0 bg-white border-r border-slate-100 flex flex-col py-8 px-4 gap-1 sticky top-16 h-[calc(100vh-4rem)]">
       <nav className="flex flex-col gap-1 flex-1">
         <NavLink
-          to="/dashboard"
+          to="/dashboard/"
           className={({ isActive }) =>
             `flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
               isActive
@@ -12,6 +12,7 @@ export default function Sidebar() {
                 : "text-slate-500 hover:bg-blue-50 hover:text-blue-600"
             }`
           }
+          end
         >
           <svg
             width="24"
@@ -43,7 +44,7 @@ export default function Sidebar() {
         </NavLink>
 
         <NavLink
-          to="/transfer"
+          to="/dashboard/transfer"
           className={({ isActive }) =>
             `flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
               isActive
@@ -70,7 +71,7 @@ export default function Sidebar() {
         </NavLink>
 
         <NavLink
-          to="/history"
+          to="/dashboard/history"
           className={({ isActive }) =>
             `flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
               isActive
@@ -112,7 +113,7 @@ export default function Sidebar() {
         </NavLink>
 
         <NavLink
-          to="/topup"
+          to="/dashboard/topup"
           className={({ isActive }) =>
             `flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
               isActive
@@ -187,7 +188,7 @@ export default function Sidebar() {
         </NavLink>
 
         <NavLink
-          to="/profile"
+          to="/dashboard/profile"
           className={({ isActive }) =>
             `flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
               isActive
