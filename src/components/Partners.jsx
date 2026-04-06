@@ -1,4 +1,4 @@
-const partners = [
+const PARTNERS = [
   {
     name: "Microsoft",
     logo: "https://api.iconify.design/simple-icons:microsoft.svg",
@@ -40,11 +40,11 @@ export default function Partners() {
         </div>
 
         <div className="flex flex-wrap items-center justify-start gap-x-12 gap-y-8 lg:justify-between">
-          {partners.map((partner) => (
-            <div key={partner.name} className="flex h-14 items-center">
+          {PARTNERS.map(({ name, logo }) => (
+            <div key={name} className="flex h-14 items-center">
               <img
-                src={partner.logo}
-                alt={partner.name}
+                src={logo}
+                alt={name}
                 className="h-10 w-auto object-contain opacity-70 grayscale"
                 loading="lazy"
               />

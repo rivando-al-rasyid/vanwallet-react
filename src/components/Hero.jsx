@@ -1,6 +1,7 @@
-// Hero.jsx
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGooglePlay, faApple } from "@fortawesome/free-brands-svg-icons";
+
+const AVATAR_IDS = [21, 22, 23, 24];
 
 export default function Hero() {
   return (
@@ -41,7 +42,7 @@ export default function Hero() {
 
               <button className="flex min-w-42.5 items-center justify-center gap-3 rounded-lg border border-white/50 px-6 py-3 font-medium text-white transition hover:bg-white/10">
                 <FontAwesomeIcon icon={faApple} height={18} width={18} />
-                <span>Apps Store</span>
+                <span>App Store</span>
               </button>
             </div>
 
@@ -49,17 +50,17 @@ export default function Hero() {
               <div className="text-5xl font-semibold leading-none">4.6 M</div>
               <div>
                 <div className="mb-2 flex -space-x-3">
-                  {[21, 22, 23, 24].map((i) => (
+                  {AVATAR_IDS.map((id) => (
                     <img
-                      key={i}
-                      src={`https://i.pravatar.cc/100?img=${i}`}
+                      key={id}
+                      src={`https://i.pravatar.cc/100?img=${id}`}
                       alt="User avatar"
                       className="h-10 w-10 rounded-full border-2 border-blue-600 object-cover"
                     />
                   ))}
                 </div>
                 <p className="max-w-xs text-sm leading-6 text-white/80">
-                  Around the world, we already have over 4.6 happy users
+                  Around the world, we already have over 4.6 million happy users
                 </p>
               </div>
             </div>

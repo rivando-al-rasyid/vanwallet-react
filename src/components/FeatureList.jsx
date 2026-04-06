@@ -1,9 +1,8 @@
-// FeatureList.jsx
 import { CheckCircle2 } from "lucide-react";
 
-export default function FeatureList() {
-  const items = ["Small Fee", "Data Secured", "User Friendly"];
+const FEATURES = ["Small Fee", "Data Secured", "User Friendly"];
 
+export default function FeatureList() {
   return (
     <section className="bg-gray-50">
       <div className="mx-auto grid max-w-7xl items-center gap-14 px-6 py-16 lg:grid-cols-2 lg:px-10 lg:py-20">
@@ -25,9 +24,13 @@ export default function FeatureList() {
           </p>
 
           <ul className="mt-8 space-y-4">
-            {items.map((text, i) => (
-              <li key={i} className="flex items-center gap-3">
-                <CheckCircle2 size={22} className="text-green-500" />
+            {FEATURES.map((text) => (
+              <li key={text} className="flex items-center gap-3">
+                <CheckCircle2
+                  size={22}
+                  className="text-green-500 shrink-0"
+                  aria-hidden="true"
+                />
                 <span className="font-semibold text-gray-800">{text}</span>
               </li>
             ))}
