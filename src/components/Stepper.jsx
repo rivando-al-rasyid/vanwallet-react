@@ -1,7 +1,17 @@
 import React from "react";
 
+/**
+ * List of step labels for the stepper navigation.
+ * @type {string[]}
+ */
 const STEPS = ["Find People", "Set Nominal", "Finish"];
 
+/**
+ * A visual stepper component that tracks progress through a multi-step flow.
+ *
+ * @param {Object} props - The component props.
+ * @param {number} props.currentStep - The active step index (starting from 1).
+ */
 export default function Stepper({ currentStep }) {
   return (
     <div className="flex items-center gap-4 text-sm font-medium">

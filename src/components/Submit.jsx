@@ -1,3 +1,10 @@
+/**
+ * Description placeholder
+ *
+ * @export
+ * @param {object} props
+ * @param {string} props.name
+ */
 export default function Submit({ name }) {
   return (
     <button
