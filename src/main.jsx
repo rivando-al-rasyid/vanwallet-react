@@ -8,6 +8,7 @@ import App from "./App.jsx";
 import Login from "./pages/auth/Login.jsx";
 import Register from "./pages/auth/Register.jsx";
 import ForgotPassword from "./pages/auth/ForgotPassword.jsx";
+import PinOtp from "./pages/auth/PinOtp.jsx";
 
 import Dashboard from "./pages/Dashboard/Index.jsx";
 import Transfer from "./pages/Dashboard/Transfer.jsx";
@@ -23,8 +24,11 @@ ReactDOM.createRoot(document.getElementById("root")).render(
   <BrowserRouter>
     <Routes>
       <Route path="/" element={<App />} />
+
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/forgotpassword/otp" element={<PinOtp />} />
+
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/transfer" element={<Transfer />} />
       <Route path="/transfer/:id" element={<SetNominal />} />
