@@ -1,26 +1,30 @@
 import { useRef } from "react";
 
 /**
- * PinInput — reusable 6-digit PIN input component.
- *
- * Props:
- *   pin       {string[]} — array of 6 digit strings (controlled)
- *   onChange  {function} — (newPin: string[]) => void
+ * A 6-digit PIN input component with auto-focus and paste support.
+ * @param {Object} props
+ * @param {string[]} props.pin - An array of 6 strings representing each digit.
+ * @param {function(string[]): void} props.onChange - Callback triggered when the PIN array updates.
  */
-export default function PinInput({ pin, onChange }) {
+export default function PinInput({ pin = Array(6).fill(""), onChange }) {
   const inputs = useRef([]);
 
   const handleChange = (index, value) => {
+    // Only allow numbers
     if (!/^\d?$/.test(value)) return;
+
     const newPin = [...pin];
     newPin[index] = value;
     onChange(newPin);
+
+    // Auto-focus next input if value is entered
     if (value && index < 5) {
       inputs.current[index + 1]?.focus();
     }
   };
 
   const handleKeyDown = (index, e) => {
+    // Move focus back on backspace if current field is empty
     if (e.key === "Backspace" && !pin[index] && index > 0) {
       inputs.current[index - 1]?.focus();
     }
@@ -28,29 +32,40 @@ export default function PinInput({ pin, onChange }) {
 
   const handlePaste = (e) => {
     e.preventDefault();
-    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
-    if (!pasted) return;
+    const pastedData = e.clipboardData
+      .getData("text")
+      .replace(/\D/g, "")
+      .slice(0, 6);
+
+    if (!pastedData) return;
+
     const newPin = [...pin];
-    pasted.split("").forEach((char, i) => { newPin[i] = char; });
+    pastedData.split("").forEach((char, i) => {
+      if (i < 6) newPin[i] = char;
+    });
+
     onChange(newPin);
-    const nextEmpty = Math.min(pasted.length, 5);
-    inputs.current[nextEmpty]?.focus();
+
+    // Focus the last filled input or the first empty one
+    const focusIndex = Math.min(pastedData.length, 5);
+    inputs.current[focusIndex]?.focus();
   };
 
   return (
-    <div className="flex gap-3">
+    <div className="flex justify-between gap-2 sm:gap-4">
       {pin.map((digit, i) => (
         <input
           key={i}
           ref={(el) => (inputs.current[i] = el)}
-          type="password"
+          type="text" // 'password' is fine, but 'text' with CSS 'text-security' is often preferred for PINs
           inputMode="numeric"
+          pattern="\d*"
           maxLength={1}
           value={digit}
           onChange={(e) => handleChange(i, e.target.value)}
           onKeyDown={(e) => handleKeyDown(i, e)}
-          onPaste={i === 0 ? handlePaste : undefined}
-          className="w-12 h-14 text-center text-2xl font-bold border-b-2 border-gray-200 focus:border-[#2948FF] focus:outline-none transition-colors bg-transparent text-gray-800"
+          onPaste={handlePaste} // Allow paste on any field for better UX
+          className="w-10 h-12 sm:w-14 sm:h-16 text-center text-2xl font-bold border-2 rounded-xl border-slate-200 focus:border-[#6379F4] focus:ring-1 focus:ring-[#6379F4] focus:outline-none transition-all bg-white text-[#3A3D42]"
         />
       ))}
     </div>

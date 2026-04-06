@@ -1,3 +1,9 @@
+/**
+ * Renders the heading and sub-description for login/signup screens.
+ * @param {Object} props - The component props.
+ * @param {string} props.title - The bold main heading text.
+ * @param {string} props.text - The supporting description text below the title.
+ */
 export default function LoginHeadline({ title, text }) {
   return (
     <div className="mb-10">

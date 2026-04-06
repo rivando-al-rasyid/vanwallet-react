@@ -1,4 +1,8 @@
-// Brand.jsx
+/**
+ * Renders the company logo/brand mark.
+ * @param {Object} props
+ * @param {boolean} [props.isWhite=false] - If true, renders the light version of the brand.
+ */
 
 function Brand({ isWhite = false }) {
   return (
