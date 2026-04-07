@@ -1,6 +1,18 @@
 import { useFormContext } from "react-hook-form";
 import { useRef } from "react";
 
+// Constants
+const PIN_LENGTH = 6;
+const BASE_INPUT_CLASSES = `
+  w-10 sm:w-12
+  text-center
+  text-2xl font-semibold
+  bg-transparent
+  border-b-2
+  outline-none
+  transition
+`;
+
 export default function PinInput() {
   const { setValue, watch } = useFormContext();
   const inputsRef = useRef([]);
@@ -8,16 +20,18 @@ export default function PinInput() {
   const values = watch("pin");
 
   const handleChange = (e, index) => {
-    const value = e.target.value.replace(/[^0-9]/g, "");
+    const numericValue = e.target.value.replace(/[^0-9]/g, "");
 
-    setValue(`pin.${index}.value`, value);
+    setValue(`pin.${index}.value`, numericValue);
 
-    if (value && inputsRef.current[index + 1]) {
+    // Auto-focus next input
+    if (numericValue && inputsRef.current[index + 1]) {
       inputsRef.current[index + 1].focus();
     }
   };
 
   const handleKeyDown = (e, index) => {
+    // Handle backspace to go to previous input
     if (e.key === "Backspace" && !values?.[index]?.value) {
       if (inputsRef.current[index - 1]) {
         inputsRef.current[index - 1].focus();
@@ -25,35 +39,53 @@ export default function PinInput() {
     }
   };
 
+  const getInputClassName = (isActive) => {
+    const activeClasses = isActive ? "border-blue-500" : "border-gray-300";
+    return `${BASE_INPUT_CLASSES} ${activeClasses} focus:border-blue-500`;
+  };
+
   return (
     <div className="flex justify-between gap-4">
-      {Array.from({ length: 6 }).map((_, index) => {
+      {Array.from({ length: PIN_LENGTH }).map((_, index) => {
         const isActive = values?.[index]?.value;
 
         return (
-          <input
+          <PinInputField
             key={index}
-            type="text"
-            maxLength={1}
-            inputMode="numeric"
+            index={index}
             value={values?.[index]?.value || ""}
-            ref={(el) => (inputsRef.current[index] = el)}
-            onChange={(e) => handleChange(e, index)}
-            onKeyDown={(e) => handleKeyDown(e, index)}
-            className={`
-              w-10 sm:w-12
-              text-center
-              text-2xl font-semibold
-              bg-transparent
-              border-b-2
-              outline-none
-              transition
-              ${isActive ? "border-blue-500" : "border-gray-300"}
-              focus:border-blue-500
-            `}
+            isActive={isActive}
+            onChange={handleChange}
+            onKeyDown={handleKeyDown}
+            inputRef={(el) => (inputsRef.current[index] = el)}
+            className={getInputClassName(isActive)}
           />
         );
       })}
     </div>
+  );
+}
+
+function PinInputField({
+  index,
+  value,
+  isActive,
+  onChange,
+  onKeyDown,
+  inputRef,
+  className,
+}) {
+  return (
+    <input
+      type="text"
+      maxLength={1}
+      inputMode="numeric"
+      value={value}
+      ref={inputRef}
+      onChange={(e) => onChange(e, index)}
+      onKeyDown={(e) => onKeyDown(e, index)}
+      className={className}
+      aria-label={`PIN digit ${index + 1}`}
+    />
   );
 }

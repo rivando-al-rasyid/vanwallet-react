@@ -4,7 +4,7 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 export async function getAllUsers() {
   const res = await fetch(`${BASE_URL}/user`);
   const data = await res.json();
-  if (!res.ok) throw new Error("Gagal mengambil daftar user");
+  if (!res.ok) throw new Error("Failed to fetch users list");
   return data;
 }
 
@@ -12,9 +12,9 @@ export async function getAllUsers() {
 export async function loginUser({ email, password }) {
   const users = await getAllUsers();
   const match = users.find(
-    (users) => users.email === email && users.password === password
+    (user) => user.email === email && user.password === password
   );
-  if (!match) throw new Error("Email atau password salah");
+  if (!match) throw new Error("Invalid email or password");
   return match;
 }
 
@@ -26,7 +26,7 @@ export async function registerUser({ name, email, password, phone }) {
     body: JSON.stringify({ name, email, password, phone }),
   });
   const data = await res.json();
-  if (!res.ok) throw new Error("Registrasi gagal");
+  if (!res.ok) throw new Error("Registration failed");
   return data;
 }
 
@@ -34,7 +34,7 @@ export async function registerUser({ name, email, password, phone }) {
 export async function getUserById(id) {
   const res = await fetch(`${BASE_URL}/user/${id}`);
   const data = await res.json();
-  if (!res.ok) throw new Error("Gagal mengambil data user");
+  if (!res.ok) throw new Error("Failed to fetch user data");
   return data;
 }
 
@@ -51,7 +51,7 @@ export async function updateUser(id, payload) {
     body: JSON.stringify(payload),
   });
   const data = await res.json();
-  if (!res.ok) throw new Error("Gagal mengupdate data user");
+  if (!res.ok) throw new Error("Failed to update user data");
   return data;
 }
 
