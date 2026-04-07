@@ -1,60 +1,79 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 
 /**
+ * @typedef {Object} SearchInputProps
+ * @property {string|number} value - Current search value
+ * @property {(event: {target: {value: string}}) => void} onChange - Change handler
+ * @property {string} [placeholder="Enter Number Or Full Name"] - Input placeholder
+ * @property {number} [debounceMs=300] - Debounce delay in milliseconds
+ * @property {string} [className] - Additional CSS classes
+ * @property {boolean} [disabled=false] - Whether input is disabled
+ */
+
+/**
  * A semantic search input component with debouncing support.
- * @param {Object} props
- * @param {string|number} props.value
- * @param {function(React.ChangeEvent<HTMLInputElement>): void} props.onChange
- * @param {string} [props.placeholder="Enter Number Or Full Name"]
- * @param {number} [props.debounceMs=300] - Debounce delay in milliseconds
+ * @type {React.FC<SearchInputProps>}
  */
 export default function SearchInput({
   value,
   onChange,
   placeholder = "Enter Number Or Full Name",
   debounceMs = 300,
+  className = "",
+  disabled = false,
 }) {
-  const [localValue, setLocalValue] = useState(value);
+  const [localValue, setLocalValue] = useState(String(value || ""));
 
   // Update local value when prop value changes (e.g., from URL params)
   useEffect(() => {
-    setLocalValue(value);
+    setLocalValue(String(value || ""));
   }, [value]);
+
+  // Memoized synthetic event creator
+  const createSyntheticEvent = useCallback((newValue) => ({
+    target: { value: newValue }
+  }), []);
 
   // Debounced onChange handler
   useEffect(() => {
+    if (localValue === String(value || "")) return;
+
     const timer = setTimeout(() => {
-      if (localValue !== value) {
-        // Create synthetic event to maintain API compatibility
-        const syntheticEvent = {
-          target: { value: localValue }
-        };
-        onChange(syntheticEvent);
-      }
+      onChange(createSyntheticEvent(localValue));
     }, debounceMs);
 
     return () => clearTimeout(timer);
-  }, [localValue, onChange, debounceMs, value]);
+  }, [localValue, onChange, debounceMs, value, createSyntheticEvent]);
 
-  const handleChange = (e) => {
+  const handleChange = useCallback((e) => {
     setLocalValue(e.target.value);
-  };
+  }, []);
+
+  const inputClassName = useMemo(() => {
+    const baseClasses = "w-full pl-4 pr-10 py-2 border border-gray-200 rounded-lg text-sm outline-none focus:border-blue-400 transition-colors";
+    const disabledClasses = disabled ? "bg-gray-100 cursor-not-allowed opacity-60" : "";
+    return `${baseClasses} ${disabledClasses} ${className}`.trim();
+  }, [className, disabled]);
 
   return (
-    <div role="search" className="relative w-80">
+    <div role="search" className={`relative w-80 ${className}`}>
       <input
         type="search"
         placeholder={placeholder}
-        className="w-full pl-4 pr-10 py-2 border border-gray-200 rounded-lg text-sm outline-none focus:border-blue-400"
+        className={inputClassName}
         value={localValue}
         onChange={handleChange}
+        disabled={disabled}
         aria-label={placeholder}
+        aria-disabled={disabled}
       />
       <FontAwesomeIcon
         icon={faMagnifyingGlass}
-        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+        className={`absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none transition-colors ${
+          disabled ? "text-gray-300" : "text-gray-400"
+        }`}
         aria-hidden="true"
       />
     </div>
