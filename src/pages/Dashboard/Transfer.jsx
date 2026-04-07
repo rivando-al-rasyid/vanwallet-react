@@ -3,7 +3,7 @@ import { useNavigate } from "react-router";
 import Stepper from "../../components/Stepper";
 import SearchInput from "../../components/SearchInput";
 import TableRow from "../../components/TableRow";
-import { getUsers } from "../../services/auth";
+import { getUsers } from "../../utils/auth";
 
 export default function Transfer() {
   const navigate = useNavigate();
@@ -47,7 +47,14 @@ export default function Transfer() {
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-6">
           <span className="text-blue-600">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
               <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
             </svg>
           </span>
@@ -67,14 +74,32 @@ export default function Transfer() {
                 : `${filteredContacts.length} Result Found${search ? ` For "${search}"` : ""}`}
             </p>
           </div>
-          <SearchInput value={search} onChange={(e) => setSearch(e.target.value)} />
+          <SearchInput
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
         </div>
 
         {loading && (
           <div className="flex flex-col items-center justify-center py-20 gap-3 text-gray-400">
-            <svg className="animate-spin w-8 h-8 text-blue-500" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+            <svg
+              className="animate-spin w-8 h-8 text-blue-500"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              />
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v8H4z"
+              />
             </svg>
             <span className="text-sm">Mengambil data kontak...</span>
           </div>
@@ -83,7 +108,10 @@ export default function Transfer() {
         {!loading && error && (
           <div className="flex flex-col items-center justify-center py-20 gap-3">
             <p className="text-red-500 font-semibold text-sm">{error}</p>
-            <button onClick={() => window.location.reload()} className="text-xs text-blue-600 underline">
+            <button
+              onClick={() => window.location.reload()}
+              className="text-xs text-blue-600 underline"
+            >
               Coba lagi
             </button>
           </div>
@@ -93,7 +121,9 @@ export default function Transfer() {
           <TableRow
             items={filteredContacts}
             paginate={true}
-            onRowClick={(contact) => navigate(`/dashboard/transfer/${contact.id}`)}
+            onRowClick={(contact) =>
+              navigate(`/dashboard/transfer/${contact.id}`)
+            }
           />
         )}
       </div>

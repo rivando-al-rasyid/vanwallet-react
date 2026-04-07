@@ -1,7 +1,7 @@
 import Brand from "../../components/Brand";
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router";
-import { getSession, clearSession, isLoggedIn } from "../../services/auth";
+import { getSession, clearSession, isLoggedIn } from "../../utils/auth";
 
 export default function Navbar() {
   const navigate = useNavigate();

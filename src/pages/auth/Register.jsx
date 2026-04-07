@@ -8,7 +8,7 @@ import Input from "../../components/Input";
 import Submit from "../../components/Submit";
 import LoginImage from "../../components/LoginImage";
 import LoginSubtext from "../../components/LoginSubtext";
-import { registerUser, saveSession } from "../../services/auth";
+import { registerUser, saveSession } from "../../utils/auth";
 
 export default function Register() {
   const navigate = useNavigate();

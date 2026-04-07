@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getSession } from "../../services/auth";
+import { getSession } from "../../utils/auth";
 
 const TAX_RATE = 0.1;
 
@@ -56,7 +56,9 @@ export default function TopUp() {
 
   const handleSubmit = () => {
     if (!amount || order <= 0) return alert("Masukkan nominal top up");
-    const methodName = PAYMENT_METHODS.find((m) => m.id === selectedMethod)?.name;
+    const methodName = PAYMENT_METHODS.find(
+      (m) => m.id === selectedMethod,
+    )?.name;
     alert(`Top Up ${fmtIdr(subTotal)} via ${methodName} berhasil!`);
   };
 
@@ -78,7 +80,9 @@ export default function TopUp() {
       <div className="flex gap-6 items-start">
         {/* Left Panel */}
         <div className="flex-1 bg-white rounded-2xl shadow-sm p-8">
-          <h2 className="text-base font-bold text-gray-800 mb-4">Account Information</h2>
+          <h2 className="text-base font-bold text-gray-800 mb-4">
+            Account Information
+          </h2>
           <div className="bg-gray-50 rounded-xl p-4 mb-8">
             {user ? (
               <div className="flex items-center gap-4">
@@ -87,7 +91,8 @@ export default function TopUp() {
                   alt={user.name}
                   className="w-14 h-14 rounded-xl object-cover shrink-0"
                   onError={(e) => {
-                    e.currentTarget.src = "https://ui-avatars.com/api/?name=User&background=EBF4FF&color=7F9CF5";
+                    e.currentTarget.src =
+                      "https://ui-avatars.com/api/?name=User&background=EBF4FF&color=7F9CF5";
                   }}
                 />
                 <div>
@@ -126,8 +131,12 @@ export default function TopUp() {
 
           {/* Payment Methods */}
           <div>
-            <h2 className="text-base font-bold text-gray-800 mb-1">Payment Method</h2>
-            <p className="text-sm text-gray-400 mb-4">Choose your payment method for top up account</p>
+            <h2 className="text-base font-bold text-gray-800 mb-1">
+              Payment Method
+            </h2>
+            <p className="text-sm text-gray-400 mb-4">
+              Choose your payment method for top up account
+            </p>
             <div className="flex flex-col gap-3">
               {PAYMENT_METHODS.map((method) => (
                 <label
@@ -151,10 +160,15 @@ export default function TopUp() {
                       src={method.logo}
                       alt={method.name}
                       className="max-w-full max-h-full object-contain"
-                      onError={(e) => { e.currentTarget.src = "https://placehold.co/40x24?text=Pay"; }}
+                      onError={(e) => {
+                        e.currentTarget.src =
+                          "https://placehold.co/40x24?text=Pay";
+                      }}
                     />
                   </div>
-                  <span className="text-sm font-medium text-gray-700">{method.name}</span>
+                  <span className="text-sm font-medium text-gray-700">
+                    {method.name}
+                  </span>
                 </label>
               ))}
             </div>
@@ -167,15 +181,21 @@ export default function TopUp() {
           <div className="flex flex-col gap-4 mb-6">
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-500">Order</span>
-              <span className="text-sm font-semibold text-gray-800">{fmtIdr(order)}</span>
+              <span className="text-sm font-semibold text-gray-800">
+                {fmtIdr(order)}
+              </span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-500">Tax (10%)</span>
-              <span className="text-sm font-semibold text-gray-800">{fmtIdr(tax)}</span>
+              <span className="text-sm font-semibold text-gray-800">
+                {fmtIdr(tax)}
+              </span>
             </div>
             <div className="border-t border-gray-100 pt-4 flex items-center justify-between">
               <span className="text-sm font-bold text-gray-800">Sub Total</span>
-              <span className="text-sm font-bold text-gray-800">{fmtIdr(subTotal)}</span>
+              <span className="text-sm font-bold text-gray-800">
+                {fmtIdr(subTotal)}
+              </span>
             </div>
           </div>
           <button

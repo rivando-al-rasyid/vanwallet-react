@@ -3,7 +3,7 @@ import { joiResolver } from "@hookform/resolvers/joi";
 import { useNavigate } from "react-router";
 import Joi from "joi";
 
-import { getSession, updateUser } from "../../services/auth";
+import { getSession, updateUser } from "../../utils/auth";
 import PinInput from "../../components/PinInput";
 
 import { useState } from "react";
