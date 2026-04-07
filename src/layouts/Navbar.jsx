@@ -1,6 +1,7 @@
-import { memo } from "react";
+import { memo, useState } from "react";
 import Brand from "../components/Brand";
 import { NavLink } from "react-router";
+import { Menu, X } from "lucide-react";
 
 const NAV_LINKS = [
   {
@@ -18,21 +19,51 @@ const NAV_LINKS = [
 ];
 
 const Navbar = memo(function Navbar() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
   return (
     <nav className="sticky top-0 z-50 bg-blue-600">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5 lg:px-10">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 sm:py-5 lg:px-10">
         <Brand isWhite />
 
-        <div className="flex items-center gap-3">
+        {/* Desktop Navigation */}
+        <div className="hidden items-center gap-3 sm:flex">
           {NAV_LINKS.map(({ to, label, className }) => (
-            // NavLink itself renders an <a> — wrapping it in <button> is invalid HTML.
-            // Use NavLink directly with button-like styling instead.
             <NavLink key={to} to={to} className={className}>
               {label}
             </NavLink>
           ))}
         </div>
+
+        {/* Mobile Menu Button */}
+        <button
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          className="flex items-center justify-center rounded-lg p-2 text-white transition hover:bg-white/10 sm:hidden"
+          aria-label="Toggle menu"
+        >
+          {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
       </div>
+
+      {/* Mobile Menu */}
+      {isMenuOpen && (
+        <div className="border-t border-white/20 bg-blue-600 sm:hidden">
+          <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6">
+            <div className="flex flex-col gap-3">
+              {NAV_LINKS.map(({ to, label, className }) => (
+                <NavLink
+                  key={to}
+                  to={to}
+                  className={className}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  {label}
+                </NavLink>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </nav>
   );
 });

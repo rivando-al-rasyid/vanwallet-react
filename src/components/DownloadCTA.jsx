@@ -18,7 +18,7 @@ const STORE_BUTTONS = [
 
 export default function DownloadCTA() {
   return (
-    <section className="mx-auto grid max-w-7xl items-center gap-14 px-6 py-16 lg:grid-cols-2 lg:px-10">
+    <section className="mx-auto grid max-w-7xl items-center gap-8 px-4 py-12 sm:gap-10 sm:px-6 sm:py-16 lg:grid-cols-2 lg:gap-14 lg:px-10">
       {/* Phone mockup */}
       <div className="relative flex justify-center lg:justify-start">
         <div className="relative w-fit">
@@ -26,32 +26,32 @@ export default function DownloadCTA() {
             src="/img/phonebig.png"
             alt="Main app screen"
             loading="lazy"
-            className="relative z-10 w-52 drop-shadow-2xl sm:w-60 lg:w-72"
+            className="relative z-10 w-40 drop-shadow-2xl sm:w-48 md:w-52 lg:w-72"
           />
           <img
             src="/img/phonesmall.png"
             alt="Secondary app screen"
             loading="lazy"
-            className="absolute bottom-0 -right-10 z-20 w-36 drop-shadow-2xl sm:w-44 lg:w-52"
+            className="absolute bottom-0 -right-6 z-20 w-28 drop-shadow-2xl sm:w-36 md:w-40 lg:w-52 lg:-right-10"
           />
         </div>
       </div>
 
       {/* CTA content */}
-      <div>
-        <h2 className="text-4xl font-semibold leading-tight text-gray-900">
+      <div className="text-center lg:text-left">
+        <h2 className="text-2xl font-semibold leading-tight text-gray-900 sm:text-3xl lg:text-4xl">
           Download The App
         </h2>
-        <p className="mt-5 max-w-lg text-base leading-7 text-gray-500">
+        <p className="mx-auto mt-4 max-w-lg text-sm leading-6 text-gray-500 sm:mt-5 sm:text-base sm:leading-7 lg:mx-0">
           Ready to experience the future of payments? Download e-wallet now and
           enjoy a world of convenience at your fingertips.
         </p>
 
-        <div className="mt-8 flex flex-wrap gap-4">
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:gap-4 sm:justify-center lg:mt-8 lg:justify-start">
           {STORE_BUTTONS.map(({ label, icon, className }) => (
             <button
               key={label}
-              className={`flex min-w-45 items-center justify-center gap-3 rounded-lg px-6 py-3 font-medium transition ${className}`}
+              className={`flex w-full min-w-45 items-center justify-center gap-3 rounded-lg px-6 py-3 font-medium transition sm:w-auto ${className}`}
             >
               <FontAwesomeIcon icon={icon} aria-hidden="true" />
               <span>{label}</span>

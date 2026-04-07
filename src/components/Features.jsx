@@ -21,17 +21,17 @@ const FEATURES = [
 export default function Features() {
   return (
     <section className="relative z-10 bg-white">
-      <div className="mx-auto grid max-w-7xl gap-8 px-6 py-10 lg:grid-cols-3 lg:px-10">
+      <div className="mx-auto grid max-w-7xl gap-6 px-4 py-8 sm:gap-8 sm:px-6 sm:py-10 lg:grid-cols-3 lg:px-10">
         {FEATURES.map(({ Icon, title, desc }) => (
-          <div key={title} className="flex items-start gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue-100">
-              <Icon size={22} className="text-blue-600" />
+          <div key={title} className="flex items-start gap-3 sm:gap-4">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 sm:h-12 sm:w-12">
+              <Icon size={20} className="text-blue-600 sm:size-22" />
             </div>
             <div>
-              <h3 className="mb-2 text-lg font-semibold text-gray-900">
+              <h3 className="mb-2 text-base font-semibold text-gray-900 sm:text-lg">
                 {title}
               </h3>
-              <p className="text-sm leading-6 text-gray-500">{desc}</p>
+              <p className="text-xs leading-5 text-gray-500 sm:text-sm sm:leading-6">{desc}</p>
             </div>
           </div>
         ))}
