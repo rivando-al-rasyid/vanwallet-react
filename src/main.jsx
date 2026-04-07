@@ -16,11 +16,9 @@ import Transfer from "./pages/dashboard/Transfer.jsx";
 import History from "./pages/dashboard/History.jsx";
 import TopUp from "./pages/dashboard/TopUp.jsx";
 import SetNominal from "./pages/dashboard/SetNominal.jsx";
-import Profile from "./pages/dashboard/Profile";
-import ChangePassword from "./pages/dashboard/ChangePassword";
-import ChangePin from "./pages/dashboard/ChangePin";
-
-import Finish from "./pages/dashboard/Finish.jsx";
+import Profile from "./pages/dashboard/Profile.jsx";
+import ChangePassword from "./pages/dashboard/ChangePassword.jsx";
+import ChangePin from "./pages/dashboard/ChangePin.jsx";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <BrowserRouter>
@@ -29,24 +27,28 @@ ReactDOM.createRoot(document.getElementById("root")).render(
 
       {/* Auth routes */}
       <Route path="/login" element={<Login />} />
+      <Route path="/login/pin" element={<LoginPin />} />
       <Route path="/register" element={<Register />} />
       <Route path="/forgotpassword" element={<ForgotPassword />} />
-      <Route path="/login/pin" element={<LoginPin />} />
 
-      {/* Dashboard routes — all share DashboardLayout */}
+      {/* Dashboard routes */}
       <Route path="/dashboard" element={<Dashboard />}>
         <Route index element={<Index />} />
-        <Route path="transfer" element={<Transfer />} />
-        <Route path="transfer/:id" element={<SetNominal />} />
-        <Route path="transfer/:id/finish" element={<Finish />} />
+
+        <Route path="transfer">
+          <Route index element={<Transfer />} />
+          <Route path=":id" element={<SetNominal />} />
+        </Route>
 
         <Route path="history" element={<History />} />
         <Route path="topup" element={<TopUp />} />
 
         {/* Profile nested routes */}
-        <Route path="profile" element={<Profile />} />
-        <Route path="profile/change-password" element={<ChangePassword />} />
-        <Route path="profile/change-pin" element={<ChangePin />} />
+        <Route path="profile">
+          <Route index element={<Profile />} />
+          <Route path="change-password" element={<ChangePassword />} />
+          <Route path="change-pin" element={<ChangePin />} />
+        </Route>
       </Route>
     </Routes>
   </BrowserRouter>,
