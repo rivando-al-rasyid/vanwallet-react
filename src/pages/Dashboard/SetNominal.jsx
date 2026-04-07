@@ -1,9 +1,9 @@
+// src/pages/transfer/SetNominal.jsx
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
-import { Modal } from "react-responsive-modal";
-import "react-responsive-modal/styles.css"; // Required styles
 import Stepper from "../../components/Stepper";
 import { getUserById } from "../../utils/auth";
+import TransferModal from "./TransferModal"; // your new modal component
 
 export default function SetNominal() {
   const { id } = useParams();
@@ -15,8 +15,8 @@ export default function SetNominal() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Modal State
-  const [open, setOpen] = useState(false);
+  // Modal state: null | "pin" | "failed" | "success"
+  const [modalStep, setModalStep] = useState(null);
 
   useEffect(() => {
     async function fetchContact() {
@@ -41,19 +41,49 @@ export default function SetNominal() {
     fetchContact();
   }, [id]);
 
-  const onOpenModal = () => {
-    if (!amount || amount <= 0)
+  const handleOpenPinModal = () => {
+    if (!amount || Number(amount) <= 0)
       return alert("Masukkan nominal transfer yang valid");
-    setOpen(true);
+    setModalStep("pin");
   };
 
-  const onCloseModal = () => setOpen(false);
+  const handleCloseModal = () => setModalStep(null);
 
-  const handleFinalTransfer = () => {
-    // Logic for actual API call goes here
-    console.log("Transferring:", { amount, notes, to: selectedContact.name });
-    setOpen(false);
-    // navigate('/success');
+  const handlePinNext = async (pin) => {
+    if (!pin || pin.length < 6) {
+      alert("Masukkan PIN lengkap (6 digit)");
+      return;
+    }
+    try {
+      // TODO: replace with actual transfer API call
+      console.log("Transferring:", {
+        amount,
+        notes,
+        to: selectedContact.name,
+        pin,
+      });
+      // Demo: PIN "000000" simulates failure
+      if (pin === "000000") throw new Error("Transfer failed");
+      setModalStep("success");
+    } catch (err) {
+      setModalStep("failed");
+    }
+  };
+
+  const handleTryAgain = () => {
+    setModalStep("pin");
+  };
+
+  const handleDone = () => {
+    setModalStep(null);
+    navigate("/dashboard");
+  };
+
+  const handleTransferAgain = () => {
+    setModalStep(null);
+    setAmount("");
+    setNotes("");
+    navigate("/dashboard/transfer");
   };
 
   return (
@@ -124,6 +154,7 @@ export default function SetNominal() {
 
         {!loading && !error && selectedContact && (
           <>
+            {/* Contact Card */}
             <div className="flex items-center gap-4 bg-gray-50 rounded-xl p-4 mb-8">
               <img
                 src={selectedContact.img}
@@ -134,41 +165,83 @@ export default function SetNominal() {
                     "https://ui-avatars.com/api/?name=User&background=EBF4FF&color=7F9CF5";
                 }}
               />
-              <div>
+              <div className="flex-1">
                 <p className="font-semibold text-gray-800">
                   {selectedContact.name}
                 </p>
                 <p className="text-sm text-gray-500">{selectedContact.phone}</p>
                 {selectedContact.verified && (
-                  <span className="inline-block mt-1 text-xs bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full font-medium">
+                  <span className="inline-flex items-center gap-1 mt-1 text-xs bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full font-medium">
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                    >
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
                     Verified
                   </span>
                 )}
               </div>
+              <button className="text-gray-300 hover:text-yellow-400 transition-colors ml-auto shrink-0">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                >
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                </svg>
+              </button>
             </div>
 
+            {/* Amount */}
             <div className="mb-5">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-gray-700 mb-1">
                 Amount
               </label>
+              <p className="text-xs text-gray-400 mb-2">
+                Type the amount you want to transfer and then press continue to
+                the next steps.
+              </p>
               <div className="relative">
-                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-gray-400 font-medium">
-                  Rp
+                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+                    <line x1="1" y1="10" x2="23" y2="10" />
+                  </svg>
                 </span>
                 <input
                   type="number"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  placeholder="0"
+                  placeholder="Enter Nominal Transfer"
                   className="w-full pl-10 pr-4 py-3 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition"
                 />
               </div>
             </div>
 
+            {/* Notes */}
             <div className="mb-8">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-gray-700 mb-1">
                 Notes
               </label>
+              <p className="text-xs text-gray-400 mb-2">
+                You can add some notes for this transfer such as payment coffee
+                or something
+              </p>
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
@@ -179,71 +252,25 @@ export default function SetNominal() {
             </div>
 
             <button
-              onClick={onOpenModal}
+              onClick={handleOpenPinModal}
               className="w-full py-3.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition shadow-lg shadow-blue-200"
             >
-              Continue
+              Submit &amp; Transfer
             </button>
           </>
         )}
       </div>
 
-      {/* --- REACT RESPONSIVE MODAL --- */}
-      <Modal
-        open={open}
-        onClose={onCloseModal}
-        center
-        classNames={{
-          modal: "rounded-2xl p-0 overflow-hidden max-w-md w-full",
-          closeButton: "hover:bg-gray-100 rounded-full p-1 transition-colors",
-        }}
-      >
-        <div className="p-6">
-          <h3 className="text-xl font-bold text-gray-800 mb-4">
-            Confirm Transfer
-          </h3>
-          <p className="text-gray-500 text-sm mb-6">
-            Please review the details below before proceeding with the
-            transaction.
-          </p>
-
-          <div className="space-y-4 bg-gray-50 p-4 rounded-xl mb-6">
-            <div className="flex justify-between">
-              <span className="text-gray-500 text-sm">Recipient</span>
-              <span className="text-gray-800 font-semibold text-sm">
-                {selectedContact?.name}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-500 text-sm">Amount</span>
-              <span className="text-blue-600 font-bold text-sm">
-                Rp {Number(amount).toLocaleString("id-ID")}
-              </span>
-            </div>
-            {notes && (
-              <div className="pt-2 border-t border-gray-200">
-                <span className="text-gray-500 text-xs block mb-1">Notes</span>
-                <p className="text-gray-700 text-sm italic">"{notes}"</p>
-              </div>
-            )}
-          </div>
-
-          <div className="flex gap-3">
-            <button
-              onClick={onCloseModal}
-              className="flex-1 py-3 px-4 bg-gray-100 text-gray-600 text-sm font-semibold rounded-xl hover:bg-gray-200 transition"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleFinalTransfer}
-              className="flex-1 py-3 px-4 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition"
-            >
-              Confirm & Send
-            </button>
-          </div>
-        </div>
-      </Modal>
+      {/* Modal (only covers the route content) */}
+      <TransferModal
+        open={modalStep !== null}
+        step={modalStep}
+        onPinSubmit={handlePinNext}
+        onDone={handleDone}
+        onTryAgain={handleTryAgain}
+        onTransferAgain={handleTransferAgain}
+        toName={selectedContact?.name ?? ""}
+      />
     </>
   );
 }
