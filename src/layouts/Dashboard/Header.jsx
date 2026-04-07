@@ -1,13 +1,14 @@
 import Brand from "../../components/Brand";
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router";
-import { getSession, clearSession, isLoggedIn } from "../../utils/auth";
+import { getSession, clearSession } from "../../utils/auth"; // Removed isLoggedIn
 
 export default function Navbar() {
   const navigate = useNavigate();
   const session = getSession();
 
-  const [user, setUser] = useState(isLoggedIn() ? session : null);
+  // Initialize directly from session since we are in a protected route
+  const [user, setUser] = useState(session);
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef(null);
 
@@ -78,9 +79,7 @@ export default function Navbar() {
                   alt="avatar"
                 />
                 <svg
-                  className={`w-4 h-4 text-slate-400 transition-transform duration-300 ${
-                    open ? "rotate-180" : ""
-                  }`}
+                  className={`w-4 h-4 text-slate-400 transition-transform duration-300 ${open ? "rotate-180" : ""}`}
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="2.5"
