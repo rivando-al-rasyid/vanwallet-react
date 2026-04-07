@@ -2,15 +2,23 @@ import Brand from "../../components/Brand";
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { getSession, clearSession } from "../../utils/auth"; // Removed isLoggedIn
+import { Menu, X } from "lucide-react";
 
-export default function Navbar() {
+export default function Navbar({ setSidebarOpen }) {
   const navigate = useNavigate();
   const session = getSession();
 
   // Initialize directly from session since we are in a protected route
   const [user, setUser] = useState(session);
   const [open, setOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpenLocal] = useState(false);
   const wrapperRef = useRef(null);
+
+  const handleSidebarToggle = () => {
+    const newState = !sidebarOpen;
+    setSidebarOpenLocal(newState);
+    setSidebarOpen(newState);
+  };
 
   const handleLogout = () => {
     clearSession();
@@ -32,8 +40,19 @@ export default function Navbar() {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 w-full bg-white border-b border-slate-100 shadow-sm font-sans">
-      <nav className="flex items-center justify-between px-8 h-16">
-        <Brand />
+      <nav className="flex items-center justify-between px-4 h-16 sm:px-6 lg:px-8">
+        <div className="flex items-center gap-4">
+          {/* Mobile Menu Toggle */}
+          <button
+            onClick={handleSidebarToggle}
+            className="flex items-center justify-center rounded-lg p-2 text-slate-600 transition hover:bg-slate-100 lg:hidden"
+            aria-label="Toggle sidebar"
+          >
+            {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
+          
+          <Brand />
+        </div>
 
         <div className="flex items-center gap-5">
           <div className="flex items-center gap-4 border-r border-slate-100 pr-4">

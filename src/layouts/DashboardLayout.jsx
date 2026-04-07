@@ -1,17 +1,20 @@
 import { Outlet } from "react-router";
 import Header from "./dashboard/Header";
 import Sidebar from "./dashboard/Sidebar";
+import { useState } from "react";
 
 /**
- * Dashboard layout component that provides the main structure for authenticated pages.
+ * Dashboard layout component that provides main structure for authenticated pages.
  * Includes a fixed header, sidebar navigation, and content area for nested routes.
  */
 export default function DashboardLayout() {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
+      <Header setSidebarOpen={setSidebarOpen} />
       <main className="flex pt-16">
-        <Sidebar />
+        <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
         <ContentArea>
           <Outlet />
         </ContentArea>
