@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import Stepper from "../../components/Stepper";
 import SearchInput from "../../components/SearchInput";
 import TableRow from "../../components/TableRow";
@@ -7,10 +7,12 @@ import { getUsers } from "../../utils/auth";
 
 export default function Transfer() {
   const navigate = useNavigate();
-  const [search, setSearch] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
   const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  
+  const search = searchParams.get("search") || "";
 
   useEffect(() => {
     async function fetchUsers() {
@@ -76,7 +78,15 @@ export default function Transfer() {
           </div>
           <SearchInput
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => {
+              const newSearch = e.target.value;
+              if (newSearch) {
+                searchParams.set("search", newSearch);
+              } else {
+                searchParams.delete("search");
+              }
+              setSearchParams(searchParams);
+            }}
           />
         </div>
 
