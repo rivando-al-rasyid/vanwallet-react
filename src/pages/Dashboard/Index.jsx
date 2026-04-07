@@ -1,6 +1,5 @@
-import Header from "../../layouts/dashboard/Header";
-import Sidebar from "../../layouts/dashboard/Sidebar";
 import { useState, useMemo } from "react";
+import { useNavigate } from "react-router";
 
 import { Bar } from "react-chartjs-2";
 import {
@@ -19,6 +18,7 @@ const ALL_INCOME = [80000, 78000, 85000, 22000, 20000, 70000, 8000];
 const ALL_EXPENSE = [15000, 52000, 65000, 32000, 8000, 60000, 48000];
 
 export default function Index() {
+  const navigate = useNavigate();
   const [days, setDays] = useState("7");
   const [typeFilter, setTypeFilter] = useState("All");
 
@@ -189,7 +189,10 @@ export default function Index() {
             <h2 className="text-xl font-bold">Fast Service</h2>
           </div>
           <div className="flex gap-3">
-            <button className="flex items-center gap-2 bg-blue-600 text-white font-semibold text-sm px-5 py-3 rounded-lg hover:bg-blue-700 transition-all shadow-md">
+            <button
+              className="flex items-center gap-2 bg-blue-600 text-white font-semibold text-sm px-5 py-3 rounded-lg hover:bg-blue-700 transition-all shadow-md hover:cursor-pointer"
+              onClick={() => navigate("/dashboard/topup")}
+            >
               <svg
                 width="24"
                 height="24"
@@ -204,7 +207,10 @@ export default function Index() {
               </svg>
               Top Up
             </button>
-            <button className="flex items-center gap-2 bg-blue-600 text-white font-semibold text-sm px-5 py-3 rounded-lg hover:bg-blue-700 transition-all shadow-md">
+            <button
+              className="flex items-center gap-2 bg-blue-600 text-white font-semibold text-sm px-5 py-3 rounded-lg hover:bg-blue-700 transition-all shadow-md hover:cursor-pointer"
+              onClick={() => navigate("/dashboard/transfer")}
+            >
               <svg
                 width="24"
                 height="24"

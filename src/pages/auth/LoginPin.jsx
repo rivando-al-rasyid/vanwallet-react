@@ -18,7 +18,7 @@ const pinSchema = Joi.object({
     .items(
       Joi.object({
         value: Joi.string().length(1).pattern(/^\d$/).required(),
-      })
+      }),
     )
     .length(6)
     .required(),
