@@ -111,11 +111,11 @@ export default function Index() {
   };
 
   return (
-    <section className="flex-1 flex flex-col gap-6 p-8 overflow-auto">
-      <div className="grid grid-cols-3 gap-5">
+    <section className="flex-1 flex flex-col gap-4 p-4 sm:gap-6 sm:p-6 lg:p-8 overflow-auto">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
         {/* Balance Card */}
-        <div className="fade-in delay-1 col-span-1 bg-white rounded-lg p-6 shadow-sm border border-slate-100 flex flex-col gap-4">
-          <div className="flex items-center gap-2 text-slate-500 text-sm font-medium">
+        <div className="fade-in delay-1 col-span-1 bg-white rounded-lg p-4 sm:p-5 lg:p-6 shadow-sm border border-slate-100 flex flex-col gap-4">
+          <div className="flex items-center gap-2 text-slate-500 text-xs sm:text-sm font-medium">
             <svg
               className="w-4 h-4"
               fill="none"
@@ -129,14 +129,14 @@ export default function Index() {
             Balance
           </div>
           <div>
-            <p className="text-3xl font-extrabold text-slate-800 tracking-tight">
+            <p className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-slate-800 tracking-tight">
               Rp.120.000
             </p>
           </div>
-          <div className="flex gap-6">
+          <div className="flex gap-4 sm:gap-6">
             <div>
               <p className="text-xs text-slate-400 mb-1">Income</p>
-              <p className="text-sm font-semibold text-emerald-500 flex items-center gap-1">
+              <p className="text-xs sm:text-sm font-semibold text-emerald-500 flex items-center gap-1">
                 Rp.200.000
                 <span className="text-xs bg-emerald-50 text-emerald-500 px-1.5 py-0.5 rounded-full">
                   +2%
@@ -184,18 +184,18 @@ export default function Index() {
         </div>
 
         {/* Fast Service Card */}
-        <div className="fade-in delay-1 col-span-2 bg-white rounded-lg p-6 shadow-sm border border-slate-100 flex items-center justify-between">
+        <div className="fade-in delay-1 col-span-1 sm:col-span-2 bg-white rounded-lg p-4 sm:p-5 lg:p-6 shadow-sm border border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h2 className="text-xl font-bold">Fast Service</h2>
+            <h2 className="text-lg sm:text-xl font-bold">Fast Service</h2>
           </div>
-          <div className="flex gap-3">
+          <div className="flex gap-2 sm:gap-3">
             <button
-              className="flex items-center gap-2 bg-blue-600 text-white font-semibold text-sm px-5 py-3 rounded-lg hover:bg-blue-700 transition-all shadow-md hover:cursor-pointer"
+              className="flex items-center gap-2 bg-blue-600 text-white font-semibold text-xs sm:text-sm px-3 sm:px-5 py-2 sm:py-3 rounded-lg hover:bg-blue-700 transition-all shadow-md hover:cursor-pointer"
               onClick={() => navigate("/dashboard/topup")}
             >
               <svg
-                width="24"
-                height="24"
+                width="20"
+                height="20"
                 viewBox="0 0 24 24"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
@@ -208,8 +208,8 @@ export default function Index() {
               Top Up
             </button>
             <button
-              className="flex items-center gap-2 bg-blue-600 text-white font-semibold text-sm px-5 py-3 rounded-lg hover:bg-blue-700 transition-all shadow-md hover:cursor-pointer"
-              onClick={() => navigate("/dashboard/transfer")}
+              className="flex items-center gap-2 bg-blue-600 text-white font-semibold text-xs sm:text-sm px-3 sm:px-5 py-2 sm:py-3 rounded-lg hover:bg-blue-700 transition-all shadow-md hover:cursor-pointer"
+              onClick={() => navigate("/transfer")}
             >
               <svg
                 width="24"
@@ -231,15 +231,15 @@ export default function Index() {
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-5 fade-in delay-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5 fade-in delay-3">
         {/* Chart */}
-        <div className="col-span-2 bg-white rounded-lg p-5 shadow-sm border border-slate-100">
+        <div className="col-span-1 sm:col-span-2 lg:col-span-2 bg-white rounded-lg p-4 sm:p-5 shadow-sm border border-slate-100">
           <div className="rounded-lg w-full">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-slate-800">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6">
+              <h2 className="text-lg sm:text-xl font-bold text-slate-800">
                 Financial Chart
               </h2>
-              <div className="flex gap-3">
+              <div className="flex gap-2 sm:gap-3">
                 <select
                   value={days}
                   onChange={(e) => setDays(e.target.value)}
@@ -265,9 +265,9 @@ export default function Index() {
         </div>
 
         {/* Transaction History */}
-        <div className="col-span-1 bg-white rounded-lg p-5 shadow-sm border border-slate-100 flex flex-col gap-4 fade-in delay-4">
+        <div className="col-span-1 bg-white rounded-lg p-4 sm:p-5 shadow-sm border border-slate-100 flex flex-col gap-4 fade-in delay-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-base font-bold text-slate-800">
+            <h3 className="text-sm sm:text-base font-bold text-slate-800">
               Transaction History
             </h3>
             <a
@@ -277,7 +277,7 @@ export default function Index() {
               See All
             </a>
           </div>
-          <div className="flex flex-col gap-3 overflow-y-auto max-h-100 pr-1">
+          <div className="flex flex-col gap-2 sm:gap-3 overflow-y-auto max-h-80 sm:max-h-100 pr-1">
             {[
               {
                 img: 5,
@@ -324,21 +324,21 @@ export default function Index() {
             ].map((tx, i) => (
               <div
                 key={i}
-                className="flex items-center gap-3 hover:bg-slate-50 p-2 rounded-lg transition-colors cursor-pointer"
+                className="flex items-center gap-2 sm:gap-3 hover:bg-slate-50 p-2 sm:p-3 rounded-lg transition-colors cursor-pointer"
               >
                 <img
                   src={`https://i.pravatar.cc/40?img=${tx.img}`}
-                  className="w-10 h-10 rounded-full object-cover"
+                  className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover"
                   alt={tx.name}
                 />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-slate-800 truncate">
+                  <p className="text-xs sm:text-sm font-semibold text-slate-800 truncate">
                     {tx.name}
                   </p>
                   <p className="text-xs text-slate-400">{tx.type}</p>
                 </div>
                 <span
-                  className={`text-sm font-bold shrink-0 ${tx.positive ? "text-emerald-500" : "text-red-500"}`}
+                  className={`text-xs sm:text-sm font-bold shrink-0 ${tx.positive ? "text-emerald-500" : "text-red-500"}`}
                 >
                   {tx.amount}
                 </span>
