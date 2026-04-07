@@ -39,7 +39,17 @@ export default function SetNominal() {
 
   const handleSubmit = () => {
     if (!amount) return alert("Masukkan nominal transfer");
-    alert(`Transfer Rp${amount} ke ${selectedContact.name} berhasil!`);
+
+    // Pass all needed data via navigation state — no re-fetch needed in Finish
+    navigate(`/dashboard/transfer/${id}/finish`, {
+      state: {
+        name: selectedContact.name,
+        phone: selectedContact.phone,
+        img: selectedContact.img,
+        amount,
+        notes,
+      },
+    });
   };
 
   return (

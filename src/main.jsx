@@ -8,8 +8,7 @@ import App from "./App.jsx";
 import Login from "./pages/auth/Login.jsx";
 import Register from "./pages/auth/Register.jsx";
 import ForgotPassword from "./pages/auth/ForgotPassword.jsx";
-import PinOtp from "./pages/auth/PinOtp.jsx";
-
+import LoginPin from "./pages/auth/LoginPin.jsx";
 import Dashboard from "./layouts/DashboardLayout.jsx";
 
 import Index from "./pages/dashboard/Index.jsx";
@@ -21,6 +20,8 @@ import Profile from "./pages/dashboard/Profile";
 import ChangePassword from "./pages/dashboard/ChangePassword";
 import ChangePin from "./pages/dashboard/ChangePin";
 
+import Finish from "./pages/dashboard/Finish.jsx";
+
 ReactDOM.createRoot(document.getElementById("root")).render(
   <BrowserRouter>
     <Routes>
@@ -30,13 +31,15 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/forgotpassword" element={<ForgotPassword />} />
-      <Route path="/forgotpassword/otp" element={<PinOtp />} />
+      <Route path="/login/pin" element={<LoginPin />} />
 
       {/* Dashboard routes — all share DashboardLayout */}
       <Route path="/dashboard" element={<Dashboard />}>
         <Route index element={<Index />} />
         <Route path="transfer" element={<Transfer />} />
         <Route path="transfer/:id" element={<SetNominal />} />
+        <Route path="transfer/:id/finish" element={<Finish />} />
+
         <Route path="history" element={<History />} />
         <Route path="topup" element={<TopUp />} />
 

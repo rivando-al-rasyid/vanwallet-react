@@ -12,7 +12,7 @@ const LoginImage = memo(function LoginImage({
 }) {
   return (
     <aside
-      className="hidden lg:flex flex-col items-center justify-center h-full p-20 bg-[radial-gradient(circle,_#3868fd_0%,_transparent_100%)] bg-opacity-90"
+      className="hidden lg:flex flex-col items-center justify-center h-full p-20 bg-[radial-gradient(circle,#3868fd_0%,transparent_100%)] bg-opacity-90"
       aria-label="Decorative sidebar"
     >
       <img
