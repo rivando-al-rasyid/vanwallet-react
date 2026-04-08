@@ -92,7 +92,7 @@ export default function Profile() {
         <h1 className="text-xl font-bold text-gray-800">Profile</h1>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm p-8">
+      <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 lg:p-8">
         {loading ? (
           <div className="flex items-center justify-center py-20 text-gray-400 text-sm">
             Memuat data profile...
@@ -104,8 +104,8 @@ export default function Profile() {
               <h2 className="text-base font-bold text-gray-800 mb-4">
                 Profile Picture
               </h2>
-              <div className="flex items-center gap-6">
-                <div className="w-20 h-20 rounded-xl border-2 border-gray-200 overflow-hidden bg-gray-100 flex items-center justify-center shrink-0">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl border-2 border-gray-200 overflow-hidden bg-gray-100 flex items-center justify-center shrink-0">
                   {form.avatar ? (
                     <img
                       src={form.avatar}
@@ -126,10 +126,10 @@ export default function Profile() {
                     </svg>
                   )}
                 </div>
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
                   <button
                     onClick={() => fileInputRef.current?.click()}
-                    className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition"
+                    className="flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition w-full sm:w-auto"
                   >
                     <svg
                       width="16"
@@ -146,7 +146,7 @@ export default function Profile() {
                   </button>
                   <button
                     onClick={handleDeleteAvatar}
-                    className="flex items-center gap-2 px-5 py-2.5 border border-red-400 text-red-500 text-sm font-medium rounded-xl hover:bg-red-50 transition"
+                    className="flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 border border-red-400 text-red-500 text-sm font-medium rounded-xl hover:bg-red-50 transition w-full sm:w-auto"
                   >
                     <svg
                       width="16"
@@ -180,7 +180,7 @@ export default function Profile() {
             <div className="border-t border-gray-100 mb-8" />
 
             {/* Form Fields */}
-            <div className="flex flex-col gap-5 w-full">
+            <div className="flex flex-col gap-4 sm:gap-5 w-full">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Full Name
@@ -205,7 +205,7 @@ export default function Profile() {
                     value={form.name}
                     onChange={handleChange}
                     placeholder="Enter Full Name"
-                    className="w-full pl-10 pr-4 py-3 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition"
+                    className="w-full pl-10 pr-4 py-2.5 sm:py-3 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition"
                   />
                 </div>
               </div>
@@ -233,7 +233,7 @@ export default function Profile() {
                     value={form.phone}
                     onChange={handleChange}
                     placeholder="Enter Your Number Phone"
-                    className="w-full pl-10 pr-4 py-3 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition"
+                    className="w-full pl-10 pr-4 py-2.5 sm:py-3 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition"
                   />
                 </div>
               </div>
@@ -262,7 +262,7 @@ export default function Profile() {
                     value={form.email}
                     onChange={handleChange}
                     placeholder="Enter Your Email"
-                    className="w-full pl-10 pr-4 py-3 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition"
+                    className="w-full pl-10 pr-4 py-2.5 sm:py-3 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition"
                   />
                 </div>
               </div>
@@ -299,7 +299,7 @@ export default function Profile() {
               <button
                 onClick={handleSubmit}
                 disabled={saving}
-                className="w-full py-3.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 disabled:opacity-60 transition mt-2"
+                className="w-full py-3 sm:py-3.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 disabled:opacity-60 transition mt-2"
               >
                 {saving ? "Menyimpan..." : "Submit"}
               </button>

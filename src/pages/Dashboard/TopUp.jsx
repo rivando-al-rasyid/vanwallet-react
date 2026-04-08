@@ -77,19 +77,19 @@ export default function TopUp() {
         <h1 className="text-xl font-bold text-gray-800">Top Up Account</h1>
       </div>
 
-      <div className="flex gap-6 items-start">
+      <div className="flex flex-col lg:flex-row gap-6 items-start">
         {/* Left Panel */}
-        <div className="flex-1 bg-white rounded-2xl shadow-sm p-8">
+        <div className="flex-1 bg-white rounded-2xl shadow-sm p-4 sm:p-6 lg:p-8">
           <h2 className="text-base font-bold text-gray-800 mb-4">
             Account Information
           </h2>
           <div className="bg-gray-50 rounded-xl p-4 mb-8">
             {user ? (
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3 sm:gap-4">
                 <img
                   src={user.avatar}
                   alt={user.name}
-                  className="w-14 h-14 rounded-xl object-cover shrink-0"
+                  className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl object-cover shrink-0"
                   onError={(e) => {
                     e.currentTarget.src =
                       "https://ui-avatars.com/api/?name=User&background=EBF4FF&color=7F9CF5";
@@ -125,7 +125,7 @@ export default function TopUp() {
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               placeholder="Enter Nominal Transfer"
-              className="w-full px-4 py-3.5 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition"
+              className="w-full px-4 py-2.5 sm:py-3.5 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition"
             />
           </div>
 
@@ -141,7 +141,7 @@ export default function TopUp() {
               {PAYMENT_METHODS.map((method) => (
                 <label
                   key={method.id}
-                  className={`flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all ${
+                  className={`flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl border cursor-pointer transition-all ${
                     selectedMethod === method.id
                       ? "border-blue-400 bg-blue-50/40"
                       : "border-gray-100 bg-gray-50 hover:border-gray-300"
@@ -176,9 +176,9 @@ export default function TopUp() {
         </div>
 
         {/* Summary Sidebar */}
-        <div className="w-72 shrink-0 bg-white rounded-2xl shadow-sm p-6 sticky top-6 border border-gray-100">
-          <h2 className="text-base font-bold text-gray-800 mb-6">Payment</h2>
-          <div className="flex flex-col gap-4 mb-6">
+        <div className="w-full lg:w-72 shrink-0 bg-white rounded-2xl shadow-sm p-4 sm:p-6 border border-gray-100">
+          <h2 className="text-base font-bold text-gray-800 mb-4 sm:mb-6">Payment</h2>
+          <div className="flex flex-col gap-4 mb-4 sm:mb-6">
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-500">Order</span>
               <span className="text-sm font-semibold text-gray-800">
@@ -200,7 +200,7 @@ export default function TopUp() {
           </div>
           <button
             onClick={handleSubmit}
-            className="w-full py-3.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition active:scale-95"
+            className="w-full py-3 sm:py-3.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition active:scale-95"
           >
             Submit
           </button>
