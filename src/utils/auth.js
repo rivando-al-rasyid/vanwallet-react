@@ -85,3 +85,20 @@ export function clearSession() {
 export function isLoggedIn() {
   return !!localStorage.getItem("user_id");
 }
+
+export async function verifyPin(inputPin) {
+  const userId = localStorage.getItem("user_id");
+  if (!userId) throw new Error("User session not found");
+
+  const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/user/${userId}`);
+  const user = await res.json();
+
+  if (!res.ok) throw new Error("Failed to verify user");
+
+  // Checking if the PIN matches (assuming 'pin' is a field in your user object)
+  if (user.pin !== inputPin) {
+    throw new Error("Invalid PIN. Please try again.");
+  }
+
+  return true;
+}
