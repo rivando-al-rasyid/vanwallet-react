@@ -1,4 +1,4 @@
-import { Outlet } from "react-router-dom";
+import { Outlet } from "react-router";
 import Header from "./dashboard/Header";
 import Sidebar from "./dashboard/Sidebar";
 import { useState } from "react";

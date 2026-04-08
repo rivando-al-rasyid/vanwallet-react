@@ -1,6 +1,6 @@
 import { useForm, FormProvider } from "react-hook-form";
 import { joiResolver } from "@hookform/resolvers/joi";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import Joi from "joi";
 
 import { getSession, updateUser } from "../../utils/auth";

@@ -1,6 +1,6 @@
 import Brand from "../../components/Brand";
 import { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import { getSession, clearSession } from "../../utils/auth"; // Removed isLoggedIn
 import { Menu, X } from "lucide-react";
 

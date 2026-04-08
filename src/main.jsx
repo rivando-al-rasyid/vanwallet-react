@@ -1,5 +1,5 @@
 import ReactDOM from "react-dom/client";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router";
 
 import "./style.css";
 
@@ -19,7 +19,7 @@ import ChangePassword from "./pages/dashboard/ChangePassword.jsx";
 import ChangePin from "./pages/dashboard/ChangePin.jsx";
 import SetNominal from "./pages/dashboard/SetNominal.jsx";
 
-import { ProtectedRoute, GuestRoute } from "./components/ProtectedRoute.jsx";
+import { ProtectedRoute, GuestRoute } from "./layouts/ProtectedRoute.jsx";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <BrowserRouter>

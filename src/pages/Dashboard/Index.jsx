@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import { getUsers } from "../../utils/auth";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 
 import { Bar } from "react-chartjs-2";
 import {
