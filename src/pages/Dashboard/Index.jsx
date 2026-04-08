@@ -1,5 +1,6 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router";
+import { getUsers } from "../../utils/auth";
 
 import { Bar } from "react-chartjs-2";
 import {
@@ -17,10 +18,51 @@ const ALL_LABELS = ["Sat", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri"];
 const ALL_INCOME = [80000, 78000, 85000, 22000, 20000, 70000, 8000];
 const ALL_EXPENSE = [15000, 52000, 65000, 32000, 8000, 60000, 48000];
 
+const hardcodedMeta = [
+  { amount: "Rp.50.000", type: "income" },
+  { amount: "Rp.50.000", type: "expense" },
+  { amount: "Rp.75.000", type: "income" },
+  { amount: "Rp.50.000", type: "expense" },
+  { amount: "Rp.100.000", type: "income" },
+  { amount: "Rp.25.000", type: "expense" },
+  { amount: "Rp.60.000", type: "income" },
+  { amount: "Rp.80.000", type: "expense" },
+  { amount: "Rp.50.000", type: "income" },
+  { amount: "Rp.75.000", type: "expense" },
+];
+
 export default function Index() {
   const navigate = useNavigate();
   const [days, setDays] = useState("7");
   const [typeFilter, setTypeFilter] = useState("All");
+  const [transactionData, setTransactionData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    async function fetchTransactionHistory() {
+      setLoading(true);
+      setError("");
+      try {
+        const users = await getUsers();
+        const mapped = users.map((u, index) => ({
+          id: u.id,
+          img: u.avatar,
+          name: u.name,
+          phone: u.phone,
+          amount: hardcodedMeta[index % hardcodedMeta.length].amount,
+          type: hardcodedMeta[index % hardcodedMeta.length].type,
+        }));
+        setTransactionData(mapped);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchTransactionHistory();
+  }, []);
 
   const chartData = useMemo(() => {
     const count = Math.min(parseInt(days), ALL_LABELS.length);
@@ -111,7 +153,7 @@ export default function Index() {
   };
 
   return (
-    <section className="flex-1 flex flex-col gap-4 p-4 sm:gap-6 sm:p-6 lg:p-8 overflow-auto">
+    <section className="flex-1 flex flex-col gap-4 p-4 pt-4 sm:gap-6 sm:px-6 sm:pt-6 lg:px-8 lg:pt-8 overflow-hidden">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
         {/* Balance Card */}
         <div className="fade-in delay-1 col-span-1 bg-white rounded-lg p-4 sm:p-5 lg:p-6 shadow-sm border border-slate-100 flex flex-col gap-4">
@@ -265,7 +307,7 @@ export default function Index() {
         </div>
 
         {/* Transaction History */}
-        <div className="col-span-1 bg-white rounded-lg p-4 sm:p-5 shadow-sm border border-slate-100 flex flex-col gap-4 fade-in delay-4">
+        <div className="col-span-1 bg-white rounded-lg p-4 sm:p-5 shadow-sm border border-slate-100 flex flex-col h-full fade-in delay-4">
           <div className="flex items-center justify-between">
             <h3 className="text-sm sm:text-base font-bold text-slate-800">
               Transaction History
@@ -277,57 +319,49 @@ export default function Index() {
               See All
             </a>
           </div>
-          <div className="flex flex-col gap-2 sm:gap-3 overflow-y-auto max-h-80 sm:max-h-100 pr-1">
-            {[
-              {
-                img: 5,
-                name: "Robert Fox",
-                type: "Transfer",
-                amount: "+Rp50.000",
-                positive: true,
-              },
-              {
-                img: 47,
-                name: "Floyd Miles",
-                type: "Send",
-                amount: "-Rp50.000",
-                positive: false,
-              },
-              {
-                img: 23,
-                name: "Ujang",
-                type: "Send",
-                amount: "-Rp50.000",
-                positive: false,
-              },
-              {
-                img: 5,
-                name: "Robert Fox",
-                type: "Transfer",
-                amount: "+Rp50.000",
-                positive: true,
-              },
-              {
-                img: 47,
-                name: "Floyd Miles",
-                type: "Send",
-                amount: "-Rp50.000",
-                positive: false,
-              },
-              {
-                img: 23,
-                name: "Ujang",
-                type: "Send",
-                amount: "-Rp50.000",
-                positive: false,
-              },
-            ].map((tx, i) => (
+          <div className="flex-1 flex flex-col gap-2 sm:gap-3">
+            {loading && (
+              <div className="flex flex-col items-center justify-center py-10 gap-2 text-gray-400">
+                <svg
+                  className="animate-spin w-6 h-6 text-blue-500"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v8H4z"
+                  />
+                </svg>
+                <span className="text-xs">Loading...</span>
+              </div>
+            )}
+            {!loading && error && (
+              <div className="flex flex-col items-center justify-center py-10 gap-2">
+                <p className="text-red-500 font-semibold text-xs">{error}</p>
+                <button
+                  onClick={() => window.location.reload()}
+                  className="text-xs text-blue-600 underline"
+                >
+                  Try again
+                </button>
+              </div>
+            )}
+            {!loading && !error && transactionData.slice(0, 6).map((tx, i) => (
               <div
-                key={i}
+                key={tx.id || i}
                 className="flex items-center gap-2 sm:gap-3 hover:bg-slate-50 p-2 sm:p-3 rounded-lg transition-colors cursor-pointer"
               >
                 <img
-                  src={`https://i.pravatar.cc/40?img=${tx.img}`}
+                  src={tx.img || `https://i.pravatar.cc/40?img=${tx.img || 1}`}
                   className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover"
                   alt={tx.name}
                 />
@@ -335,12 +369,12 @@ export default function Index() {
                   <p className="text-xs sm:text-sm font-semibold text-slate-800 truncate">
                     {tx.name}
                   </p>
-                  <p className="text-xs text-slate-400">{tx.type}</p>
+                  <p className="text-xs text-slate-400">{tx.type === 'income' ? 'Transfer' : 'Send'}</p>
                 </div>
                 <span
-                  className={`text-xs sm:text-sm font-bold shrink-0 ${tx.positive ? "text-emerald-500" : "text-red-500"}`}
+                  className={`text-xs sm:text-sm font-bold shrink-0 ${tx.type === 'income' ? "text-emerald-500" : "text-red-500"}`}
                 >
-                  {tx.amount}
+                  {tx.type === 'income' ? '+' : '-'}{tx.amount}
                 </span>
               </div>
             ))}
