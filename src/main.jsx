@@ -9,7 +9,7 @@ import Login from "./pages/auth/Login.jsx";
 import Register from "./pages/auth/Register.jsx";
 import ForgotPassword from "./pages/auth/ForgotPassword.jsx";
 import LoginPin from "./pages/auth/LoginPin.jsx";
-import Dashboard from "./layouts/DashboardLayout.jsx";
+import Dashboard from "./layouts/Dashboard/DashboardLayout.jsx";
 import Index from "./pages/dashboards/Index.jsx";
 import Transfer from "./pages/dashboards/Transfer.jsx";
 import History from "./pages/dashboards/History.jsx";
