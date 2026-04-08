@@ -10,14 +10,14 @@ import Register from "./pages/auth/Register.jsx";
 import ForgotPassword from "./pages/auth/ForgotPassword.jsx";
 import LoginPin from "./pages/auth/LoginPin.jsx";
 import Dashboard from "./layouts/DashboardLayout.jsx";
-import Index from "./pages/dashboard/Index.jsx";
-import Transfer from "./pages/dashboard/Transfer.jsx";
-import History from "./pages/dashboard/History.jsx";
-import TopUp from "./pages/dashboard/TopUp.jsx";
-import Profile from "./pages/dashboard/Profile.jsx";
-import ChangePassword from "./pages/dashboard/ChangePassword.jsx";
-import ChangePin from "./pages/dashboard/ChangePin.jsx";
-import SetNominal from "./pages/dashboard/SetNominal.jsx";
+import Index from "./pages/dashboards/Index.jsx";
+import Transfer from "./pages/dashboards/Transfer.jsx";
+import History from "./pages/dashboards/History.jsx";
+import TopUp from "./pages/dashboards/TopUp.jsx";
+import Profile from "./pages/dashboards/Profile.jsx";
+import ChangePassword from "./pages/dashboards/ChangePassword.jsx";
+import ChangePin from "./pages/dashboards/ChangePin.jsx";
+import SetNominal from "./pages/dashboards/SetNominal.jsx";
 import { ProtectedRoute, GuestRoute } from "./layouts/ProtectedRoute.jsx";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
