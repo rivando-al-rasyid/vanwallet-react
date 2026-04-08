@@ -2,8 +2,8 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
 import Stepper from "../../components/Stepper";
-import { getUserById } from "../../utils/auth";
-import TransferModal from "./TransferModal"; // your new modal component
+import { getUserById, verifyPin } from "../../utils/auth";
+import TransferModal from "./TransferModal";
 
 export default function SetNominal() {
   const { id } = useParams();
@@ -15,7 +15,7 @@ export default function SetNominal() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Modal state: null | "pin" | "failed" | "success"
+  // "pin" | "failed" | "success" | null
   const [modalStep, setModalStep] = useState(null);
 
   useEffect(() => {
@@ -42,42 +42,28 @@ export default function SetNominal() {
   }, [id]);
 
   const handleOpenPinModal = () => {
-    if (!amount || Number(amount) <= 0)
+    if (!amount || Number(amount) <= 0) {
       return alert("Masukkan nominal transfer yang valid");
+    }
     setModalStep("pin");
   };
 
-  const handleCloseModal = () => setModalStep(null);
-
-  const handlePinNext = async (pin) => {
-    if (!pin || pin.length < 6) {
-      alert("Masukkan PIN lengkap (6 digit)");
-      return;
-    }
+  const handlePinSubmit = async (pin) => {
     try {
-      // TODO: replace with actual transfer API call
-      console.log("Transferring:", {
-        amount,
-        notes,
-        to: selectedContact.name,
-        pin,
-      });
-      // Demo: PIN "000000" simulates failure
-      if (pin === "000000") throw new Error("Transfer failed");
+      await verifyPin(pin);
+      // TODO: call actual transfer API here
       setModalStep("success");
     } catch (err) {
       setModalStep("failed");
     }
   };
 
-  const handleTryAgain = () => {
-    setModalStep("pin");
-  };
-
   const handleDone = () => {
     setModalStep(null);
     navigate("/dashboard");
   };
+
+  const handleTryAgain = () => setModalStep("pin");
 
   const handleTransferAgain = () => {
     setModalStep(null);
@@ -110,6 +96,7 @@ export default function SetNominal() {
               />
             </svg>
           </button>
+
           <span className="text-blue-600">
             <svg
               width="24"
@@ -122,6 +109,7 @@ export default function SetNominal() {
               <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
             </svg>
           </span>
+
           <h1 className="text-xl font-bold text-gray-800">Transfer Money</h1>
         </div>
         <Stepper currentStep={2} />
@@ -135,7 +123,7 @@ export default function SetNominal() {
 
         {loading && (
           <div className="flex flex-col items-center justify-center py-20 gap-3 text-gray-400">
-            <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full"></div>
+            <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full" />
             <span className="text-sm">Mengambil data kontak...</span>
           </div>
         )}
@@ -240,7 +228,7 @@ export default function SetNominal() {
               </label>
               <p className="text-xs text-gray-400 mb-2">
                 You can add some notes for this transfer such as payment coffee
-                or something
+                or something.
               </p>
               <textarea
                 value={notes}
@@ -261,11 +249,10 @@ export default function SetNominal() {
         )}
       </div>
 
-      {/* Modal (only covers the route content) */}
       <TransferModal
         open={modalStep !== null}
         step={modalStep}
-        onPinSubmit={handlePinNext}
+        onPinSubmit={handlePinSubmit}
         onDone={handleDone}
         onTryAgain={handleTryAgain}
         onTransferAgain={handleTransferAgain}
