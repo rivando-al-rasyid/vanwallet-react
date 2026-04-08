@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { useSearchParams } from "react-router";
+import { useSearchParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar, faTrashCan } from "@fortawesome/free-regular-svg-icons";
 import { faStar as faStarSolid } from "@fortawesome/free-solid-svg-icons";
@@ -26,20 +26,22 @@ export default function TableRow({
   const [rows, setRows] = useState(() =>
     items.map((item) => ({ ...item, isFavorite: false })),
   );
-  const currentPage = parseInt(searchParams.get('page')) || 1;
+  const currentPage = parseInt(searchParams.get("page")) || 1;
 
   // Sync rows and reset page when items prop changes
   useEffect(() => {
     if (remove) return;
     setRows(items.map((item) => ({ ...item, isFavorite: false })));
-    setSearchParams({ page: '1' });
+    setSearchParams({ page: "1" });
   }, [items, remove, setSearchParams]);
 
   const toggleFavorite = useCallback((id) => {
     setRows((prev) =>
-      [...prev.map((item) =>
-        item.id === id ? { ...item, isFavorite: !item.isFavorite } : item,
-      )].sort((a, b) => b.isFavorite - a.isFavorite),
+      [
+        ...prev.map((item) =>
+          item.id === id ? { ...item, isFavorite: !item.isFavorite } : item,
+        ),
+      ].sort((a, b) => b.isFavorite - a.isFavorite),
     );
   }, []);
 

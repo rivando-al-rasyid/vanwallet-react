@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import { getUsers } from "../../utils/auth";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 
 import { Bar } from "react-chartjs-2";
 import {
@@ -313,7 +313,10 @@ export default function Index() {
             <h3 className="text-sm sm:text-base font-bold text-slate-800">
               Transaction History
             </h3>
-            <Link to="/dashboard/history" className="text-xs font-semibold text-blue-600 hover:underline">
+            <Link
+              to="/dashboard/history"
+              className="text-xs font-semibold text-blue-600 hover:underline"
+            >
               See All
             </Link>
           </div>
@@ -353,29 +356,36 @@ export default function Index() {
                 </button>
               </div>
             )}
-            {!loading && !error && transactionData.slice(0, 6).map((tx, i) => (
-              <div
-                key={tx.id || i}
-                className="flex items-center gap-2 sm:gap-3 hover:bg-slate-50 p-2 sm:p-3 rounded-lg transition-colors cursor-pointer"
-              >
-                <img
-                  src={tx.img || `https://i.pravatar.cc/40?img=${tx.img || 1}`}
-                  className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover"
-                  alt={tx.name}
-                />
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs sm:text-sm font-semibold text-slate-800 truncate">
-                    {tx.name}
-                  </p>
-                  <p className="text-xs text-slate-400">{tx.type === 'income' ? 'Transfer' : 'Send'}</p>
-                </div>
-                <span
-                  className={`text-xs sm:text-sm font-bold shrink-0 ${tx.type === 'income' ? "text-emerald-500" : "text-red-500"}`}
+            {!loading &&
+              !error &&
+              transactionData.slice(0, 6).map((tx, i) => (
+                <div
+                  key={tx.id || i}
+                  className="flex items-center gap-2 sm:gap-3 hover:bg-slate-50 p-2 sm:p-3 rounded-lg transition-colors cursor-pointer"
                 >
-                  {tx.type === 'income' ? '+' : '-'}{tx.amount}
-                </span>
-              </div>
-            ))}
+                  <img
+                    src={
+                      tx.img || `https://i.pravatar.cc/40?img=${tx.img || 1}`
+                    }
+                    className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover"
+                    alt={tx.name}
+                  />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs sm:text-sm font-semibold text-slate-800 truncate">
+                      {tx.name}
+                    </p>
+                    <p className="text-xs text-slate-400">
+                      {tx.type === "income" ? "Transfer" : "Send"}
+                    </p>
+                  </div>
+                  <span
+                    className={`text-xs sm:text-sm font-bold shrink-0 ${tx.type === "income" ? "text-emerald-500" : "text-red-500"}`}
+                  >
+                    {tx.type === "income" ? "+" : "-"}
+                    {tx.amount}
+                  </span>
+                </div>
+              ))}
           </div>
         </div>
       </div>

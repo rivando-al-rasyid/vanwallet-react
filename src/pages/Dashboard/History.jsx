@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useSearchParams } from "react-router";
+import { useSearchParams } from "react-router-dom";
 import TableRow from "../../components/TableRow";
 import { getUsers } from "../../utils/auth";
 
@@ -18,7 +18,7 @@ const hardcodedMeta = [
 
 export default function History() {
   const [searchParams] = useSearchParams();
-  const search = searchParams.get('search') || '';
+  const search = searchParams.get("search") || "";
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -115,12 +115,12 @@ export default function History() {
                 const newSearch = e.target.value;
                 const newParams = new URLSearchParams(searchParams);
                 if (newSearch) {
-                  newParams.set('search', newSearch);
+                  newParams.set("search", newSearch);
                 } else {
-                  newParams.delete('search');
+                  newParams.delete("search");
                 }
-                newParams.set('page', '1');
-                window.history.pushState({}, '', `?${newParams.toString()}`);
+                newParams.set("page", "1");
+                window.history.pushState({}, "", `?${newParams.toString()}`);
               }}
               placeholder="Enter Number Or Full Name"
               className="w-72 pl-4 pr-10 py-2.5 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition"

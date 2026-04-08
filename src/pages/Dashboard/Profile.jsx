@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import { getUserById, updateUser, getSession } from "../../utils/auth";
 
 export default function Profile() {

@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { NavLink } from "react-router";
+import { NavLink } from "react-router-dom";
 
 /**
  * Helper text displayed below a submit button, with a navigation link.

@@ -1,6 +1,6 @@
 import { memo, useState } from "react";
 import Brand from "../components/Brand";
-import { NavLink } from "react-router";
+import { NavLink } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 
 const NAV_LINKS = [

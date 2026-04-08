@@ -1,6 +1,6 @@
 import Brand from "../../components/Brand";
 import { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import { getSession, clearSession } from "../../utils/auth"; // Removed isLoggedIn
 import { Menu, X } from "lucide-react";
 
@@ -50,7 +50,7 @@ export default function Navbar({ setSidebarOpen }) {
           >
             {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
-          
+
           <Brand />
         </div>
 
