@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import Header from "../../layouts/dashboard/Header";
-import Sidebar from "../../layouts/dashboard/Sidebar";
-import { getSession, updateUser } from "../../services/auth";
+import { getSession, updateUser } from "../../utils/auth";
 
 export default function ChangePassword() {
   const { id } = getSession();
@@ -13,7 +11,6 @@ export default function ChangePassword() {
     newPassword: "",
     confirmNewPassword: "",
   });
-
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -47,20 +44,10 @@ export default function ChangePassword() {
     }
 
     try {
-      await updateUser(id, {
-        password: form.newPassword,
-      });
-
+      await updateUser(id, { password: form.newPassword });
       setSuccess("Password berhasil diupdate!");
-      setForm({
-        currentPassword: "",
-        newPassword: "",
-        confirmNewPassword: "",
-      });
-
-      setTimeout(() => {
-        navigate("/profile");
-      }, 1200);
+      setForm({ currentPassword: "", newPassword: "", confirmNewPassword: "" });
+      setTimeout(() => navigate("/dashboard/profile"), 1200);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -90,148 +77,128 @@ export default function ChangePassword() {
     </button>
   );
 
+  const LockIcon = () => (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+    >
+      <rect x="3" y="11" width="18" height="10" rx="2" />
+      <path d="M7 11V7a5 5 0 0110 0v4" />
+    </svg>
+  );
+
   return (
     <>
-      <Header />
-      <main className="flex pt-16 min-h-screen">
-        <Sidebar />
-        <section className="flex-1 flex flex-col gap-6 p-8 overflow-auto">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                <path
-                  fillRule="evenodd"
-                  clipRule="evenodd"
-                  d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"
-                  fill="#2563EB"
+      {/* Page Title */}
+      <div className="flex items-center gap-3">
+        <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path
+              fillRule="evenodd"
+              clipRule="evenodd"
+              d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"
+              fill="#2563EB"
+            />
+          </svg>
+        </div>
+        <h1 className="text-xl font-bold text-gray-800">Profile</h1>
+      </div>
+
+      <div className="bg-white rounded-2xl shadow-sm p-8">
+        <div className="w-full">
+          <h2 className="text-base font-bold text-gray-800 mb-4">
+            Change Password
+          </h2>
+
+          <div className="flex flex-col gap-5 w-full">
+            {/* Current Password */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Existing Password
+              </label>
+              <div className="relative">
+                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
+                  <LockIcon />
+                </span>
+                <input
+                  type={showCurrentPassword ? "text" : "password"}
+                  name="currentPassword"
+                  value={form.currentPassword}
+                  onChange={handleChange}
+                  placeholder="Enter Your Existing Password"
+                  className="w-full pl-10 pr-12 py-3 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition"
                 />
-              </svg>
-            </div>
-            <h1 className="text-xl font-bold text-gray-800">Profile</h1>
-          </div>
-
-          <div className="bg-white rounded-2xl shadow-sm p-8">
-            <div className="w-full">
-              <h2 className="text-base font-bold text-gray-800 mb-4">
-                Change Password
-              </h2>
-
-              <div className="flex flex-col gap-5 w-full">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Existing Password
-                  </label>
-                  <div className="relative">
-                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
-                      <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                      >
-                        <rect x="3" y="11" width="18" height="10" rx="2" />
-                        <path d="M7 11V7a5 5 0 0110 0v4" />
-                      </svg>
-                    </span>
-                    <input
-                      type={showCurrentPassword ? "text" : "password"}
-                      name="currentPassword"
-                      value={form.currentPassword}
-                      onChange={handleChange}
-                      placeholder="Enter Your Existing Password"
-                      className="w-full pl-10 pr-12 py-3 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition"
-                    />
-                    <EyeButton
-                      onClick={() =>
-                        setShowCurrentPassword(!showCurrentPassword)
-                      }
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    New Password
-                  </label>
-                  <div className="relative">
-                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
-                      <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                      >
-                        <rect x="3" y="11" width="18" height="10" rx="2" />
-                        <path d="M7 11V7a5 5 0 0110 0v4" />
-                      </svg>
-                    </span>
-                    <input
-                      type={showNewPassword ? "text" : "password"}
-                      name="newPassword"
-                      value={form.newPassword}
-                      onChange={handleChange}
-                      placeholder="Enter Your New Password"
-                      className="w-full pl-10 pr-12 py-3 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition"
-                    />
-                    <EyeButton
-                      onClick={() => setShowNewPassword(!showNewPassword)}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Confirm New Password
-                  </label>
-                  <div className="relative">
-                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
-                      <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                      >
-                        <rect x="3" y="11" width="18" height="10" rx="2" />
-                        <path d="M7 11V7a5 5 0 0110 0v4" />
-                      </svg>
-                    </span>
-                    <input
-                      type={showConfirmNewPassword ? "text" : "password"}
-                      name="confirmNewPassword"
-                      value={form.confirmNewPassword}
-                      onChange={handleChange}
-                      placeholder="Re-Type Your New Password"
-                      className="w-full pl-10 pr-12 py-3 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition"
-                    />
-                    <EyeButton
-                      onClick={() =>
-                        setShowConfirmNewPassword(!showConfirmNewPassword)
-                      }
-                    />
-                  </div>
-                </div>
-
-                {error && <p className="text-sm text-red-500">{error}</p>}
-                {success && <p className="text-sm text-green-600">{success}</p>}
-
-                <button
-                  onClick={handleSubmit}
-                  disabled={saving}
-                  className="w-full py-3.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 disabled:opacity-60 transition"
-                >
-                  {saving ? "Menyimpan..." : "Submit"}
-                </button>
+                <EyeButton
+                  onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                />
               </div>
             </div>
+
+            {/* New Password */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                New Password
+              </label>
+              <div className="relative">
+                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
+                  <LockIcon />
+                </span>
+                <input
+                  type={showNewPassword ? "text" : "password"}
+                  name="newPassword"
+                  value={form.newPassword}
+                  onChange={handleChange}
+                  placeholder="Enter Your New Password"
+                  className="w-full pl-10 pr-12 py-3 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition"
+                />
+                <EyeButton
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                />
+              </div>
+            </div>
+
+            {/* Confirm New Password */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Confirm New Password
+              </label>
+              <div className="relative">
+                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
+                  <LockIcon />
+                </span>
+                <input
+                  type={showConfirmNewPassword ? "text" : "password"}
+                  name="confirmNewPassword"
+                  value={form.confirmNewPassword}
+                  onChange={handleChange}
+                  placeholder="Re-Type Your New Password"
+                  className="w-full pl-10 pr-12 py-3 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition"
+                />
+                <EyeButton
+                  onClick={() =>
+                    setShowConfirmNewPassword(!showConfirmNewPassword)
+                  }
+                />
+              </div>
+            </div>
+
+            {error && <p className="text-sm text-red-500">{error}</p>}
+            {success && <p className="text-sm text-green-600">{success}</p>}
+
+            <button
+              onClick={handleSubmit}
+              disabled={saving}
+              className="w-full py-3.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 disabled:opacity-60 transition"
+            >
+              {saving ? "Menyimpan..." : "Submit"}
+            </button>
           </div>
-        </section>
-      </main>
+        </div>
+      </div>
     </>
   );
 }

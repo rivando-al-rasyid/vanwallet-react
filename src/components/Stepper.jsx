@@ -1,15 +1,10 @@
-import React from "react";
+import { Fragment } from "react";
 
-/**
- * List of step labels for the stepper navigation.
- * @type {string[]}
- */
 const STEPS = ["Find People", "Set Nominal", "Finish"];
 
 /**
  * A visual stepper component that tracks progress through a multi-step flow.
- *
- * @param {Object} props - The component props.
+ * @param {Object} props
  * @param {number} props.currentStep - The active step index (starting from 1).
  */
 export default function Stepper({ currentStep }) {
@@ -19,20 +14,18 @@ export default function Stepper({ currentStep }) {
         const stepNumber = index + 1;
         const isActive = stepNumber === currentStep;
         const isCompleted = stepNumber < currentStep;
+        const isHighlighted = isActive || isCompleted;
 
         return (
-          <React.Fragment key={step}>
-            {/* Step Item */}
+          <Fragment key={step}>
             <div
               className={`flex items-center gap-2 ${
-                isActive || isCompleted ? "text-blue-600" : "text-gray-500"
+                isHighlighted ? "text-blue-600" : "text-gray-500"
               }`}
             >
               <span
                 className={`w-6 h-6 rounded-full flex items-center justify-center text-xs transition-colors ${
-                  isActive || isCompleted
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-400 text-white"
+                  isHighlighted ? "bg-blue-600 text-white" : "bg-gray-400 text-white"
                 }`}
               >
                 {isCompleted ? "✓" : stepNumber}
@@ -40,15 +33,14 @@ export default function Stepper({ currentStep }) {
               <span className={isActive ? "font-bold" : ""}>{step}</span>
             </div>
 
-            {/* Divider (only show between steps) */}
             {index < STEPS.length - 1 && (
               <div
                 className={`h-px w-12 border-t border-dashed transition-colors ${
                   isCompleted ? "border-blue-600" : "border-gray-400"
                 }`}
-              ></div>
+              />
             )}
-          </React.Fragment>
+          </Fragment>
         );
       })}
     </div>

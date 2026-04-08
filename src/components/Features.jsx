@@ -1,19 +1,18 @@
-// Features.jsx
 import { Headphones, ShieldCheck, Download } from "lucide-react";
 
-const features = [
+const FEATURES = [
   {
-    icon: <Headphones size={22} className="text-blue-600" />,
+    Icon: Headphones,
     title: "24 / 7 Support",
     desc: "We have 24/7 contact support, so you can contact us whenever you want and we will respond quickly.",
   },
   {
-    icon: <ShieldCheck size={22} className="text-blue-600" />,
+    Icon: ShieldCheck,
     title: "Data Privacy",
     desc: "We make sure your data is safe in our database and keep every submitted record protected.",
   },
   {
-    icon: <Download size={22} className="text-blue-600" />,
+    Icon: Download,
     title: "Easy Download",
     desc: "Zwallet is free to use and available on major mobile platforms for fast installation.",
   },
@@ -22,17 +21,17 @@ const features = [
 export default function Features() {
   return (
     <section className="relative z-10 bg-white">
-      <div className="mx-auto grid max-w-7xl gap-8 px-6 py-10 lg:grid-cols-3 lg:px-10">
-        {features.map((item, idx) => (
-          <div key={idx} className="flex items-start gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue-100">
-              {item.icon}
+      <div className="mx-auto grid max-w-7xl gap-6 px-4 py-8 sm:gap-8 sm:px-6 sm:py-10 lg:grid-cols-3 lg:px-10">
+        {FEATURES.map(({ Icon, title, desc }) => (
+          <div key={title} className="flex items-start gap-3 sm:gap-4">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 sm:h-12 sm:w-12">
+              <Icon size={20} className="text-blue-600 sm:size-22" />
             </div>
             <div>
-              <h3 className="mb-2 text-lg font-semibold text-gray-900">
-                {item.title}
+              <h3 className="mb-2 text-base font-semibold text-gray-900 sm:text-lg">
+                {title}
               </h3>
-              <p className="text-sm leading-6 text-gray-500">{item.desc}</p>
+              <p className="text-xs leading-5 text-gray-500 sm:text-sm sm:leading-6">{desc}</p>
             </div>
           </div>
         ))}

@@ -1,73 +1,91 @@
+import { useFormContext } from "react-hook-form";
 import { useRef } from "react";
 
-/**
- * A 6-digit PIN input component with auto-focus and paste support.
- * @param {Object} props
- * @param {string[]} props.pin - An array of 6 strings representing each digit.
- * @param {function(string[]): void} props.onChange - Callback triggered when the PIN array updates.
- */
-export default function PinInput({ pin = Array(6).fill(""), onChange }) {
-  const inputs = useRef([]);
+// Constants
+const PIN_LENGTH = 6;
+const BASE_INPUT_CLASSES = `
+  w-10 sm:w-12
+  text-center
+  text-2xl font-semibold
+  bg-transparent
+  border-b-2
+  outline-none
+  transition
+`;
 
-  const handleChange = (index, value) => {
-    // Only allow numbers
-    if (!/^\d?$/.test(value)) return;
+export default function PinInput() {
+  const { setValue, watch } = useFormContext();
+  const inputsRef = useRef([]);
 
-    const newPin = [...pin];
-    newPin[index] = value;
-    onChange(newPin);
+  const values = watch("pin");
 
-    // Auto-focus next input if value is entered
-    if (value && index < 5) {
-      inputs.current[index + 1]?.focus();
+  const handleChange = (e, index) => {
+    const numericValue = e.target.value.replace(/[^0-9]/g, "");
+
+    setValue(`pin.${index}.value`, numericValue);
+
+    // Auto-focus next input
+    if (numericValue && inputsRef.current[index + 1]) {
+      inputsRef.current[index + 1].focus();
     }
   };
 
-  const handleKeyDown = (index, e) => {
-    // Move focus back on backspace if current field is empty
-    if (e.key === "Backspace" && !pin[index] && index > 0) {
-      inputs.current[index - 1]?.focus();
+  const handleKeyDown = (e, index) => {
+    // Handle backspace to go to previous input
+    if (e.key === "Backspace" && !values?.[index]?.value) {
+      if (inputsRef.current[index - 1]) {
+        inputsRef.current[index - 1].focus();
+      }
     }
   };
 
-  const handlePaste = (e) => {
-    e.preventDefault();
-    const pastedData = e.clipboardData
-      .getData("text")
-      .replace(/\D/g, "")
-      .slice(0, 6);
-
-    if (!pastedData) return;
-
-    const newPin = [...pin];
-    pastedData.split("").forEach((char, i) => {
-      if (i < 6) newPin[i] = char;
-    });
-
-    onChange(newPin);
-
-    // Focus the last filled input or the first empty one
-    const focusIndex = Math.min(pastedData.length, 5);
-    inputs.current[focusIndex]?.focus();
+  const getInputClassName = (isActive) => {
+    const activeClasses = isActive ? "border-blue-500" : "border-gray-300";
+    return `${BASE_INPUT_CLASSES} ${activeClasses} focus:border-blue-500`;
   };
 
   return (
-    <div className="flex justify-between gap-2 sm:gap-4">
-      {pin.map((digit, i) => (
-        <input
-          key={i}
-          ref={(el) => (inputs.current[i] = el)}
-          type="text" // 'password' is fine, but 'text' with CSS 'text-security' is often preferred for PINs
-          inputMode="numeric"
-          pattern="\d*"
-          maxLength={1}
-          value={digit}
-          onChange={(e) => handleChange(i, e.target.value)}
-          onKeyDown={(e) => handleKeyDown(i, e)}
-          onPaste={handlePaste} // Allow paste on any field for better UX
-          className="w-10 h-12 sm:w-14 sm:h-16 text-center text-2xl font-bold border-2 rounded-xl border-slate-200 focus:border-[#6379F4] focus:ring-1 focus:ring-[#6379F4] focus:outline-none transition-all bg-white text-[#3A3D42]"
-        />
-      ))}
+    <div className="flex justify-between gap-4">
+      {Array.from({ length: PIN_LENGTH }).map((_, index) => {
+        const isActive = values?.[index]?.value;
+
+        return (
+          <PinInputField
+            key={index}
+            index={index}
+            value={values?.[index]?.value || ""}
+            isActive={isActive}
+            onChange={handleChange}
+            onKeyDown={handleKeyDown}
+            inputRef={(el) => (inputsRef.current[index] = el)}
+            className={getInputClassName(isActive)}
+          />
+        );
+      })}
     </div>
+  );
+}
+
+function PinInputField({
+  index,
+  value,
+  isActive,
+  onChange,
+  onKeyDown,
+  inputRef,
+  className,
+}) {
+  return (
+    <input
+      type="text"
+      maxLength={1}
+      inputMode="numeric"
+      value={value}
+      ref={inputRef}
+      onChange={(e) => onChange(e, index)}
+      onKeyDown={(e) => onKeyDown(e, index)}
+      className={className}
+      aria-label={`PIN digit ${index + 1}`}
+    />
   );
 }

@@ -1,10 +1,39 @@
 import { NavLink } from "react-router";
-export default function Sidebar() {
+import { useEffect } from "react";
+
+export default function Sidebar({ isOpen, setIsOpen }) {
+  // Close sidebar when clicking outside on mobile
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) {
+        setIsOpen(false);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [setIsOpen]);
+
   return (
-    <aside className="w-56 shrink-0 bg-white border-r border-slate-100 flex flex-col py-8 px-4 gap-1 sticky top-16 h-[calc(100vh-4rem)]">
+    <>
+      {/* Mobile Overlay */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+      
+      {/* Sidebar */}
+      <aside className={`
+        fixed top-16 left-0 z-50 h-[calc(100vh-4rem)] w-64 bg-white border-r border-slate-100 flex flex-col py-8 px-4 gap-1
+        transform transition-transform duration-300 ease-in-out
+        lg:relative lg:translate-x-0 lg:w-56 lg:sticky lg:z-auto
+        ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+      `}>
       <nav className="flex flex-col gap-1 flex-1">
         <NavLink
-          to="/dashboard"
+          to="/dashboard/"
           className={({ isActive }) =>
             `flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
               isActive
@@ -12,6 +41,8 @@ export default function Sidebar() {
                 : "text-slate-500 hover:bg-blue-50 hover:text-blue-600"
             }`
           }
+          end
+          onClick={() => setIsOpen(false)}
         >
           <svg
             width="24"
@@ -43,7 +74,7 @@ export default function Sidebar() {
         </NavLink>
 
         <NavLink
-          to="/transfer"
+          to="/dashboard/transfer"
           className={({ isActive }) =>
             `flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
               isActive
@@ -51,6 +82,7 @@ export default function Sidebar() {
                 : "text-slate-500 hover:bg-blue-50 hover:text-blue-600"
             }`
           }
+          onClick={() => setIsOpen(false)}
         >
           <svg
             width="24"
@@ -70,7 +102,7 @@ export default function Sidebar() {
         </NavLink>
 
         <NavLink
-          to="/history"
+          to="/dashboard/history"
           className={({ isActive }) =>
             `flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
               isActive
@@ -78,6 +110,7 @@ export default function Sidebar() {
                 : "text-slate-500 hover:bg-blue-50 hover:text-blue-600"
             }`
           }
+          onClick={() => setIsOpen(false)}
         >
           <svg
             width="24"
@@ -112,7 +145,7 @@ export default function Sidebar() {
         </NavLink>
 
         <NavLink
-          to="/topup"
+          to="/dashboard/topup"
           className={({ isActive }) =>
             `flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
               isActive
@@ -120,6 +153,7 @@ export default function Sidebar() {
                 : "text-slate-500 hover:bg-blue-50 hover:text-blue-600"
             }`
           }
+          onClick={() => setIsOpen(false)}
         >
           <svg
             width="20"
@@ -187,7 +221,7 @@ export default function Sidebar() {
         </NavLink>
 
         <NavLink
-          to="/profile"
+          to="/dashboard/profile"
           className={({ isActive }) =>
             `flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
               isActive
@@ -195,6 +229,7 @@ export default function Sidebar() {
                 : "text-slate-500 hover:bg-blue-50 hover:text-blue-600"
             }`
           }
+          onClick={() => setIsOpen(false)}
         >
           <svg
             width="24"
@@ -240,5 +275,6 @@ export default function Sidebar() {
         </NavLink>
       </nav>
     </aside>
+    </>
   );
 }

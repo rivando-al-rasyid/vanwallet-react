@@ -1,10 +1,11 @@
+import { memo } from "react";
+
 /**
  * Renders the company logo/brand mark.
  * @param {Object} props
  * @param {boolean} [props.isWhite=false] - If true, renders the light version of the brand.
  */
-
-function Brand({ isWhite = false }) {
+const Brand = memo(function Brand({ isWhite = false }) {
   return (
     <div className="flex gap-4 items-center group">
       <div
@@ -16,20 +17,22 @@ function Brand({ isWhite = false }) {
       >
         <img
           src="/img/logo.png"
-          alt="Logo"
+          alt="E-Wallet logo"
           className="w-6 h-6 object-contain"
         />
       </div>
 
-      <h1
+      {/* Use <span> instead of <h1> — Brand appears in nav/header where
+          only one h1 should exist (the page title). */}
+      <span
         className={`text-2xl font-bold tracking-tight transition-colors ${
           isWhite ? "text-white" : "text-[#6379F4]"
         }`}
       >
         E-Wallet
-      </h1>
+      </span>
     </div>
   );
-}
+});
 
 export default Brand;
