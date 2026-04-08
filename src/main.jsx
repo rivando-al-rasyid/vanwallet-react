@@ -9,7 +9,6 @@ import Login from "./pages/auth/Login.jsx";
 import Register from "./pages/auth/Register.jsx";
 import ForgotPassword from "./pages/auth/ForgotPassword.jsx";
 import LoginPin from "./pages/auth/LoginPin.jsx";
-import Dashboard from "./layouts/Dashboard/DashboardLayout.jsx";
 import Index from "./pages/dashboards/Index.jsx";
 import Transfer from "./pages/dashboards/Transfer.jsx";
 import History from "./pages/dashboards/History.jsx";
@@ -19,6 +18,7 @@ import ChangePassword from "./pages/dashboards/ChangePassword.jsx";
 import ChangePin from "./pages/dashboards/ChangePin.jsx";
 import SetNominal from "./pages/dashboards/SetNominal.jsx";
 import { ProtectedRoute, GuestRoute } from "./layouts/ProtectedRoute.jsx";
+import DashboardLayout from "./layouts/DashboardLayout.jsx";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <BrowserRouter>
@@ -36,7 +36,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
 
       {/* Protected routes — unauthenticated users are redirected to /login */}
       <Route element={<ProtectedRoute />}>
-        <Route path="/dashboard" element={<Dashboard />}>
+        <Route path="/dashboard" element={<DashboardLayout />}>
           <Route index element={<Index />} />
 
           <Route path="transfer">

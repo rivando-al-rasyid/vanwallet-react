@@ -1,4 +1,4 @@
-import Brand from "../../components/Brand";
+import Brand from "../Brand";
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { getSession, clearSession } from "../../utils/auth"; // Removed isLoggedIn
