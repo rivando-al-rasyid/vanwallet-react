@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
+import { useSearchParams } from "react-router";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar, faTrashCan } from "@fortawesome/free-regular-svg-icons";
 import { faStar as faStarSolid } from "@fortawesome/free-solid-svg-icons";
@@ -21,17 +22,18 @@ export default function TableRow({
   paginate = false,
   onRowClick,
 }) {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [rows, setRows] = useState(() =>
     items.map((item) => ({ ...item, isFavorite: false })),
   );
-  const [currentPage, setCurrentPage] = useState(1);
+  const currentPage = parseInt(searchParams.get('page')) || 1;
 
   // Sync rows and reset page when items prop changes
   useEffect(() => {
     if (remove) return;
     setRows(items.map((item) => ({ ...item, isFavorite: false })));
-    setCurrentPage(1);
-  }, [items, remove]);
+    setSearchParams({ page: '1' });
+  }, [items, remove, setSearchParams]);
 
   const toggleFavorite = useCallback((id) => {
     setRows((prev) =>
@@ -72,9 +74,11 @@ export default function TableRow({
 
   const handlePageChange = useCallback(
     (page) => {
-      if (page >= 1 && page <= totalPages) setCurrentPage(page);
+      if (page >= 1 && page <= totalPages) {
+        setSearchParams({ page: page.toString() });
+      }
     },
-    [totalPages],
+    [totalPages, setSearchParams],
   );
 
   const visibleCount =

@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { getUsers } from "../../utils/auth";
+import { Link } from "react-router";
 
 import { Bar } from "react-chartjs-2";
 import {
@@ -312,12 +313,9 @@ export default function Index() {
             <h3 className="text-sm sm:text-base font-bold text-slate-800">
               Transaction History
             </h3>
-            <a
-              href="#"
-              className="text-xs font-semibold text-blue-600 hover:underline"
-            >
+            <Link to="/dashboard/history" className="text-xs font-semibold text-blue-600 hover:underline">
               See All
-            </a>
+            </Link>
           </div>
           <div className="flex-1 flex flex-col gap-2 sm:gap-3">
             {loading && (
