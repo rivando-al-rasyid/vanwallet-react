@@ -15,10 +15,10 @@ import Index from "./pages/dashboard/Index.jsx";
 import Transfer from "./pages/dashboard/Transfer.jsx";
 import History from "./pages/dashboard/History.jsx";
 import TopUp from "./pages/dashboard/TopUp.jsx";
-import SetNominal from "./pages/dashboard/SetNominal.jsx";
 import Profile from "./pages/dashboard/Profile.jsx";
 import ChangePassword from "./pages/dashboard/ChangePassword.jsx";
 import ChangePin from "./pages/dashboard/ChangePin.jsx";
+import SetNominal from "./pages/dashboard/SetNominal.jsx";
 
 import { ProtectedRoute, GuestRoute } from "./components/ProtectedRoute.jsx";
 
