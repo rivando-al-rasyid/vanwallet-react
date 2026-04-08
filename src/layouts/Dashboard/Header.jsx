@@ -127,7 +127,7 @@ export default function Navbar({ setSidebarOpen }) {
                 <div className="p-1.5">
                   <button
                     onClick={() => {
-                      navigate("/profile");
+                      navigate("/dashboard/profile");
                       setOpen(false);
                     }}
                     className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-blue-50 hover:text-blue-600 transition-colors"
