@@ -18,7 +18,6 @@ import Profile from "./pages/dashboard/Profile.jsx";
 import ChangePassword from "./pages/dashboard/ChangePassword.jsx";
 import ChangePin from "./pages/dashboard/ChangePin.jsx";
 import SetNominal from "./pages/dashboard/SetNominal.jsx";
-
 import { ProtectedRoute, GuestRoute } from "./layouts/ProtectedRoute.jsx";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
