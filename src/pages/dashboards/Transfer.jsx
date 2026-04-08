@@ -1,31 +1,17 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { useNavigate, useSearchParams } from "react-router";
+import { useNavigate } from "react-router";
 import Stepper from "../../components/Stepper";
 import SearchInput from "../../components/SearchInput";
 import TableRow from "../../components/TableRow";
 import { getUsers } from "../../utils/auth";
 
-/**
- * @typedef {Object} Contact
- * @property {string|number} id - Contact ID
- * @property {string} name - Contact name
- * @property {string} phone - Contact phone number
- * @property {string} img - Contact avatar URL
- */
-
-/**
- * Transfer page component for finding and selecting contacts to transfer money.
- */
 export default function Transfer() {
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [contacts, setContacts] = useState(/** @type {Contact[]} */ ([]));
+  const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [search, setSearch] = useState("");
 
-  const search = searchParams.get("search") || "";
-
-  // Memoized fetch users function
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     setError("");
@@ -49,7 +35,6 @@ export default function Transfer() {
     fetchUsers();
   }, [fetchUsers]);
 
-  // Memoized filtered contacts
   const filteredContacts = useMemo(() => {
     if (!search.trim()) return contacts;
 
@@ -61,24 +46,10 @@ export default function Transfer() {
     );
   }, [contacts, search]);
 
-  // Memoized search change handler
-  const handleSearchChange = useCallback(
-    (e) => {
-      const newSearch = e.target.value.trim();
-      const newParams = new URLSearchParams(searchParams);
+  const handleSearchChange = useCallback((e) => {
+    setSearch(e.target.value);
+  }, []);
 
-      if (newSearch) {
-        newParams.set("search", newSearch);
-      } else {
-        newParams.delete("search");
-      }
-
-      setSearchParams(newParams);
-    },
-    [searchParams, setSearchParams],
-  );
-
-  // Memoized row click handler
   const handleRowClick = useCallback(
     (contact) => {
       navigate(`/dashboard/transfer/${contact.id}`);
@@ -86,12 +57,10 @@ export default function Transfer() {
     [navigate],
   );
 
-  // Memoized retry handler
   const handleRetry = useCallback(() => {
     fetchUsers();
   }, [fetchUsers]);
 
-  // Memoized results text
   const resultsText = useMemo(() => {
     if (loading) return "Memuat kontak...";
     const count = filteredContacts.length;
@@ -101,7 +70,6 @@ export default function Transfer() {
 
   return (
     <>
-      {/* Header & Stepper */}
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-6">
           <span className="text-blue-600">
@@ -121,7 +89,6 @@ export default function Transfer() {
         <Stepper currentStep={1} />
       </div>
 
-      {/* Main Content Card */}
       <div className="bg-white rounded-2xl shadow-sm p-8 min-h-150">
         <div className="flex justify-between items-center mb-6">
           <div>
@@ -165,7 +132,7 @@ export default function Transfer() {
             <p className="text-red-500 font-semibold text-sm">{error}</p>
             <button
               onClick={handleRetry}
-              className="text-xs text-blue-600 underline hover:text-blue-700 transition-colors"
+              className="text-xs text-blue-600 underline hover:text-blue-700"
             >
               Coba lagi
             </button>
@@ -173,11 +140,7 @@ export default function Transfer() {
         )}
 
         {!loading && !error && (
-          <TableRow
-            items={filteredContacts}
-            paginate={true}
-            onRowClick={handleRowClick}
-          />
+          <TableRow items={filteredContacts} onRowClick={handleRowClick} />
         )}
       </div>
     </>
