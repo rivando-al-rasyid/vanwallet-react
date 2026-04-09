@@ -61,9 +61,15 @@ export default function History() {
   return (
     <>
       {/* Page Title */}
-      <div className="flex items-center gap-3">
-        <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+      <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            className="sm:w-5 sm:h-5"
+          >
             <path
               d="M12 8V12L14.5 14.5"
               stroke="#2563EB"
@@ -86,19 +92,21 @@ export default function History() {
             />
           </svg>
         </div>
-        <h1 className="text-xl font-bold text-gray-800">History Transaction</h1>
+        <h1 className="text-lg sm:text-xl font-bold text-gray-800">
+          History Transaction
+        </h1>
       </div>
 
       {/* Main Card */}
-      <div className="bg-white rounded-2xl shadow-sm min-h-150">
+      <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm min-h-150">
         {/* Card Header */}
-        <div className="flex items-center justify-between px-8 py-5 border-b border-gray-100">
-          <h2 className="text-base font-bold text-gray-800">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-4 sm:px-6 lg:px-8 py-4 sm:py-5 border-b border-gray-100">
+          <h2 className="text-sm sm:text-base font-bold text-gray-800 order-2 sm:order-1">
             Find Transaction
           </h2>
-          <div className="relative">
+          <div className="relative order-1 sm:order-2 w-full sm:w-auto">
             <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                 <path
                   d="M21 21L16.65 16.65M19 11C19 15.4183 15.4183 19 11 19C6.58172 19 3 15.4183 3 11C3 6.58172 6.58172 3 11 3C15.4183 3 19 6.58172 19 11Z"
                   stroke="#9CA3AF"
@@ -122,16 +130,16 @@ export default function History() {
                 newParams.set("page", "1");
                 window.history.pushState({}, "", `?${newParams.toString()}`);
               }}
-              placeholder="Enter Number Or Full Name"
-              className="w-72 pl-4 pr-10 py-2.5 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition"
+              placeholder="Name or Number"
+              className="w-full sm:w-72 pl-4 pr-10 py-2 sm:py-2.5 text-xs sm:text-sm border border-gray-200 rounded-lg sm:rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition"
             />
           </div>
         </div>
 
         {loading && (
-          <div className="flex flex-col items-center justify-center py-20 gap-3 text-gray-400">
+          <div className="flex flex-col items-center justify-center py-12 sm:py-20 gap-3 text-gray-400">
             <svg
-              className="animate-spin w-8 h-8 text-blue-500"
+              className="animate-spin w-6 h-6 sm:w-8 sm:h-8 text-blue-500"
               fill="none"
               viewBox="0 0 24 24"
             >
@@ -149,7 +157,9 @@ export default function History() {
                 d="M4 12a8 8 0 018-8v8H4z"
               />
             </svg>
-            <span className="text-sm">Mengambil data history...</span>
+            <span className="text-xs sm:text-sm">
+              Mengambil data history...
+            </span>
           </div>
         )}
 
@@ -166,12 +176,14 @@ export default function History() {
         )}
 
         {!loading && !error && (
-          <TableRow
-            items={filtered}
-            remove={true}
-            onDelete={handleDelete}
-            paginate={true}
-          />
+          <div className="overflow-x-auto">
+            <TableRow
+              items={filtered}
+              remove={true}
+              onDelete={handleDelete}
+              paginate={true}
+            />
+          </div>
         )}
       </div>
     </>

@@ -25,13 +25,15 @@ export default function Features() {
         {FEATURES.map(({ Icon, title, desc }) => (
           <div key={title} className="flex items-start gap-3 sm:gap-4">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 sm:h-12 sm:w-12">
-              <Icon size={20} className="text-blue-600 sm:size-22" />
+              <Icon size={22} className="text-blue-600" />
             </div>
             <div>
               <h3 className="mb-2 text-base font-semibold text-gray-900 sm:text-lg">
                 {title}
               </h3>
-              <p className="text-xs leading-5 text-gray-500 sm:text-sm sm:leading-6">{desc}</p>
+              <p className="text-xs leading-5 text-gray-500 sm:text-sm sm:leading-6">
+                {desc}
+              </p>
             </div>
           </div>
         ))}

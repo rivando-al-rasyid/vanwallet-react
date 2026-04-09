@@ -89,8 +89,8 @@ export default function TableRow({
 
   return (
     <div className="flex flex-col">
-      <div className="overflow-x-auto px-8 py-4">
-        <table className="w-full border-separate border-spacing-y-2">
+      <div className="overflow-x-auto px-3 sm:px-4 lg:px-8 py-3 sm:py-4">
+        <table className="w-full border-separate border-spacing-y-2 text-sm sm:text-base">
           <tbody>
             {displayRows.map((contact, index) => (
               <tr
@@ -100,30 +100,30 @@ export default function TableRow({
                   onRowClick ? "cursor-pointer" : "cursor-default"
                 } ${index % 2 !== 0 ? "bg-gray-50/50" : "bg-white"}`}
               >
-                <td className="py-3 pl-2 rounded-l-xl">
+                <td className="py-2 sm:py-3 pl-1 sm:pl-2 rounded-l-lg sm:rounded-l-xl">
                   <img
                     src={contact.img}
                     alt={contact.name}
-                    className="w-11 h-11 rounded-xl object-cover"
+                    className="w-8 h-8 sm:w-10 sm:h-10 lg:w-11 lg:h-11 rounded-lg sm:rounded-xl object-cover"
                   />
                 </td>
 
-                <td className="px-4 py-3">
-                  <span className="font-semibold text-gray-700">
+                <td className="px-2 sm:px-4 py-2 sm:py-3">
+                  <span className="font-semibold text-gray-700 text-xs sm:text-sm lg:text-base">
                     {contact.name}
                   </span>
                 </td>
 
-                <td className="px-4 py-3">
-                  <span className="text-sm text-gray-500 font-medium">
+                <td className="px-2 sm:px-4 py-2 sm:py-3">
+                  <span className="text-xs sm:text-sm text-gray-500 font-medium">
                     {contact.phone}
                   </span>
                 </td>
 
                 {contact.amount && (
-                  <td className="px-4 py-3">
+                  <td className="px-2 sm:px-4 py-2 sm:py-3">
                     <span
-                      className={`text-sm font-semibold ${
+                      className={`text-xs sm:text-sm font-semibold ${
                         contact.type === "income"
                           ? "text-green-500"
                           : "text-red-500"
@@ -135,7 +135,7 @@ export default function TableRow({
                   </td>
                 )}
 
-                <td className="px-4 py-3 text-right rounded-r-xl">
+                <td className="px-2 sm:px-4 py-2 sm:py-3 text-right rounded-r-lg sm:rounded-r-xl">
                   {remove ? (
                     <button
                       onClick={(e) => {
@@ -173,7 +173,7 @@ export default function TableRow({
               <tr>
                 <td
                   colSpan={5}
-                  className="py-20 text-center text-gray-400 text-sm"
+                  className="py-12 sm:py-20 text-center text-gray-400 text-xs sm:text-sm"
                 >
                   No data found.
                 </td>
@@ -184,15 +184,15 @@ export default function TableRow({
       </div>
 
       {paginate && (
-        <div className="flex items-center justify-between px-8 py-4 border-t border-gray-100">
-          <span className="text-sm text-gray-400">
-            Show {visibleCount} of {sourceRows.length} entries
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 px-3 sm:px-4 lg:px-8 py-3 sm:py-4 border-t border-gray-100">
+          <span className="text-xs sm:text-sm text-gray-400">
+            Show {visibleCount} of {sourceRows.length}
           </span>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 overflow-x-auto">
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
-              className="px-3 py-1.5 text-sm font-medium text-gray-500 hover:text-blue-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="px-2 sm:px-3 py-1 text-xs sm:text-sm font-medium text-gray-500 hover:text-blue-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-nowrap"
             >
               Prev
             </button>
@@ -200,7 +200,7 @@ export default function TableRow({
               <button
                 key={page}
                 onClick={() => handlePageChange(page)}
-                className={`w-8 h-8 text-sm font-medium rounded-full transition-colors ${
+                className={`w-7 h-7 sm:w-8 sm:h-8 text-xs sm:text-sm font-medium rounded-full transition-colors ${
                   currentPage === page
                     ? "bg-blue-600 text-white"
                     : "text-gray-500 hover:text-blue-600 hover:bg-blue-50"
@@ -212,7 +212,7 @@ export default function TableRow({
             <button
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
-              className="px-3 py-1.5 text-sm font-medium text-gray-500 hover:text-blue-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="px-2 sm:px-3 py-1 text-xs sm:text-sm font-medium text-gray-500 hover:text-blue-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-nowrap"
             >
               Next
             </button>

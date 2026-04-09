@@ -65,59 +65,73 @@ export default function TopUp() {
   return (
     <>
       {/* Page Title */}
-      <div className="flex items-center gap-3">
-        <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+      <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-blue-100 flex items-center justify-center ">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            className="sm:w-4 sm:h-4"
+          >
             <path
               d="M19.5039 2.07729C20.1889 1.87802 20.931 2.07025 21.434 2.58253C21.937 3.0938 22.123 3.83957 21.918 4.52999L20.669 8.73188C20.55 9.13144 20.1339 9.35789 19.7359 9.23913C19.3389 9.11936 19.1129 8.69867 19.2319 8.30012L20.481 4.09722C20.551 3.86171 20.4259 3.7027 20.3689 3.64533C20.3119 3.58696 20.1519 3.46014 19.9209 3.52758L3.82937 8.20652C3.57336 8.281 3.51736 8.49537 3.50536 8.58394C3.49436 8.6725 3.49036 8.89392 3.71837 9.03482L7.10449 11.1182C7.4575 11.3355 7.5695 11.8005 7.35249 12.1568C7.21149 12.3883 6.96548 12.5171 6.71247 12.5171C6.57947 12.5171 6.44446 12.4819 6.32246 12.4064L2.93634 10.3221C2.26532 9.90942 1.91331 9.16667 2.01831 8.38265C2.12331 7.59762 2.65833 6.97464 3.41336 6.75523L19.5039 2.07729ZM18.0282 12.3492C18.1482 11.9487 18.5652 11.7212 18.9622 11.842C19.3592 11.9618 19.5852 12.3824 19.4662 12.782L17.1441 20.596C16.9191 21.3519 16.2971 21.8833 15.5201 21.9829C15.4331 21.995 15.3471 22 15.2611 22C14.583 22 13.963 21.6518 13.602 21.0539L9.50187 14.2645C9.32286 13.9666 9.36786 13.5841 9.61287 13.3386L15.4341 7.48007C15.7271 7.18518 16.2011 7.18518 16.4941 7.48007C16.7871 7.77496 16.7871 8.25302 16.4941 8.54791L11.0899 13.9877L14.8841 20.2699C15.0221 20.4984 15.2391 20.4964 15.3291 20.4863C15.4171 20.4742 15.6301 20.4199 15.7061 20.1643L18.0282 12.3492Z"
               fill="#2563EB"
             />
           </svg>
         </div>
-        <h1 className="text-xl font-bold text-gray-800">Top Up Account</h1>
+        <h1 className="text-lg sm:text-xl font-bold text-gray-800">
+          Top Up Account
+        </h1>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-6 items-start">
+      <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 items-start">
         {/* Left Panel */}
-        <div className="flex-1 bg-white rounded-2xl shadow-sm p-4 sm:p-6 lg:p-8">
-          <h2 className="text-base font-bold text-gray-800 mb-4">
+        <div className="w-full bg-white rounded-xl sm:rounded-2xl shadow-sm p-3 sm:p-6 lg:p-8">
+          <h2 className="text-sm sm:text-base font-bold text-gray-800 mb-3 sm:mb-4">
             Account Information
           </h2>
-          <div className="bg-gray-50 rounded-xl p-4 mb-8">
+          <div className="bg-gray-50 rounded-lg sm:rounded-xl p-3 sm:p-4 mb-6 sm:mb-8">
             {user ? (
-              <div className="flex items-center gap-3 sm:gap-4">
+              <div className="flex items-center gap-2 sm:gap-3 lg:gap-4">
                 <img
                   src={user.avatar}
                   alt={user.name}
-                  className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl object-cover shrink-0"
+                  className="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 rounded-lg sm:rounded-xl object-cover shrink-0"
                   onError={(e) => {
                     e.currentTarget.src =
                       "https://ui-avatars.com/api/?name=User&background=EBF4FF&color=7F9CF5";
                   }}
                 />
                 <div>
-                  <p className="font-semibold text-gray-800">{user.name}</p>
-                  <p className="text-sm text-gray-500">{user.phone}</p>
+                  <p className="font-semibold text-sm sm:text-base text-gray-800">
+                    {user.name}
+                  </p>
+                  <p className="text-xs sm:text-sm text-gray-500">
+                    {user.phone}
+                  </p>
                   <span className="inline-flex items-center gap-1 mt-1 text-xs bg-blue-600 text-white px-2.5 py-0.5 rounded-full font-medium">
                     Verified
                   </span>
                 </div>
               </div>
             ) : (
-              <div className="flex items-center gap-4 animate-pulse">
-                <div className="w-14 h-14 rounded-xl bg-gray-200 shrink-0" />
-                <div className="flex flex-col gap-2">
-                  <div className="h-4 w-32 bg-gray-200 rounded" />
-                  <div className="h-3 w-24 bg-gray-200 rounded" />
+              <div className="flex items-center gap-2 sm:gap-3 lg:gap-4 animate-pulse">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 rounded-lg sm:rounded-xl bg-gray-200 shrink-0" />
+                <div className="flex flex-col gap-2 flex-1">
+                  <div className="h-3 sm:h-4 bg-gray-200 rounded w-24 sm:w-32" />
+                  <div className="h-2.5 sm:h-3 bg-gray-200 rounded w-20 sm:w-24" />
                 </div>
               </div>
             )}
           </div>
 
           {/* Amount Input */}
-          <div className="mb-8">
-            <h2 className="text-base font-bold text-gray-800 mb-1">Amount</h2>
-            <p className="text-sm text-gray-400 mb-3">
+          <div className="mb-6 sm:mb-8">
+            <h2 className="text-sm sm:text-base font-bold text-gray-800 mb-1">
+              Amount
+            </h2>
+            <p className="text-xs sm:text-sm text-gray-400 mb-2 sm:mb-3">
               Type the amount you want to transfer to your e-wallet account
             </p>
             <input
@@ -125,23 +139,23 @@ export default function TopUp() {
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               placeholder="Enter Nominal Transfer"
-              className="w-full px-4 py-2.5 sm:py-3.5 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition"
+              className="w-full px-3 sm:px-4 py-2 sm:py-2.5 lg:py-3.5 text-xs sm:text-sm border border-gray-200 rounded-lg sm:rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition"
             />
           </div>
 
           {/* Payment Methods */}
           <div>
-            <h2 className="text-base font-bold text-gray-800 mb-1">
+            <h2 className="text-sm sm:text-base font-bold text-gray-800 mb-1">
               Payment Method
             </h2>
-            <p className="text-sm text-gray-400 mb-4">
+            <p className="text-xs sm:text-sm text-gray-400 mb-3 sm:mb-4">
               Choose your payment method for top up account
             </p>
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2 sm:gap-3">
               {PAYMENT_METHODS.map((method) => (
                 <label
                   key={method.id}
-                  className={`flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl border cursor-pointer transition-all ${
+                  className={`flex items-center gap-2 sm:gap-3 lg:gap-4 p-2 sm:p-3 lg:p-4 rounded-lg sm:rounded-xl border cursor-pointer transition-all ${
                     selectedMethod === method.id
                       ? "border-blue-400 bg-blue-50/40"
                       : "border-gray-100 bg-gray-50 hover:border-gray-300"
@@ -155,7 +169,7 @@ export default function TopUp() {
                     onChange={() => setSelectedMethod(method.id)}
                     className="accent-blue-600 w-4 h-4 shrink-0"
                   />
-                  <div className="w-12 h-8 flex items-center justify-center shrink-0">
+                  <div className="w-10 h-7 sm:w-12 sm:h-8 flex items-center justify-center shrink-0">
                     <img
                       src={method.logo}
                       alt={method.name}
@@ -166,7 +180,7 @@ export default function TopUp() {
                       }}
                     />
                   </div>
-                  <span className="text-sm font-medium text-gray-700">
+                  <span className="text-xs sm:text-sm font-medium text-gray-700">
                     {method.name}
                   </span>
                 </label>
@@ -176,31 +190,37 @@ export default function TopUp() {
         </div>
 
         {/* Summary Sidebar */}
-        <div className="w-full lg:w-72 shrink-0 bg-white rounded-2xl shadow-sm p-4 sm:p-6 border border-gray-100">
-          <h2 className="text-base font-bold text-gray-800 mb-4 sm:mb-6">Payment</h2>
-          <div className="flex flex-col gap-4 mb-4 sm:mb-6">
+        <div className="w-full lg:w-72 shrink-0 bg-white rounded-xl sm:rounded-2xl shadow-sm p-3 sm:p-6 border border-gray-100">
+          <h2 className="text-sm sm:text-base font-bold text-gray-800 mb-3 sm:mb-6">
+            Payment
+          </h2>
+          <div className="flex flex-col gap-3 sm:gap-4 mb-3 sm:mb-6">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-500">Order</span>
-              <span className="text-sm font-semibold text-gray-800">
+              <span className="text-xs sm:text-sm text-gray-500">Order</span>
+              <span className="text-xs sm:text-sm font-semibold text-gray-800">
                 {fmtIdr(order)}
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-500">Tax (10%)</span>
-              <span className="text-sm font-semibold text-gray-800">
+              <span className="text-xs sm:text-sm text-gray-500">
+                Tax (10%)
+              </span>
+              <span className="text-xs sm:text-sm font-semibold text-gray-800">
                 {fmtIdr(tax)}
               </span>
             </div>
-            <div className="border-t border-gray-100 pt-4 flex items-center justify-between">
-              <span className="text-sm font-bold text-gray-800">Sub Total</span>
-              <span className="text-sm font-bold text-gray-800">
+            <div className="border-t border-gray-100 pt-3 sm:pt-4 flex items-center justify-between">
+              <span className="text-xs sm:text-sm font-bold text-gray-800">
+                Sub Total
+              </span>
+              <span className="text-xs sm:text-sm font-bold text-gray-800">
                 {fmtIdr(subTotal)}
               </span>
             </div>
           </div>
           <button
             onClick={handleSubmit}
-            className="w-full py-3 sm:py-3.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition active:scale-95"
+            className="w-full py-2 sm:py-3 lg:py-3.5 bg-blue-600 text-white text-xs sm:text-sm font-semibold rounded-lg sm:rounded-xl hover:bg-blue-700 transition active:scale-95"
           >
             Submit
           </button>
