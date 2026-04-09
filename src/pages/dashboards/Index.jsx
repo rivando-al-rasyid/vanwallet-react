@@ -157,7 +157,7 @@ export default function Index() {
     <section className="flex-1 flex flex-col gap-4 p-4 pt-4 sm:gap-6 sm:px-6 sm:pt-6 lg:px-8 lg:pt-8 overflow-hidden">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
         {/* Balance Card */}
-        <div className="fade-in delay-1 col-span-1 bg-white rounded-lg p-4 sm:p-5 lg:p-6 shadow-sm border border-slate-100 flex flex-col gap-4">
+        <div className="fade-in delay-1 col-span-2 lg:col-span-1 bg-white rounded-lg p-4 sm:p-5 lg:p-6 shadow-sm border border-slate-100  gap-4">
           <div className="flex items-center gap-2 text-slate-500 text-xs sm:text-sm font-medium">
             <svg
               className="w-4 h-4"
