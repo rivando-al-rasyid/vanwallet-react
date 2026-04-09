@@ -1,84 +1,48 @@
-import { useForm, FormProvider } from "react-hook-form";
-import { joiResolver } from "@hookform/resolvers/joi";
-import Joi from "joi";
+import { useFormContext } from "react-hook-form";
 
-import LoginHeadline from "../../components/LoginHeadline";
-import Brand from "../../components/Brand";
-import PinInput from "../../components/PinInput";
-import LoginSubtext from "../../components/LoginSubtext";
-import Submit from "../../components/Submit";
+export default function PinInput() {
+  const { register, setValue, watch } = useFormContext();
+  const pinValues = watch("pin");
 
-// useFieldArray requires array of objects, not primitives
-const defaultPin = Array(6)
-  .fill(null)
-  .map(() => ({ value: "" }));
+  const handleInput = (e, index) => {
+    const val = e.target.value.replace(/\D/g, ""); // Only digits
+    if (!val) return;
 
-const pinSchema = Joi.object({
-  pin: Joi.array()
-    .items(
-      Joi.object({
-        value: Joi.string().length(1).pattern(/^\d$/).required(),
-      }),
-    )
-    .length(6)
-    .required(),
-});
+    // Set the value in react-hook-form
+    setValue(`pin.${index}.value`, val.slice(-1));
 
-export default function LoginPin() {
-  const methods = useForm({
-    resolver: joiResolver(pinSchema),
-    defaultValues: { pin: defaultPin },
-    mode: "onChange",
-  });
+    // Auto-focus next input
+    if (index < 5) {
+      const nextField = document.querySelector(
+        `input[name="pin.${index + 1}.value"]`,
+      );
+      nextField?.focus();
+    }
+  };
 
-  const onSubmit = (data) => {
-    const finalPin = data.pin.map((item) => item.value).join("");
-    console.log("Submitting PIN:", finalPin);
+  const handleKeyDown = (e, index) => {
+    if (e.key === "Backspace" && !pinValues[index].value && index > 0) {
+      const prevField = document.querySelector(
+        `input[name="pin.${index - 1}.value"]`,
+      );
+      prevField?.focus();
+    }
   };
 
   return (
-    <main className="grid grid-cols-1 lg:grid-cols-2 min-h-screen bg-[#2948FF]">
-      <section className="flex flex-col justify-center items-center px-6 py-12 lg:px-20 bg-white xl:rounded-r-[60px] shadow-2xl z-20">
-        <div className="w-full max-w-175">
-          <Brand />
-          <LoginHeadline
-            title={"Enter Your Pin 👋"}
-            text={"Please save your pin because this so important."}
-          />
-        </div>
-
-        <FormProvider {...methods}>
-          <form
-            onSubmit={methods.handleSubmit(onSubmit)}
-            className="w-full max-w-175 flex flex-col items-center"
-          >
-            <PinInput />
-
-            {methods.formState.errors.pin && (
-              <p className="text-red-500 text-sm mt-2 font-medium">
-                Please complete the 6-digit PIN.
-              </p>
-            )}
-
-            <LoginSubtext
-              text={"Forgot Your Pin?"}
-              linklabel={"reset"}
-              link={"#"}
-            />
-
-            <Submit name={"Confirm"} />
-          </form>
-        </FormProvider>
-      </section>
-
-      <aside className="flex flex-col-reverse items-center">
-        <img
-          src={"/img/person.png"}
-          alt="illustration"
-          loading="lazy"
-          className="w-3/5 h-auto drop-shadow-2xl"
+    <div className="flex gap-2 sm:gap-4 justify-center">
+      {[0, 1, 2, 3, 4, 5].map((index) => (
+        <input
+          key={index}
+          {...register(`pin.${index}.value`)}
+          type="text"
+          inputMode="numeric"
+          maxLength={1}
+          onInput={(e) => handleInput(e, index)}
+          onKeyDown={(e) => handleKeyDown(e, index)}
+          className="w-10 h-12 sm:w-12 sm:h-14 text-center text-xl font-bold border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition"
         />
-      </aside>
-    </main>
+      ))}
+    </div>
   );
 }
