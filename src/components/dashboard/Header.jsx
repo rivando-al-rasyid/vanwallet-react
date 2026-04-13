@@ -3,11 +3,11 @@ import { useState, useRef, useEffect, useContext } from "react";
 import { useNavigate } from "react-router";
 import AuthContext from "../../context/auth/context";
 import DashboardContext from "../../context/dashboard/context";
-import { Menu } from "lucide-react";
+import { X, Menu } from "lucide-react";
 
 export default function Header() {
   const navigate = useNavigate();
-  const { user } = useContext(AuthContext);
+  const { user, logout } = useContext(AuthContext);
   const { setSidebarOpen } = useContext(DashboardContext);
 
   const [open, setOpen] = useState(false);
@@ -23,24 +23,51 @@ export default function Header() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const handleLogout = () => {
+    logout();
+    setOpen(false);
+    navigate("/login");
+  };
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50 w-full bg-white border-b border-slate-100 shadow-sm font-sans">
       <nav className="flex items-center justify-between px-4 h-16 sm:px-6 lg:px-8">
-        <div className="flex items-center gap-4">
-          {/* Hamburger — only shows on mobile, but header itself is hidden on mobile via DashboardProvider */}
-          <button
-            onClick={() => setSidebarOpen((prev) => !prev)}
-            className="flex items-center justify-center rounded-lg p-2 text-slate-600 transition hover:bg-slate-100 lg:hidden"
-            aria-label="Toggle sidebar"
-          >
-            <Menu size={20} />
-          </button>
-          <Brand />
-        </div>
+        {/* LEFT: Brand — always visible */}
+        <Brand />
 
-        <div className="flex items-center gap-5">
+        {/* RIGHT side */}
+        <div className="flex items-center gap-3">
+          {/* Icon buttons — hidden on mobile */}
+          <div className="hidden lg:flex items-center gap-4 border-r border-slate-100 pr-4">
+            <button className="text-slate-400 hover:text-blue-500 transition-colors">
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+              >
+                <circle cx="11" cy="11" r="7" />
+                <path d="M21 21l-4.35-4.35" />
+              </svg>
+            </button>
+            <button className="text-slate-400 hover:text-blue-500 transition-colors">
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+              >
+                <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+                <path d="M16 10a4 4 0 01-8 0" />
+              </svg>
+            </button>
+          </div>
+
+          {/* User dropdown — hidden on mobile */}
           {user ? (
-            <div className="relative" ref={wrapperRef}>
+            <div className="relative hidden lg:block" ref={wrapperRef}>
               <button
                 onClick={() => setOpen((v) => !v)}
                 className="flex items-center gap-2 p-1 pr-3 rounded-full hover:bg-slate-50 border border-transparent hover:border-slate-100 transition-all"
@@ -64,6 +91,7 @@ export default function Header() {
                 </svg>
               </button>
 
+              {/* Dropdown */}
               <div
                 className={`absolute right-0 top-[calc(100%+12px)] w-60 bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden transition-all duration-200 origin-top-right ${
                   open
@@ -79,6 +107,7 @@ export default function Header() {
                     {user.name}
                   </p>
                 </div>
+
                 <div className="p-1.5">
                   <button
                     onClick={() => {
@@ -99,17 +128,60 @@ export default function Header() {
                     </svg>
                     Profil Saya
                   </button>
+
+                  <hr className="my-1 border-slate-100" />
+
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-semibold text-red-500 hover:bg-red-50 transition-colors"
+                  >
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                      <polyline
+                        points="16 17 21 12 16 7"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                      <line
+                        x1="21"
+                        y1="12"
+                        x2="9"
+                        y2="12"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                    Keluar
+                  </button>
                 </div>
               </div>
             </div>
           ) : (
             <button
               onClick={() => navigate("/login")}
-              className="text-sm font-bold text-white bg-blue-600 px-6 py-2.5 rounded-full hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-200 transition-all active:scale-95"
+              className="hidden lg:block text-sm font-bold text-white bg-blue-600 px-6 py-2.5 rounded-full hover:bg-blue-700 transition-all active:scale-95"
             >
               Masuk
             </button>
           )}
+
+          {/* Hamburger — mobile only, on the RIGHT */}
+          <button
+            onClick={() => setSidebarOpen((prev) => !prev)}
+            className="flex items-center justify-center rounded-lg p-2 text-slate-600 transition hover:bg-slate-100 lg:hidden"
+            aria-label="Toggle sidebar"
+          >
+            {setSidebarOpen === true ? <X size={22} /> : <Menu size={22} />}
+          </button>
         </div>
       </nav>
     </header>
