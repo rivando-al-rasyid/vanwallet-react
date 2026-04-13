@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { useNavigate } from "react-router";
 import { faEnvelope, faLock } from "@fortawesome/free-solid-svg-icons";
+import AuthContext from "../../context/auth/context";
 import Brand from "../../components/Brand";
 import LoginHeadline from "../../components/LoginHeadline";
 import SocialLogin from "../../components/SocialLogin";
@@ -8,38 +9,33 @@ import Input from "../../components/Input";
 import Submit from "../../components/Submit";
 import LoginImage from "../../components/LoginImage";
 import LoginSubtext from "../../components/LoginSubtext";
-import { loginUser, saveSession } from "../../utils/auth";
 
 export default function Login() {
   const navigate = useNavigate();
+  const { login, loading, error } = useContext(AuthContext);
 
   const [form, setForm] = useState({ email: "", password: "" });
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [validationError, setValidationError] = useState("");
 
   const handleChange = (e) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-    setError("");
+    setValidationError("");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
+    setValidationError("");
 
     if (!form.email || !form.password) {
-      setError("Email dan password tidak boleh kosong.");
+      setValidationError("Email dan password tidak boleh kosong.");
       return;
     }
 
-    setLoading(true);
     try {
-      const user = await loginUser(form);
-      saveSession(user); // ✅ pass the full user object, not data.token
+      await login(form);
       navigate("/dashboard");
     } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
+      // Error is already set in context
     }
   };
 
@@ -56,9 +52,9 @@ export default function Login() {
           />
           <SocialLogin />
 
-          {error && (
+          {(validationError || error) && (
             <div className="mb-4 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-sm text-red-600 font-medium">
-              {error}
+              {validationError || error}
             </div>
           )}
 
