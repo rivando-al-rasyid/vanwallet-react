@@ -8,7 +8,7 @@ import { X, Menu } from "lucide-react";
 export default function Header() {
   const navigate = useNavigate();
   const { user, logout } = useContext(AuthContext);
-  const { setSidebarOpen } = useContext(DashboardContext);
+  const { sidebarOpen, setSidebarOpen } = useContext(DashboardContext);
 
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef(null);
@@ -64,7 +64,6 @@ export default function Header() {
               </svg>
             </button>
           </div>
-
           {/* User dropdown — hidden on mobile */}
           {user ? (
             <div className="relative hidden lg:block" ref={wrapperRef}>
@@ -173,15 +172,14 @@ export default function Header() {
               Masuk
             </button>
           )}
-
           {/* Hamburger — mobile only, on the RIGHT */}
           <button
             onClick={() => setSidebarOpen((prev) => !prev)}
             className="flex items-center justify-center rounded-lg p-2 text-slate-600 transition hover:bg-slate-100 lg:hidden"
-            aria-label="Toggle sidebar"
+            aria-label={sidebarOpen ? "Close sidebar" : "Open sidebar"}
           >
-            {setSidebarOpen === true ? <X size={22} /> : <Menu size={22} />}
-          </button>
+            {sidebarOpen ? <X size={22} /> : <Menu size={22} />}
+          </button>{" "}
         </div>
       </nav>
     </header>
