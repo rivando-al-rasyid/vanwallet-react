@@ -1,15 +1,13 @@
 import Brand from "../Brand";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useContext } from "react";
 import { useNavigate } from "react-router";
-import { getSession, clearSession } from "../../utils/auth"; // Removed isLoggedIn
+import AuthContext from "../../context/auth/context";
 import { Menu, X } from "lucide-react";
 
 export default function Navbar({ setSidebarOpen }) {
   const navigate = useNavigate();
-  const session = getSession();
+  const { user, logout } = useContext(AuthContext);
 
-  // Initialize directly from session since we are in a protected route
-  const [user, setUser] = useState(session);
   const [open, setOpen] = useState(false);
   const [sidebarOpen, setSidebarOpenLocal] = useState(false);
   const wrapperRef = useRef(null);
@@ -21,8 +19,7 @@ export default function Navbar({ setSidebarOpen }) {
   };
 
   const handleLogout = () => {
-    clearSession();
-    setUser(null);
+    logout();
     setOpen(false);
     navigate("/login");
   };

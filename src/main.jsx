@@ -17,26 +17,24 @@ import Profile from "./pages/dashboards/Profile.jsx";
 import ChangePassword from "./pages/dashboards/ChangePassword.jsx";
 import ChangePin from "./pages/dashboards/ChangePin.jsx";
 import SetNominal from "./pages/dashboards/SetNominal.jsx";
-import { ProtectedRoute, GuestRoute } from "./layouts/ProtectedRoute.jsx";
 import DashboardLayout from "./layouts/DashboardLayout.jsx";
+import AuthProvider from "./context/auth/provider.jsx";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <BrowserRouter>
-    <Routes>
-      {/* Public landing page */}
-      <Route path="/" element={<App />} />
-
-      {/* Guest-only routes — logged-in users are redirected to /dashboard */}
-      <Route element={<GuestRoute />}>
-        <Route path="/login" element={<Login />} />
-        <Route path="/login/pin" element={<LoginPin />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/forgotpassword" element={<ForgotPassword />} />
-      </Route>
-
-      {/* Protected routes — unauthenticated users are redirected to /login */}
-      <Route element={<ProtectedRoute />}>
-        <Route path="/dashboard" element={<DashboardLayout />}>
+  <AuthProvider>
+    <BrowserRouter>
+      <Routes>
+        {/* Public landing page */}
+        <Route path="/" element={<App />} />
+        {/* Guest-only routes — logged-in users are redirected to /dashboard */}
+        <Route path="login">
+          <Route index element={<Login />} />
+          <Route path="pin" element={<LoginPin />} />
+        </Route>{" "}
+        <Route path="register" element={<Register />} />
+        <Route path="forgotpassword" element={<ForgotPassword />} />
+        {/* Protected routes — unauthenticated users are redirected to /login */}
+        <Route path="dashboard" element={<DashboardLayout />}>
           <Route index element={<Index />} />
 
           <Route path="transfer">
@@ -54,7 +52,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
             <Route path="change-pin" element={<ChangePin />} />
           </Route>
         </Route>
-      </Route>
-    </Routes>
-  </BrowserRouter>,
+      </Routes>
+    </BrowserRouter>
+  </AuthProvider>,
 );
