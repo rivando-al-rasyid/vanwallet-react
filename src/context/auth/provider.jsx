@@ -1,5 +1,5 @@
 import AuthContext from "./context";
-import { useEffect, useReducer } from "react";
+import { useReducer } from "react";
 import {
   saveSession,
   getSession,
