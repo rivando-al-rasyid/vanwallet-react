@@ -1,1 +1,12 @@
 @import "tailwindcss";
+
+@theme {
+  /* Brand & UI Colors */
+  --color-primary: #2948ff;
+  --color-secondary: #4f5665;
+  --color-success: #1ec15f;
+  --color-danger: #d00000;
+  --color-warning: #ffc107;
+  --color-info: #0dcaf0;
+  --color-light: #f8f9fa;
+}
