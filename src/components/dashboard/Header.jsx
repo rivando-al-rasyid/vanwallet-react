@@ -4,11 +4,14 @@ import { useNavigate } from "react-router";
 import AuthContext from "../../context/auth/context";
 import DashboardContext from "../../context/dashboard/context";
 import { X, Menu } from "lucide-react";
+import LogoutButton from "./LogoutButton";
+import { useLogout } from "../../hooks/useLogout";
 
 export default function Header() {
   const navigate = useNavigate();
-  const { user, logout } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
   const { sidebarOpen, setSidebarOpen } = useContext(DashboardContext);
+  const logoutAndRedirect = useLogout();
 
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef(null);
@@ -24,9 +27,7 @@ export default function Header() {
   }, []);
 
   const handleLogout = () => {
-    logout();
-    setOpen(false);
-    navigate("/login");
+    logoutAndRedirect(() => setOpen(false));
   };
 
   return (
@@ -130,37 +131,10 @@ export default function Header() {
 
                   <hr className="my-1 border-slate-100" />
 
-                  <button
-                    onClick={handleLogout}
-                    className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-semibold text-red-500 hover:bg-red-50 transition-colors"
-                  >
-                    <svg
-                      className="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                      <polyline
-                        points="16 17 21 12 16 7"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                      <line
-                        x1="21"
-                        y1="12"
-                        x2="9"
-                        y2="12"
-                        strokeLinecap="round"
-                      />
-                    </svg>
-                    Keluar
-                  </button>
+                  <LogoutButton
+                    onLogout={handleLogout}
+                    className="w-full px-3 py-2.5"
+                  />
                 </div>
               </div>
             </div>

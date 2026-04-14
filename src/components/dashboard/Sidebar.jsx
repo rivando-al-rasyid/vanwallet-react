@@ -1,16 +1,13 @@
-import { NavLink, useNavigate } from "react-router";
-import { useEffect, useContext } from "react";
-import AuthContext from "../../context/auth/context";
-import { X } from "lucide-react";
+import { NavLink } from "react-router";
+import { useEffect } from "react";
+import LogoutButton from "./LogoutButton";
+import { useLogout } from "../../hooks/useLogout";
 
 export default function Sidebar({ isOpen, setIsOpen }) {
-  const navigate = useNavigate();
-  const { logout } = useContext(AuthContext);
+  const logoutAndRedirect = useLogout();
 
   const handleLogout = () => {
-    logout();
-    setIsOpen(false);
-    navigate("/login");
+    logoutAndRedirect(() => setIsOpen(false));
   };
 
   useEffect(() => {
@@ -238,31 +235,11 @@ export default function Sidebar({ isOpen, setIsOpen }) {
 
         {/* Logout — pinned at bottom */}
         <div className="px-4 py-6 border-t border-slate-100">
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-3.5 w-full px-4 py-3 rounded-xl text-sm font-semibold text-red-500 hover:bg-red-50 transition-all"
-          >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-            >
-              <path
-                d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <polyline
-                points="16 17 21 12 16 7"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <line x1="21" y1="12" x2="9" y2="12" strokeLinecap="round" />
-            </svg>
-            Keluar
-          </button>
+          <LogoutButton
+            onLogout={handleLogout}
+            className="w-full px-4 py-3"
+            iconClassName="w-5 h-5"
+          />
         </div>
       </aside>
     </>
