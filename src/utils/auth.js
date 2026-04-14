@@ -12,7 +12,7 @@ export async function getAllUsers() {
 export async function loginUser({ email, password }) {
   const users = await getAllUsers();
   const match = users.find(
-    (user) => user.email === email && user.password === password,
+    (user) => user.email === email && user.password === password
   );
   if (!match) throw new Error("Invalid email or password");
   return match;
