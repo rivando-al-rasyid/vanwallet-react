@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import { getSession, updateUser } from "../../utils/auth";
-
+import { useContext } from "react";
+import AuthContext from "../../context/auth/context";
 export default function ChangePassword() {
-  const { id } = getSession();
+  const { currentUser, updateProfile } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
@@ -27,12 +27,14 @@ export default function ChangePassword() {
     setError("");
     setSuccess("");
 
-    if (
-      !form.currentPassword ||
-      !form.newPassword ||
-      !form.confirmNewPassword
-    ) {
+    if (!form.currentPassword || !form.newPassword || !form.confirmNewPassword) {
       setError("Semua field password wajib diisi.");
+      setSaving(false);
+      return;
+    }
+
+    if (form.currentPassword !== currentUser.password) {
+      setError("Password saat ini tidak sesuai.");
       setSaving(false);
       return;
     }
@@ -44,7 +46,7 @@ export default function ChangePassword() {
     }
 
     try {
-      await updateUser(id, { password: form.newPassword });
+      await updateProfile({ password: form.newPassword });
       setSuccess("Password berhasil diupdate!");
       setForm({ currentPassword: "", newPassword: "", confirmNewPassword: "" });
       setTimeout(() => navigate("/dashboard/profile"), 1200);
@@ -61,14 +63,7 @@ export default function ChangePassword() {
       onClick={onClick}
       className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
     >
-      <svg
-        width="18"
-        height="18"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-      >
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
         <path d="M17.94 17.94A10.94 10.94 0 0112 20C7 20 2.73 16.11 1 12c.92-2.19 2.49-4.08 4.5-5.5" />
         <path d="M10.58 10.58A2 2 0 0012 14a2 2 0 001.42-.58" />
         <path d="M9.88 5.09A10.94 10.94 0 0112 4c5 0 9.27 3.89 11 8a11.83 11.83 0 01-4.24 5.11" />
@@ -78,14 +73,7 @@ export default function ChangePassword() {
   );
 
   const LockIcon = () => (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-    >
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <rect x="3" y="11" width="18" height="10" rx="2" />
       <path d="M7 11V7a5 5 0 0110 0v4" />
     </svg>
@@ -93,7 +81,6 @@ export default function ChangePassword() {
 
   return (
     <>
-      {/* Page Title */}
       <div className="flex items-center gap-3">
         <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -110,9 +97,7 @@ export default function ChangePassword() {
 
       <div className="card">
         <div className="w-full">
-          <h2 className="section-title mb-4">
-            Change Password
-          </h2>
+          <h2 className="section-title mb-4">Change Password</h2>
 
           <div className="flex flex-col gap-5 w-full">
             {/* Current Password */}
@@ -132,9 +117,7 @@ export default function ChangePassword() {
                   placeholder="Enter Your Existing Password"
                   className="w-full pl-10 pr-12 py-3 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition"
                 />
-                <EyeButton
-                  onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                />
+                <EyeButton onClick={() => setShowCurrentPassword(!showCurrentPassword)} />
               </div>
             </div>
 
@@ -155,9 +138,7 @@ export default function ChangePassword() {
                   placeholder="Enter Your New Password"
                   className="w-full pl-10 pr-12 py-3 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition"
                 />
-                <EyeButton
-                  onClick={() => setShowNewPassword(!showNewPassword)}
-                />
+                <EyeButton onClick={() => setShowNewPassword(!showNewPassword)} />
               </div>
             </div>
 
@@ -178,11 +159,7 @@ export default function ChangePassword() {
                   placeholder="Re-Type Your New Password"
                   className="w-full pl-10 pr-12 py-3 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition"
                 />
-                <EyeButton
-                  onClick={() =>
-                    setShowConfirmNewPassword(!showConfirmNewPassword)
-                  }
-                />
+                <EyeButton onClick={() => setShowConfirmNewPassword(!showConfirmNewPassword)} />
               </div>
             </div>
 

@@ -1,12 +1,11 @@
 import { useForm, FormProvider } from "react-hook-form";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { useNavigate } from "react-router";
+import { useContext, useState } from "react";
 import Joi from "joi";
 
-import { getSession, updateUser } from "../../utils/auth";
+import AuthContext from "../../context/auth/context";
 import PinInput from "../../components/PinInput";
-
-import { useState } from "react";
 
 const defaultPin = Array(6)
   .fill(null)
@@ -24,7 +23,7 @@ const pinSchema = Joi.object({
 });
 
 export default function ChangePin() {
-  const { id } = getSession();
+  const { updateProfile } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const [saving, setSaving] = useState(false);
@@ -45,7 +44,7 @@ export default function ChangePin() {
     setSuccess("");
 
     try {
-      await updateUser(id, { pin: pinValue });
+      await updateProfile({ pin: pinValue });
       setSuccess("PIN berhasil diupdate!");
       methods.reset({ pin: defaultPin });
       setTimeout(() => navigate("/dashboard/profile"), 1200);
@@ -58,7 +57,6 @@ export default function ChangePin() {
 
   return (
     <>
-      {/* Page Title */}
       <div className="flex items-center gap-3">
         <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -75,9 +73,7 @@ export default function ChangePin() {
 
       <div className="card">
         <div className="max-w-3xl mx-auto w-full text-center">
-          <h2 className="section-title mb-1">
-            Change Pin 👋
-          </h2>
+          <h2 className="section-title mb-1">Change Pin 👋</h2>
           <p className="text-sm text-gray-400 mb-8">
             Please save your pin because this so important.
           </p>
