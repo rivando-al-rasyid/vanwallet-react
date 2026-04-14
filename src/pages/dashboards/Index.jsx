@@ -222,7 +222,7 @@ export default function Index() {
                 onClick={() => navigate("/transfer")}
               >
                 <svg
-                  className="w-4 h-4 rotate-[-45deg]"
+                  className="w-4 h-4 -rotate-45"
                   fill="currentColor"
                   viewBox="0 0 24 24"
                 >

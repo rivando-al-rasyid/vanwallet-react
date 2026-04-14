@@ -22,7 +22,7 @@ export default function Toast({
   if (!open || !message) return null;
 
   return (
-    <div className="fixed top-4 right-4 z-[60]">
+    <div className="fixed top-4 right-4 z-60">
       <div
         className={`min-w-64 max-w-sm rounded-xl px-4 py-3 text-sm font-medium text-white shadow-lg ${toneMap[type] || toneMap.info}`}
       >
