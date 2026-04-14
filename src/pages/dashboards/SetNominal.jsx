@@ -4,6 +4,7 @@ import { useParams, useNavigate } from "react-router";
 import Stepper from "../../components/Stepper";
 import { getUserById, verifyPin } from "../../utils/auth";
 import TransferModal from "./TransferModal";
+import Toast from "../../components/Toast";
 
 export default function SetNominal() {
   const { id } = useParams();
@@ -14,6 +15,11 @@ export default function SetNominal() {
   const [selectedContact, setSelectedContact] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [toast, setToast] = useState({
+    open: false,
+    message: "",
+    type: "info",
+  });
 
   // "pin" | "failed" | "success" | null
   const [modalStep, setModalStep] = useState(null);
@@ -43,7 +49,12 @@ export default function SetNominal() {
 
   const handleOpenPinModal = () => {
     if (!amount || Number(amount) <= 0) {
-      return alert("Masukkan nominal transfer yang valid");
+      setToast({
+        open: true,
+        message: "Masukkan nominal transfer yang valid",
+        type: "error",
+      });
+      return;
     }
     setModalStep("pin");
   };
@@ -53,8 +64,18 @@ export default function SetNominal() {
       await verifyPin(pin);
       // TODO: call actual transfer API here
       setModalStep("success");
+      setToast({
+        open: true,
+        message: "Transfer berhasil diproses.",
+        type: "success",
+      });
     } catch (err) {
       setModalStep("failed");
+      setToast({
+        open: true,
+        message: err.message || "PIN tidak valid. Coba lagi.",
+        type: "error",
+      });
     }
   };
 
@@ -257,6 +278,12 @@ export default function SetNominal() {
         onTryAgain={handleTryAgain}
         onTransferAgain={handleTransferAgain}
         toName={selectedContact?.name ?? ""}
+      />
+      <Toast
+        open={toast.open}
+        message={toast.message}
+        type={toast.type}
+        onClose={() => setToast((prev) => ({ ...prev, open: false }))}
       />
     </>
   );

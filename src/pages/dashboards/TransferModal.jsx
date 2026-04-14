@@ -4,6 +4,7 @@ import { joiResolver } from "@hookform/resolvers/joi";
 import Joi from "joi";
 import { useEffect } from "react";
 import PinInput from "../../components/PinInput";
+import Modal from "../../components/Modal";
 
 const PIN_LENGTH = 6;
 const defaultPin = Array.from({ length: PIN_LENGTH }, () => ({ value: "" }));
@@ -49,17 +50,9 @@ export default function TransferModal({
     onPinSubmit(pinValue);
   };
 
-  const ModalWrapper = ({ children }) => (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-xl text-center">
-        {children}
-      </div>
-    </div>
-  );
-
   if (step === "pin") {
     return (
-      <ModalWrapper>
+      <Modal open={open}>
         <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-4 text-left">
           Transfer to {toName}
         </p>
@@ -100,13 +93,13 @@ export default function TransferModal({
             Reset
           </button>
         </p>
-      </ModalWrapper>
+      </Modal>
     );
   }
 
   if (step === "failed") {
     return (
-      <ModalWrapper>
+      <Modal open={open}>
         <img src="/img/failed.png" alt="failed" className="mx-auto mb-4" />
 
         <h3 className="section-title mb-2">
@@ -130,13 +123,13 @@ export default function TransferModal({
         >
           Back To Dashboard
         </button>
-      </ModalWrapper>
+      </Modal>
     );
   }
 
   if (step === "success") {
     return (
-      <ModalWrapper>
+      <Modal open={open}>
         <img src="/img/success.png" alt="success" className="mx-auto mb-4" />
 
         <h3 className="section-title mb-2">
@@ -160,7 +153,7 @@ export default function TransferModal({
         >
           Transfer Again
         </button>
-      </ModalWrapper>
+      </Modal>
     );
   }
 
