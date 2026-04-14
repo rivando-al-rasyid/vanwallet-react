@@ -1,14 +1,16 @@
 // src/pages/transfer/SetNominal.jsx
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useParams, useNavigate } from "react-router";
 import Stepper from "../../components/Stepper";
 import { getUserById, verifyPin } from "../../utils/auth";
 import TransferModal from "./TransferModal";
 import Toast from "../../components/Toast";
+import AuthContext from "../../context/auth/context";
 
 export default function SetNominal() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { currentUser } = useContext(AuthContext);
 
   const [amount, setAmount] = useState("");
   const [notes, setNotes] = useState("");
@@ -61,7 +63,7 @@ export default function SetNominal() {
 
   const handlePinSubmit = async (pin) => {
     try {
-      await verifyPin(pin);
+      await verifyPin(currentUser?.id, pin);
       // TODO: call actual transfer API here
       setModalStep("success");
       setToast({

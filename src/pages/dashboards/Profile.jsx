@@ -1,9 +1,11 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useContext } from "react";
 import { useNavigate } from "react-router";
-import { getUserById, updateUser, getSession } from "../../utils/auth";
+import { getUserById, updateUser } from "../../utils/auth";
+import AuthContext from "../../context/auth/context";
 
 export default function Profile() {
-  const { id } = getSession();
+  const { currentUser } = useContext(AuthContext);
+  const id = currentUser?.id;
   const navigate = useNavigate();
 
   const [form, setForm] = useState({

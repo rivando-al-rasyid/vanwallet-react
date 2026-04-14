@@ -2,10 +2,8 @@ import AuthContext from "./context";
 import { useCallback, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  clearSession,
   loginUser,
   registerUser,
-  saveSession,
   updateUser,
 } from "../../utils/auth";
 import {
@@ -34,7 +32,6 @@ function AuthProvider({ children }) {
       try {
         const loggedInUser = await loginUser({ email, password });
         dispatch(setUser(loggedInUser));
-        saveSession(loggedInUser);
         return loggedInUser;
       } catch (err) {
         dispatch(setError(err.message));
@@ -60,7 +57,6 @@ function AuthProvider({ children }) {
         const createdUser = await registerUser(payload);
 
         dispatch(setUser(createdUser));
-        saveSession(createdUser);
         return createdUser;
       } catch (err) {
         dispatch(setError(err.message));
@@ -73,7 +69,6 @@ function AuthProvider({ children }) {
   );
 
   const logout = useCallback(() => {
-    clearSession();
     dispatch(clearAuth());
   }, [dispatch]);
 
@@ -86,10 +81,6 @@ function AuthProvider({ children }) {
       try {
         const updated = await updateUser(user.id, payload);
         dispatch(mergeUser(updated));
-        saveSession({ ...user, ...updated });
-        if (updated.pin) {
-          localStorage.setItem("user_pin", updated.pin);
-        }
         return updated;
       } catch (err) {
         dispatch(setError(err.message));

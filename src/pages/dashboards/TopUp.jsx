@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { getSession } from "../../utils/auth";
+import { useContext, useMemo, useState } from "react";
+import AuthContext from "../../context/auth/context";
 
 const TAX_RATE = 0.1;
 
@@ -32,20 +32,17 @@ const PAYMENT_METHODS = [
 ];
 
 export default function TopUp() {
+  const { currentUser } = useContext(AuthContext);
   const [amount, setAmount] = useState("");
   const [selectedMethod, setSelectedMethod] = useState("bri");
-  const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    const session = getSession();
-    if (session?.id) {
-      setUser({
-        name: session.name || "User",
-        phone: session.phone || "No Phone",
-        avatar: session.avatar || "",
-      });
-    }
-  }, []);
+  const user = useMemo(() => {
+    if (!currentUser?.id) return null;
+    return {
+      name: currentUser.name || "User",
+      phone: currentUser.phone || "No Phone",
+      avatar: currentUser.avatar || "",
+    };
+  }, [currentUser]);
 
   const order = parseFloat(amount) || 0;
   const tax = Math.round(order * TAX_RATE);

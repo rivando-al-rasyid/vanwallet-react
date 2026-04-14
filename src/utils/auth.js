@@ -59,39 +59,7 @@ export async function updateUser(id, payload) {
   );
 }
 
-// Session helpers
-export function saveSession({ id, email, name, phone, avatar }) {
-  localStorage.setItem("user_id", id);
-  localStorage.setItem("user_email", email);
-  localStorage.setItem("user_name", name);
-  localStorage.setItem("user_phone", phone ?? "");
-  localStorage.setItem("user_avatar", avatar ?? "");
-}
-
-export function getSession() {
-  return {
-    id: localStorage.getItem("user_id"),
-    email: localStorage.getItem("user_email"),
-    name: localStorage.getItem("user_name"),
-    phone: localStorage.getItem("user_phone"),
-    avatar: localStorage.getItem("user_avatar"),
-  };
-}
-
-export function clearSession() {
-  localStorage.removeItem("user_id");
-  localStorage.removeItem("user_email");
-  localStorage.removeItem("user_name");
-  localStorage.removeItem("user_phone");
-  localStorage.removeItem("user_avatar");
-}
-
-export function isLoggedIn() {
-  return !!localStorage.getItem("user_id");
-}
-
-export async function verifyPin(inputPin) {
-  const userId = localStorage.getItem("user_id");
+export async function verifyPin(userId, inputPin) {
   if (!userId) throw new Error("User session not found");
 
   const user = await requestJson(`/user/${userId}`, {}, "Failed to verify user");
