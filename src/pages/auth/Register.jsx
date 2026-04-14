@@ -3,11 +3,11 @@ import { useNavigate } from "react-router";
 import { faEnvelope, faLock } from "@fortawesome/free-solid-svg-icons";
 import AuthContext from "../../context/auth/context";
 import Brand from "../../components/Brand";
-import LoginHeadline from "../../components/LoginHeadline";
+import LoginHeadline from "../../components/login/LoginHeadline";
 import SocialLogin from "../../components/SocialLogin";
 import Input from "../../components/Input";
 import Submit from "../../components/Submit";
-import LoginImage from "../../components/LoginImage";
+import LoginImage from "../../components/login/LoginImage";
 import LoginSubtext from "../../components/LoginSubtext";
 
 export default function Register() {
