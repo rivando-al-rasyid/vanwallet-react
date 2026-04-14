@@ -234,7 +234,7 @@ export default function Sidebar({ isOpen, setIsOpen }) {
         </nav>
 
         {/* Logout — pinned at bottom */}
-        <div className="px-4 py-6 border-t border-slate-100">
+        <div className="px-4 py-6 border-t border-slate-100 lg:hidden">
           <LogoutButton
             onLogout={handleLogout}
             className="w-full px-4 py-3"

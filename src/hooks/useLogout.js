@@ -8,6 +8,9 @@ export function useLogout() {
 
   return useCallback(
     (afterLogout) => {
+      const shouldLogout = window.confirm("Are you sure you want to logout?");
+      if (!shouldLogout) return;
+
       logout();
       if (typeof afterLogout === "function") {
         afterLogout();
