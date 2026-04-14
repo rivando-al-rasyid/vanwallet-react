@@ -21,19 +21,27 @@ export default function TableRow({
   onDelete,
   paginate = false,
   onRowClick,
+  pageParamKey = "page",
 }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const [rows, setRows] = useState(() =>
     items.map((item) => ({ ...item, isFavorite: false })),
   );
-  const currentPage = parseInt(searchParams.get("page")) || 1;
+  const currentPage = Math.max(
+    1,
+    Number.parseInt(searchParams.get(pageParamKey) || "1", 10) || 1,
+  );
 
   // Sync rows and reset page when items prop changes
   useEffect(() => {
     if (remove) return;
     setRows(items.map((item) => ({ ...item, isFavorite: false })));
-    setSearchParams({ page: "1" });
-  }, [items, remove, setSearchParams]);
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      next.set(pageParamKey, "1");
+      return next;
+    });
+  }, [items, pageParamKey, remove, setSearchParams]);
 
   const toggleFavorite = useCallback((id) => {
     setRows((prev) =>
@@ -77,10 +85,14 @@ export default function TableRow({
   const handlePageChange = useCallback(
     (page) => {
       if (page >= 1 && page <= totalPages) {
-        setSearchParams({ page: page.toString() });
+        setSearchParams((prev) => {
+          const next = new URLSearchParams(prev);
+          next.set(pageParamKey, page.toString());
+          return next;
+        });
       }
     },
-    [totalPages, setSearchParams],
+    [pageParamKey, totalPages, setSearchParams],
   );
 
   const visibleCount =
