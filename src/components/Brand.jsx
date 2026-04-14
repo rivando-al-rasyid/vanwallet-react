@@ -1,4 +1,5 @@
 import { memo } from "react";
+import logoImage from "../assets/img/logo.png";
 
 /**
  * Renders the company logo/brand mark.
@@ -16,7 +17,7 @@ const Brand = memo(function Brand({ isWhite = false }) {
         }`}
       >
         <img
-          src="/img/logo.png"
+          src={logoImage}
           alt="E-Wallet logo"
           className="w-6 h-6 object-contain"
         />

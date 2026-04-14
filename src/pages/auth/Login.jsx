@@ -9,6 +9,7 @@ import Input from "../../components/Input";
 import Submit from "../../components/Submit";
 import LoginImage from "../../components/login/LoginImage";
 import LoginSubtext from "../../components/LoginSubtext";
+import loginPhoneImage from "../../assets/img/3d-hand-phone.png";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -87,7 +88,7 @@ export default function Login() {
           />
         </div>
       </section>
-      <LoginImage img="/img/3d-hand-phone.png" />
+      <LoginImage img={loginPhoneImage} />
     </main>
   );
 }

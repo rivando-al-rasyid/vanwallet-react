@@ -1,4 +1,5 @@
 import { CheckCircle2 } from "lucide-react";
+import featureImage from "../../assets/img/imagez.png";
 
 // Constants
 const FEATURES = [
@@ -24,7 +25,7 @@ function IllustrationSection() {
   return (
     <div className="flex justify-center">
       <img
-        src="/img/imagez.png"
+        src={featureImage}
         alt="Payment illustration"
         className="w-full max-w-sm"
       />

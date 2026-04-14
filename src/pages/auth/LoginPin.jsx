@@ -8,6 +8,7 @@ import LoginHeadline from "../../components/login/LoginHeadline";
 import Submit from "../../components/Submit";
 import LoginSubtext from "../../components/LoginSubtext";
 import { verifyPin } from "../../utils/auth";
+import loginPhoneImage from "../../assets/img/3d-hand-phone.png";
 
 const PIN_LENGTH = 6;
 const defaultPin = Array.from({ length: PIN_LENGTH }, () => ({ value: "" }));
@@ -78,7 +79,7 @@ export default function LoginPin() {
         </div>
       </section>
 
-      <LoginImage img="/img/3d-hand-phone.png" />
+      <LoginImage img={loginPhoneImage} />
     </main>
   );
 }

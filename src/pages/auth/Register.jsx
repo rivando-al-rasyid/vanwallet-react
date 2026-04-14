@@ -9,6 +9,7 @@ import Input from "../../components/Input";
 import Submit from "../../components/Submit";
 import LoginImage from "../../components/login/LoginImage";
 import LoginSubtext from "../../components/LoginSubtext";
+import walletHandImage from "../../assets/img/3d-hand-wallet.png";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -110,7 +111,7 @@ export default function Register() {
           />
         </div>
       </section>
-      <LoginImage img="/img/3d-hand-wallet.png" />
+      <LoginImage img={walletHandImage} />
     </main>
   );
 }

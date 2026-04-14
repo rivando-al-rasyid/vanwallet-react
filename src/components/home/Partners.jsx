@@ -1,3 +1,5 @@
+import canonLogo from "../../assets/img/canon.svg";
+
 // Constants
 const PARTNERS = [
   {
@@ -18,7 +20,7 @@ const PARTNERS = [
   },
   {
     name: "Canon",
-    logo: "/img/canon.svg",
+    logo: canonLogo,
   },
   {
     name: "Dell",

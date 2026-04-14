@@ -1,4 +1,5 @@
 import { memo } from "react";
+import aboutPhoneImage from "../../assets/img/phoneback.png";
 
 const About = memo(function About() {
   return (
@@ -26,7 +27,7 @@ const About = memo(function About() {
       <div className="relative flex items-center justify-center lg:justify-end">
         <div className="relative h-64 w-full overflow-hidden sm:h-80 md:h-96 lg:h-125">
           <img
-            src="/img/phoneback.png"
+            src={aboutPhoneImage}
             alt="E-Wallet app interface preview"
             loading="lazy"
             className="h-full w-full object-cover object-center"

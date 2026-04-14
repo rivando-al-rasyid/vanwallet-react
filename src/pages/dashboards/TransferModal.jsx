@@ -5,6 +5,8 @@ import Joi from "joi";
 import { useEffect } from "react";
 import PinInput from "../../components/PinInput";
 import Modal from "../../components/Modal";
+import transferFailedImage from "../../assets/img/failed.png";
+import transferSuccessImage from "../../assets/img/success.png";
 
 const PIN_LENGTH = 6;
 const defaultPin = Array.from({ length: PIN_LENGTH }, () => ({ value: "" }));
@@ -100,7 +102,11 @@ export default function TransferModal({
   if (step === "failed") {
     return (
       <Modal open={open}>
-        <img src="/img/failed.png" alt="failed" className="mx-auto mb-4" />
+        <img
+          src={transferFailedImage}
+          alt="failed"
+          className="mx-auto mb-4"
+        />
 
         <h3 className="section-title mb-2">
           Oops Transfer <span className="text-red-500">Failed</span>
@@ -130,7 +136,11 @@ export default function TransferModal({
   if (step === "success") {
     return (
       <Modal open={open}>
-        <img src="/img/success.png" alt="success" className="mx-auto mb-4" />
+        <img
+          src={transferSuccessImage}
+          alt="success"
+          className="mx-auto mb-4"
+        />
 
         <h3 className="section-title mb-2">
           Yeay Transfer <span className="text-green-500">Success</span>

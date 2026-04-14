@@ -1,5 +1,7 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGooglePlay, faApple } from "@fortawesome/free-brands-svg-icons";
+import phoneBigImage from "../../assets/img/phonebig.png";
+import phoneSmallImage from "../../assets/img/phonesmall.png";
 
 // Constants
 const AVATAR_IDS = [21, 22, 23, 24];
@@ -31,12 +33,12 @@ function PhoneMockup() {
     <div className="relative flex justify-center lg:justify-start">
       <div className="relative w-fit">
         <img
-          src="/img/phonebig.png"
+          src={phoneBigImage}
           alt="Main app screen"
           className="relative z-10 w-40 drop-shadow-2xl sm:w-48 md:w-52 lg:w-72"
         />
         <img
-          src="/img/phonesmall.png"
+          src={phoneSmallImage}
           alt="Secondary app screen"
           className="absolute bottom-0 -right-6 z-20 w-28 drop-shadow-2xl sm:w-36 md:w-40 lg:w-52 lg:-right-10"
         />
