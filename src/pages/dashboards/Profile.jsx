@@ -1,12 +1,12 @@
-import { useState, useEffect, useRef, useContext } from "react";
+import { useState, useRef, useContext, useEffect } from "react";
 import { useNavigate } from "react-router";
-import { getUserById, updateUser } from "../../utils/auth";
-import AuthContext from "../../context/auth/context";
+import { useSelector } from "react-redux";
+import ProfileContext from "../../context/profile/context";
 
 export default function Profile() {
-  const { currentUser } = useContext(AuthContext);
-  const id = currentUser?.id;
   const navigate = useNavigate();
+  const reduxUser = useSelector((state) => state.auth.user);
+  const { updateProfile, profileLoading, profileError } = useContext(ProfileContext);
 
   const [form, setForm] = useState({
     name: "",
@@ -14,32 +14,20 @@ export default function Profile() {
     email: "",
     avatar: "",
   });
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const fileInputRef = useRef(null);
 
+  // Sync form from Redux user (covers initial load + after mergeUser updates)
   useEffect(() => {
-    async function fetchProfile() {
-      setLoading(true);
-      try {
-        const user = await getUserById(id);
-        setForm({
-          name: user.name || "",
-          phone: user.phone || "",
-          email: user.email || "",
-          avatar: user.avatar || "",
-        });
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
+    if (reduxUser) {
+      setForm({
+        name: reduxUser.name || "",
+        phone: reduxUser.phone || "",
+        email: reduxUser.email || "",
+        avatar: reduxUser.avatar || "",
+      });
     }
-
-    if (id) fetchProfile();
-  }, [id]);
+  }, [reduxUser]);
 
   const handleChange = (e) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -59,21 +47,17 @@ export default function Profile() {
   };
 
   const handleSubmit = async () => {
-    setSaving(true);
-    setError("");
     setSuccess("");
     try {
-      await updateUser(id, {
+      await updateProfile({
         name: form.name,
         phone: form.phone,
         email: form.email,
         avatar: form.avatar,
       });
       setSuccess("Profile berhasil diupdate!");
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setSaving(false);
+    } catch {
+      // error is handled by context/Redux via profileError
     }
   };
 
@@ -91,11 +75,11 @@ export default function Profile() {
             />
           </svg>
         </div>
-        <h1 className="section-title">Profile</h1>
+        <h1 className="text-xl font-bold text-gray-800">Profile</h1>
       </div>
 
-      <div className="card">
-        {loading ? (
+      <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 lg:p-8">
+        {!reduxUser ? (
           <div className="flex items-center justify-center py-20 text-gray-400 text-sm">
             Memuat data profile...
           </div>
@@ -121,11 +105,11 @@ export default function Profile() {
                 )}
               </div>
 
-              {/* Buttons Container - Changed width to auto so they don't stretch */}
+              {/* Buttons Container */}
               <div className="flex flex-col gap-2 w-auto">
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="btn-primary flex items-center gap-2 px-4 py-2"
+                  className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition"
                 >
                   <svg
                     width="16"
@@ -143,7 +127,7 @@ export default function Profile() {
 
                 <button
                   onClick={handleDeleteAvatar}
-                  className="btn-ghost flex items-center gap-2 px-4 py-2 border-red-400 text-red-500 hover:bg-red-50"
+                  className="flex items-center justify-center gap-2 px-4 py-2 border border-red-400 text-red-500 text-sm font-medium rounded-xl hover:bg-red-50 transition"
                 >
                   <svg
                     width="16"
@@ -163,6 +147,15 @@ export default function Profile() {
               </div>
             </div>
             <div className="border-t border-gray-100 mb-8" />
+
+            {/* Hidden file input */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleAvatarChange}
+            />
 
             {/* Form Fields */}
             <div className="flex flex-col gap-4 sm:gap-5 w-full">
@@ -190,7 +183,7 @@ export default function Profile() {
                     value={form.name}
                     onChange={handleChange}
                     placeholder="Enter Full Name"
-                    className="form-input pl-10"
+                    className="w-full pl-10 pr-4 py-2.5 sm:py-3 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition"
                   />
                 </div>
               </div>
@@ -218,7 +211,7 @@ export default function Profile() {
                     value={form.phone}
                     onChange={handleChange}
                     placeholder="Enter Your Number Phone"
-                    className="form-input pl-10"
+                    className="w-full pl-10 pr-4 py-2.5 sm:py-3 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition"
                   />
                 </div>
               </div>
@@ -247,7 +240,7 @@ export default function Profile() {
                     value={form.email}
                     onChange={handleChange}
                     placeholder="Enter Your Email"
-                    className="form-input pl-10"
+                    className="w-full pl-10 pr-4 py-2.5 sm:py-3 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition"
                   />
                 </div>
               </div>
@@ -278,15 +271,15 @@ export default function Profile() {
                 </button>
               </div>
 
-              {error && <p className="text-sm text-red-500">{error}</p>}
+              {profileError && <p className="text-sm text-red-500">{profileError}</p>}
               {success && <p className="text-sm text-green-600">{success}</p>}
 
               <button
                 onClick={handleSubmit}
-                disabled={saving}
-                className="btn-primary w-full mt-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                disabled={profileLoading}
+                className="w-full py-3 sm:py-3.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 disabled:opacity-60 transition mt-2"
               >
-                {saving ? "Menyimpan..." : "Submit"}
+                {profileLoading ? "Menyimpan..." : "Submit"}
               </button>
             </div>
           </>

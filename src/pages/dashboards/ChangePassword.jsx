@@ -1,19 +1,18 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { useNavigate } from "react-router";
-import { useContext } from "react";
-import AuthContext from "../../context/auth/context";
+import ProfileContext from "../../context/profile/context";
+
 export default function ChangePassword() {
-  const { currentUser, updateProfile } = useContext(AuthContext);
   const navigate = useNavigate();
+  const { changePassword, profileLoading, profileError } = useContext(ProfileContext);
 
   const [form, setForm] = useState({
     currentPassword: "",
     newPassword: "",
     confirmNewPassword: "",
   });
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [localError, setLocalError] = useState("");
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
@@ -23,37 +22,26 @@ export default function ChangePassword() {
   };
 
   const handleSubmit = async () => {
-    setSaving(true);
-    setError("");
+    setLocalError("");
     setSuccess("");
 
     if (!form.currentPassword || !form.newPassword || !form.confirmNewPassword) {
-      setError("Semua field password wajib diisi.");
-      setSaving(false);
-      return;
-    }
-
-    if (form.currentPassword !== currentUser.password) {
-      setError("Password saat ini tidak sesuai.");
-      setSaving(false);
+      setLocalError("Semua field password wajib diisi.");
       return;
     }
 
     if (form.newPassword !== form.confirmNewPassword) {
-      setError("Konfirmasi password baru tidak cocok.");
-      setSaving(false);
+      setLocalError("Konfirmasi password baru tidak cocok.");
       return;
     }
 
     try {
-      await updateProfile({ password: form.newPassword });
+      await changePassword(form.currentPassword, form.newPassword);
       setSuccess("Password berhasil diupdate!");
       setForm({ currentPassword: "", newPassword: "", confirmNewPassword: "" });
       setTimeout(() => navigate("/dashboard/profile"), 1200);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setSaving(false);
+    } catch {
+      // error is handled by context/Redux via profileError
     }
   };
 
@@ -63,7 +51,14 @@ export default function ChangePassword() {
       onClick={onClick}
       className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
     >
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <svg
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+      >
         <path d="M17.94 17.94A10.94 10.94 0 0112 20C7 20 2.73 16.11 1 12c.92-2.19 2.49-4.08 4.5-5.5" />
         <path d="M10.58 10.58A2 2 0 0012 14a2 2 0 001.42-.58" />
         <path d="M9.88 5.09A10.94 10.94 0 0112 4c5 0 9.27 3.89 11 8a11.83 11.83 0 01-4.24 5.11" />
@@ -73,14 +68,25 @@ export default function ChangePassword() {
   );
 
   const LockIcon = () => (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+    >
       <rect x="3" y="11" width="18" height="10" rx="2" />
       <path d="M7 11V7a5 5 0 0110 0v4" />
     </svg>
   );
 
+  // localError takes priority (client-side validation), then API error from Redux via context
+  const error = localError || profileError;
+
   return (
     <>
+      {/* Page Title */}
       <div className="flex items-center gap-3">
         <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -92,12 +98,14 @@ export default function ChangePassword() {
             />
           </svg>
         </div>
-        <h1 className="section-title">Profile</h1>
+        <h1 className="text-xl font-bold text-gray-800">Profile</h1>
       </div>
 
-      <div className="card">
+      <div className="bg-white rounded-2xl shadow-sm p-8">
         <div className="w-full">
-          <h2 className="section-title mb-4">Change Password</h2>
+          <h2 className="text-base font-bold text-gray-800 mb-4">
+            Change Password
+          </h2>
 
           <div className="flex flex-col gap-5 w-full">
             {/* Current Password */}
@@ -117,7 +125,9 @@ export default function ChangePassword() {
                   placeholder="Enter Your Existing Password"
                   className="w-full pl-10 pr-12 py-3 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition"
                 />
-                <EyeButton onClick={() => setShowCurrentPassword(!showCurrentPassword)} />
+                <EyeButton
+                  onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                />
               </div>
             </div>
 
@@ -138,7 +148,9 @@ export default function ChangePassword() {
                   placeholder="Enter Your New Password"
                   className="w-full pl-10 pr-12 py-3 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition"
                 />
-                <EyeButton onClick={() => setShowNewPassword(!showNewPassword)} />
+                <EyeButton
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                />
               </div>
             </div>
 
@@ -159,7 +171,11 @@ export default function ChangePassword() {
                   placeholder="Re-Type Your New Password"
                   className="w-full pl-10 pr-12 py-3 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition"
                 />
-                <EyeButton onClick={() => setShowConfirmNewPassword(!showConfirmNewPassword)} />
+                <EyeButton
+                  onClick={() =>
+                    setShowConfirmNewPassword(!showConfirmNewPassword)
+                  }
+                />
               </div>
             </div>
 
@@ -168,10 +184,10 @@ export default function ChangePassword() {
 
             <button
               onClick={handleSubmit}
-              disabled={saving}
-              className="btn-primary w-full disabled:opacity-60 disabled:cursor-not-allowed"
+              disabled={profileLoading}
+              className="w-full py-3.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 disabled:opacity-60 transition"
             >
-              {saving ? "Menyimpan..." : "Submit"}
+              {profileLoading ? "Menyimpan..." : "Submit"}
             </button>
           </div>
         </div>
