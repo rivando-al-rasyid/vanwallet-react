@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import Stepper from "../../components/Stepper";
 import SearchInput from "../../components/SearchInput";
 import TableRow from "../../components/TableRow";
@@ -7,10 +7,11 @@ import { getUsers } from "../../utils/auth";
 
 export default function Transfer() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [search, setSearch] = useState("");
+  const search = searchParams.get("search") || "";
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
@@ -47,8 +48,18 @@ export default function Transfer() {
   }, [contacts, search]);
 
   const handleSearchChange = useCallback((e) => {
-    setSearch(e.target.value);
-  }, []);
+    const nextSearch = e.target.value;
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      if (nextSearch) {
+        next.set("search", nextSearch);
+      } else {
+        next.delete("search");
+      }
+      next.set("page", "1");
+      return next;
+    });
+  }, [setSearchParams]);
 
   const handleRowClick = useCallback(
     (contact) => {
@@ -140,7 +151,11 @@ export default function Transfer() {
         )}
 
         {!loading && !error && (
-          <TableRow items={filteredContacts} onRowClick={handleRowClick} />
+          <TableRow
+            items={filteredContacts}
+            onRowClick={handleRowClick}
+            paginate={true}
+          />
         )}
       </div>
     </>

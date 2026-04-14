@@ -1,11 +1,16 @@
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_ROOT = String(BASE_URL || "").replace(/\/+$/, "");
+
+async function requestJson(path, options = {}, fallbackMessage = "Request failed") {
+  const res = await fetch(`${API_ROOT}${path}`, options);
+  const data = await res.json();
+  if (!res.ok) throw new Error(data?.message || fallbackMessage);
+  return data;
+}
 
 // GET all users
 export async function getAllUsers() {
-  const res = await fetch(`${BASE_URL}/user`);
-  const data = await res.json();
-  if (!res.ok) throw new Error("Failed to fetch users list");
-  return data;
+  return requestJson("/user", {}, "Failed to fetch users list");
 }
 
 // Simulated login: GET all users, match by email + password
@@ -20,22 +25,20 @@ export async function loginUser({ email, password }) {
 
 // Simulated register: POST new user
 export async function registerUser({ name, email, password, phone }) {
-  const res = await fetch(`${BASE_URL}/user`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ name, email, password, phone }),
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error("Registration failed");
-  return data;
+  return requestJson(
+    "/user",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, email, password, phone }),
+    },
+    "Registration failed",
+  );
 }
 
 // GET single user by ID
 export async function getUserById(id) {
-  const res = await fetch(`${BASE_URL}/user/${id}`);
-  const data = await res.json();
-  if (!res.ok) throw new Error("Failed to fetch user data");
-  return data;
+  return requestJson(`/user/${id}`, {}, "Failed to fetch user data");
 }
 
 // GET all users (for Transfer page contact list)
@@ -45,14 +48,15 @@ export async function getUsers() {
 
 // PUT update user by ID
 export async function updateUser(id, payload) {
-  const res = await fetch(`${BASE_URL}/user/${id}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error("Failed to update user data");
-  return data;
+  return requestJson(
+    `/user/${id}`,
+    {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    },
+    "Failed to update user data",
+  );
 }
 
 // Session helpers
@@ -90,13 +94,10 @@ export async function verifyPin(inputPin) {
   const userId = localStorage.getItem("user_id");
   if (!userId) throw new Error("User session not found");
 
-  const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/user/${userId}`);
-  const user = await res.json();
-
-  if (!res.ok) throw new Error("Failed to verify user");
+  const user = await requestJson(`/user/${userId}`, {}, "Failed to verify user");
 
   // Checking if the PIN matches (assuming 'pin' is a field in your user object)
-  if (user.pin !== inputPin) {
+  if (String(user.pin) !== String(inputPin)) {
     throw new Error("Invalid PIN. Please try again.");
   }
 

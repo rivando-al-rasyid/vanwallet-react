@@ -17,7 +17,7 @@ const hardcodedMeta = [
 ];
 
 export default function History() {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const search = searchParams.get("search") || "";
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -56,6 +56,20 @@ export default function History() {
 
   const handleDelete = (id) => {
     setData((prev) => prev.filter((item) => item.id !== id));
+  };
+
+  const handleSearchChange = (e) => {
+    const nextSearch = e.target.value;
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      if (nextSearch) {
+        next.set("search", nextSearch);
+      } else {
+        next.delete("search");
+      }
+      next.set("page", "1");
+      return next;
+    });
   };
 
   return (
@@ -118,18 +132,8 @@ export default function History() {
             </span>
             <input
               type="text"
-              defaultValue={search}
-              onChange={(e) => {
-                const newSearch = e.target.value;
-                const newParams = new URLSearchParams(searchParams);
-                if (newSearch) {
-                  newParams.set("search", newSearch);
-                } else {
-                  newParams.delete("search");
-                }
-                newParams.set("page", "1");
-                window.history.pushState({}, "", `?${newParams.toString()}`);
-              }}
+              value={search}
+              onChange={handleSearchChange}
               placeholder="Name or Number"
               className="w-full sm:w-72 pl-4 pr-10 py-2 sm:py-2.5 text-xs sm:text-sm border border-gray-200 rounded-lg sm:rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition"
             />
