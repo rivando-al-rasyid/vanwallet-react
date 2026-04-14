@@ -28,12 +28,10 @@ export default function ForgotPassword() {
   };
 
   return (
-    <main className="min-h-screen overflow-hidden bg-[#2F55FF]">
-      <div className="grid min-h-screen grid-cols-1 lg:grid-cols-[1fr_1.1fr]">
-        <section className="relative flex items-center justify-center px-6 py-10 lg:px-10 xl:px-16">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.18),transparent_28%),radial-gradient(circle_at_55%_40%,rgba(255,255,255,0.08),transparent_24%),radial-gradient(circle_at_20%_80%,rgba(255,255,255,0.08),transparent_30%)]" />
+    <main className="relative min-h-screen overflow-hidden bg-[#2F55FF] flex items-center justify-center px-6 py-10">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.18),transparent_28%),radial-gradient(circle_at_55%_40%,rgba(255,255,255,0.08),transparent_24%),radial-gradient(circle_at_20%_80%,rgba(255,255,255,0.08),transparent_30%)]" />
 
-          <div className="relative z-10 w-full max-w-95 rounded-[22px] bg-[#F5F5F7] p-8 shadow-[0_24px_70px_rgba(14,34,122,0.28)] sm:p-9">
+      <div className="relative z-10 w-full max-w-xl rounded-[22px] bg-[#F5F5F7] p-12 shadow-[0_24px_70px_rgba(14,34,122,0.28)] sm:p-14">
             <span className="mb-5 inline-flex items-center gap-2 text-sm font-medium text-[#3555F6]">
               <span className="text-base">👛</span>
               E-Wallet
@@ -81,17 +79,6 @@ export default function ForgotPassword() {
                 {loading ? "Loading..." : "Submit"}
               </button>
             </form>
-          </div>
-        </section>
-
-        <aside className="relative hidden items-end justify-center overflow-hidden lg:flex">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_68%_24%,rgba(255,255,255,0.2),transparent_18%),radial-gradient(circle_at_78%_50%,rgba(255,255,255,0.1),transparent_28%),radial-gradient(circle_at_34%_72%,rgba(255,255,255,0.08),transparent_26%)]" />
-          <img
-            src="/img/character-laptop.png"
-            alt="3D character holding a laptop"
-            className="relative z-10 h-[80vh] max-h-190 w-auto object-contain xl:translate-x-10"
-          />
-        </aside>
       </div>
     </main>
   );
