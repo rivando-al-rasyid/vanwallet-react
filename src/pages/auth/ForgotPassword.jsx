@@ -23,7 +23,7 @@ export default function ForgotPassword() {
 
     setTimeout(() => {
       setLoading(false);
-      navigate("/input-pin", { state: { email } });
+      navigate("/login/pin", { state: { email } });
     }, 500);
   };
 

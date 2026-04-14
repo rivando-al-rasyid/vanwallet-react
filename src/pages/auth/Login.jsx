@@ -33,7 +33,7 @@ export default function Login() {
 
     try {
       await login(form);
-      navigate("/dashboard");
+      navigate("/login/pin");
     } catch (err) {
       // Error is already set in context
     }

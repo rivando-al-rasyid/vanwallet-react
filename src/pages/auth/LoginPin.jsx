@@ -4,6 +4,9 @@ import { useNavigate } from "react-router";
 import PinInput from "../../components/PinInput";
 import Brand from "../../components/Brand";
 import LoginImage from "../../components/login/LoginImage";
+import LoginHeadline from "../../components/login/LoginHeadline";
+import Submit from "../../components/Submit";
+import LoginSubtext from "../../components/LoginSubtext";
 import { verifyPin } from "../../utils/auth";
 
 const PIN_LENGTH = 6;
@@ -42,12 +45,10 @@ export default function LoginPin() {
       <section className="auth-panel">
         <div className="w-full max-w-175">
           <Brand />
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white leading-tight">
-            Enter Your PIN
-          </h1>
-          <p className="text-white/80 mt-2 mb-8 text-sm sm:text-base">
-            Input your 6-digit PIN to continue.
-          </p>
+          <LoginHeadline
+            title={"Enter Your PIN 👋"}
+            text={"Input your 6-digit PIN to continue to your dashboard."}
+          />
 
           <FormProvider {...methods}>
             <form
@@ -62,15 +63,18 @@ export default function LoginPin() {
                 </div>
               )}
 
-              <button
-                type="submit"
+              <Submit
+                name={submitting ? "Checking..." : "Continue"}
                 disabled={submitting}
-                className="btn-primary w-full disabled:opacity-60 disabled:cursor-not-allowed"
-              >
-                {submitting ? "Checking..." : "Continue"}
-              </button>
+              />
             </form>
           </FormProvider>
+
+          <LoginSubtext
+            text={"Wrong account? "}
+            link={"/login"}
+            linklabel={"Back to Login"}
+          />
         </div>
       </section>
 
