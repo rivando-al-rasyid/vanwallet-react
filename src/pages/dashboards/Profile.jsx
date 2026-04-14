@@ -89,10 +89,10 @@ export default function Profile() {
             />
           </svg>
         </div>
-        <h1 className="text-xl font-bold text-gray-800">Profile</h1>
+        <h1 className="section-title">Profile</h1>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 lg:p-8">
+      <div className="card">
         {loading ? (
           <div className="flex items-center justify-center py-20 text-gray-400 text-sm">
             Memuat data profile...
@@ -123,7 +123,7 @@ export default function Profile() {
               <div className="flex flex-col gap-2 w-auto">
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition"
+                  className="btn-primary flex items-center gap-2 px-4 py-2"
                 >
                   <svg
                     width="16"
@@ -141,7 +141,7 @@ export default function Profile() {
 
                 <button
                   onClick={handleDeleteAvatar}
-                  className="flex items-center justify-center gap-2 px-4 py-2 border border-red-400 text-red-500 text-sm font-medium rounded-xl hover:bg-red-50 transition"
+                  className="btn-ghost flex items-center gap-2 px-4 py-2 border-red-400 text-red-500 hover:bg-red-50"
                 >
                   <svg
                     width="16"
@@ -188,7 +188,7 @@ export default function Profile() {
                     value={form.name}
                     onChange={handleChange}
                     placeholder="Enter Full Name"
-                    className="w-full pl-10 pr-4 py-2.5 sm:py-3 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition"
+                    className="form-input pl-10"
                   />
                 </div>
               </div>
@@ -216,7 +216,7 @@ export default function Profile() {
                     value={form.phone}
                     onChange={handleChange}
                     placeholder="Enter Your Number Phone"
-                    className="w-full pl-10 pr-4 py-2.5 sm:py-3 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition"
+                    className="form-input pl-10"
                   />
                 </div>
               </div>
@@ -245,7 +245,7 @@ export default function Profile() {
                     value={form.email}
                     onChange={handleChange}
                     placeholder="Enter Your Email"
-                    className="w-full pl-10 pr-4 py-2.5 sm:py-3 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition"
+                    className="form-input pl-10"
                   />
                 </div>
               </div>
@@ -282,7 +282,7 @@ export default function Profile() {
               <button
                 onClick={handleSubmit}
                 disabled={saving}
-                className="w-full py-3 sm:py-3.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 disabled:opacity-60 transition mt-2"
+                className="btn-primary w-full mt-2 disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {saving ? "Menyimpan..." : "Submit"}
               </button>

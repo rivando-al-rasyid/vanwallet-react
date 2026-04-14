@@ -53,7 +53,7 @@ export default function Register() {
 
   return (
     <main className="grid grid-cols-1 lg:grid-cols-2 min-h-screen bg-[#2948FF]">
-      <section className="flex flex-col justify-center items-center px-6 py-12 lg:px-20 bg-white xl:rounded-r-[60px] shadow-2xl z-20">
+      <section className="auth-panel">
         <div className="w-full max-w-175">
           <Brand />
           <LoginHeadline

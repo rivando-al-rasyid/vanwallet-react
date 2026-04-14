@@ -160,7 +160,7 @@ export default function Index() {
         {/* Note: Removed 'col-span' as we are using flex-col for the main stack */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 items-start">
           {/* Balance Card (Occupies 1 column on desktop) */}
-          <div className="fade-in delay-1 bg-white rounded-xl p-5 lg:p-6 shadow-sm border border-slate-100 flex flex-col gap-4">
+          <div className="fade-in delay-1 card flex flex-col gap-4">
             <div className="flex items-center gap-2 text-slate-500 text-xs font-medium">
               <svg
                 className="w-4 h-4"
@@ -188,9 +188,7 @@ export default function Index() {
                 </p>
                 <p className="text-sm font-semibold text-emerald-500 flex items-center gap-1">
                   Rp.200k
-                  <span className="text-[10px] bg-emerald-50 px-1.5 py-0.5 rounded-full">
-                    +2%
-                  </span>
+                  <span className="badge badge-success">+2%</span>
                 </p>
               </div>
               <div>
@@ -199,30 +197,28 @@ export default function Index() {
                 </p>
                 <p className="text-sm font-semibold text-red-500 flex items-center gap-1">
                   Rp.100k
-                  <span className="text-[10px] bg-red-50 px-1.5 py-0.5 rounded-full">
-                    +5%
-                  </span>
+                  <span className="badge badge-danger">+5%</span>
                 </p>
               </div>
             </div>
           </div>
           {/* Fast Service Card */}
-          <div className="fade-in delay-2 lg:col-span-2 bg-white rounded-xl p-5 lg:p-6 shadow-sm border border-slate-100 flex items-center justify-between h-full">
+          <div className="fade-in delay-2 lg:col-span-2 card flex items-center justify-between h-full">
             {/* Title stays on the left */}
             <div>
-              <h2 className="text-lg font-bold text-slate-800">Fast Service</h2>
+              <h2 className="section-title">Fast Service</h2>
             </div>
 
             {/* Buttons moved to the right side */}
             <div className="flex flex-row gap-3">
               <button
-                className="flex items-center justify-center gap-2 bg-blue-600 text-white font-bold text-sm px-5 py-2.5 rounded-xl hover:bg-blue-700 transition-all shadow-md active:scale-95"
+                className="btn-primary"
                 onClick={() => navigate("/dashboard/topup")}
               >
                 <span className="text-lg">+</span> Top Up
               </button>
               <button
-                className="flex items-center justify-center gap-2 bg-blue-600 text-white font-bold text-sm px-5 py-2.5 rounded-xl hover:bg-blue-700 transition-all shadow-md active:scale-95"
+                className="btn-primary"
                 onClick={() => navigate("/transfer")}
               >
                 <svg
@@ -240,10 +236,10 @@ export default function Index() {
       </div>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5 fade-in delay-3">
         {/* Chart */}
-        <div className="col-span-full bg-white rounded-lg p-4 sm:p-5 shadow-sm border border-slate-100">
+        <div className="col-span-full card">
           <div className="rounded-lg w-full">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6">
-              <h2 className="text-lg sm:text-xl font-bold text-slate-800">
+              <h2 className="section-title">
                 Financial Chart
               </h2>
               <div className="flex gap-2 sm:gap-3">
@@ -272,9 +268,9 @@ export default function Index() {
         </div>
 
         {/* Transaction History */}
-        <div className="col-span-full bg-white rounded-lg p-4 sm:p-5 shadow-sm border border-slate-100 flex flex-col h-full fade-in delay-4">
+        <div className="col-span-full card flex flex-col h-full fade-in delay-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm sm:text-base font-bold text-slate-800">
+            <h3 className="section-title">
               Transaction History
             </h3>
             <Link

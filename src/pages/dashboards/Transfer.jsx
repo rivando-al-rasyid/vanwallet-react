@@ -84,15 +84,15 @@ export default function Transfer() {
               <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
             </svg>
           </span>
-          <h1 className="text-xl font-bold text-gray-800">Transfer Money</h1>
+          <h1 className="section-title">Transfer Money</h1>
         </div>
         <Stepper currentStep={1} />
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm p-8 min-h-150">
+      <div className="card min-h-150">
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h2 className="text-lg font-bold text-gray-800">Find People</h2>
+            <h2 className="section-title">Find People</h2>
             <p className="text-xs text-gray-400">{resultsText}</p>
           </div>
           <SearchInput

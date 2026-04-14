@@ -92,16 +92,16 @@ export default function History() {
             />
           </svg>
         </div>
-        <h1 className="text-lg sm:text-xl font-bold text-gray-800">
+        <h1 className="section-title">
           History Transaction
         </h1>
       </div>
 
       {/* Main Card */}
-      <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm min-h-150">
+      <div className="card min-h-150">
         {/* Card Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-4 sm:px-6 lg:px-8 py-4 sm:py-5 border-b border-gray-100">
-          <h2 className="text-sm sm:text-base font-bold text-gray-800 order-2 sm:order-1">
+          <h2 className="section-title order-2 sm:order-1">
             Find Transaction
           </h2>
           <div className="relative order-1 sm:order-2 w-full sm:w-auto">

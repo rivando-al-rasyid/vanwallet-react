@@ -110,14 +110,14 @@ export default function SetNominal() {
             </svg>
           </span>
 
-          <h1 className="text-xl font-bold text-gray-800">Transfer Money</h1>
+          <h1 className="section-title">Transfer Money</h1>
         </div>
         <Stepper currentStep={2} />
       </div>
 
       {/* Main Content Card */}
-      <div className="bg-white rounded-2xl shadow-sm p-8 min-h-150">
-        <h2 className="text-lg font-bold text-gray-800 mb-6">
+      <div className="card min-h-150">
+        <h2 className="section-title mb-6">
           People Information
         </h2>
 
@@ -241,7 +241,7 @@ export default function SetNominal() {
 
             <button
               onClick={handleOpenPinModal}
-              className="w-full py-3.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition shadow-lg shadow-blue-200"
+              className="btn-primary w-full"
             >
               Submit &amp; Transfer
             </button>

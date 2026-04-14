@@ -9,13 +9,13 @@ function DashboardProvider({ children }) {
 
   return (
     <DashboardContext.Provider value={{ sidebarOpen, setSidebarOpen }}>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-light">
         {/* Header always visible on all screen sizes */}
         <Header />
 
         <main className="flex pt-16">
           <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
-          <section className="flex-1 flex flex-col gap-6 p-4 lg:p-8 overflow-auto min-h-[calc(100vh-4rem)]">
+          <section className="layout-fill gap-6 p-4 lg:p-8 overflow-auto min-h-[calc(100vh-4rem)]">
             {children ?? <Outlet />}
           </section>
         </main>

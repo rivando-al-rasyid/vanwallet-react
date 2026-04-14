@@ -105,12 +105,12 @@ export default function ChangePassword() {
             />
           </svg>
         </div>
-        <h1 className="text-xl font-bold text-gray-800">Profile</h1>
+        <h1 className="section-title">Profile</h1>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm p-8">
+      <div className="card">
         <div className="w-full">
-          <h2 className="text-base font-bold text-gray-800 mb-4">
+          <h2 className="section-title mb-4">
             Change Password
           </h2>
 
@@ -192,7 +192,7 @@ export default function ChangePassword() {
             <button
               onClick={handleSubmit}
               disabled={saving}
-              className="w-full py-3.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 disabled:opacity-60 transition"
+              className="btn-primary w-full disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {saving ? "Menyimpan..." : "Submit"}
             </button>

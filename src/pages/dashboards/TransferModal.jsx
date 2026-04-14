@@ -64,7 +64,7 @@ export default function TransferModal({
 
         <button
           onClick={handleConfirm}
-          className="w-full py-3.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition mb-4"
+          className="btn-primary w-full mb-4"
         >
           Confirm & Transfer
         </button>
@@ -84,7 +84,7 @@ export default function TransferModal({
       <ModalWrapper>
         <img src="/img/failed.png" alt="failed" className="mx-auto mb-4" />
 
-        <h3 className="text-xl font-bold text-gray-800 mb-2">
+        <h3 className="section-title mb-2">
           Oops Transfer <span className="text-red-500">Failed</span>
         </h3>
 
@@ -94,7 +94,7 @@ export default function TransferModal({
 
         <button
           onClick={onTryAgain}
-          className="w-full py-3.5 bg-blue-600 text-white rounded-xl mb-3"
+          className="btn-primary w-full mb-3"
         >
           Try Again
         </button>
@@ -114,7 +114,7 @@ export default function TransferModal({
       <ModalWrapper>
         <img src="/img/success.png" alt="success" className="mx-auto mb-4" />
 
-        <h3 className="text-xl font-bold text-gray-800 mb-2">
+        <h3 className="section-title mb-2">
           Yeay Transfer <span className="text-green-500">Success</span>
         </h3>
 
@@ -124,7 +124,7 @@ export default function TransferModal({
 
         <button
           onClick={onDone}
-          className="w-full py-3.5 bg-blue-600 text-white rounded-xl mb-3"
+          className="btn-primary w-full mb-3"
         >
           Done
         </button>

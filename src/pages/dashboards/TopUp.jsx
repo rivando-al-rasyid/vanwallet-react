@@ -80,15 +80,15 @@ export default function TopUp() {
             />
           </svg>
         </div>
-        <h1 className="text-lg sm:text-xl font-bold text-gray-800">
+        <h1 className="section-title">
           Top Up Account
         </h1>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 items-start">
         {/* Left Panel */}
-        <div className="w-full bg-white rounded-xl sm:rounded-2xl shadow-sm p-3 sm:p-6 lg:p-8">
-          <h2 className="text-sm sm:text-base font-bold text-gray-800 mb-3 sm:mb-4">
+        <div className="card w-full">
+          <h2 className="section-title mb-3 sm:mb-4">
             Account Information
           </h2>
           <div className="bg-gray-50 rounded-lg sm:rounded-xl p-3 sm:p-4 mb-6 sm:mb-8">
@@ -110,7 +110,7 @@ export default function TopUp() {
                   <p className="text-xs sm:text-sm text-gray-500">
                     {user.phone}
                   </p>
-                  <span className="inline-flex items-center gap-1 mt-1 text-xs bg-blue-600 text-white px-2.5 py-0.5 rounded-full font-medium">
+                  <span className="badge badge-success mt-1">
                     Verified
                   </span>
                 </div>
@@ -128,7 +128,7 @@ export default function TopUp() {
 
           {/* Amount Input */}
           <div className="mb-6 sm:mb-8">
-            <h2 className="text-sm sm:text-base font-bold text-gray-800 mb-1">
+            <h2 className="section-title mb-1">
               Amount
             </h2>
             <p className="text-xs sm:text-sm text-gray-400 mb-2 sm:mb-3">
@@ -139,13 +139,13 @@ export default function TopUp() {
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               placeholder="Enter Nominal Transfer"
-              className="w-full px-3 sm:px-4 py-2 sm:py-2.5 lg:py-3.5 text-xs sm:text-sm border border-gray-200 rounded-lg sm:rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition"
+              className="form-input"
             />
           </div>
 
           {/* Payment Methods */}
           <div>
-            <h2 className="text-sm sm:text-base font-bold text-gray-800 mb-1">
+            <h2 className="section-title mb-1">
               Payment Method
             </h2>
             <p className="text-xs sm:text-sm text-gray-400 mb-3 sm:mb-4">
@@ -190,8 +190,8 @@ export default function TopUp() {
         </div>
 
         {/* Summary Sidebar */}
-        <div className="w-full lg:w-72 shrink-0 bg-white rounded-xl sm:rounded-2xl shadow-sm p-3 sm:p-6 border border-gray-100">
-          <h2 className="text-sm sm:text-base font-bold text-gray-800 mb-3 sm:mb-6">
+        <div className="card w-full lg:w-72 shrink-0">
+          <h2 className="section-title mb-3 sm:mb-6">
             Payment
           </h2>
           <div className="flex flex-col gap-3 sm:gap-4 mb-3 sm:mb-6">
@@ -220,7 +220,7 @@ export default function TopUp() {
           </div>
           <button
             onClick={handleSubmit}
-            className="w-full py-2 sm:py-3 lg:py-3.5 bg-blue-600 text-white text-xs sm:text-sm font-semibold rounded-lg sm:rounded-xl hover:bg-blue-700 transition active:scale-95"
+            className="btn-primary w-full"
           >
             Submit
           </button>
