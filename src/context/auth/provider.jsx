@@ -14,7 +14,7 @@ import {
   setError,
   setLoading,
   setUser,
-} from "../../store/authSlice";
+} from "../../store/store";
 
 function AuthProvider({ children }) {
   const dispatch = useDispatch();

@@ -21,7 +21,7 @@ import ChangePin from "./pages/dashboards/ChangePin.jsx";
 import SetNominal from "./pages/dashboards/SetNominal.jsx";
 import AuthProvider from "./context/auth/provider.jsx";
 import DashboardProvider from "./context/dashboard/provider.jsx";
-import { persistor, store } from "./store";
+import { persistor, store } from "./store/store";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <Provider store={store}>
