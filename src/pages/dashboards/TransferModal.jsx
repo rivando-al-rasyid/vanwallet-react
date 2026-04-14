@@ -1,8 +1,23 @@
 // src/pages/dashboard/TransferModal.jsx
 import { useForm, FormProvider } from "react-hook-form";
+import { joiResolver } from "@hookform/resolvers/joi";
+import Joi from "joi";
+import { useEffect } from "react";
 import PinInput from "../../components/PinInput";
 
 const PIN_LENGTH = 6;
+const defaultPin = Array.from({ length: PIN_LENGTH }, () => ({ value: "" }));
+
+const pinSchema = Joi.object({
+  pin: Joi.array()
+    .items(
+      Joi.object({
+        value: Joi.string().length(1).pattern(/^\d$/).required(),
+      }),
+    )
+    .length(PIN_LENGTH)
+    .required(),
+});
 
 export default function TransferModal({
   open,
@@ -14,25 +29,24 @@ export default function TransferModal({
   toName = "",
 }) {
   const methods = useForm({
+    resolver: joiResolver(pinSchema),
     defaultValues: {
-      pin: Array.from({ length: PIN_LENGTH }, () => ({ value: "" })),
+      pin: defaultPin,
     },
+    mode: "onChange",
   });
+
+  useEffect(() => {
+    if (open && step === "pin") {
+      methods.reset({ pin: defaultPin });
+    }
+  }, [methods, open, step]);
 
   if (!open) return null;
 
-  const handleConfirm = () => {
-    const pin = methods
-      .getValues("pin")
-      .map((p) => p.value)
-      .join("");
-
-    if (pin.length !== PIN_LENGTH) {
-      alert("Masukkan PIN lengkap (6 digit)");
-      return;
-    }
-
-    onPinSubmit(pin);
+  const handleConfirm = ({ pin }) => {
+    const pinValue = pin.map((p) => p.value).join("");
+    onPinSubmit(pinValue);
   };
 
   const ModalWrapper = ({ children }) => (
@@ -57,17 +71,28 @@ export default function TransferModal({
         </p>
 
         <FormProvider {...methods}>
-          <div className="mb-8 flex justify-center">
-            <PinInput />
-          </div>
-        </FormProvider>
+          <form
+            onSubmit={methods.handleSubmit(handleConfirm)}
+            className="mb-2"
+          >
+            <div className="mb-8 flex justify-center">
+              <PinInput />
+            </div>
 
-        <button
-          onClick={handleConfirm}
-          className="btn-primary w-full mb-4"
-        >
-          Confirm & Transfer
-        </button>
+            {methods.formState.errors.pin && (
+              <p className="text-sm text-red-500 mb-4 text-left">
+                Masukkan PIN lengkap ({PIN_LENGTH} digit)
+              </p>
+            )}
+
+            <button
+              type="submit"
+              className="btn-primary w-full mb-4"
+            >
+              Confirm & Transfer
+            </button>
+          </form>
+        </FormProvider>
 
         <p className="text-sm text-gray-500">
           Forgot Your Pin?{" "}
