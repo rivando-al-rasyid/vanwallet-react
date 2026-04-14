@@ -71,3 +71,33 @@ export async function verifyPin(userId, inputPin) {
 
   return true;
 }
+
+// PUT change password — verifies old password first, then updates
+export async function changePassword({ userId, oldPassword, newPassword }) {
+  const user = await requestJson(`/user/${userId}`, {}, "Failed to fetch user");
+  if (user.password !== oldPassword) {
+    throw new Error("Password lama tidak sesuai.");
+  }
+  return requestJson(
+    `/user/${userId}`,
+    {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ password: newPassword }),
+    },
+    "Failed to change password",
+  );
+}
+
+// PUT change PIN
+export async function changePinApi(id, newPin) {
+  return requestJson(
+    `/user/${id}`,
+    {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ pin: newPin }),
+    },
+    "Failed to change PIN",
+  );
+}

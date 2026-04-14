@@ -219,7 +219,7 @@ export default function Index() {
               </button>
               <button
                 className="btn-primary"
-                onClick={() => navigate("/transfer")}
+                onClick={() => navigate("/dashboard/transfer")}
               >
                 <svg
                   className="w-4 h-4 -rotate-45"

@@ -32,7 +32,7 @@ const PAYMENT_METHODS = [
 ];
 
 export default function TopUp() {
-  const { currentUser } = useContext(AuthContext);
+  const { user: currentUser } = useContext(AuthContext);
   const [amount, setAmount] = useState("");
   const [selectedMethod, setSelectedMethod] = useState("bri");
   const user = useMemo(() => {

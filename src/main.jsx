@@ -21,6 +21,7 @@ import ChangePin from "./pages/dashboards/ChangePin.jsx";
 import SetNominal from "./pages/dashboards/SetNominal.jsx";
 import AuthProvider from "./context/auth/provider.jsx";
 import DashboardProvider from "./context/dashboard/provider.jsx";
+import ProfileProviderLayout from "./context/profile/layout.jsx";
 import { persistor, store } from "./store/store";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
@@ -52,7 +53,8 @@ ReactDOM.createRoot(document.getElementById("root")).render(
               <Route path="history" element={<History />} />
               <Route path="topup" element={<TopUp />} />
 
-              <Route path="profile">
+              {/* Profile routes wrapped by ProfileProvider via layout */}
+              <Route path="profile" element={<ProfileProviderLayout />}>
                 <Route index element={<Profile />} />
                 <Route path="change-password" element={<ChangePassword />} />
                 <Route path="change-pin" element={<ChangePin />} />

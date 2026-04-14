@@ -16,7 +16,7 @@ const defaultPin = Array.from({ length: PIN_LENGTH }, () => ({ value: "" }));
 
 export default function LoginPin() {
   const navigate = useNavigate();
-  const { currentUser } = useContext(AuthContext);
+  const { user: currentUser } = useContext(AuthContext);
   const methods = useForm({
     defaultValues: { pin: defaultPin },
     mode: "onChange",

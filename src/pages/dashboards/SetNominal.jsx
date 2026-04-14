@@ -10,7 +10,7 @@ import AuthContext from "../../context/auth/context";
 export default function SetNominal() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { currentUser } = useContext(AuthContext);
+  const { user: currentUser } = useContext(AuthContext);
 
   const [amount, setAmount] = useState("");
   const [notes, setNotes] = useState("");
