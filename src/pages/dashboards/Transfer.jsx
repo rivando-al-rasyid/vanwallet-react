@@ -3,7 +3,10 @@ import { useNavigate, useSearchParams } from "react-router";
 import Stepper from "../../components/Stepper";
 import SearchInput from "../../components/SearchInput";
 import TableRow from "../../components/TableRow";
+import { Pagination } from "../../components/Pagination";
 import { getUsers } from "../../utils/auth";
+
+const ITEMS_PER_PAGE = 6;
 
 export default function Transfer() {
   const navigate = useNavigate();
@@ -12,6 +15,7 @@ export default function Transfer() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const search = searchParams.get("search") || "";
+  const currentPage = Number(searchParams.get("page") || "1");
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
@@ -38,7 +42,6 @@ export default function Transfer() {
 
   const filteredContacts = useMemo(() => {
     if (!search.trim()) return contacts;
-
     const searchTerm = search.toLowerCase().trim();
     return contacts.filter(
       (contact) =>
@@ -47,19 +50,44 @@ export default function Transfer() {
     );
   }, [contacts, search]);
 
-  const handleSearchChange = useCallback((e) => {
-    const nextSearch = e.target.value;
-    setSearchParams((prev) => {
-      const next = new URLSearchParams(prev);
-      if (nextSearch) {
-        next.set("search", nextSearch);
-      } else {
-        next.delete("search");
-      }
-      next.set("page", "1");
-      return next;
-    });
-  }, [setSearchParams]);
+  const totalPages = Math.ceil(filteredContacts.length / ITEMS_PER_PAGE);
+  const safePage = Math.min(Math.max(currentPage, 1), totalPages || 1);
+  const paginatedContacts = useMemo(
+    () =>
+      filteredContacts.slice(
+        (safePage - 1) * ITEMS_PER_PAGE,
+        safePage * ITEMS_PER_PAGE,
+      ),
+    [filteredContacts, safePage],
+  );
+
+  const handleSearchChange = useCallback(
+    (e) => {
+      const nextSearch = e.target.value;
+      setSearchParams((prev) => {
+        const next = new URLSearchParams(prev);
+        if (nextSearch) {
+          next.set("search", nextSearch);
+        } else {
+          next.delete("search");
+        }
+        next.set("page", "1");
+        return next;
+      });
+    },
+    [setSearchParams],
+  );
+
+  const handlePageChange = useCallback(
+    (page) => {
+      setSearchParams((prev) => {
+        const next = new URLSearchParams(prev);
+        next.set("page", String(page));
+        return next;
+      });
+    },
+    [setSearchParams],
+  );
 
   const handleRowClick = useCallback(
     (contact) => {
@@ -151,11 +179,19 @@ export default function Transfer() {
         )}
 
         {!loading && !error && (
-          <TableRow
-            items={filteredContacts}
-            onRowClick={handleRowClick}
-            paginate={true}
-          />
+          <>
+            <TableRow
+              items={paginatedContacts}
+              onRowClick={handleRowClick}
+            />
+            <Pagination
+              currentPage={safePage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+              visibleCount={paginatedContacts.length}
+              totalItems={filteredContacts.length}
+            />
+          </>
         )}
       </div>
     </>

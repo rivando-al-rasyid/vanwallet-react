@@ -6,6 +6,7 @@ import { PersistGate } from "redux-persist/integration/react";
 import "./style.css";
 
 import App from "./App.jsx";
+import ProtectedRoute from "./components/ProtectedRoute.jsx"; // 👈 import
 
 import Login from "./pages/auth/Login.jsx";
 import Register from "./pages/auth/Register.jsx";
@@ -28,15 +29,17 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<App />} />
-            {/* Guest-only routes */}
-            <Route path="login">
-              <Route index element={<Login />} />
-              <Route path="pin" element={<LoginPin />} />
-            </Route>
-            <Route path="register" element={<Register />} />
-            <Route path="forgotpassword" element={<ForgotPassword />} />
 
-            {/* Dashboard routes wrapped by DashboardProvider */}
+          {/* Guest-only routes */}
+          <Route path="login">
+            <Route index element={<Login />} />
+            <Route path="pin" element={<LoginPin />} />
+          </Route>
+          <Route path="register" element={<Register />} />
+          <Route path="forgotpassword" element={<ForgotPassword />} />
+
+          {/* Protected routes — redirect to /login if not authenticated */}
+          <Route element={<ProtectedRoute />}>
             <Route path="dashboard" element={<DashboardProvider />}>
               <Route index element={<Index />} />
 
@@ -48,13 +51,15 @@ ReactDOM.createRoot(document.getElementById("root")).render(
               <Route path="history" element={<History />} />
               <Route path="topup" element={<TopUp />} />
 
-              <Route path="profile" >
+              <Route path="profile">
                 <Route index element={<Profile />} />
                 <Route path="change-password" element={<ChangePassword />} />
                 <Route path="change-pin" element={<ChangePin />} />
               </Route>
             </Route>
+          </Route>
         </Routes>
       </BrowserRouter>
     </PersistGate>
-  </Provider>);
+  </Provider>
+);
