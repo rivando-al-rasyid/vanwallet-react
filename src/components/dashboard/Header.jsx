@@ -1,7 +1,7 @@
 import Brand from "../Brand";
 import { useState, useRef, useEffect, useContext } from "react";
 import { useNavigate } from "react-router";
-import AuthContext from "../../context/auth/context";
+import { useAuth } from "../../hooks/useAuth";
 import DashboardContext from "../../context/dashboard/context";
 import { X, Menu } from "lucide-react";
 import LogoutButton from "./LogoutButton";
@@ -9,7 +9,7 @@ import { useLogout } from "../../hooks/useLogout";
 
 export default function Header() {
   const navigate = useNavigate();
-  const { user } = useContext(AuthContext);
+  const { user } = useAuth();
   const { sidebarOpen, setSidebarOpen } = useContext(DashboardContext);
   const logoutAndRedirect = useLogout();
 

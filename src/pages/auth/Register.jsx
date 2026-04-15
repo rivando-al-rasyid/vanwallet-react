@@ -1,7 +1,7 @@
-import { useState, useContext } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router";
 import { faEnvelope, faLock } from "@fortawesome/free-solid-svg-icons";
-import AuthContext from "../../context/auth/context";
+import { useAuth } from "../../hooks/useAuth";
 import Brand from "../../components/Brand";
 import LoginHeadline from "../../components/login/LoginHeadline";
 import SocialLogin from "../../components/SocialLogin";
@@ -13,7 +13,7 @@ import walletHandImage from "../../assets/img/3d-hand-wallet.png";
 
 export default function Register() {
   const navigate = useNavigate();
-  const { register, loading, error } = useContext(AuthContext);
+  const { register, loading, error } = useAuth();
 
   const [form, setForm] = useState({
     email: "",

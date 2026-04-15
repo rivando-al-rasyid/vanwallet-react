@@ -1,16 +1,16 @@
 // src/pages/transfer/SetNominal.jsx
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
 import Stepper from "../../components/Stepper";
 import { getUserById, verifyPin } from "../../utils/auth";
 import TransferModal from "./TransferModal";
 import Toast from "../../components/Toast";
-import AuthContext from "../../context/auth/context";
+import { useAuth } from "../../hooks/useAuth";
 
 export default function SetNominal() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user: currentUser } = useContext(AuthContext);
+  const { user: currentUser } = useAuth();
 
   const [amount, setAmount] = useState("");
   const [notes, setNotes] = useState("");

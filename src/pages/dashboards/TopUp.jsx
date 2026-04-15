@@ -1,5 +1,5 @@
 import { useContext, useMemo, useState } from "react";
-import AuthContext from "../../context/auth/context";
+import { useAuth } from "../../hooks/useAuth";
 
 const TAX_RATE = 0.1;
 
@@ -32,7 +32,7 @@ const PAYMENT_METHODS = [
 ];
 
 export default function TopUp() {
-  const { user: currentUser } = useContext(AuthContext);
+  const { user: currentUser } = useAuth();
   const [amount, setAmount] = useState("");
   const [selectedMethod, setSelectedMethod] = useState("bri");
   const user = useMemo(() => {

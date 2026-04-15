@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import {  useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import PinInput from "../../components/PinInput";
@@ -8,7 +8,7 @@ import LoginHeadline from "../../components/login/LoginHeadline";
 import Submit from "../../components/Submit";
 import LoginSubtext from "../../components/LoginSubtext";
 import { verifyPin } from "../../utils/auth";
-import AuthContext from "../../context/auth/context";
+import { useAuth } from "../../hooks/useAuth";
 import loginPhoneImage from "../../assets/img/3d-hand-phone.png";
 
 const PIN_LENGTH = 6;
@@ -16,7 +16,7 @@ const defaultPin = Array.from({ length: PIN_LENGTH }, () => ({ value: "" }));
 
 export default function LoginPin() {
   const navigate = useNavigate();
-  const { user: currentUser } = useContext(AuthContext);
+  const { user: currentUser } = useAuth();
   const methods = useForm({
     defaultValues: { pin: defaultPin },
     mode: "onChange",

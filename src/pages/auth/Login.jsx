@@ -1,7 +1,7 @@
-import { useState, useContext } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router";
 import { faEnvelope, faLock } from "@fortawesome/free-solid-svg-icons";
-import AuthContext from "../../context/auth/context";
+import { useAuth } from "../../hooks/useAuth";
 import Brand from "../../components/Brand";
 import LoginHeadline from "../../components/login/LoginHeadline";
 import SocialLogin from "../../components/SocialLogin";
@@ -13,7 +13,7 @@ import loginPhoneImage from "../../assets/img/3d-hand-phone.png";
 
 export default function Login() {
   const navigate = useNavigate();
-  const { login, loading, error } = useContext(AuthContext);
+  const { login, loading, error } = useAuth();
 
   const [form, setForm] = useState({ email: "", password: "" });
   const [validationError, setValidationError] = useState("");
