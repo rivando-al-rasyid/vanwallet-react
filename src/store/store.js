@@ -58,20 +58,19 @@ export const {
   mergeUser
 } = authSlice.actions;
 
-const persistConfig = {
-  key: "root",
+// Persist hanya di level slice (bukan root),
+// agar Redux DevTools bisa membaca actions & state dengan benar
+const authPersistConfig = {
+  key: "auth",
   storage,
-  whitelist: ["auth"],
 };
 
 const rootReducer = combineReducers({
-  auth: authSlice.reducer,
+  auth: persistReducer(authPersistConfig, authSlice.reducer),
 });
 
-const persistedReducer = persistReducer(persistConfig, rootReducer);
-
 export const store = configureStore({
-  reducer: persistedReducer,
+  reducer: rootReducer,
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: false,
