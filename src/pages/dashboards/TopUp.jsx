@@ -1,4 +1,4 @@
-import { useContext, useMemo, useState } from "react";
+import {  useMemo, useState } from "react";
 import { useAuth } from "../../hooks/useAuth";
 
 const TAX_RATE = 0.1;
