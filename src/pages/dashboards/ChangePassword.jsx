@@ -1,19 +1,18 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { useNavigate } from "react-router";
-import { getSession, updateUser } from "../../utils/auth";
+import { useProfile } from "../../hooks/useProfile";
 
 export default function ChangePassword() {
-  const { id } = getSession();
   const navigate = useNavigate();
+  const { changePassword, profileLoading, profileError } = useProfile();
 
   const [form, setForm] = useState({
     currentPassword: "",
     newPassword: "",
     confirmNewPassword: "",
   });
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [localError, setLocalError] = useState("");
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
@@ -23,35 +22,26 @@ export default function ChangePassword() {
   };
 
   const handleSubmit = async () => {
-    setSaving(true);
-    setError("");
+    setLocalError("");
     setSuccess("");
 
-    if (
-      !form.currentPassword ||
-      !form.newPassword ||
-      !form.confirmNewPassword
-    ) {
-      setError("Semua field password wajib diisi.");
-      setSaving(false);
+    if (!form.currentPassword || !form.newPassword || !form.confirmNewPassword) {
+      setLocalError("Semua field password wajib diisi.");
       return;
     }
 
     if (form.newPassword !== form.confirmNewPassword) {
-      setError("Konfirmasi password baru tidak cocok.");
-      setSaving(false);
+      setLocalError("Konfirmasi password baru tidak cocok.");
       return;
     }
 
     try {
-      await updateUser(id, { password: form.newPassword });
+      await changePassword(form.currentPassword, form.newPassword);
       setSuccess("Password berhasil diupdate!");
       setForm({ currentPassword: "", newPassword: "", confirmNewPassword: "" });
       setTimeout(() => navigate("/dashboard/profile"), 1200);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setSaving(false);
+    } catch {
+      // error is handled by context/Redux via profileError
     }
   };
 
@@ -90,6 +80,9 @@ export default function ChangePassword() {
       <path d="M7 11V7a5 5 0 0110 0v4" />
     </svg>
   );
+
+  // localError takes priority (client-side validation), then API error from Redux via context
+  const error = localError || profileError;
 
   return (
     <>
@@ -191,10 +184,10 @@ export default function ChangePassword() {
 
             <button
               onClick={handleSubmit}
-              disabled={saving}
+              disabled={profileLoading}
               className="w-full py-3.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 disabled:opacity-60 transition"
             >
-              {saving ? "Menyimpan..." : "Submit"}
+              {profileLoading ? "Menyimpan..." : "Submit"}
             </button>
           </div>
         </div>

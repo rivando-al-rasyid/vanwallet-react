@@ -1,8 +1,26 @@
 // src/pages/dashboard/TransferModal.jsx
 import { useForm, FormProvider } from "react-hook-form";
+import { joiResolver } from "@hookform/resolvers/joi";
+import Joi from "joi";
+import { useEffect } from "react";
 import PinInput from "../../components/PinInput";
+import Modal from "../../components/Modal";
+import transferFailedImage from "../../assets/img/failed.png";
+import transferSuccessImage from "../../assets/img/success.png";
 
 const PIN_LENGTH = 6;
+const defaultPin = Array.from({ length: PIN_LENGTH }, () => ({ value: "" }));
+
+const pinSchema = Joi.object({
+  pin: Joi.array()
+    .items(
+      Joi.object({
+        value: Joi.string().length(1).pattern(/^\d$/).required(),
+      }),
+    )
+    .length(PIN_LENGTH)
+    .required(),
+});
 
 export default function TransferModal({
   open,
@@ -14,38 +32,29 @@ export default function TransferModal({
   toName = "",
 }) {
   const methods = useForm({
+    resolver: joiResolver(pinSchema),
     defaultValues: {
-      pin: Array.from({ length: PIN_LENGTH }, () => ({ value: "" })),
+      pin: defaultPin,
     },
+    mode: "onChange",
   });
+
+  useEffect(() => {
+    if (open && step === "pin") {
+      methods.reset({ pin: defaultPin });
+    }
+  }, [methods, open, step]);
 
   if (!open) return null;
 
-  const handleConfirm = () => {
-    const pin = methods
-      .getValues("pin")
-      .map((p) => p.value)
-      .join("");
-
-    if (pin.length !== PIN_LENGTH) {
-      alert("Masukkan PIN lengkap (6 digit)");
-      return;
-    }
-
-    onPinSubmit(pin);
+  const handleConfirm = ({ pin }) => {
+    const pinValue = pin.map((p) => p.value).join("");
+    onPinSubmit(pinValue);
   };
-
-  const ModalWrapper = ({ children }) => (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-xl text-center">
-        {children}
-      </div>
-    </div>
-  );
 
   if (step === "pin") {
     return (
-      <ModalWrapper>
+      <Modal open={open}>
         <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-4 text-left">
           Transfer to {toName}
         </p>
@@ -57,17 +66,28 @@ export default function TransferModal({
         </p>
 
         <FormProvider {...methods}>
-          <div className="mb-8 flex justify-center">
-            <PinInput />
-          </div>
-        </FormProvider>
+          <form
+            onSubmit={methods.handleSubmit(handleConfirm)}
+            className="mb-2"
+          >
+            <div className="mb-8 flex justify-center">
+              <PinInput />
+            </div>
 
-        <button
-          onClick={handleConfirm}
-          className="w-full py-3.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition mb-4"
-        >
-          Confirm & Transfer
-        </button>
+            {methods.formState.errors.pin && (
+              <p className="text-sm text-red-500 mb-4 text-left">
+                Masukkan PIN lengkap ({PIN_LENGTH} digit)
+              </p>
+            )}
+
+            <button
+              type="submit"
+              className="btn-primary w-full mb-4"
+            >
+              Confirm & Transfer
+            </button>
+          </form>
+        </FormProvider>
 
         <p className="text-sm text-gray-500">
           Forgot Your Pin?{" "}
@@ -75,16 +95,20 @@ export default function TransferModal({
             Reset
           </button>
         </p>
-      </ModalWrapper>
+      </Modal>
     );
   }
 
   if (step === "failed") {
     return (
-      <ModalWrapper>
-        <img src="/img/failed.png" alt="failed" className="mx-auto mb-4" />
+      <Modal open={open}>
+        <img
+          src={transferFailedImage}
+          alt="failed"
+          className="mx-auto mb-4"
+        />
 
-        <h3 className="text-xl font-bold text-gray-800 mb-2">
+        <h3 className="section-title mb-2">
           Oops Transfer <span className="text-red-500">Failed</span>
         </h3>
 
@@ -94,7 +118,7 @@ export default function TransferModal({
 
         <button
           onClick={onTryAgain}
-          className="w-full py-3.5 bg-blue-600 text-white rounded-xl mb-3"
+          className="btn-primary w-full mb-3"
         >
           Try Again
         </button>
@@ -105,16 +129,20 @@ export default function TransferModal({
         >
           Back To Dashboard
         </button>
-      </ModalWrapper>
+      </Modal>
     );
   }
 
   if (step === "success") {
     return (
-      <ModalWrapper>
-        <img src="/img/success.png" alt="success" className="mx-auto mb-4" />
+      <Modal open={open}>
+        <img
+          src={transferSuccessImage}
+          alt="success"
+          className="mx-auto mb-4"
+        />
 
-        <h3 className="text-xl font-bold text-gray-800 mb-2">
+        <h3 className="section-title mb-2">
           Yeay Transfer <span className="text-green-500">Success</span>
         </h3>
 
@@ -124,7 +152,7 @@ export default function TransferModal({
 
         <button
           onClick={onDone}
-          className="w-full py-3.5 bg-blue-600 text-white rounded-xl mb-3"
+          className="btn-primary w-full mb-3"
         >
           Done
         </button>
@@ -135,7 +163,7 @@ export default function TransferModal({
         >
           Transfer Again
         </button>
-      </ModalWrapper>
+      </Modal>
     );
   }
 

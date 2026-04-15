@@ -52,9 +52,8 @@ export default function SearchInput({
   }, []);
 
   const inputClassName = useMemo(() => {
-    const baseClasses = "w-full pl-4 pr-10 py-2 border border-gray-200 rounded-lg text-sm outline-none focus:border-blue-400 transition-colors";
     const disabledClasses = disabled ? "bg-gray-100 cursor-not-allowed opacity-60" : "";
-    return `${baseClasses} ${disabledClasses} ${className}`.trim();
+    return `form-input pl-4 pr-10 ${disabledClasses} ${className}`.trim();
   }, [className, disabled]);
 
   return (

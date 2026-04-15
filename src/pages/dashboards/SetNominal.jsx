@@ -4,16 +4,24 @@ import { useParams, useNavigate } from "react-router";
 import Stepper from "../../components/Stepper";
 import { getUserById, verifyPin } from "../../utils/auth";
 import TransferModal from "./TransferModal";
+import Toast from "../../components/Toast";
+import { useAuth } from "../../hooks/useAuth";
 
 export default function SetNominal() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user: currentUser } = useAuth();
 
   const [amount, setAmount] = useState("");
   const [notes, setNotes] = useState("");
   const [selectedContact, setSelectedContact] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [toast, setToast] = useState({
+    open: false,
+    message: "",
+    type: "info",
+  });
 
   // "pin" | "failed" | "success" | null
   const [modalStep, setModalStep] = useState(null);
@@ -43,18 +51,33 @@ export default function SetNominal() {
 
   const handleOpenPinModal = () => {
     if (!amount || Number(amount) <= 0) {
-      return alert("Masukkan nominal transfer yang valid");
+      setToast({
+        open: true,
+        message: "Masukkan nominal transfer yang valid",
+        type: "error",
+      });
+      return;
     }
     setModalStep("pin");
   };
 
   const handlePinSubmit = async (pin) => {
     try {
-      await verifyPin(pin);
+      await verifyPin(currentUser?.id, pin);
       // TODO: call actual transfer API here
       setModalStep("success");
+      setToast({
+        open: true,
+        message: "Transfer berhasil diproses.",
+        type: "success",
+      });
     } catch (err) {
       setModalStep("failed");
+      setToast({
+        open: true,
+        message: err.message || "PIN tidak valid. Coba lagi.",
+        type: "error",
+      });
     }
   };
 
@@ -110,14 +133,14 @@ export default function SetNominal() {
             </svg>
           </span>
 
-          <h1 className="text-xl font-bold text-gray-800">Transfer Money</h1>
+          <h1 className="section-title">Transfer Money</h1>
         </div>
         <Stepper currentStep={2} />
       </div>
 
       {/* Main Content Card */}
-      <div className="bg-white rounded-2xl shadow-sm p-8 min-h-150">
-        <h2 className="text-lg font-bold text-gray-800 mb-6">
+      <div className="card min-h-150">
+        <h2 className="section-title mb-6">
           People Information
         </h2>
 
@@ -241,7 +264,7 @@ export default function SetNominal() {
 
             <button
               onClick={handleOpenPinModal}
-              className="w-full py-3.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition shadow-lg shadow-blue-200"
+              className="btn-primary w-full"
             >
               Submit &amp; Transfer
             </button>
@@ -257,6 +280,12 @@ export default function SetNominal() {
         onTryAgain={handleTryAgain}
         onTransferAgain={handleTransferAgain}
         toName={selectedContact?.name ?? ""}
+      />
+      <Toast
+        open={toast.open}
+        message={toast.message}
+        type={toast.type}
+        onClose={() => setToast((prev) => ({ ...prev, open: false }))}
       />
     </>
   );

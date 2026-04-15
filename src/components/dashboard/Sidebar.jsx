@@ -1,22 +1,35 @@
 import { NavLink } from "react-router";
 import { useEffect } from "react";
+import LogoutButton from "./LogoutButton";
+import { useLogout } from "../../hooks/useLogout";
 
 export default function Sidebar({ isOpen, setIsOpen }) {
-  // Close sidebar when clicking outside on mobile
+  const logoutAndRedirect = useLogout();
+
+  const handleLogout = () => {
+    logoutAndRedirect(() => setIsOpen(false));
+  };
+
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 1024) {
         setIsOpen(false);
       }
     };
-
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, [setIsOpen]);
 
+  const navLinkClass = ({ isActive }) =>
+    `flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+      isActive
+        ? "bg-blue-600 text-white"
+        : "text-slate-500 hover:bg-blue-50 hover:text-blue-600"
+    }`;
+
   return (
     <>
-      {/* Mobile Overlay */}
+      {/* Overlay — mobile only */}
       {isOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-40 lg:hidden"
@@ -24,35 +37,26 @@ export default function Sidebar({ isOpen, setIsOpen }) {
         />
       )}
 
-      {/* Sidebar */}
       <aside
         className={`
-        fixed top-16 left-0 z-50 h-[calc(100vh-4rem)] w-64 bg-white border-r border-slate-100 flex flex-col py-8 px-4 gap-1
-        transform transition-transform duration-300 ease-in-out
-        lg:relative lg:translate-x-0 lg:w-56 lg:sticky lg:z-auto
-        ${isOpen ? "translate-x-0" : "-translate-x-full"}
-      `}
+          fixed top-16 right-0 z-50 h-[calc(100vh-4rem)] w-72 bg-white border-l border-slate-100
+          flex flex-col
+          transform transition-transform duration-300 ease-in-out
+          lg:sticky lg:left-0 lg:top-16 lg:h-[calc(100vh-4rem)] lg:w-56
+          lg:border-l-0 lg:border-r lg:border-slate-100
+          lg:translate-x-0 lg:z-auto
+          ${isOpen ? "translate-x-0" : "translate-x-full lg:translate-x-0"}
+        `}
       >
-        <nav className="flex flex-col gap-1 flex-1">
+        {/* Nav links */}
+        <nav className="flex flex-col gap-1 flex-1 py-6 px-4 overflow-y-auto">
           <NavLink
             to="/dashboard/"
-            className={({ isActive }) =>
-              `flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                isActive
-                  ? "bg-blue-600 text-white"
-                  : "text-slate-500 hover:bg-blue-50 hover:text-blue-600"
-              }`
-            }
+            className={navLinkClass}
             end
             onClick={() => setIsOpen(false)}
           >
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
               <path
                 d="M4.92265 4.93523L6.4874 6.5M22 12C22 17.5229 17.5229 22 12 22C6.47715 22 2 17.5229 2 12H22ZM22 12H20H22ZM22 12C22 9.2418 20.8833 6.74435 19.0774 4.93523L22 12ZM2 12H4H2ZM2 12C2 9.24175 3.1167 6.74435 4.92265 4.93523L2 12ZM12 2V4V2ZM12 2C14.7646 2 17.2672 3.12189 19.0774 4.93523L12 2ZM12 2C9.2354 2 6.7328 3.12189 4.92265 4.93523L12 2ZM19.0774 4.93523L17.5126 6.5L19.0774 4.93523Z"
                 stroke="currentColor"
@@ -77,22 +81,10 @@ export default function Sidebar({ isOpen, setIsOpen }) {
 
           <NavLink
             to="/dashboard/transfer"
-            className={({ isActive }) =>
-              `flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                isActive
-                  ? "bg-blue-600 text-white"
-                  : "text-slate-500 hover:bg-blue-50 hover:text-blue-600"
-              }`
-            }
+            className={navLinkClass}
             onClick={() => setIsOpen(false)}
           >
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
               <path
                 fillRule="evenodd"
                 clipRule="evenodd"
@@ -105,22 +97,10 @@ export default function Sidebar({ isOpen, setIsOpen }) {
 
           <NavLink
             to="/dashboard/history"
-            className={({ isActive }) =>
-              `flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                isActive
-                  ? "bg-blue-600 text-white"
-                  : "text-slate-500 hover:bg-blue-50 hover:text-blue-600"
-              }`
-            }
+            className={navLinkClass}
             onClick={() => setIsOpen(false)}
           >
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
               <path
                 d="M2.90918 3.36365V7H6.54556"
                 stroke="currentColor"
@@ -148,24 +128,12 @@ export default function Sidebar({ isOpen, setIsOpen }) {
 
           <NavLink
             to="/dashboard/topup"
-            className={({ isActive }) =>
-              `flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                isActive
-                  ? "bg-blue-600 text-white"
-                  : "text-slate-500 hover:bg-blue-50 hover:text-blue-600"
-              }`
-            }
+            className={navLinkClass}
             onClick={() => setIsOpen(false)}
           >
-            <svg
-              width="20"
-              height="21"
-              viewBox="0 0 20 21"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
+            <svg width="20" height="21" viewBox="0 0 20 21" fill="none">
               <mask
-                id="mask0_11721_269"
+                id="mask0_topup"
                 style={{ maskType: "luminance" }}
                 maskUnits="userSpaceOnUse"
                 x="0"
@@ -180,7 +148,7 @@ export default function Sidebar({ isOpen, setIsOpen }) {
                   fill="white"
                 />
               </mask>
-              <g mask="url(#mask0_11721_269)">
+              <g mask="url(#mask0_topup)">
                 <path
                   fillRule="evenodd"
                   clipRule="evenodd"
@@ -189,7 +157,7 @@ export default function Sidebar({ isOpen, setIsOpen }) {
                 />
               </g>
               <mask
-                id="mask1_11721_269"
+                id="mask1_topup"
                 style={{ maskType: "luminance" }}
                 maskUnits="userSpaceOnUse"
                 x="9"
@@ -204,7 +172,7 @@ export default function Sidebar({ isOpen, setIsOpen }) {
                   fill="white"
                 />
               </mask>
-              <g mask="url(#mask1_11721_269)">
+              <g mask="url(#mask1_topup)">
                 <path
                   fillRule="evenodd"
                   clipRule="evenodd"
@@ -224,22 +192,10 @@ export default function Sidebar({ isOpen, setIsOpen }) {
 
           <NavLink
             to="/dashboard/profile"
-            className={({ isActive }) =>
-              `flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                isActive
-                  ? "bg-blue-600 text-white"
-                  : "text-slate-500 hover:bg-blue-50 hover:text-blue-600"
-              }`
-            }
+            className={navLinkClass}
             onClick={() => setIsOpen(false)}
           >
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
               <path
                 fillRule="evenodd"
                 clipRule="evenodd"
@@ -276,6 +232,15 @@ export default function Sidebar({ isOpen, setIsOpen }) {
             Profile
           </NavLink>
         </nav>
+
+        {/* Logout — pinned at bottom */}
+        <div className="px-4 py-6 border-t border-slate-100 lg:hidden">
+          <LogoutButton
+            onLogout={handleLogout}
+            className="w-full px-4 py-3"
+            iconClassName="w-5 h-5"
+          />
+        </div>
       </aside>
     </>
   );

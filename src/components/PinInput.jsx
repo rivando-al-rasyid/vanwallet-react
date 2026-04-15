@@ -21,11 +21,15 @@ export default function PinInput() {
 
   const handleChange = (e, index) => {
     const numericValue = e.target.value.replace(/[^0-9]/g, "");
+    const nextDigit = numericValue.slice(-1);
 
-    setValue(`pin.${index}.value`, numericValue);
+    setValue(`pin.${index}.value`, nextDigit, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
 
     // Auto-focus next input
-    if (numericValue && inputsRef.current[index + 1]) {
+    if (nextDigit && inputsRef.current[index + 1]) {
       inputsRef.current[index + 1].focus();
     }
   };
@@ -77,7 +81,7 @@ function PinInputField({
 }) {
   return (
     <input
-      type="text"
+      type="password"
       maxLength={1}
       inputMode="numeric"
       value={value}
@@ -86,6 +90,7 @@ function PinInputField({
       onKeyDown={(e) => onKeyDown(e, index)}
       className={className}
       aria-label={`PIN digit ${index + 1}`}
+      autoComplete={index === 0 ? "one-time-code" : "off"}
     />
   );
 }

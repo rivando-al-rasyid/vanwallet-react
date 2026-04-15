@@ -1,18 +1,19 @@
-import { useState, useContext } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router";
 import { faEnvelope, faLock } from "@fortawesome/free-solid-svg-icons";
-import AuthContext from "../../context/auth/context";
+import { useAuth } from "../../hooks/useAuth";
 import Brand from "../../components/Brand";
-import LoginHeadline from "../../components/LoginHeadline";
+import LoginHeadline from "../../components/login/LoginHeadline";
 import SocialLogin from "../../components/SocialLogin";
 import Input from "../../components/Input";
 import Submit from "../../components/Submit";
-import LoginImage from "../../components/LoginImage";
+import LoginImage from "../../components/login/LoginImage";
 import LoginSubtext from "../../components/LoginSubtext";
+import loginPhoneImage from "../../assets/img/3d-hand-phone.png";
 
 export default function Login() {
   const navigate = useNavigate();
-  const { login, loading, error } = useContext(AuthContext);
+  const { login, loading, error } = useAuth();
 
   const [form, setForm] = useState({ email: "", password: "" });
   const [validationError, setValidationError] = useState("");
@@ -33,7 +34,7 @@ export default function Login() {
 
     try {
       await login(form);
-      navigate("/dashboard");
+      navigate("/login/pin");
     } catch (err) {
       // Error is already set in context
     }
@@ -41,7 +42,7 @@ export default function Login() {
 
   return (
     <main className="grid grid-cols-1 lg:grid-cols-2 min-h-screen bg-[#2948FF]">
-      <section className="flex flex-col justify-center items-center px-6 py-12 lg:px-20 bg-white xl:rounded-r-[60px] shadow-2xl z-20">
+      <section className="auth-panel">
         <div className="w-full max-w-175">
           <Brand />
           <LoginHeadline
@@ -87,7 +88,7 @@ export default function Login() {
           />
         </div>
       </section>
-      <LoginImage img="/img/3d-hand-phone.png" />
+      <LoginImage img={loginPhoneImage} />
     </main>
   );
 }

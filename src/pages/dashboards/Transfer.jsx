@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import Stepper from "../../components/Stepper";
 import SearchInput from "../../components/SearchInput";
 import TableRow from "../../components/TableRow";
@@ -7,10 +7,11 @@ import { getUsers } from "../../utils/auth";
 
 export default function Transfer() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [search, setSearch] = useState("");
+  const search = searchParams.get("search") || "";
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
@@ -47,8 +48,18 @@ export default function Transfer() {
   }, [contacts, search]);
 
   const handleSearchChange = useCallback((e) => {
-    setSearch(e.target.value);
-  }, []);
+    const nextSearch = e.target.value;
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      if (nextSearch) {
+        next.set("search", nextSearch);
+      } else {
+        next.delete("search");
+      }
+      next.set("page", "1");
+      return next;
+    });
+  }, [setSearchParams]);
 
   const handleRowClick = useCallback(
     (contact) => {
@@ -84,15 +95,15 @@ export default function Transfer() {
               <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
             </svg>
           </span>
-          <h1 className="text-xl font-bold text-gray-800">Transfer Money</h1>
+          <h1 className="section-title">Transfer Money</h1>
         </div>
         <Stepper currentStep={1} />
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm p-8 min-h-150">
+      <div className="card min-h-150">
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h2 className="text-lg font-bold text-gray-800">Find People</h2>
+            <h2 className="section-title">Find People</h2>
             <p className="text-xs text-gray-400">{resultsText}</p>
           </div>
           <SearchInput
@@ -140,7 +151,11 @@ export default function Transfer() {
         )}
 
         {!loading && !error && (
-          <TableRow items={filteredContacts} onRowClick={handleRowClick} />
+          <TableRow
+            items={filteredContacts}
+            onRowClick={handleRowClick}
+            paginate={true}
+          />
         )}
       </div>
     </>

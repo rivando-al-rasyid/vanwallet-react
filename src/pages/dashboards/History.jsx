@@ -17,7 +17,7 @@ const hardcodedMeta = [
 ];
 
 export default function History() {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const search = searchParams.get("search") || "";
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -58,6 +58,20 @@ export default function History() {
     setData((prev) => prev.filter((item) => item.id !== id));
   };
 
+  const handleSearchChange = (e) => {
+    const nextSearch = e.target.value;
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      if (nextSearch) {
+        next.set("search", nextSearch);
+      } else {
+        next.delete("search");
+      }
+      next.set("page", "1");
+      return next;
+    });
+  };
+
   return (
     <>
       {/* Page Title */}
@@ -92,16 +106,16 @@ export default function History() {
             />
           </svg>
         </div>
-        <h1 className="text-lg sm:text-xl font-bold text-gray-800">
+        <h1 className="section-title">
           History Transaction
         </h1>
       </div>
 
       {/* Main Card */}
-      <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm min-h-150">
+      <div className="card min-h-150">
         {/* Card Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-4 sm:px-6 lg:px-8 py-4 sm:py-5 border-b border-gray-100">
-          <h2 className="text-sm sm:text-base font-bold text-gray-800 order-2 sm:order-1">
+          <h2 className="section-title order-2 sm:order-1">
             Find Transaction
           </h2>
           <div className="relative order-1 sm:order-2 w-full sm:w-auto">
@@ -118,18 +132,8 @@ export default function History() {
             </span>
             <input
               type="text"
-              defaultValue={search}
-              onChange={(e) => {
-                const newSearch = e.target.value;
-                const newParams = new URLSearchParams(searchParams);
-                if (newSearch) {
-                  newParams.set("search", newSearch);
-                } else {
-                  newParams.delete("search");
-                }
-                newParams.set("page", "1");
-                window.history.pushState({}, "", `?${newParams.toString()}`);
-              }}
+              value={search}
+              onChange={handleSearchChange}
               placeholder="Name or Number"
               className="w-full sm:w-72 pl-4 pr-10 py-2 sm:py-2.5 text-xs sm:text-sm border border-gray-200 rounded-lg sm:rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition"
             />

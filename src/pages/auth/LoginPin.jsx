@@ -1,48 +1,87 @@
-import { useFormContext } from "react-hook-form";
+import {  useState } from "react";
+import { FormProvider, useForm } from "react-hook-form";
+import { useNavigate } from "react-router";
+import PinInput from "../../components/PinInput";
+import Brand from "../../components/Brand";
+import LoginImage from "../../components/login/LoginImage";
+import LoginHeadline from "../../components/login/LoginHeadline";
+import Submit from "../../components/Submit";
+import LoginSubtext from "../../components/LoginSubtext";
+import { verifyPin } from "../../utils/auth";
+import { useAuth } from "../../hooks/useAuth";
+import loginPhoneImage from "../../assets/img/3d-hand-phone.png";
 
-export default function PinInput() {
-  const { register, setValue, watch } = useFormContext();
-  const pinValues = watch("pin");
+const PIN_LENGTH = 6;
+const defaultPin = Array.from({ length: PIN_LENGTH }, () => ({ value: "" }));
 
-  const handleInput = (e, index) => {
-    const val = e.target.value.replace(/\D/g, ""); // Only digits
-    if (!val) return;
+export default function LoginPin() {
+  const navigate = useNavigate();
+  const { user: currentUser } = useAuth();
+  const methods = useForm({
+    defaultValues: { pin: defaultPin },
+    mode: "onChange",
+  });
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
-    // Set the value in react-hook-form
-    setValue(`pin.${index}.value`, val.slice(-1));
-
-    // Auto-focus next input
-    if (index < 5) {
-      const nextField = document.querySelector(
-        `input[name="pin.${index + 1}.value"]`,
-      );
-      nextField?.focus();
+  const onSubmit = async (data) => {
+    const pin = data.pin.map((item) => item.value).join("");
+    if (pin.length !== PIN_LENGTH) {
+      setError("Please complete the 6-digit PIN.");
+      return;
     }
-  };
 
-  const handleKeyDown = (e, index) => {
-    if (e.key === "Backspace" && !pinValues[index].value && index > 0) {
-      const prevField = document.querySelector(
-        `input[name="pin.${index - 1}.value"]`,
-      );
-      prevField?.focus();
+    setSubmitting(true);
+    setError("");
+    try {
+      await verifyPin(currentUser?.id, pin);
+      navigate("/dashboard");
+    } catch (err) {
+      setError(err.message || "Invalid PIN. Please try again.");
+    } finally {
+      setSubmitting(false);
     }
   };
 
   return (
-    <div className="flex gap-2 sm:gap-4 justify-center">
-      {[0, 1, 2, 3, 4, 5].map((index) => (
-        <input
-          key={index}
-          {...register(`pin.${index}.value`)}
-          type="text"
-          inputMode="numeric"
-          maxLength={1}
-          onInput={(e) => handleInput(e, index)}
-          onKeyDown={(e) => handleKeyDown(e, index)}
-          className="w-10 h-12 sm:w-12 sm:h-14 text-center text-xl font-bold border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition"
-        />
-      ))}
-    </div>
+    <main className="grid grid-cols-1 lg:grid-cols-2 min-h-screen bg-[#2948FF]">
+      <section className="auth-panel">
+        <div className="w-full max-w-175">
+          <Brand />
+          <LoginHeadline
+            title={"Enter Your PIN 👋"}
+            text={"Input your 6-digit PIN to continue to your dashboard."}
+          />
+
+          <FormProvider {...methods}>
+            <form
+              className="space-y-6"
+              onSubmit={methods.handleSubmit(onSubmit)}
+            >
+              <PinInput />
+
+              {error && (
+                <div className="px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-sm text-red-600 font-medium">
+                  {error}
+                </div>
+              )}
+
+              <Submit
+                name={submitting ? "Checking..." : "Continue"}
+                disabled={submitting}
+              />
+            </form>
+          </FormProvider>
+
+          <LoginSubtext
+            text={"Wrong account? "}
+            link={"/login"}
+            linklabel={"Back to Login"}
+          />
+        </div>
+      </section>
+
+      <LoginImage img={loginPhoneImage} />
+    </main>
   );
 }

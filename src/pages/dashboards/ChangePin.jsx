@@ -1,12 +1,11 @@
+import { useState } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { useNavigate } from "react-router";
 import Joi from "joi";
 
-import { getSession, updateUser } from "../../utils/auth";
 import PinInput from "../../components/PinInput";
-
-import { useState } from "react";
+import { useProfile } from "../../hooks/useProfile";
 
 const defaultPin = Array(6)
   .fill(null)
@@ -24,11 +23,9 @@ const pinSchema = Joi.object({
 });
 
 export default function ChangePin() {
-  const { id } = getSession();
   const navigate = useNavigate();
+  const { changePin, profileLoading, profileError } = useProfile();
 
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
   const methods = useForm({
@@ -40,19 +37,15 @@ export default function ChangePin() {
   const onSubmit = async (data) => {
     const pinValue = data.pin.map((item) => item.value).join("");
 
-    setSaving(true);
-    setError("");
     setSuccess("");
 
     try {
-      await updateUser(id, { pin: pinValue });
+      await changePin(pinValue);
       setSuccess("PIN berhasil diupdate!");
       methods.reset({ pin: defaultPin });
       setTimeout(() => navigate("/dashboard/profile"), 1200);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setSaving(false);
+    } catch {
+      // error is handled by context/Redux via profileError
     }
   };
 
@@ -95,17 +88,19 @@ export default function ChangePin() {
                 </p>
               )}
 
-              {error && <p className="text-sm text-red-500 mt-4">{error}</p>}
+              {profileError && (
+                <p className="text-sm text-red-500 mt-4">{profileError}</p>
+              )}
               {success && (
                 <p className="text-sm text-green-600 mt-4">{success}</p>
               )}
 
               <button
                 type="submit"
-                disabled={saving}
+                disabled={profileLoading}
                 className="w-full mt-10 py-3.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 disabled:opacity-60 transition"
               >
-                {saving ? "Menyimpan..." : "Submit"}
+                {profileLoading ? "Menyimpan..." : "Submit"}
               </button>
             </form>
           </FormProvider>
