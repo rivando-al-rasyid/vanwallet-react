@@ -86,6 +86,12 @@ export default function Login() {
             link={"/register"}
             linklabel={"Register"}
           />
+         <LoginSubtext
+            text={"Forgot Password? "}
+            link={"/forgotpassword"}
+            linklabel={"reset"}
+          />
+
         </div>
       </section>
       <LoginImage img={loginPhoneImage} />
