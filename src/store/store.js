@@ -44,6 +44,7 @@ const authSlice = createSlice({
     // Menggabungkan perubahan profil ke data user yang sudah ada
     mergeUser(state, action) {
       if (!state.user) return;
+      // spread operator
       state.user = { ...state.user, ...action.payload };
       state.profileStatus.error = null;
     },
