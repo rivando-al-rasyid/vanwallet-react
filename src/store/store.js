@@ -6,7 +6,6 @@ const authSlice = createSlice({
   name: "auth",
   initialState: {
     user: null,
-    // Memisahkan status loading & error berdasarkan domain
     authStatus: { loading: false, error: null },
     profileStatus: { loading: false, error: null },
   },
@@ -58,8 +57,7 @@ export const {
   mergeUser
 } = authSlice.actions;
 
-// Persist hanya di level slice (bukan root),
-// agar Redux DevTools bisa membaca actions & state dengan benar
+
 const authPersistConfig = {
   key: "auth",
   storage,
