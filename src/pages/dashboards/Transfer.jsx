@@ -6,7 +6,7 @@ import TableRow from "../../components/TableRow";
 import { Pagination } from "../../components/Pagination";
 import { getUsers } from "../../utils/auth";
 
-const ITEMS_PER_PAGE = 5;
+const ITEMS_PER_PAGE = 6;
 
 export default function Transfer() {
   const navigate = useNavigate();

@@ -5,7 +5,7 @@ import SearchInput from "../../components/SearchInput";
 import { Pagination } from "../../components/Pagination";
 import { getUsers } from "../../utils/auth";
 
-const ITEMS_PER_PAGE = 7;
+const ITEMS_PER_PAGE = 6;
 
 const hardcodedMeta = [
   { amount: "Rp.50.000", type: "income" },
