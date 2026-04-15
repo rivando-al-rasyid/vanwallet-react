@@ -236,7 +236,7 @@ export default function Index() {
       </div>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5 fade-in delay-3">
         {/* Chart */}
-        <div className="col-span-full card">
+        <div className="col-span-full lg:col-span-2 card">
           <div className="rounded-lg w-full">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6">
               <h2 className="section-title">
@@ -268,7 +268,7 @@ export default function Index() {
         </div>
 
         {/* Transaction History */}
-        <div className="col-span-full card flex flex-col h-full fade-in delay-4">
+        <div className="col-span-full lg:col-span-1 card flex flex-col h-full fade-in delay-4">
           <div className="flex items-center justify-between">
             <h3 className="section-title">
               Transaction History
