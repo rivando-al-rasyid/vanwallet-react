@@ -1,5 +1,14 @@
 import { combineReducers, configureStore, createSlice } from "@reduxjs/toolkit";
-import { persistReducer, persistStore } from "redux-persist";
+import {
+    persistStore,
+    persistReducer,
+    FLUSH,
+    PAUSE,
+    PERSIST,
+    PURGE,
+    REGISTER,
+    REHYDRATE
+} from "redux-persist";
 import storage from "redux-persist/es/storage";
 
 const authSlice = createSlice({
@@ -63,15 +72,24 @@ const authPersistConfig = {
   storage,
 };
 
-const rootReducer = combineReducers({
+const authReducer = combineReducers({
   auth: persistReducer(authPersistConfig, authSlice.reducer),
 });
 
 export const store = configureStore({
-  reducer: rootReducer,
+  reducer: authReducer,
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
-      serializableCheck: false,
+            serializableCheck: {
+                ignoredActions: [
+                    FLUSH,
+                    PAUSE,
+                    PERSIST,
+                    PURGE,
+                    REGISTER,
+                    REHYDRATE
+                ]
+            }
     }),
 });
 

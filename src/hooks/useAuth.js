@@ -1,4 +1,3 @@
-// src/hooks/useAuth.js
 import { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser, registerUser } from "../utils/auth";
