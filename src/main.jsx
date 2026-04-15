@@ -27,12 +27,9 @@ import { persistor, store } from "./store/store";
 ReactDOM.createRoot(document.getElementById("root")).render(
   <Provider store={store}>
     <PersistGate loading={null} persistor={persistor}>
-      <AuthProvider>
-        <BrowserRouter>
-          <Routes>
-            {/* Public landing page */}
-            <Route path="/" element={<App />} />
-
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<App />} />
             {/* Guest-only routes */}
             <Route path="login">
               <Route index element={<Login />} />
@@ -60,9 +57,8 @@ ReactDOM.createRoot(document.getElementById("root")).render(
                 <Route path="change-pin" element={<ChangePin />} />
               </Route>
             </Route>
-          </Routes>
-        </BrowserRouter>
-      </AuthProvider>
+        </Routes>
+      </BrowserRouter>
     </PersistGate>
   </Provider>
-);
+  );

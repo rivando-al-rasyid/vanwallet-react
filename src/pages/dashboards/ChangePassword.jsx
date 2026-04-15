@@ -1,10 +1,10 @@
 import { useState, useContext } from "react";
 import { useNavigate } from "react-router";
-import ProfileContext from "../../context/profile/context";
+import { useProfile } from "../../hooks/useProfile";
 
 export default function ChangePassword() {
   const navigate = useNavigate();
-  const { changePassword, profileLoading, profileError } = useContext(ProfileContext);
+  const { changePassword, profileLoading, profileError } = useProfile();
 
   const [form, setForm] = useState({
     currentPassword: "",

@@ -2,10 +2,9 @@ import { useForm, FormProvider } from "react-hook-form";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { useNavigate } from "react-router";
 import Joi from "joi";
-import { useContext, useState } from "react";
 
 import PinInput from "../../components/PinInput";
-import ProfileContext from "../../context/profile/context";
+import { useProfile } from "../../hooks/useProfile";
 
 const defaultPin = Array(6)
   .fill(null)
@@ -24,7 +23,7 @@ const pinSchema = Joi.object({
 
 export default function ChangePin() {
   const navigate = useNavigate();
-  const { changePin, profileLoading, profileError } = useContext(ProfileContext);
+  const { changePin, profileLoading, profileError } = useProfile();
 
   const [success, setSuccess] = useState("");
 

@@ -1,12 +1,12 @@
 import { useState, useRef, useContext, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { useSelector } from "react-redux";
-import ProfileContext from "../../context/profile/context";
+import { useProfile } from "../../hooks/useProfile";
 
 export default function Profile() {
   const navigate = useNavigate();
   const reduxUser = useSelector((state) => state.auth.user);
-  const { updateProfile, profileLoading, profileError } = useContext(ProfileContext);
+  const { updateProfile, profileLoading, profileError } = useProfile();
 
   const [form, setForm] = useState({
     name: "",
