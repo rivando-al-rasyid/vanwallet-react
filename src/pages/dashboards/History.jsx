@@ -1,7 +1,11 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router";
 import TableRow from "../../components/TableRow";
+import SearchInput from "../../components/SearchInput";
+import { Pagination } from "../../components/Pagination";
 import { getUsers } from "../../utils/auth";
+
+const ITEMS_PER_PAGE = 7;
 
 const hardcodedMeta = [
   { amount: "Rp.50.000", type: "income" },
@@ -19,6 +23,7 @@ const hardcodedMeta = [
 export default function History() {
   const [searchParams, setSearchParams] = useSearchParams();
   const search = searchParams.get("search") || "";
+  const currentPage = Number(searchParams.get("page") || "1");
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -54,6 +59,13 @@ export default function History() {
       item.phone.includes(search),
   );
 
+  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
+  const safePage = Math.min(Math.max(currentPage, 1), totalPages || 1);
+  const paginated = filtered.slice(
+    (safePage - 1) * ITEMS_PER_PAGE,
+    safePage * ITEMS_PER_PAGE,
+  );
+
   const handleDelete = (id) => {
     setData((prev) => prev.filter((item) => item.id !== id));
   };
@@ -68,6 +80,14 @@ export default function History() {
         next.delete("search");
       }
       next.set("page", "1");
+      return next;
+    });
+  };
+
+  const handlePageChange = (page) => {
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      next.set("page", String(page));
       return next;
     });
   };
@@ -106,9 +126,7 @@ export default function History() {
             />
           </svg>
         </div>
-        <h1 className="section-title">
-          History Transaction
-        </h1>
+        <h1 className="section-title">History Transaction</h1>
       </div>
 
       {/* Main Card */}
@@ -118,24 +136,11 @@ export default function History() {
           <h2 className="section-title order-2 sm:order-1">
             Find Transaction
           </h2>
-          <div className="relative order-1 sm:order-2 w-full sm:w-auto">
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M21 21L16.65 16.65M19 11C19 15.4183 15.4183 19 11 19C6.58172 19 3 15.4183 3 11C3 6.58172 6.58172 3 11 3C15.4183 3 19 6.58172 19 11Z"
-                  stroke="#9CA3AF"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </span>
-            <input
-              type="text"
+          <div className="order-1 sm:order-2">
+            <SearchInput
               value={search}
               onChange={handleSearchChange}
               placeholder="Name or Number"
-              className="w-full sm:w-72 pl-4 pr-10 py-2 sm:py-2.5 text-xs sm:text-sm border border-gray-200 rounded-lg sm:rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition"
             />
           </div>
         </div>
@@ -180,14 +185,22 @@ export default function History() {
         )}
 
         {!loading && !error && (
-          <div className="overflow-x-auto">
-            <TableRow
-              items={filtered}
-              remove={true}
-              onDelete={handleDelete}
-              paginate={true}
+          <>
+            <div className="overflow-x-auto">
+              <TableRow
+                items={paginated}
+                remove={true}
+                onDelete={handleDelete}
+              />
+            </div>
+            <Pagination
+              currentPage={safePage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+              visibleCount={paginated.length}
+              totalItems={filtered.length}
             />
-          </div>
+          </>
         )}
       </div>
     </>
