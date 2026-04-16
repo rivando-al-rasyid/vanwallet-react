@@ -6,6 +6,7 @@ import { getUserById, verifyPin } from "../../utils/auth";
 import TransferModal from "./TransferModal";
 import Toast from "../../components/Toast";
 import { useSelector } from "react-redux";
+import Joi from "joi";
 const selectUser = (state) => state.profile.user;
 
 export default function SetNominal() {
@@ -50,11 +51,26 @@ export default function SetNominal() {
     fetchContact();
   }, [id]);
 
+  const nominalSchema = Joi.object({
+    amount: Joi.number().positive().required().messages({
+      "number.base": "Nominal harus berupa angka.",
+      "number.positive": "Nominal transfer harus lebih dari 0.",
+      "any.required": "Nominal wajib diisi.",
+    }),
+    notes: Joi.string().allow("").max(200).messages({
+      "string.max": "Catatan maksimal 200 karakter.",
+    }),
+  });
+
   const handleOpenPinModal = () => {
-    if (!amount || Number(amount) <= 0) {
+    const { error: validationError } = nominalSchema.validate(
+      { amount: parseFloat(amount) || undefined, notes },
+      { abortEarly: true }
+    );
+    if (validationError) {
       setToast({
         open: true,
-        message: "Masukkan nominal transfer yang valid",
+        message: validationError.message,
         type: "error",
       });
       return;

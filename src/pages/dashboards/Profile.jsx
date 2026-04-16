@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 
 import { updateProfile, uploadAvatar } from "../../store/slices/profileSlice";
+import Joi from "joi";
 const selectUser = (state) => state.profile.user;
 const selectUserId = (state) => state.profile.user?.id ?? null;
 const selectProfileLoading = (state) => state.profile.loading;
@@ -19,6 +20,7 @@ export default function Profile() {
 
   const [form, setForm] = useState({ name: "", phone: "", email: "" });
   const [success, setSuccess] = useState("");
+  const [localError, setLocalError] = useState("");
   const fileInputRef = useRef(null);
 
   // Sync form from Redux whenever the persisted user changes
@@ -34,6 +36,7 @@ export default function Profile() {
 
   const handleChange = (e) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    setLocalError("");
   };
 
   const handleAvatarChange = async (e) => {
@@ -55,8 +58,34 @@ export default function Profile() {
     }
   };
 
+  const profileSchema = Joi.object({
+    name: Joi.string().min(2).required().messages({
+      "string.empty": "Nama tidak boleh kosong.",
+      "string.min": "Nama minimal 2 karakter.",
+      "any.required": "Nama wajib diisi.",
+    }),
+    phone: Joi.string().pattern(/^[0-9+\-\s]{8,15}$/).required().messages({
+      "string.empty": "Nomor telepon tidak boleh kosong.",
+      "string.pattern.base": "Format nomor telepon tidak valid.",
+      "any.required": "Nomor telepon wajib diisi.",
+    }),
+    email: Joi.string().email({ tlds: { allow: false } }).required().messages({
+      "string.empty": "Email tidak boleh kosong.",
+      "string.email": "Format email tidak valid.",
+      "any.required": "Email wajib diisi.",
+    }),
+  });
+
   const handleSubmit = async () => {
     setSuccess("");
+
+    const { error: validationError } = profileSchema.validate(form, { abortEarly: true });
+    if (validationError) {
+      setLocalError(validationError.message);
+      return;
+    }
+    setLocalError("");
+
     const result = await dispatch(
       updateProfile({
         userId,
@@ -283,8 +312,8 @@ export default function Profile() {
                 </button>
               </div>
 
-              {profileError && (
-                <p className="text-sm text-red-500">{profileError}</p>
+              {(localError || profileError) && (
+                <p className="text-sm text-red-500">{localError || profileError}</p>
               )}
               {success && (
                 <p className="text-sm text-green-600">{success}</p>

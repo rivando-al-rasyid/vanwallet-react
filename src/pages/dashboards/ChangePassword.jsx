@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 
 import { changePassword } from "../../store/slices/profileSlice";
+import Joi from "joi";
 const selectUserId = (state) => state.profile.user?.id ?? null;
 const selectProfileLoading = (state) => state.profile.loading;
 const selectProfileError = (state) => state.profile.error;
@@ -30,17 +31,30 @@ export default function ChangePassword() {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
+  const changePasswordSchema = Joi.object({
+    currentPassword: Joi.string().required().messages({
+      "string.empty": "Password saat ini tidak boleh kosong.",
+      "any.required": "Password saat ini wajib diisi.",
+    }),
+    newPassword: Joi.string().min(8).required().messages({
+      "string.empty": "Password baru tidak boleh kosong.",
+      "string.min": "Password baru minimal 8 karakter.",
+      "any.required": "Password baru wajib diisi.",
+    }),
+    confirmNewPassword: Joi.string().valid(Joi.ref("newPassword")).required().messages({
+      "string.empty": "Konfirmasi password tidak boleh kosong.",
+      "any.only": "Konfirmasi password baru tidak cocok.",
+      "any.required": "Konfirmasi password wajib diisi.",
+    }),
+  });
+
   const handleSubmit = async () => {
     setLocalError("");
     setSuccess("");
 
-    if (!form.currentPassword || !form.newPassword || !form.confirmNewPassword) {
-      setLocalError("Semua field password wajib diisi.");
-      return;
-    }
-
-    if (form.newPassword !== form.confirmNewPassword) {
-      setLocalError("Konfirmasi password baru tidak cocok.");
+    const { error: validationError } = changePasswordSchema.validate(form, { abortEarly: true });
+    if (validationError) {
+      setLocalError(validationError.message);
       return;
     }
 

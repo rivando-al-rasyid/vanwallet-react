@@ -1,4 +1,5 @@
-import {  useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import Joi from "joi";
 import { useSelector } from "react-redux";
 const selectUser = (state) => state.profile.user;
 
@@ -52,12 +53,31 @@ export default function TopUp() {
   const fmtIdr = (val = 0) =>
     val === 0 ? "Idr. 0" : `Idr. ${val.toLocaleString("id-ID")}`;
 
+  const [topUpError, setTopUpError] = useState("");
+
+  const topUpSchema = Joi.object({
+    amount: Joi.number().positive().required().messages({
+      "number.base": "Nominal harus berupa angka.",
+      "number.positive": "Nominal harus lebih dari 0.",
+      "any.required": "Nominal wajib diisi.",
+    }),
+    selectedMethod: Joi.string().required().messages({
+      "any.required": "Pilih metode pembayaran.",
+    }),
+  });
+
   const handleSubmit = () => {
-    if (!amount || order <= 0) return alert("Masukkan nominal top up");
-    const methodName = PAYMENT_METHODS.find(
-      (m) => m.id === selectedMethod,
-    )?.name;
-    alert(`Top Up ${fmtIdr(subTotal)} via ${methodName} berhasil!`);
+    setTopUpError("");
+    const { error: validationError } = topUpSchema.validate(
+      { amount: parseFloat(amount) || undefined, selectedMethod },
+      { abortEarly: true },
+    );
+    if (validationError) {
+      setTopUpError(validationError.message);
+      return;
+    }
+    // const methodName = PAYMENT_METHODS.find((m) => m.id === selectedMethod)?.name;
+    // alert(\`Top Up \${fmtIdr(subTotal)} via \${methodName} berhasil!\`);
   };
 
   return (
@@ -78,17 +98,13 @@ export default function TopUp() {
             />
           </svg>
         </div>
-        <h1 className="section-title">
-          Top Up Account
-        </h1>
+        <h1 className="section-title">Top Up Account</h1>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 items-start">
         {/* Left Panel */}
         <div className="card w-full">
-          <h2 className="section-title mb-3 sm:mb-4">
-            Account Information
-          </h2>
+          <h2 className="section-title mb-3 sm:mb-4">Account Information</h2>
           <div className="bg-gray-50 rounded-lg sm:rounded-xl p-3 sm:p-4 mb-6 sm:mb-8">
             {user ? (
               <div className="flex items-center gap-2 sm:gap-3 lg:gap-4">
@@ -108,9 +124,7 @@ export default function TopUp() {
                   <p className="text-xs sm:text-sm text-gray-500">
                     {user.phone}
                   </p>
-                  <span className="badge badge-success mt-1">
-                    Verified
-                  </span>
+                  <span className="badge badge-success mt-1">Verified</span>
                 </div>
               </div>
             ) : (
@@ -126,9 +140,7 @@ export default function TopUp() {
 
           {/* Amount Input */}
           <div className="mb-6 sm:mb-8">
-            <h2 className="section-title mb-1">
-              Amount
-            </h2>
+            <h2 className="section-title mb-1">Amount</h2>
             <p className="text-xs sm:text-sm text-gray-400 mb-2 sm:mb-3">
               Type the amount you want to transfer to your e-wallet account
             </p>
@@ -143,9 +155,7 @@ export default function TopUp() {
 
           {/* Payment Methods */}
           <div>
-            <h2 className="section-title mb-1">
-              Payment Method
-            </h2>
+            <h2 className="section-title mb-1">Payment Method</h2>
             <p className="text-xs sm:text-sm text-gray-400 mb-3 sm:mb-4">
               Choose your payment method for top up account
             </p>
@@ -189,9 +199,7 @@ export default function TopUp() {
 
         {/* Summary Sidebar */}
         <div className="card w-full lg:w-72 shrink-0">
-          <h2 className="section-title mb-3 sm:mb-6">
-            Payment
-          </h2>
+          <h2 className="section-title mb-3 sm:mb-6">Payment</h2>
           <div className="flex flex-col gap-3 sm:gap-4 mb-3 sm:mb-6">
             <div className="flex items-center justify-between">
               <span className="text-xs sm:text-sm text-gray-500">Order</span>
@@ -216,10 +224,10 @@ export default function TopUp() {
               </span>
             </div>
           </div>
-          <button
-            onClick={handleSubmit}
-            className="btn-primary w-full"
-          >
+          {topUpError && (
+            <p className="text-sm text-red-500 mb-3">{topUpError}</p>
+          )}
+          <button onClick={handleSubmit} className="btn-primary w-full">
             Submit
           </button>
         </div>

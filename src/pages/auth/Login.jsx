@@ -4,6 +4,7 @@ import { useNavigate } from "react-router";
 import { faEnvelope, faLock } from "@fortawesome/free-solid-svg-icons";
 
 import { login } from "../../store/slices/authSlice";
+import Joi from "joi";
 
 import Brand from "../../components/Brand";
 import LoginHeadline from "../../components/login/LoginHeadline";
@@ -32,12 +33,26 @@ export default function Login() {
     setValidationError("");
   };
 
+  const loginSchema = Joi.object({
+    email: Joi.string().email({ tlds: { allow: false } }).required().messages({
+      "string.empty": "Email tidak boleh kosong.",
+      "string.email": "Format email tidak valid.",
+      "any.required": "Email wajib diisi.",
+    }),
+    password: Joi.string().min(8).required().messages({
+      "string.empty": "Password tidak boleh kosong.",
+      "string.min": "Password minimal 8 karakter.",
+      "any.required": "Password wajib diisi.",
+    }),
+  });
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setValidationError("");
 
-    if (!form.email || !form.password) {
-      setValidationError("Email dan password tidak boleh kosong.");
+    const { error: validationError } = loginSchema.validate(form, { abortEarly: true });
+    if (validationError) {
+      setValidationError(validationError.message);
       return;
     }
 
