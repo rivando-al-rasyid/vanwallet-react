@@ -1,6 +1,5 @@
 {
-    "rewrite":[{
+    "rewrite":{
         "source" : "/(.*)",
         "rewrite" : "/"}
-    ]
 }
