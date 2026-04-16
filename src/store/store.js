@@ -1,96 +1,43 @@
-import { combineReducers, configureStore, createSlice } from "@reduxjs/toolkit";
+import { configureStore, combineReducers } from "@reduxjs/toolkit";
 import {
-    persistStore,
-    persistReducer,
-    FLUSH,
-    PAUSE,
-    PERSIST,
-    PURGE,
-    REGISTER,
-    REHYDRATE
+  persistStore,
+  persistReducer,
+  FLUSH,
+  PAUSE,
+  PERSIST,
+  PURGE,
+  REGISTER,
+  REHYDRATE,
 } from "redux-persist";
 import storage from "redux-persist/es/storage";
 
-const authSlice = createSlice({
-  name: "auth",
-  initialState: {
-    user: null,
-    authStatus: { loading: false, error: null },
-    profileStatus: { loading: false, error: null },
-  },
-  reducers: {
-    // Action untuk Auth (Login/Register)
-    setAuthLoading(state, action) {
-      state.authStatus.loading = action.payload;
-    },
-    setAuthError(state, action) {
-      state.authStatus.error = action.payload;
-    },
+import authReducer from "./slices/authSlice";
+import profileReducer from "./slices/profileSlice";
 
-    // Action untuk Profile (Update/Pin/Password)
-    setProfileLoading(state, action) {
-      state.profileStatus.loading = action.payload;
-    },
-    setProfileError(state, action) {
-      state.profileStatus.error = action.payload;
-    },
+// ─── Persist config ───────────────────────────────────────────────────────────
+// Only profile (user data) needs to survive a page reload.
+// Auth loading/error state is ephemeral — no point persisting it.
 
-    // Set user data secara utuh
-    setUser(state, action) {
-      state.user = action.payload;
-      state.authStatus.error = null;
-    },
-
-    // Menggabungkan perubahan profil ke data user yang sudah ada
-    mergeUser(state, action) {
-      if (!state.user) return;
-      // spread operator
-      state.user = { ...state.user, ...action.payload };
-      state.profileStatus.error = null;
-    },
-
-    clearAuth(state) {
-      state.user = null;
-      state.authStatus = { loading: false, error: null };
-      state.profileStatus = { loading: false, error: null };
-    },
-  },
-});
-
-export const {
-  setAuthLoading,
-  setAuthError,
-  setProfileLoading,
-  setProfileError,
-  setUser,
-  clearAuth,
-  mergeUser
-} = authSlice.actions;
-
-
-const authPersistConfig = {
-  key: "auth",
+const profilePersistConfig = {
+  key: "profile",
   storage,
+  whitelist: ["user"], // only persist user data, not loading/error
 };
 
-const authReducer = combineReducers({
-  auth: persistReducer(authPersistConfig, authSlice.reducer),
+const rootReducer = combineReducers({
+  auth: authReducer,
+  profile: persistReducer(profilePersistConfig, profileReducer),
 });
 
+// ─── Store ────────────────────────────────────────────────────────────────────
+
 export const store = configureStore({
-  reducer: authReducer,
+  reducer: rootReducer,
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
-            serializableCheck: {
-                ignoredActions: [
-                    FLUSH,
-                    PAUSE,
-                    PERSIST,
-                    PURGE,
-                    REGISTER,
-                    REHYDRATE
-                ]
-            }
+      serializableCheck: {
+        ignoredActions: [FLUSH, PAUSE, PERSIST, PURGE, REGISTER, REHYDRATE],
+      },
     }),
 });
 
