@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react";
 import Joi from "joi";
 import { useSelector } from "react-redux";
-const selectUser = (state) => state.profile.user;
 
 const TAX_RATE = 0.1;
 
@@ -34,7 +33,7 @@ const PAYMENT_METHODS = [
 ];
 
 export default function TopUp() {
-  const currentUser = useSelector(selectUser);
+  const currentUser = useSelector((state) => state.profile.user);
   const [amount, setAmount] = useState("");
   const [selectedMethod, setSelectedMethod] = useState("bri");
   const user = useMemo(() => {

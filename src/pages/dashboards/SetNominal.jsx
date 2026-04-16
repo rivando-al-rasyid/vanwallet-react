@@ -7,12 +7,11 @@ import TransferModal from "./TransferModal";
 import Toast from "../../components/Toast";
 import { useSelector } from "react-redux";
 import Joi from "joi";
-const selectUser = (state) => state.profile.user;
 
 export default function SetNominal() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const currentUser = useSelector(selectUser);
+  const currentUser = useSelector((state) => state.profile.user);
 
   const [amount, setAmount] = useState("");
   const [notes, setNotes] = useState("");

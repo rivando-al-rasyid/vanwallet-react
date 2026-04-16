@@ -7,11 +7,12 @@ import { X, Menu } from "lucide-react";
 import DashboardContext from "../../context/dashboard/context";
 import LogoutButton from "./LogoutButton";
 import { useLogout } from "../../hooks/useLogout";
-const selectUser = (state) => state.profile.user;
 
 export default function Header() {
   const navigate = useNavigate();
-  const user = useSelector(selectUser);
+  const user = useSelector((state) => state.profile.user);
+  const avatarPath = useSelector((state) => state.profile.avatarPath);
+  const displayAvatar = avatarPath || user?.avatar || null;
   const { sidebarOpen, setSidebarOpen } = useContext(DashboardContext);
   const logoutAndRedirect = useLogout();
 
@@ -76,7 +77,7 @@ export default function Header() {
                   {user.name}
                 </span>
                 <img
-                  src={user.avatar}
+                  src={displayAvatar}
                   className="w-8 h-8 rounded-full object-cover ring-2 ring-white shadow-sm"
                   alt="avatar"
                 />

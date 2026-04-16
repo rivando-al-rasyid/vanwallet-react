@@ -7,9 +7,6 @@ import Joi from "joi";
 
 import PinInput from "../../components/PinInput";
 import { changePin } from "../../store/slices/profileSlice";
-const selectUserId = (state) => state.profile.user?.id ?? null;
-const selectProfileLoading = (state) => state.profile.loading;
-const selectProfileError = (state) => state.profile.error;
 
 const defaultPin = Array(6)
   .fill(null)
@@ -30,9 +27,9 @@ export default function ChangePin() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const userId = useSelector(selectUserId);
-  const loading = useSelector(selectProfileLoading);
-  const profileError = useSelector(selectProfileError);
+  const userId = useSelector((state) => state.profile.user?.id ?? null);
+  const loading = useSelector((state) => state.profile.loading);
+  const profileError = useSelector((state) => state.profile.error);
 
   const [success, setSuccess] = useState("");
 

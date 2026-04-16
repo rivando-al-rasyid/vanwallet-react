@@ -4,17 +4,14 @@ import { useNavigate } from "react-router";
 
 import { changePassword } from "../../store/slices/profileSlice";
 import Joi from "joi";
-const selectUserId = (state) => state.profile.user?.id ?? null;
-const selectProfileLoading = (state) => state.profile.loading;
-const selectProfileError = (state) => state.profile.error;
 
 export default function ChangePassword() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const userId = useSelector(selectUserId);
-  const loading = useSelector(selectProfileLoading);
-  const profileError = useSelector(selectProfileError);
+  const userId = useSelector((state) => state.profile.user?.id ?? null);
+  const loading = useSelector((state) => state.profile.loading);
+  const profileError = useSelector((state) => state.profile.error);
 
   const [form, setForm] = useState({
     currentPassword: "",

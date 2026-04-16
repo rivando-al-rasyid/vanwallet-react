@@ -6,35 +6,6 @@ import {
   changePinApi,
 } from "../../utils/auth";
 
-// ─── Avatar upload to freeimage.host ─────────────────────────────────────────
-
-/**
- * Uploads a File object to freeimage.host and returns the direct image URL.
- * The returned URL can be used directly in <img src="..." />.
- */
-async function uploadAvatarToFreeImageHost(file) {
-  const formData = new FormData();
-  formData.append("source", file);
-  formData.append("type", "file");
-  formData.append("action", "upload");
-
-  const res = await fetch("https://freeimage.host/api/1/upload?key=6d207e02198a847aa98d0a2a901485a5", {
-    method: "POST",
-    body: formData,
-  });
-
-  if (!res.ok) throw new Error("Avatar upload gagal. Coba lagi.");
-
-  const data = await res.json();
-
-  if (data.status_code !== 200) {
-    throw new Error(data.error?.message || "Upload gagal.");
-  }
-
-  // Return the direct display URL (not thumbnail, not viewer page)
-  return data.image.display_url;
-}
-
 // ─── Thunks ──────────────────────────────────────────────────────────────────
 
 export const fetchProfile = createAsyncThunk(
@@ -54,20 +25,6 @@ export const updateProfile = createAsyncThunk(
   async ({ userId, payload }, { rejectWithValue }) => {
     try {
       return await updateUser(userId, payload);
-    } catch (err) {
-      return rejectWithValue(err.message);
-    }
-  }
-);
-
-export const uploadAvatar = createAsyncThunk(
-  "profile/uploadAvatar",
-  async ({ userId, file }, { getState, rejectWithValue }) => {
-    try {
-      const avatarUrl = await uploadAvatarToFreeImageHost(file);
-      // Persist the new avatar URL to the backend
-      const updated = await updateUser(userId, { avatar: avatarUrl });
-      return updated;
     } catch (err) {
       return rejectWithValue(err.message);
     }
@@ -100,6 +57,7 @@ export const changePin = createAsyncThunk(
 
 const initialState = {
   user: null,
+  avatarPath: null, // local image path, persisted across sessions
   loading: false,
   error: null,
 };
@@ -113,10 +71,13 @@ const profileSlice = createSlice({
     clearProfileError(state) {
       state.error = null;
     },
+    // Saves selected local avatar path — persisted via redux-persist whitelist
+    setAvatar(state, action) {
+      state.avatarPath = action.payload;
+    },
   },
   extraReducers: (builder) => {
     // ── Auth cross-slice effects ──
-    // When login or register succeeds, hydrate user into profile
     builder
       .addCase(login.fulfilled, (state, action) => {
         state.user = action.payload;
@@ -128,6 +89,7 @@ const profileSlice = createSlice({
       })
       .addCase(logout, (state) => {
         state.user = null;
+        state.avatarPath = null;
         state.loading = false;
         state.error = null;
       });
@@ -158,21 +120,6 @@ const profileSlice = createSlice({
         state.user = { ...state.user, ...action.payload };
       })
       .addCase(updateProfile.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      });
-
-    // ── uploadAvatar ──
-    builder
-      .addCase(uploadAvatar.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(uploadAvatar.fulfilled, (state, action) => {
-        state.loading = false;
-        state.user = { ...state.user, ...action.payload };
-      })
-      .addCase(uploadAvatar.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });
@@ -210,5 +157,5 @@ const profileSlice = createSlice({
   },
 });
 
-export const { clearProfileError } = profileSlice.actions;
+export const { clearProfileError, setAvatar } = profileSlice.actions;
 export default profileSlice.reducer;

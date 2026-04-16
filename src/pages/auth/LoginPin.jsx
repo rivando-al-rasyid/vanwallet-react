@@ -12,13 +12,12 @@ import LoginSubtext from "../../components/LoginSubtext";
 import { verifyPin } from "../../utils/auth";
 import loginPhoneImage from "../../assets/img/3d-hand-phone.png";
 
-const selectUserId = (state) => state.profile.user?.id ?? null;
 const PIN_LENGTH = 6;
 const defaultPin = Array.from({ length: PIN_LENGTH }, () => ({ value: "" }));
 
 export default function LoginPin() {
   const navigate = useNavigate();
-  const userId = useSelector(selectUserId);
+  const userId = useSelector((state) => state.profile.user?.id ?? null);
 
   const methods = useForm({
     defaultValues: { pin: defaultPin },

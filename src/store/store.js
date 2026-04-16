@@ -15,13 +15,12 @@ import authReducer from "./slices/authSlice";
 import profileReducer from "./slices/profileSlice";
 
 // ─── Persist config ───────────────────────────────────────────────────────────
-// Only profile (user data) needs to survive a page reload.
-// Auth loading/error state is ephemeral — no point persisting it.
+// Persist user data AND avatarPath so the selected local image survives refresh.
 
 const profilePersistConfig = {
   key: "profile",
   storage,
-  whitelist: ["user"], // only persist user data, not loading/error
+  whitelist: ["user", "avatarPath"],
 };
 
 const rootReducer = combineReducers({

@@ -1,27 +1,35 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
-
-import { updateProfile, uploadAvatar } from "../../store/slices/profileSlice";
 import Joi from "joi";
-const selectUser = (state) => state.profile.user;
-const selectUserId = (state) => state.profile.user?.id ?? null;
-const selectProfileLoading = (state) => state.profile.loading;
-const selectProfileError = (state) => state.profile.error;
+
+import { updateProfile, setAvatar } from "../../store/slices/profileSlice";
+
+// ─── Local avatar options ─────────────────────────────────────────────────────
+// Add or swap paths here to match images in your /public or /src/assets folder.
+const LOCAL_AVATARS = [
+  "/avatars/avatar-1.png",
+  "/avatars/avatar-2.png",
+  "/avatars/avatar-3.png",
+  "/avatars/avatar-4.png",
+  "/avatars/avatar-5.png",
+  "/avatars/avatar-6.png",
+];
 
 export default function Profile() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const user = useSelector(selectUser);
-  const userId = useSelector(selectUserId);
-  const loading = useSelector(selectProfileLoading);
-  const profileError = useSelector(selectProfileError);
+  const user = useSelector((state) => state.profile.user);
+  const userId = useSelector((state) => state.profile.user?.id ?? null);
+  const loading = useSelector((state) => state.profile.loading);
+  const profileError = useSelector((state) => state.profile.error);
+  const avatarPath = useSelector((state) => state.profile.avatarPath);
 
   const [form, setForm] = useState({ name: "", phone: "", email: "" });
   const [success, setSuccess] = useState("");
   const [localError, setLocalError] = useState("");
-  const fileInputRef = useRef(null);
+  const [showAvatarPicker, setShowAvatarPicker] = useState(false);
 
   // Sync form from Redux whenever the persisted user changes
   useEffect(() => {
@@ -39,23 +47,15 @@ export default function Profile() {
     setLocalError("");
   };
 
-  const handleAvatarChange = async (e) => {
-    const file = e.target.files[0];
-    if (!file || !userId) return;
-
-    const result = await dispatch(uploadAvatar({ userId, file }));
-
-    if (uploadAvatar.fulfilled.match(result)) {
-      setSuccess("Avatar berhasil diupdate!");
-    }
+  const handleSelectAvatar = (path) => {
+    dispatch(setAvatar(path));
+    setShowAvatarPicker(false);
+    setSuccess("Avatar berhasil diupdate!");
   };
 
-  const handleDeleteAvatar = async () => {
-    if (!userId) return;
-    const result = await dispatch(updateProfile({ userId, payload: { avatar: "" } }));
-    if (updateProfile.fulfilled.match(result)) {
-      setSuccess("Avatar dihapus.");
-    }
+  const handleDeleteAvatar = () => {
+    dispatch(setAvatar(null));
+    setSuccess("Avatar dihapus.");
   };
 
   const profileSchema = Joi.object({
@@ -102,6 +102,9 @@ export default function Profile() {
     }
   };
 
+  // The displayed avatar: prefer locally-selected path, fall back to user.avatar from API
+  const displayAvatar = avatarPath || user?.avatar || null;
+
   return (
     <>
       {/* Page Title */}
@@ -129,9 +132,9 @@ export default function Profile() {
             {/* Avatar Section */}
             <div className="flex flex-row items-center gap-6">
               <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl border-2 border-gray-200 overflow-hidden bg-gray-100 flex items-center justify-center shrink-0">
-                {user.avatar ? (
+                {displayAvatar ? (
                   <img
-                    src={user.avatar}
+                    src={displayAvatar}
                     alt="avatar"
                     className="w-full h-full object-cover"
                   />
@@ -147,9 +150,8 @@ export default function Profile() {
 
               <div className="flex flex-col gap-2 w-auto">
                 <button
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={loading}
-                  className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 disabled:opacity-60 transition"
+                  onClick={() => setShowAvatarPicker((v) => !v)}
+                  className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition"
                 >
                   <svg
                     width="16"
@@ -162,13 +164,13 @@ export default function Profile() {
                     <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
                     <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
                   </svg>
-                  {loading ? "Mengupload..." : "Change Profile"}
+                  Change Profile
                 </button>
 
                 <button
                   onClick={handleDeleteAvatar}
-                  disabled={loading}
-                  className="flex items-center justify-center gap-2 px-4 py-2 border border-red-400 text-red-500 text-sm font-medium rounded-xl hover:bg-red-50 disabled:opacity-60 transition"
+                  disabled={!displayAvatar}
+                  className="flex items-center justify-center gap-2 px-4 py-2 border border-red-400 text-red-500 text-sm font-medium rounded-xl hover:bg-red-50 disabled:opacity-40 transition"
                 >
                   <svg
                     width="16"
@@ -187,16 +189,36 @@ export default function Profile() {
                 </button>
               </div>
             </div>
-            <div className="border-t border-gray-100 mb-8" />
 
-            {/* Hidden file input — triggers avatar upload directly */}
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={handleAvatarChange}
-            />
+            {/* Local Avatar Picker */}
+            {showAvatarPicker && (
+              <div className="mt-4 p-4 border border-gray-100 rounded-xl bg-gray-50">
+                <p className="text-xs font-semibold text-gray-500 mb-3 uppercase tracking-wide">
+                  Pilih Avatar
+                </p>
+                <div className="grid grid-cols-6 gap-2 sm:gap-3">
+                  {LOCAL_AVATARS.map((path) => (
+                    <button
+                      key={path}
+                      onClick={() => handleSelectAvatar(path)}
+                      className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl overflow-hidden border-2 transition ${
+                        avatarPath === path
+                          ? "border-blue-500 ring-2 ring-blue-200"
+                          : "border-transparent hover:border-gray-300"
+                      }`}
+                    >
+                      <img
+                        src={path}
+                        alt="avatar option"
+                        className="w-full h-full object-cover"
+                      />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="border-t border-gray-100 mt-6 mb-8" />
 
             {/* Form Fields */}
             <div className="flex flex-col gap-4 sm:gap-5 w-full">
