@@ -1,63 +1,75 @@
-import { useState, useRef, useContext, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
-import { useSelector } from "react-redux";
-import { useProfile } from "../../hooks/useProfile";
+
+import { updateProfile, uploadAvatar } from "../../store/slices/profileSlice";
+const selectUser = (state) => state.profile.user;
+const selectUserId = (state) => state.profile.user?.id ?? null;
+const selectProfileLoading = (state) => state.profile.loading;
+const selectProfileError = (state) => state.profile.error;
 
 export default function Profile() {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const reduxUser = useSelector((state) => state.auth.user);
-  const { updateProfile, profileLoading, profileError } = useProfile();
 
-  const [form, setForm] = useState({
-    name: "",
-    phone: "",
-    email: "",
-    avatar: "",
-  });
+  const user = useSelector(selectUser);
+  const userId = useSelector(selectUserId);
+  const loading = useSelector(selectProfileLoading);
+  const profileError = useSelector(selectProfileError);
+
+  const [form, setForm] = useState({ name: "", phone: "", email: "" });
   const [success, setSuccess] = useState("");
   const fileInputRef = useRef(null);
 
-  // Sync form from Redux user (covers initial load + after mergeUser updates)
+  // Sync form from Redux whenever the persisted user changes
   useEffect(() => {
-    if (reduxUser) {
+    if (user) {
       setForm({
-        name: reduxUser.name || "",
-        phone: reduxUser.phone || "",
-        email: reduxUser.email || "",
-        avatar: reduxUser.avatar || "",
+        name: user.name || "",
+        phone: user.phone || "",
+        email: user.email || "",
       });
     }
-  }, [reduxUser]);
+  }, [user]);
 
   const handleChange = (e) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleAvatarChange = (e) => {
+  const handleAvatarChange = async (e) => {
     const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () =>
-      setForm((prev) => ({ ...prev, avatar: reader.result }));
-    reader.readAsDataURL(file);
+    if (!file || !userId) return;
+
+    const result = await dispatch(uploadAvatar({ userId, file }));
+
+    if (uploadAvatar.fulfilled.match(result)) {
+      setSuccess("Avatar berhasil diupdate!");
+    }
   };
 
-  const handleDeleteAvatar = () => {
-    setForm((prev) => ({ ...prev, avatar: "" }));
+  const handleDeleteAvatar = async () => {
+    if (!userId) return;
+    const result = await dispatch(updateProfile({ userId, payload: { avatar: "" } }));
+    if (updateProfile.fulfilled.match(result)) {
+      setSuccess("Avatar dihapus.");
+    }
   };
 
   const handleSubmit = async () => {
     setSuccess("");
-    try {
-      await updateProfile({
-        name: form.name,
-        phone: form.phone,
-        email: form.email,
-        avatar: form.avatar,
-      });
+    const result = await dispatch(
+      updateProfile({
+        userId,
+        payload: {
+          name: form.name,
+          phone: form.phone,
+          email: form.email,
+        },
+      })
+    );
+
+    if (updateProfile.fulfilled.match(result)) {
       setSuccess("Profile berhasil diupdate!");
-    } catch {
-      // error is handled by context/Redux via profileError
     }
   };
 
@@ -79,7 +91,7 @@ export default function Profile() {
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 lg:p-8">
-        {!reduxUser ? (
+        {!user ? (
           <div className="flex items-center justify-center py-20 text-gray-400 text-sm">
             Memuat data profile...
           </div>
@@ -87,11 +99,10 @@ export default function Profile() {
           <>
             {/* Avatar Section */}
             <div className="flex flex-row items-center gap-6">
-              {/* Avatar Image Container */}
               <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl border-2 border-gray-200 overflow-hidden bg-gray-100 flex items-center justify-center shrink-0">
-                {form.avatar ? (
+                {user.avatar ? (
                   <img
-                    src={form.avatar}
+                    src={user.avatar}
                     alt="avatar"
                     className="w-full h-full object-cover"
                   />
@@ -105,11 +116,11 @@ export default function Profile() {
                 )}
               </div>
 
-              {/* Buttons Container */}
               <div className="flex flex-col gap-2 w-auto">
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition"
+                  disabled={loading}
+                  className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 disabled:opacity-60 transition"
                 >
                   <svg
                     width="16"
@@ -122,12 +133,13 @@ export default function Profile() {
                     <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
                     <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
                   </svg>
-                  Change Profile
+                  {loading ? "Mengupload..." : "Change Profile"}
                 </button>
 
                 <button
                   onClick={handleDeleteAvatar}
-                  className="flex items-center justify-center gap-2 px-4 py-2 border border-red-400 text-red-500 text-sm font-medium rounded-xl hover:bg-red-50 transition"
+                  disabled={loading}
+                  className="flex items-center justify-center gap-2 px-4 py-2 border border-red-400 text-red-500 text-sm font-medium rounded-xl hover:bg-red-50 disabled:opacity-60 transition"
                 >
                   <svg
                     width="16"
@@ -148,7 +160,7 @@ export default function Profile() {
             </div>
             <div className="border-t border-gray-100 mb-8" />
 
-            {/* Hidden file input */}
+            {/* Hidden file input — triggers avatar upload directly */}
             <input
               ref={fileInputRef}
               type="file"
@@ -271,15 +283,19 @@ export default function Profile() {
                 </button>
               </div>
 
-              {profileError && <p className="text-sm text-red-500">{profileError}</p>}
-              {success && <p className="text-sm text-green-600">{success}</p>}
+              {profileError && (
+                <p className="text-sm text-red-500">{profileError}</p>
+              )}
+              {success && (
+                <p className="text-sm text-green-600">{success}</p>
+              )}
 
               <button
                 onClick={handleSubmit}
-                disabled={profileLoading}
+                disabled={loading}
                 className="w-full py-3 sm:py-3.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 disabled:opacity-60 transition mt-2"
               >
-                {profileLoading ? "Menyimpan..." : "Submit"}
+                {loading ? "Menyimpan..." : "Submit"}
               </button>
             </div>
           </>

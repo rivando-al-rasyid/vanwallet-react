@@ -1,7 +1,10 @@
 import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import { faEnvelope, faLock } from "@fortawesome/free-solid-svg-icons";
-import { useAuth } from "../../hooks/useAuth";
+
+import { register } from "../../store/slices/authSlice";
+
 import Brand from "../../components/Brand";
 import LoginHeadline from "../../components/login/LoginHeadline";
 import SocialLogin from "../../components/SocialLogin";
@@ -12,8 +15,14 @@ import LoginSubtext from "../../components/LoginSubtext";
 import walletHandImage from "../../assets/img/3d-hand-wallet.png";
 
 export default function Register() {
+  const selectAuthLoading = (state) => state.auth.loading;
+  const selectAuthError = (state) => state.auth.error;
+
+  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { register, loading, error } = useAuth();
+
+  const loading = useSelector(selectAuthLoading);
+  const apiError = useSelector(selectAuthError);
 
   const [form, setForm] = useState({
     email: "",
@@ -41,16 +50,16 @@ export default function Register() {
       return;
     }
 
-    try {
-      await register({
-        email: form.email,
-        password: form.password,
-      });
+    const result = await dispatch(
+      register({ email: form.email, password: form.password }),
+    );
+
+    if (register.fulfilled.match(result)) {
       navigate("/dashboard");
-    } catch (err) {
-      // Error is already set in context
     }
   };
+
+  const error = validationError || apiError;
 
   return (
     <main className="grid grid-cols-1 lg:grid-cols-2 min-h-screen bg-[#2948FF]">
@@ -67,9 +76,9 @@ export default function Register() {
           />
           <SocialLogin />
 
-          {(validationError || error) && (
+          {error && (
             <div className="mb-4 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-sm text-red-600 font-medium">
-              {validationError || error}
+              {error}
             </div>
           )}
 

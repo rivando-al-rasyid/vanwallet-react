@@ -73,7 +73,6 @@ export default function PinInput() {
 function PinInputField({
   index,
   value,
-  isActive,
   onChange,
   onKeyDown,
   inputRef,

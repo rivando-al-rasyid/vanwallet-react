@@ -1,6 +1,8 @@
-import {  useState } from "react";
+import { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
+import { useSelector } from "react-redux";
+
 import PinInput from "../../components/PinInput";
 import Brand from "../../components/Brand";
 import LoginImage from "../../components/login/LoginImage";
@@ -8,24 +10,27 @@ import LoginHeadline from "../../components/login/LoginHeadline";
 import Submit from "../../components/Submit";
 import LoginSubtext from "../../components/LoginSubtext";
 import { verifyPin } from "../../utils/auth";
-import { useAuth } from "../../hooks/useAuth";
 import loginPhoneImage from "../../assets/img/3d-hand-phone.png";
 
+const selectUserId = (state) => state.profile.user?.id ?? null;
 const PIN_LENGTH = 6;
 const defaultPin = Array.from({ length: PIN_LENGTH }, () => ({ value: "" }));
 
 export default function LoginPin() {
   const navigate = useNavigate();
-  const { user: currentUser } = useAuth();
+  const userId = useSelector(selectUserId);
+
   const methods = useForm({
     defaultValues: { pin: defaultPin },
     mode: "onChange",
   });
+
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
   const onSubmit = async (data) => {
     const pin = data.pin.map((item) => item.value).join("");
+
     if (pin.length !== PIN_LENGTH) {
       setError("Please complete the 6-digit PIN.");
       return;
@@ -33,8 +38,9 @@ export default function LoginPin() {
 
     setSubmitting(true);
     setError("");
+
     try {
-      await verifyPin(currentUser?.id, pin);
+      await verifyPin(userId, pin);
       navigate("/dashboard");
     } catch (err) {
       setError(err.message || "Invalid PIN. Please try again.");

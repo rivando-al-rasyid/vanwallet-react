@@ -5,12 +5,13 @@ import Stepper from "../../components/Stepper";
 import { getUserById, verifyPin } from "../../utils/auth";
 import TransferModal from "./TransferModal";
 import Toast from "../../components/Toast";
-import { useAuth } from "../../hooks/useAuth";
+import { useSelector } from "react-redux";
+const selectUser = (state) => state.profile.user;
 
 export default function SetNominal() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user: currentUser } = useAuth();
+  const currentUser = useSelector(selectUser);
 
   const [amount, setAmount] = useState("");
   const [notes, setNotes] = useState("");

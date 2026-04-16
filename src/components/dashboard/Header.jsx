@@ -1,18 +1,21 @@
 import Brand from "../Brand";
 import { useState, useRef, useEffect, useContext } from "react";
 import { useNavigate } from "react-router";
-import { useAuth } from "../../hooks/useAuth";
-import DashboardContext from "../../context/dashboard/context";
+import { useSelector } from "react-redux";
 import { X, Menu } from "lucide-react";
+
+import DashboardContext from "../../context/dashboard/context";
 import LogoutButton from "./LogoutButton";
 import { useLogout } from "../../hooks/useLogout";
+const selectUser = (state) => state.profile.user;
 
 export default function Header() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const user = useSelector(selectUser);
   const { sidebarOpen, setSidebarOpen } = useContext(DashboardContext);
   const logoutAndRedirect = useLogout();
 
+  // Dropdown open state is local UI — belongs in useState, not Redux
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef(null);
 
@@ -33,12 +36,9 @@ export default function Header() {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 w-full bg-white border-b border-slate-100 shadow-sm font-sans">
       <nav className="flex items-center justify-between px-4 h-16 sm:px-6 lg:px-8">
-        {/* LEFT: Brand — always visible */}
         <Brand />
 
-        {/* RIGHT side */}
         <div className="flex items-center gap-3">
-          {/* Icon buttons — hidden on mobile */}
           <div className="hidden lg:flex items-center gap-4 border-r border-slate-100 pr-4">
             <button className="text-slate-400 hover:text-blue-500 transition-colors">
               <svg
@@ -65,7 +65,7 @@ export default function Header() {
               </svg>
             </button>
           </div>
-          {/* User dropdown — hidden on mobile */}
+
           {user ? (
             <div className="relative hidden lg:block" ref={wrapperRef}>
               <button
@@ -91,7 +91,6 @@ export default function Header() {
                 </svg>
               </button>
 
-              {/* Dropdown */}
               <div
                 className={`absolute right-0 top-[calc(100%+12px)] w-60 bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden transition-all duration-200 origin-top-right ${
                   open
@@ -146,14 +145,14 @@ export default function Header() {
               Masuk
             </button>
           )}
-          {/* Hamburger — mobile only, on the RIGHT */}
+
           <button
             onClick={() => setSidebarOpen((prev) => !prev)}
             className="flex items-center justify-center rounded-lg p-2 text-slate-600 transition hover:bg-slate-100 lg:hidden"
             aria-label={sidebarOpen ? "Close sidebar" : "Open sidebar"}
           >
             {sidebarOpen ? <X size={22} /> : <Menu size={22} />}
-          </button>{" "}
+          </button>
         </div>
       </nav>
     </header>

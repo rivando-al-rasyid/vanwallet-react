@@ -1,7 +1,10 @@
 import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import { faEnvelope, faLock } from "@fortawesome/free-solid-svg-icons";
-import { useAuth } from "../../hooks/useAuth";
+
+import { login } from "../../store/slices/authSlice";
+
 import Brand from "../../components/Brand";
 import LoginHeadline from "../../components/login/LoginHeadline";
 import SocialLogin from "../../components/SocialLogin";
@@ -12,8 +15,14 @@ import LoginSubtext from "../../components/LoginSubtext";
 import loginPhoneImage from "../../assets/img/3d-hand-phone.png";
 
 export default function Login() {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { login, loading, error } = useAuth();
+
+  const selectAuthLoading = (state) => state.auth.loading;
+  const selectAuthError = (state) => state.auth.error;
+
+  const loading = useSelector(selectAuthLoading);
+  const apiError = useSelector(selectAuthError);
 
   const [form, setForm] = useState({ email: "", password: "" });
   const [validationError, setValidationError] = useState("");
@@ -32,13 +41,14 @@ export default function Login() {
       return;
     }
 
-    try {
-      await login(form);
+    const result = await dispatch(login(form));
+
+    if (login.fulfilled.match(result)) {
       navigate("/login/pin");
-    } catch (err) {
-      // Error is already set in context
     }
   };
+
+  const error = validationError || apiError;
 
   return (
     <main className="grid grid-cols-1 lg:grid-cols-2 min-h-screen bg-[#2948FF]">
@@ -53,9 +63,9 @@ export default function Login() {
           />
           <SocialLogin />
 
-          {(validationError || error) && (
+          {error && (
             <div className="mb-4 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-sm text-red-600 font-medium">
-              {validationError || error}
+              {error}
             </div>
           )}
 
@@ -86,12 +96,11 @@ export default function Login() {
             link={"/register"}
             linklabel={"Register"}
           />
-         <LoginSubtext
+          <LoginSubtext
             text={"Forgot Password? "}
             link={"/forgotpassword"}
             linklabel={"reset"}
           />
-
         </div>
       </section>
       <LoginImage img={loginPhoneImage} />

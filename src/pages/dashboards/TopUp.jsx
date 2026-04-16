@@ -1,5 +1,6 @@
 import {  useMemo, useState } from "react";
-import { useAuth } from "../../hooks/useAuth";
+import { useSelector } from "react-redux";
+const selectUser = (state) => state.profile.user;
 
 const TAX_RATE = 0.1;
 
@@ -32,7 +33,7 @@ const PAYMENT_METHODS = [
 ];
 
 export default function TopUp() {
-  const { user: currentUser } = useAuth();
+  const currentUser = useSelector(selectUser);
   const [amount, setAmount] = useState("");
   const [selectedMethod, setSelectedMethod] = useState("bri");
   const user = useMemo(() => {

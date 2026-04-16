@@ -1,11 +1,15 @@
 import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useForm, FormProvider } from "react-hook-form";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { useNavigate } from "react-router";
 import Joi from "joi";
 
 import PinInput from "../../components/PinInput";
-import { useProfile } from "../../hooks/useProfile";
+import { changePin } from "../../store/slices/profileSlice";
+const selectUserId = (state) => state.profile.user?.id ?? null;
+const selectProfileLoading = (state) => state.profile.loading;
+const selectProfileError = (state) => state.profile.error;
 
 const defaultPin = Array(6)
   .fill(null)
@@ -16,15 +20,19 @@ const pinSchema = Joi.object({
     .items(
       Joi.object({
         value: Joi.string().length(1).pattern(/^\d$/).required(),
-      }),
+      })
     )
     .length(6)
     .required(),
 });
 
 export default function ChangePin() {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { changePin, profileLoading, profileError } = useProfile();
+
+  const userId = useSelector(selectUserId);
+  const loading = useSelector(selectProfileLoading);
+  const profileError = useSelector(selectProfileError);
 
   const [success, setSuccess] = useState("");
 
@@ -35,23 +43,20 @@ export default function ChangePin() {
   });
 
   const onSubmit = async (data) => {
-    const pinValue = data.pin.map((item) => item.value).join("");
-
+    const newPin = data.pin.map((item) => item.value).join("");
     setSuccess("");
 
-    try {
-      await changePin(pinValue);
+    const result = await dispatch(changePin({ userId, newPin }));
+
+    if (changePin.fulfilled.match(result)) {
       setSuccess("PIN berhasil diupdate!");
       methods.reset({ pin: defaultPin });
       setTimeout(() => navigate("/dashboard/profile"), 1200);
-    } catch {
-      // error is handled by context/Redux via profileError
     }
   };
 
   return (
     <>
-      {/* Page Title */}
       <div className="flex items-center gap-3">
         <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -97,10 +102,10 @@ export default function ChangePin() {
 
               <button
                 type="submit"
-                disabled={profileLoading}
+                disabled={loading}
                 className="w-full mt-10 py-3.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 disabled:opacity-60 transition"
               >
-                {profileLoading ? "Menyimpan..." : "Submit"}
+                {loading ? "Menyimpan..." : "Submit"}
               </button>
             </form>
           </FormProvider>
