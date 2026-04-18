@@ -5,17 +5,6 @@ import Joi from "joi";
 
 import { updateProfile, setAvatar } from "../../store/slices/profileSlice";
 
-// ─── Local avatar options ─────────────────────────────────────────────────────
-// Add or swap paths here to match images in your /public or /src/assets folder.
-const LOCAL_AVATARS = [
-  "/avatars/avatar-1.png",
-  "/avatars/avatar-2.png",
-  "/avatars/avatar-3.png",
-  "/avatars/avatar-4.png",
-  "/avatars/avatar-5.png",
-  "/avatars/avatar-6.png",
-];
-
 export default function Profile() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -29,7 +18,12 @@ export default function Profile() {
   const [form, setForm] = useState({ name: "", phone: "", email: "" });
   const [success, setSuccess] = useState("");
   const [localError, setLocalError] = useState("");
-  const [showAvatarPicker, setShowAvatarPicker] = useState(false);
+
+  // Avatar URL state
+  const [showUrlInput, setShowUrlInput] = useState(false);
+  const [urlInput, setUrlInput] = useState("");
+  const [urlError, setUrlError] = useState("");
+  const [imgLoadError, setImgLoadError] = useState(false);
 
   // Sync form from Redux whenever the persisted user changes
   useEffect(() => {
@@ -47,10 +41,48 @@ export default function Profile() {
     setLocalError("");
   };
 
-  const handleSelectAvatar = (path) => {
-    dispatch(setAvatar(path));
-    setShowAvatarPicker(false);
+  // ─── Avatar URL handlers ────────────────────────────────────────────────────
+
+  const handleUrlInputChange = (e) => {
+    setUrlInput(e.target.value);
+    setUrlError("");
+    setImgLoadError(false);
+  };
+
+  const isValidUrl = (str) => {
+    try {
+      const url = new URL(str);
+      return url.protocol === "http:" || url.protocol === "https:";
+    } catch {
+      return false;
+    }
+  };
+
+  const handleSaveUrl = () => {
+    const trimmed = urlInput.trim();
+
+    if (!trimmed) {
+      setUrlError("URL tidak boleh kosong.");
+      return;
+    }
+    if (!isValidUrl(trimmed)) {
+      setUrlError("Format URL tidak valid. Gunakan http:// atau https://");
+      return;
+    }
+
+    dispatch(setAvatar(trimmed));
+    setShowUrlInput(false);
+    setUrlInput("");
+    setUrlError("");
+    setImgLoadError(false);
     setSuccess("Avatar berhasil diupdate!");
+  };
+
+  const handleCancelUrl = () => {
+    setShowUrlInput(false);
+    setUrlInput("");
+    setUrlError("");
+    setImgLoadError(false);
   };
 
   const handleDeleteAvatar = () => {
@@ -58,28 +90,38 @@ export default function Profile() {
     setSuccess("Avatar dihapus.");
   };
 
+  // ─── Form validation ────────────────────────────────────────────────────────
+
   const profileSchema = Joi.object({
     name: Joi.string().min(2).required().messages({
       "string.empty": "Nama tidak boleh kosong.",
       "string.min": "Nama minimal 2 karakter.",
       "any.required": "Nama wajib diisi.",
     }),
-    phone: Joi.string().pattern(/^[0-9+\-\s]{8,15}$/).required().messages({
-      "string.empty": "Nomor telepon tidak boleh kosong.",
-      "string.pattern.base": "Format nomor telepon tidak valid.",
-      "any.required": "Nomor telepon wajib diisi.",
-    }),
-    email: Joi.string().email({ tlds: { allow: false } }).required().messages({
-      "string.empty": "Email tidak boleh kosong.",
-      "string.email": "Format email tidak valid.",
-      "any.required": "Email wajib diisi.",
-    }),
+    phone: Joi.string()
+      .pattern(/^[0-9+\-\s]{8,15}$/)
+      .required()
+      .messages({
+        "string.empty": "Nomor telepon tidak boleh kosong.",
+        "string.pattern.base": "Format nomor telepon tidak valid.",
+        "any.required": "Nomor telepon wajib diisi.",
+      }),
+    email: Joi.string()
+      .email({ tlds: { allow: false } })
+      .required()
+      .messages({
+        "string.empty": "Email tidak boleh kosong.",
+        "string.email": "Format email tidak valid.",
+        "any.required": "Email wajib diisi.",
+      }),
   });
 
   const handleSubmit = async () => {
     setSuccess("");
 
-    const { error: validationError } = profileSchema.validate(form, { abortEarly: true });
+    const { error: validationError } = profileSchema.validate(form, {
+      abortEarly: true,
+    });
     if (validationError) {
       setLocalError(validationError.message);
       return;
@@ -94,7 +136,7 @@ export default function Profile() {
           phone: form.phone,
           email: form.email,
         },
-      })
+      }),
     );
 
     if (updateProfile.fulfilled.match(result)) {
@@ -102,7 +144,7 @@ export default function Profile() {
     }
   };
 
-  // The displayed avatar: prefer locally-selected path, fall back to user.avatar from API
+  // Prefer locally-selected path, fall back to user.avatar from API
   const displayAvatar = avatarPath || user?.avatar || null;
 
   return (
@@ -132,11 +174,12 @@ export default function Profile() {
             {/* Avatar Section */}
             <div className="flex flex-row items-center gap-6">
               <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl border-2 border-gray-200 overflow-hidden bg-gray-100 flex items-center justify-center shrink-0">
-                {displayAvatar ? (
+                {displayAvatar && !imgLoadError ? (
                   <img
                     src={displayAvatar}
                     alt="avatar"
                     className="w-full h-full object-cover"
+                    onError={() => setImgLoadError(true)}
                   />
                 ) : (
                   <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
@@ -150,7 +193,11 @@ export default function Profile() {
 
               <div className="flex flex-col gap-2 w-auto">
                 <button
-                  onClick={() => setShowAvatarPicker((v) => !v)}
+                  onClick={() => {
+                    setShowUrlInput((v) => !v);
+                    setUrlError("");
+                    setImgLoadError(false);
+                  }}
                   className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition"
                 >
                   <svg
@@ -190,30 +237,59 @@ export default function Profile() {
               </div>
             </div>
 
-            {/* Local Avatar Picker */}
-            {showAvatarPicker && (
+            {/* URL Input Panel */}
+            {showUrlInput && (
               <div className="mt-4 p-4 border border-gray-100 rounded-xl bg-gray-50">
                 <p className="text-xs font-semibold text-gray-500 mb-3 uppercase tracking-wide">
-                  Pilih Avatar
+                  Avatar URL
                 </p>
-                <div className="grid grid-cols-6 gap-2 sm:gap-3">
-                  {LOCAL_AVATARS.map((path) => (
-                    <button
-                      key={path}
-                      onClick={() => handleSelectAvatar(path)}
-                      className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl overflow-hidden border-2 transition ${
-                        avatarPath === path
-                          ? "border-blue-500 ring-2 ring-blue-200"
-                          : "border-transparent hover:border-gray-300"
-                      }`}
-                    >
+
+                {/* Live preview while typing */}
+                {urlInput && isValidUrl(urlInput) && !imgLoadError && (
+                  <div className="mb-3 flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-lg border border-gray-200 overflow-hidden bg-gray-100 shrink-0">
                       <img
-                        src={path}
-                        alt="avatar option"
+                        src={urlInput}
+                        alt="preview"
                         className="w-full h-full object-cover"
+                        onError={() => setImgLoadError(true)}
                       />
-                    </button>
-                  ))}
+                    </div>
+                    <span className="text-xs text-gray-400">Preview</span>
+                  </div>
+                )}
+
+                {imgLoadError && urlInput && (
+                  <p className="text-xs text-red-500 mb-2">
+                    Gambar tidak dapat dimuat. Coba URL lain.
+                  </p>
+                )}
+
+                <input
+                  type="url"
+                  value={urlInput}
+                  onChange={handleUrlInputChange}
+                  placeholder="https://example.com/avatar.jpg"
+                  className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition"
+                />
+
+                {urlError && (
+                  <p className="text-xs text-red-500 mt-1.5">{urlError}</p>
+                )}
+
+                <div className="flex gap-2 mt-3">
+                  <button
+                    onClick={handleSaveUrl}
+                    className="flex-1 py-2 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition"
+                  >
+                    Simpan
+                  </button>
+                  <button
+                    onClick={handleCancelUrl}
+                    className="flex-1 py-2 border border-gray-200 text-gray-600 text-sm font-medium rounded-xl hover:bg-gray-100 transition"
+                  >
+                    Batal
+                  </button>
                 </div>
               </div>
             )}
@@ -335,11 +411,11 @@ export default function Profile() {
               </div>
 
               {(localError || profileError) && (
-                <p className="text-sm text-red-500">{localError || profileError}</p>
+                <p className="text-sm text-red-500">
+                  {localError || profileError}
+                </p>
               )}
-              {success && (
-                <p className="text-sm text-green-600">{success}</p>
-              )}
+              {success && <p className="text-sm text-green-600">{success}</p>}
 
               <button
                 onClick={handleSubmit}
