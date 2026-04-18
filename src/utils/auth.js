@@ -1,7 +1,11 @@
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const API_ROOT = String(BASE_URL || "").replace(/\/+$/, "");
 
-async function requestJson(path, options = {}, fallbackMessage = "Request failed") {
+async function requestJson(
+  path,
+  options = {},
+  fallbackMessage = "Request failed",
+) {
   const res = await fetch(`${API_ROOT}${path}`, options);
   const data = await res.json();
   if (!res.ok) throw new Error(data?.message || fallbackMessage);
@@ -12,12 +16,15 @@ async function requestJson(path, options = {}, fallbackMessage = "Request failed
 export async function getAllUsers() {
   return requestJson("/user", {}, "Failed to fetch users list");
 }
+export async function getAllHistory() {
+  return requestJson("/historyTransaction", {}, "Failed to fetch users list");
+}
 
 // Simulated login: GET all users, match by email + password
 export async function loginUser({ email, password }) {
   const users = await getAllUsers();
   const match = users.find(
-    (user) => user.email === email && user.password === password
+    (user) => user.email === email && user.password === password,
   );
   if (!match) throw new Error("Invalid email or password");
   return match;
@@ -31,6 +38,28 @@ export async function registerUser({ name, email, password, phone }) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, email, password, phone }),
+    },
+    "Registration failed",
+  );
+}
+
+export async function transaction({
+  userId,
+  transactionType,
+  transactionDesc,
+  amount,
+}) {
+  return requestJson(
+    "/historyTransaction",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId,
+        transactionType,
+        transactionDesc,
+        amount,
+      }),
     },
     "Registration failed",
   );
@@ -62,7 +91,11 @@ export async function updateUser(id, payload) {
 export async function verifyPin(userId, inputPin) {
   if (!userId) throw new Error("User session not found");
 
-  const user = await requestJson(`/user/${userId}`, {}, "Failed to verify user");
+  const user = await requestJson(
+    `/user/${userId}`,
+    {},
+    "Failed to verify user",
+  );
 
   // Checking if the PIN matches (assuming 'pin' is a field in your user object)
   if (String(user.pin) !== String(inputPin)) {
