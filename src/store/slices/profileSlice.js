@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { login, register, logout } from "./authSlice";
+import { login, register, logout, createPin } from "./authSlice";
 import {
   updateUser,
   changePassword as changePasswordApi,
@@ -93,6 +93,13 @@ const profileSlice = createSlice({
         state.loading = false;
         state.error = null;
       });
+
+    // ── createPin cross-slice: sync user.pin after first-time PIN creation ──
+    builder.addCase(createPin.fulfilled, (state, action) => {
+      if (action.payload && state.user) {
+        state.user = { ...state.user, ...action.payload };
+      }
+    });
 
     // ── fetchProfile ──
     builder

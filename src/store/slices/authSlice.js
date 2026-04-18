@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { loginUser, registerUser } from "../../utils/auth";
+import { loginUser, registerUser, changePinApi } from "../../utils/auth";
 
 // ─── Thunks ──────────────────────────────────────────────────────────────────
 
@@ -28,12 +28,26 @@ export const register = createAsyncThunk(
   }
 );
 
+// Thunk khusus untuk set PIN pertama kali saat registrasi
+export const createPin = createAsyncThunk(
+  "auth/createPin",
+  async ({ userId, pin }, { rejectWithValue }) => {
+    try {
+      return await changePinApi(userId, pin);
+    } catch (err) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
 // ─── Initial State ───────────────────────────────────────────────────────────
 
 const initialState = {
   token: null,      // reserved for token-based auth if needed later
   loading: false,
   error: null,
+  pinLoading: false,
+  pinError: null,
 };
 
 // ─── Slice ───────────────────────────────────────────────────────────────────
@@ -46,13 +60,18 @@ const authSlice = createSlice({
       state.token = null;
       state.loading = false;
       state.error = null;
+      state.pinLoading = false;
+      state.pinError = null;
     },
     clearAuthError(state) {
       state.error = null;
     },
+    clearPinError(state) {
+      state.pinError = null;
+    },
   },
   extraReducers: (builder) => {
-    // login
+    // ── login ──
     builder
       .addCase(login.pending, (state) => {
         state.loading = true;
@@ -68,7 +87,7 @@ const authSlice = createSlice({
         state.error = action.payload;
       });
 
-    // register
+    // ── register ──
     builder
       .addCase(register.pending, (state) => {
         state.loading = true;
@@ -82,8 +101,23 @@ const authSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       });
+
+    // ── createPin ──
+    builder
+      .addCase(createPin.pending, (state) => {
+        state.pinLoading = true;
+        state.pinError = null;
+      })
+      .addCase(createPin.fulfilled, (state) => {
+        state.pinLoading = false;
+        state.pinError = null;
+      })
+      .addCase(createPin.rejected, (state, action) => {
+        state.pinLoading = false;
+        state.pinError = action.payload;
+      });
   },
 });
 
-export const { logout, clearAuthError } = authSlice.actions;
+export const { logout, clearAuthError, clearPinError } = authSlice.actions;
 export default authSlice.reducer;
