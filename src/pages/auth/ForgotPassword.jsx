@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Joi from "joi";
 import { useNavigate } from "react-router";
 import { faEnvelope } from "@fortawesome/free-solid-svg-icons";
 import Brand from "../../components/Brand";
@@ -13,12 +14,21 @@ export default function ForgotPassword() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const forgotSchema = Joi.object({
+    email: Joi.string().email({ tlds: { allow: false } }).required().messages({
+      "string.empty": "Email tidak boleh kosong.",
+      "string.email": "Format email tidak valid.",
+      "any.required": "Email wajib diisi.",
+    }),
+  });
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
-    if (!email.trim()) {
-      setError("Email tidak boleh kosong.");
+    const { error: validationError } = forgotSchema.validate({ email });
+    if (validationError) {
+      setError(validationError.message);
       return;
     }
 

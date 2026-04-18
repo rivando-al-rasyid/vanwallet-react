@@ -1,57 +1,44 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useEffect, useCallback, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchAllUsers } from "../../store/slices/transferSlice";
 import Stepper from "../../components/Stepper";
 import SearchInput from "../../components/SearchInput";
 import TableRow from "../../components/TableRow";
 import { Pagination } from "../../components/Pagination";
-import { getUsers } from "../../utils/auth";
 
 const ITEMS_PER_PAGE = 6;
 
 export default function Transfer() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [contacts, setContacts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+
+  const { users, status, error } = useSelector((state) => state.transfer);
+  const loading = status === "loading";
+
   const search = searchParams.get("search") || "";
   const currentPage = Number(searchParams.get("page") || "1");
 
-  const fetchUsers = useCallback(async () => {
-    setLoading(true);
-    setError("");
-    try {
-      const users = await getUsers();
-      const mapped = users.map((u) => ({
-        id: u.id,
-        name: u.name,
-        phone: u.phone,
-        img: u.avatar,
-      }));
-      setContacts(mapped);
-    } catch (err) {
-      setError(err.message || "Failed to load contacts");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
   useEffect(() => {
-    fetchUsers();
-  }, [fetchUsers]);
+    if (status === "idle") {
+      dispatch(fetchAllUsers());
+    }
+  }, [dispatch, status]);
 
   const filteredContacts = useMemo(() => {
-    if (!search.trim()) return contacts;
+    if (!search.trim()) return users;
     const searchTerm = search.toLowerCase().trim();
-    return contacts.filter(
+    return users.filter(
       (contact) =>
         contact.name.toLowerCase().includes(searchTerm) ||
         contact.phone.toLowerCase().includes(searchTerm),
     );
-  }, [contacts, search]);
+  }, [users, search]);
 
   const totalPages = Math.ceil(filteredContacts.length / ITEMS_PER_PAGE);
   const safePage = Math.min(Math.max(currentPage, 1), totalPages || 1);
+
   const paginatedContacts = useMemo(
     () =>
       filteredContacts.slice(
@@ -97,8 +84,8 @@ export default function Transfer() {
   );
 
   const handleRetry = useCallback(() => {
-    fetchUsers();
-  }, [fetchUsers]);
+    dispatch(fetchAllUsers());
+  }, [dispatch]);
 
   const resultsText = useMemo(() => {
     if (loading) return "Memuat kontak...";
@@ -180,10 +167,7 @@ export default function Transfer() {
 
         {!loading && !error && (
           <>
-            <TableRow
-              items={paginatedContacts}
-              onRowClick={handleRowClick}
-            />
+            <TableRow items={paginatedContacts} onRowClick={handleRowClick} />
             <Pagination
               currentPage={safePage}
               totalPages={totalPages}

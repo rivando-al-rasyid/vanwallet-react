@@ -1,20 +1,21 @@
-// src/components/ProtectedRoute.jsx
 import { useSelector } from "react-redux";
 import { Navigate, Outlet, useLocation } from "react-router";
-
 /**
- * ProtectedRoute - Guards routes that require authentication.
- * If the user is not logged in, redirects to /login
- * and remembers the page they tried to visit (via `state.from`).
+ * Guards routes that require authentication.
+ * Redirects to /login and preserves the attempted URL via state.from.
  */
 function ProtectedRoute() {
-  const user = useSelector((state) => state.auth.user);
+  const user = useSelector((state) => state.profile.user);
   const location = useLocation();
 
   if (!user) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
+  const isPinSetupComplete = user.pin?.toString().length === 6;
 
+  if (!isPinSetupComplete) {
+    return <Navigate to="/register/pin" state={{ from: location }} replace />;
+  }
   return <Outlet />;
 }
 

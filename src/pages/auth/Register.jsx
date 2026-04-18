@@ -1,7 +1,11 @@
 import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import { faEnvelope, faLock } from "@fortawesome/free-solid-svg-icons";
-import { useAuth } from "../../hooks/useAuth";
+
+import { register } from "../../store/slices/registerSlice";
+import Joi from "joi";
+
 import Brand from "../../components/Brand";
 import LoginHeadline from "../../components/login/LoginHeadline";
 import SocialLogin from "../../components/SocialLogin";
@@ -11,9 +15,33 @@ import LoginImage from "../../components/login/LoginImage";
 import LoginSubtext from "../../components/LoginSubtext";
 import walletHandImage from "../../assets/img/3d-hand-wallet.png";
 
+const registerSchema = Joi.object({
+  email: Joi.string()
+    .email({ tlds: { allow: false } })
+    .required()
+    .messages({
+      "string.empty": "Email tidak boleh kosong.",
+      "string.email": "Format email tidak valid.",
+      "any.required": "Email wajib diisi.",
+    }),
+  password: Joi.string().min(8).required().messages({
+    "string.empty": "Password tidak boleh kosong.",
+    "string.min": "Password minimal 8 karakter.",
+    "any.required": "Password wajib diisi.",
+  }),
+  confirmPassword: Joi.string().valid(Joi.ref("password")).required().messages({
+    "string.empty": "Konfirmasi password tidak boleh kosong.",
+    "any.only": "Password dan konfirmasi password tidak cocok.",
+    "any.required": "Konfirmasi password wajib diisi.",
+  }),
+});
+
 export default function Register() {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { register, loading, error } = useAuth();
+
+  const loading = useSelector((state) => state.register.registerLoading);
+  const apiError = useSelector((state) => state.register.registerError);
 
   const [form, setForm] = useState({
     email: "",
@@ -31,26 +59,24 @@ export default function Register() {
     e.preventDefault();
     setValidationError("");
 
-    if (!form.email || !form.password || !form.confirmPassword) {
-      setValidationError("Semua field harus diisi.");
+    const { error: joiError } = registerSchema.validate(form, {
+      abortEarly: true,
+    });
+    if (joiError) {
+      setValidationError(joiError.message);
       return;
     }
 
-    if (form.password !== form.confirmPassword) {
-      setValidationError("Password dan konfirmasi password tidak cocok.");
-      return;
-    }
+    const result = await dispatch(
+      register({ email: form.email, password: form.password }),
+    );
 
-    try {
-      await register({
-        email: form.email,
-        password: form.password,
-      });
-      navigate("/dashboard");
-    } catch (err) {
-      // Error is already set in context
+    if (register.fulfilled.match(result)) {
+      navigate("/register/pin");
     }
   };
+
+  const error = validationError || apiError;
 
   return (
     <main className="grid grid-cols-1 lg:grid-cols-2 min-h-screen bg-[#2948FF]">
@@ -67,9 +93,9 @@ export default function Register() {
           />
           <SocialLogin />
 
-          {(validationError || error) && (
+          {error && (
             <div className="mb-4 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-sm text-red-600 font-medium">
-              {validationError || error}
+              {error}
             </div>
           )}
 

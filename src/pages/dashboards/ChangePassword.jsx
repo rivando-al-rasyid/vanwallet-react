@@ -1,10 +1,17 @@
-import { useState, useContext } from "react";
+import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
-import { useProfile } from "../../hooks/useProfile";
+
+import { changePassword } from "../../store/slices/profileSlice";
+import Joi from "joi";
 
 export default function ChangePassword() {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { changePassword, profileLoading, profileError } = useProfile();
+
+  const userId = useSelector((state) => state.profile.user?.id ?? null);
+  const loading = useSelector((state) => state.profile.loading);
+  const profileError = useSelector((state) => state.profile.error);
 
   const [form, setForm] = useState({
     currentPassword: "",
@@ -21,29 +28,50 @@ export default function ChangePassword() {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
+  const changePasswordSchema = Joi.object({
+    currentPassword: Joi.string().required().messages({
+      "string.empty": "Password saat ini tidak boleh kosong.",
+      "any.required": "Password saat ini wajib diisi.",
+    }),
+    newPassword: Joi.string().min(8).required().messages({
+      "string.empty": "Password baru tidak boleh kosong.",
+      "string.min": "Password baru minimal 8 karakter.",
+      "any.required": "Password baru wajib diisi.",
+    }),
+    confirmNewPassword: Joi.string().valid(Joi.ref("newPassword")).required().messages({
+      "string.empty": "Konfirmasi password tidak boleh kosong.",
+      "any.only": "Konfirmasi password baru tidak cocok.",
+      "any.required": "Konfirmasi password wajib diisi.",
+    }),
+  });
+
   const handleSubmit = async () => {
     setLocalError("");
     setSuccess("");
 
-    if (!form.currentPassword || !form.newPassword || !form.confirmNewPassword) {
-      setLocalError("Semua field password wajib diisi.");
+    const { error: validationError } = changePasswordSchema.validate(form, { abortEarly: true });
+    if (validationError) {
+      setLocalError(validationError.message);
       return;
     }
 
-    if (form.newPassword !== form.confirmNewPassword) {
-      setLocalError("Konfirmasi password baru tidak cocok.");
-      return;
-    }
+    const result = await dispatch(
+      changePassword({
+        userId,
+        oldPassword: form.currentPassword,
+        newPassword: form.newPassword,
+      })
+    );
 
-    try {
-      await changePassword(form.currentPassword, form.newPassword);
+    if (changePassword.fulfilled.match(result)) {
       setSuccess("Password berhasil diupdate!");
       setForm({ currentPassword: "", newPassword: "", confirmNewPassword: "" });
       setTimeout(() => navigate("/dashboard/profile"), 1200);
-    } catch {
-      // error is handled by context/Redux via profileError
     }
   };
+
+  // Client-side validation takes priority over API errors
+  const error = localError || profileError;
 
   const EyeButton = ({ onClick }) => (
     <button
@@ -81,12 +109,8 @@ export default function ChangePassword() {
     </svg>
   );
 
-  // localError takes priority (client-side validation), then API error from Redux via context
-  const error = localError || profileError;
-
   return (
     <>
-      {/* Page Title */}
       <div className="flex items-center gap-3">
         <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -108,7 +132,6 @@ export default function ChangePassword() {
           </h2>
 
           <div className="flex flex-col gap-5 w-full">
-            {/* Current Password */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Existing Password
@@ -126,12 +149,11 @@ export default function ChangePassword() {
                   className="w-full pl-10 pr-12 py-3 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition"
                 />
                 <EyeButton
-                  onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                  onClick={() => setShowCurrentPassword((v) => !v)}
                 />
               </div>
             </div>
 
-            {/* New Password */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 New Password
@@ -148,13 +170,10 @@ export default function ChangePassword() {
                   placeholder="Enter Your New Password"
                   className="w-full pl-10 pr-12 py-3 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition"
                 />
-                <EyeButton
-                  onClick={() => setShowNewPassword(!showNewPassword)}
-                />
+                <EyeButton onClick={() => setShowNewPassword((v) => !v)} />
               </div>
             </div>
 
-            {/* Confirm New Password */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Confirm New Password
@@ -172,9 +191,7 @@ export default function ChangePassword() {
                   className="w-full pl-10 pr-12 py-3 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition"
                 />
                 <EyeButton
-                  onClick={() =>
-                    setShowConfirmNewPassword(!showConfirmNewPassword)
-                  }
+                  onClick={() => setShowConfirmNewPassword((v) => !v)}
                 />
               </div>
             </div>
@@ -184,10 +201,10 @@ export default function ChangePassword() {
 
             <button
               onClick={handleSubmit}
-              disabled={profileLoading}
+              disabled={loading}
               className="w-full py-3.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 disabled:opacity-60 transition"
             >
-              {profileLoading ? "Menyimpan..." : "Submit"}
+              {loading ? "Menyimpan..." : "Submit"}
             </button>
           </div>
         </div>

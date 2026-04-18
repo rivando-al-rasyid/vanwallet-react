@@ -1,65 +1,151 @@
-import { useState, useRef, useContext, useEffect } from "react";
+import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
-import { useSelector } from "react-redux";
-import { useProfile } from "../../hooks/useProfile";
+import Joi from "joi";
+
+import { updateProfile, setAvatar } from "../../store/slices/profileSlice";
 
 export default function Profile() {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const reduxUser = useSelector((state) => state.auth.user);
-  const { updateProfile, profileLoading, profileError } = useProfile();
 
-  const [form, setForm] = useState({
-    name: "",
-    phone: "",
-    email: "",
-    avatar: "",
-  });
+  const user = useSelector((state) => state.profile.user);
+  const userId = useSelector((state) => state.profile.user?.id ?? null);
+  const loading = useSelector((state) => state.profile.loading);
+  const profileError = useSelector((state) => state.profile.error);
+  const avatarPath = useSelector((state) => state.profile.avatarPath);
+
+  const [form, setForm] = useState({ name: "", phone: "", email: "" });
   const [success, setSuccess] = useState("");
-  const fileInputRef = useRef(null);
+  const [localError, setLocalError] = useState("");
 
-  // Sync form from Redux user (covers initial load + after mergeUser updates)
+  // Avatar URL state
+  const [showUrlInput, setShowUrlInput] = useState(false);
+  const [urlInput, setUrlInput] = useState("");
+  const [urlError, setUrlError] = useState("");
+  const [imgLoadError, setImgLoadError] = useState(false);
+
+  // Sync form from Redux whenever the persisted user changes
   useEffect(() => {
-    if (reduxUser) {
+    if (user) {
       setForm({
-        name: reduxUser.name || "",
-        phone: reduxUser.phone || "",
-        email: reduxUser.email || "",
-        avatar: reduxUser.avatar || "",
+        name: user.name || "",
+        phone: user.phone || "",
+        email: user.email || "",
       });
     }
-  }, [reduxUser]);
+  }, [user]);
 
   const handleChange = (e) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    setLocalError("");
   };
 
-  const handleAvatarChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () =>
-      setForm((prev) => ({ ...prev, avatar: reader.result }));
-    reader.readAsDataURL(file);
+  // ─── Avatar URL handlers ────────────────────────────────────────────────────
+
+  const handleUrlInputChange = (e) => {
+    setUrlInput(e.target.value);
+    setUrlError("");
+    setImgLoadError(false);
+  };
+
+  const isValidUrl = (str) => {
+    try {
+      const url = new URL(str);
+      return url.protocol === "http:" || url.protocol === "https:";
+    } catch {
+      return false;
+    }
+  };
+
+  const handleSaveUrl = () => {
+    const trimmed = urlInput.trim();
+
+    if (!trimmed) {
+      setUrlError("URL tidak boleh kosong.");
+      return;
+    }
+    if (!isValidUrl(trimmed)) {
+      setUrlError("Format URL tidak valid. Gunakan http:// atau https://");
+      return;
+    }
+
+    dispatch(setAvatar(trimmed));
+    setShowUrlInput(false);
+    setUrlInput("");
+    setUrlError("");
+    setImgLoadError(false);
+    setSuccess("Avatar berhasil diupdate!");
+  };
+
+  const handleCancelUrl = () => {
+    setShowUrlInput(false);
+    setUrlInput("");
+    setUrlError("");
+    setImgLoadError(false);
   };
 
   const handleDeleteAvatar = () => {
-    setForm((prev) => ({ ...prev, avatar: "" }));
+    dispatch(setAvatar(null));
+    setSuccess("Avatar dihapus.");
   };
+
+  // ─── Form validation ────────────────────────────────────────────────────────
+
+  const profileSchema = Joi.object({
+    name: Joi.string().min(2).required().messages({
+      "string.empty": "Nama tidak boleh kosong.",
+      "string.min": "Nama minimal 2 karakter.",
+      "any.required": "Nama wajib diisi.",
+    }),
+    phone: Joi.string()
+      .pattern(/^[0-9+\-\s]{8,15}$/)
+      .required()
+      .messages({
+        "string.empty": "Nomor telepon tidak boleh kosong.",
+        "string.pattern.base": "Format nomor telepon tidak valid.",
+        "any.required": "Nomor telepon wajib diisi.",
+      }),
+    email: Joi.string()
+      .email({ tlds: { allow: false } })
+      .required()
+      .messages({
+        "string.empty": "Email tidak boleh kosong.",
+        "string.email": "Format email tidak valid.",
+        "any.required": "Email wajib diisi.",
+      }),
+  });
 
   const handleSubmit = async () => {
     setSuccess("");
-    try {
-      await updateProfile({
-        name: form.name,
-        phone: form.phone,
-        email: form.email,
-        avatar: form.avatar,
-      });
+
+    const { error: validationError } = profileSchema.validate(form, {
+      abortEarly: true,
+    });
+    if (validationError) {
+      setLocalError(validationError.message);
+      return;
+    }
+    setLocalError("");
+
+    const result = await dispatch(
+      updateProfile({
+        userId,
+        payload: {
+          name: form.name,
+          phone: form.phone,
+          email: form.email,
+        },
+      }),
+    );
+
+    if (updateProfile.fulfilled.match(result)) {
       setSuccess("Profile berhasil diupdate!");
-    } catch {
-      // error is handled by context/Redux via profileError
     }
   };
+
+  // Prefer locally-selected path, fall back to user.avatar from API
+  const displayAvatar = avatarPath || user?.avatar || null;
 
   return (
     <>
@@ -79,7 +165,7 @@ export default function Profile() {
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 lg:p-8">
-        {!reduxUser ? (
+        {!user ? (
           <div className="flex items-center justify-center py-20 text-gray-400 text-sm">
             Memuat data profile...
           </div>
@@ -87,13 +173,13 @@ export default function Profile() {
           <>
             {/* Avatar Section */}
             <div className="flex flex-row items-center gap-6">
-              {/* Avatar Image Container */}
               <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl border-2 border-gray-200 overflow-hidden bg-gray-100 flex items-center justify-center shrink-0">
-                {form.avatar ? (
+                {displayAvatar && !imgLoadError ? (
                   <img
-                    src={form.avatar}
+                    src={displayAvatar}
                     alt="avatar"
                     className="w-full h-full object-cover"
+                    onError={() => setImgLoadError(true)}
                   />
                 ) : (
                   <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
@@ -105,10 +191,13 @@ export default function Profile() {
                 )}
               </div>
 
-              {/* Buttons Container */}
               <div className="flex flex-col gap-2 w-auto">
                 <button
-                  onClick={() => fileInputRef.current?.click()}
+                  onClick={() => {
+                    setShowUrlInput((v) => !v);
+                    setUrlError("");
+                    setImgLoadError(false);
+                  }}
                   className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition"
                 >
                   <svg
@@ -127,7 +216,8 @@ export default function Profile() {
 
                 <button
                   onClick={handleDeleteAvatar}
-                  className="flex items-center justify-center gap-2 px-4 py-2 border border-red-400 text-red-500 text-sm font-medium rounded-xl hover:bg-red-50 transition"
+                  disabled={!displayAvatar}
+                  className="flex items-center justify-center gap-2 px-4 py-2 border border-red-400 text-red-500 text-sm font-medium rounded-xl hover:bg-red-50 disabled:opacity-40 transition"
                 >
                   <svg
                     width="16"
@@ -146,16 +236,65 @@ export default function Profile() {
                 </button>
               </div>
             </div>
-            <div className="border-t border-gray-100 mb-8" />
 
-            {/* Hidden file input */}
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={handleAvatarChange}
-            />
+            {/* URL Input Panel */}
+            {showUrlInput && (
+              <div className="mt-4 p-4 border border-gray-100 rounded-xl bg-gray-50">
+                <p className="text-xs font-semibold text-gray-500 mb-3 uppercase tracking-wide">
+                  Avatar URL
+                </p>
+
+                {/* Live preview while typing */}
+                {urlInput && isValidUrl(urlInput) && !imgLoadError && (
+                  <div className="mb-3 flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-lg border border-gray-200 overflow-hidden bg-gray-100 shrink-0">
+                      <img
+                        src={urlInput}
+                        alt="preview"
+                        className="w-full h-full object-cover"
+                        onError={() => setImgLoadError(true)}
+                      />
+                    </div>
+                    <span className="text-xs text-gray-400">Preview</span>
+                  </div>
+                )}
+
+                {imgLoadError && urlInput && (
+                  <p className="text-xs text-red-500 mb-2">
+                    Gambar tidak dapat dimuat. Coba URL lain.
+                  </p>
+                )}
+
+                <input
+                  type="url"
+                  value={urlInput}
+                  onChange={handleUrlInputChange}
+                  placeholder="https://example.com/avatar.jpg"
+                  className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition"
+                />
+
+                {urlError && (
+                  <p className="text-xs text-red-500 mt-1.5">{urlError}</p>
+                )}
+
+                <div className="flex gap-2 mt-3">
+                  <button
+                    onClick={handleSaveUrl}
+                    className="flex-1 py-2 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition"
+                  >
+                    Simpan
+                  </button>
+                  <button
+                    onClick={handleCancelUrl}
+                    className="flex-1 py-2 border border-gray-200 text-gray-600 text-sm font-medium rounded-xl hover:bg-gray-100 transition"
+                  >
+                    Batal
+                  </button>
+                </div>
+              </div>
+            )}
+
+            <div className="border-t border-gray-100 mt-6 mb-8" />
 
             {/* Form Fields */}
             <div className="flex flex-col gap-4 sm:gap-5 w-full">
@@ -271,15 +410,19 @@ export default function Profile() {
                 </button>
               </div>
 
-              {profileError && <p className="text-sm text-red-500">{profileError}</p>}
+              {(localError || profileError) && (
+                <p className="text-sm text-red-500">
+                  {localError || profileError}
+                </p>
+              )}
               {success && <p className="text-sm text-green-600">{success}</p>}
 
               <button
                 onClick={handleSubmit}
-                disabled={profileLoading}
+                disabled={loading}
                 className="w-full py-3 sm:py-3.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 disabled:opacity-60 transition mt-2"
               >
-                {profileLoading ? "Menyimpan..." : "Submit"}
+                {loading ? "Menyimpan..." : "Submit"}
               </button>
             </div>
           </>

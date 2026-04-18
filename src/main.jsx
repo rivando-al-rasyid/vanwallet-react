@@ -6,12 +6,12 @@ import { PersistGate } from "redux-persist/integration/react";
 import "./style.css";
 
 import App from "./App.jsx";
-import ProtectedRoute from "./components/ProtectedRoute.jsx"; // 👈 import
+import ProtectedRoute from "./components/ProtectedRoute.jsx";
 
 import Login from "./pages/auth/Login.jsx";
 import Register from "./pages/auth/Register.jsx";
+import RegisterPin from "./pages/auth/RegisterPin.jsx";
 import ForgotPassword from "./pages/auth/ForgotPassword.jsx";
-import LoginPin from "./pages/auth/LoginPin.jsx";
 import Index from "./pages/dashboards/Index.jsx";
 import Transfer from "./pages/dashboards/Transfer.jsx";
 import History from "./pages/dashboards/History.jsx";
@@ -31,11 +31,13 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           <Route path="/" element={<App />} />
 
           {/* Guest-only routes */}
-          <Route path="login">
-            <Route index element={<Login />} />
-            <Route path="pin" element={<LoginPin />} />
+          <Route path="/login" element={<Login />} />
+
+          <Route path="register">
+            <Route index element={<Register />} />
+            <Route path="pin" element={<RegisterPin />} />
           </Route>
-          <Route path="register" element={<Register />} />
+
           <Route path="forgotpassword" element={<ForgotPassword />} />
 
           {/* Protected routes — redirect to /login if not authenticated */}
@@ -61,5 +63,5 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         </Routes>
       </BrowserRouter>
     </PersistGate>
-  </Provider>
+  </Provider>,
 );

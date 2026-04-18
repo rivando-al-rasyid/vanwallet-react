@@ -1,7 +1,11 @@
 import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import { faEnvelope, faLock } from "@fortawesome/free-solid-svg-icons";
-import { useAuth } from "../../hooks/useAuth";
+
+import { login } from "../../store/slices/authSlice";
+import Joi from "joi";
+
 import Brand from "../../components/Brand";
 import LoginHeadline from "../../components/login/LoginHeadline";
 import SocialLogin from "../../components/SocialLogin";
@@ -12,8 +16,14 @@ import LoginSubtext from "../../components/LoginSubtext";
 import loginPhoneImage from "../../assets/img/3d-hand-phone.png";
 
 export default function Login() {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { login, loading, error } = useAuth();
+
+  const selectAuthLoading = (state) => state.auth.loading;
+  const selectAuthError = (state) => state.auth.error;
+
+  const loading = useSelector(selectAuthLoading);
+  const apiError = useSelector(selectAuthError);
 
   const [form, setForm] = useState({ email: "", password: "" });
   const [validationError, setValidationError] = useState("");
@@ -23,22 +33,42 @@ export default function Login() {
     setValidationError("");
   };
 
+  const loginSchema = Joi.object({
+    email: Joi.string()
+      .email({ tlds: { allow: false } })
+      .required()
+      .messages({
+        "string.empty": "Email tidak boleh kosong.",
+        "string.email": "Format email tidak valid.",
+        "any.required": "Email wajib diisi.",
+      }),
+    password: Joi.string().min(8).required().messages({
+      "string.empty": "Password tidak boleh kosong.",
+      "string.min": "Password minimal 8 karakter.",
+      "any.required": "Password wajib diisi.",
+    }),
+  });
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setValidationError("");
 
-    if (!form.email || !form.password) {
-      setValidationError("Email dan password tidak boleh kosong.");
+    const { error: validationError } = loginSchema.validate(form, {
+      abortEarly: true,
+    });
+    if (validationError) {
+      setValidationError(validationError.message);
       return;
     }
 
-    try {
-      await login(form);
-      navigate("/login/pin");
-    } catch (err) {
-      // Error is already set in context
+    const result = await dispatch(login(form));
+
+    if (login.fulfilled.match(result)) {
+      navigate("/dashboard/");
     }
   };
+
+  const error = validationError || apiError;
 
   return (
     <main className="grid grid-cols-1 lg:grid-cols-2 min-h-screen bg-[#2948FF]">
@@ -53,9 +83,9 @@ export default function Login() {
           />
           <SocialLogin />
 
-          {(validationError || error) && (
+          {error && (
             <div className="mb-4 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-sm text-red-600 font-medium">
-              {validationError || error}
+              {error}
             </div>
           )}
 
@@ -85,6 +115,11 @@ export default function Login() {
             text={"Not Have An Account? "}
             link={"/register"}
             linklabel={"Register"}
+          />
+          <LoginSubtext
+            text={"Forgot Password? "}
+            link={"/forgotpassword"}
+            linklabel={"reset"}
           />
         </div>
       </section>
