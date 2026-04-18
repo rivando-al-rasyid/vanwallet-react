@@ -9,7 +9,7 @@ import Brand from "../../components/Brand";
 import LoginImage from "../../components/login/LoginImage";
 import LoginHeadline from "../../components/login/LoginHeadline";
 import Submit from "../../components/Submit";
-import { createPin } from "../../store/slices/authSlice";
+import { createPin } from "../../store/slices/registerSlice";
 import walletHandImage from "../../assets/img/3d-hand-wallet.png";
 
 const defaultPin = Array(6)
@@ -21,7 +21,7 @@ const pinSchema = Joi.object({
     .items(
       Joi.object({
         value: Joi.string().length(1).pattern(/^\d$/).required(),
-      }),
+      })
     )
     .length(6)
     .required(),
@@ -32,8 +32,8 @@ export default function RegisterPin() {
   const dispatch = useDispatch();
 
   const userId = useSelector((state) => state.profile.user?.id ?? null);
-  const pinLoading = useSelector((state) => state.auth.pinLoading);
-  const pinError = useSelector((state) => state.auth.pinError);
+  const pinLoading = useSelector((state) => state.register.pinLoading);
+  const pinError = useSelector((state) => state.register.pinError);
 
   const methods = useForm({
     resolver: joiResolver(pinSchema),

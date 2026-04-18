@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { login, register, logout, createPin } from "./authSlice";
+import { login, logout } from "./authSlice";
+import { register, createPin } from "./registerSlice";
 import {
   updateUser,
   changePassword as changePasswordApi,
@@ -17,7 +18,7 @@ export const fetchProfile = createAsyncThunk(
     } catch (err) {
       return rejectWithValue(err.message);
     }
-  }
+  },
 );
 
 export const updateProfile = createAsyncThunk(
@@ -28,7 +29,7 @@ export const updateProfile = createAsyncThunk(
     } catch (err) {
       return rejectWithValue(err.message);
     }
-  }
+  },
 );
 
 export const changePassword = createAsyncThunk(
@@ -39,7 +40,7 @@ export const changePassword = createAsyncThunk(
     } catch (err) {
       return rejectWithValue(err.message);
     }
-  }
+  },
 );
 
 export const changePin = createAsyncThunk(
@@ -50,7 +51,7 @@ export const changePin = createAsyncThunk(
     } catch (err) {
       return rejectWithValue(err.message);
     }
-  }
+  },
 );
 
 // ─── Initial State ───────────────────────────────────────────────────────────

@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import { faEnvelope, faLock } from "@fortawesome/free-solid-svg-icons";
 
-import { register } from "../../store/slices/authSlice";
+import { register } from "../../store/slices/registerSlice";
 import Joi from "joi";
 
 import Brand from "../../components/Brand";
@@ -16,11 +16,14 @@ import LoginSubtext from "../../components/LoginSubtext";
 import walletHandImage from "../../assets/img/3d-hand-wallet.png";
 
 const registerSchema = Joi.object({
-  email: Joi.string().email({ tlds: { allow: false } }).required().messages({
-    "string.empty": "Email tidak boleh kosong.",
-    "string.email": "Format email tidak valid.",
-    "any.required": "Email wajib diisi.",
-  }),
+  email: Joi.string()
+    .email({ tlds: { allow: false } })
+    .required()
+    .messages({
+      "string.empty": "Email tidak boleh kosong.",
+      "string.email": "Format email tidak valid.",
+      "any.required": "Email wajib diisi.",
+    }),
   password: Joi.string().min(8).required().messages({
     "string.empty": "Password tidak boleh kosong.",
     "string.min": "Password minimal 8 karakter.",
@@ -34,14 +37,11 @@ const registerSchema = Joi.object({
 });
 
 export default function Register() {
-  const selectAuthLoading = (state) => state.auth.loading;
-  const selectAuthError = (state) => state.auth.error;
-
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const loading = useSelector(selectAuthLoading);
-  const apiError = useSelector(selectAuthError);
+  const loading = useSelector((state) => state.register.registerLoading);
+  const apiError = useSelector((state) => state.register.registerError);
 
   const [form, setForm] = useState({
     email: "",
@@ -59,7 +59,9 @@ export default function Register() {
     e.preventDefault();
     setValidationError("");
 
-    const { error: joiError } = registerSchema.validate(form, { abortEarly: true });
+    const { error: joiError } = registerSchema.validate(form, {
+      abortEarly: true,
+    });
     if (joiError) {
       setValidationError(joiError.message);
       return;
