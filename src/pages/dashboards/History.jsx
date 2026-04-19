@@ -1,74 +1,45 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useSearchParams } from "react-router";
-import TableRow from "../../components/TableRow";
+import { useDispatch, useSelector } from "react-redux";
 import SearchInput from "../../components/SearchInput";
 import { Pagination } from "../../components/Pagination";
-import { getUsers } from "../../utils/auth";
+import { fetchAllHistory } from "../../store/slices/historySlice";
 
 const ITEMS_PER_PAGE = 6;
 
-const hardcodedMeta = [
-  { amount: "Rp.50.000", type: "income" },
-  { amount: "Rp.50.000", type: "expense" },
-  { amount: "Rp.75.000", type: "income" },
-  { amount: "Rp.50.000", type: "expense" },
-  { amount: "Rp.100.000", type: "income" },
-  { amount: "Rp.25.000", type: "expense" },
-  { amount: "Rp.60.000", type: "income" },
-  { amount: "Rp.80.000", type: "expense" },
-  { amount: "Rp.50.000", type: "income" },
-  { amount: "Rp.75.000", type: "expense" },
-];
+const TYPE_STYLE = {
+  deposit: { label: "Deposit", badge: "badge-success", sign: "+" },
+  withdrawal: { label: "Withdrawal", badge: "badge-danger", sign: "-" },
+  payment: { label: "Payment", badge: "badge-danger", sign: "-" },
+  invoice: { label: "Invoice", badge: "badge-warning", sign: "" },
+};
 
 export default function History() {
+  const dispatch = useDispatch();
+  const { history, status, error } = useSelector((state) => state.history);
+
   const [searchParams, setSearchParams] = useSearchParams();
   const search = searchParams.get("search") || "";
   const currentPage = Number(searchParams.get("page") || "1");
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
 
   useEffect(() => {
-    async function fetchHistory() {
-      setLoading(true);
-      setError("");
-      try {
-        const users = await getUsers();
-        const mapped = users.map((u, index) => ({
-          id: u.id,
-          img: u.avatar,
-          name: u.name,
-          phone: u.phone,
-          amount: hardcodedMeta[index % hardcodedMeta.length].amount,
-          type: hardcodedMeta[index % hardcodedMeta.length].type,
-        }));
-        setData(mapped);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
+    if (status === "idle") {
+      dispatch(fetchAllHistory());
     }
+  }, [dispatch, status]);
 
-    fetchHistory();
-  }, []);
-
-  const filtered = data.filter(
+  const filtered = history.filter(
     (item) =>
-      item.name.toLowerCase().includes(search.toLowerCase()) ||
-      item.phone.includes(search),
+      item.transactionDesc.toLowerCase().includes(search.toLowerCase()) ||
+      item.transactionType.toLowerCase().includes(search.toLowerCase())
   );
 
   const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
   const safePage = Math.min(Math.max(currentPage, 1), totalPages || 1);
   const paginated = filtered.slice(
     (safePage - 1) * ITEMS_PER_PAGE,
-    safePage * ITEMS_PER_PAGE,
+    safePage * ITEMS_PER_PAGE
   );
-
-  const handleDelete = (id) => {
-    setData((prev) => prev.filter((item) => item.id !== id));
-  };
 
   const handleSearchChange = (e) => {
     const nextSearch = e.target.value;
@@ -91,6 +62,27 @@ export default function History() {
       return next;
     });
   };
+
+  const formatDate = (isoString) => {
+    const date = new Date(isoString);
+    return date.toLocaleDateString("id-ID", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  const formatAmount = (amount) => {
+    return new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+      minimumFractionDigits: 0,
+    }).format(Number(amount));
+  };
+
+  const loading = status === "loading";
 
   return (
     <>
@@ -133,18 +125,17 @@ export default function History() {
       <div className="card min-h-150">
         {/* Card Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-4 sm:px-6 lg:px-8 py-4 sm:py-5 border-b border-gray-100">
-          <h2 className="section-title order-2 sm:order-1">
-            Find Transaction
-          </h2>
+          <h2 className="section-title order-2 sm:order-1">Find Transaction</h2>
           <div className="order-1 sm:order-2">
             <SearchInput
               value={search}
               onChange={handleSearchChange}
-              placeholder="Name or Number"
+              placeholder="Type or Description"
             />
           </div>
         </div>
 
+        {/* Loading */}
         {loading && (
           <div className="flex flex-col items-center justify-center py-12 sm:py-20 gap-3 text-gray-400">
             <svg
@@ -166,17 +157,16 @@ export default function History() {
                 d="M4 12a8 8 0 018-8v8H4z"
               />
             </svg>
-            <span className="text-xs sm:text-sm">
-              Mengambil data history...
-            </span>
+            <span className="text-xs sm:text-sm">Mengambil data history...</span>
           </div>
         )}
 
+        {/* Error */}
         {!loading && error && (
           <div className="flex flex-col items-center justify-center py-20 gap-3">
             <p className="text-red-500 font-semibold text-sm">{error}</p>
             <button
-              onClick={() => window.location.reload()}
+              onClick={() => dispatch(fetchAllHistory())}
               className="text-xs text-blue-600 underline"
             >
               Coba lagi
@@ -184,15 +174,86 @@ export default function History() {
           </div>
         )}
 
+        {/* Table */}
         {!loading && !error && (
           <>
-            <div className="overflow-x-auto">
-              <TableRow
-                items={paginated}
-                remove={true}
-                onDelete={handleDelete}
-              />
+            <div className="overflow-x-auto px-3 sm:px-4 lg:px-8 py-3 sm:py-4">
+              <table className="w-full border-separate border-spacing-y-2 text-sm sm:text-base">
+                <tbody>
+                  {paginated.map((item, index) => {
+                    const meta = TYPE_STYLE[item.transactionType] || {
+                      label: item.transactionType,
+                      badge: "badge-warning",
+                      sign: "",
+                    };
+                    return (
+                      <tr
+                        key={item.id}
+                        className={`group transition-colors hover:bg-blue-50 ${
+                          index % 2 !== 0 ? "bg-gray-50/50" : "bg-white"
+                        }`}
+                      >
+                        {/* Icon */}
+                        <td className="py-2 sm:py-3 pl-1 sm:pl-2 rounded-l-lg sm:rounded-l-xl w-10 sm:w-12">
+                          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                              <path
+                                d="M3 10H21M7 3H17C19.2091 3 21 4.79086 21 7V17C21 19.2091 19.2091 21 17 21H7C4.79086 21 3 19.2091 3 17V7C3 4.79086 4.79086 3 7 3Z"
+                                stroke="#2563EB"
+                                strokeWidth="1.8"
+                                strokeLinecap="round"
+                              />
+                            </svg>
+                          </div>
+                        </td>
+
+                        {/* Description */}
+                        <td className="px-2 sm:px-4 py-2 sm:py-3 max-w-xs lg:max-w-md">
+                          <p className="font-semibold text-gray-700 text-xs sm:text-sm truncate">
+                            {item.transactionDesc}
+                          </p>
+                          <p className="text-gray-400 text-xs mt-0.5">
+                            {formatDate(item.createdAt)}
+                          </p>
+                        </td>
+
+                        {/* Type Badge */}
+                        <td className="px-2 sm:px-4 py-2 sm:py-3 hidden sm:table-cell">
+                          <span className={`badge ${meta.badge}`}>
+                            {meta.label}
+                          </span>
+                        </td>
+
+                        {/* Amount */}
+                        <td className="px-2 sm:px-4 py-2 sm:py-3 text-right rounded-r-lg sm:rounded-r-xl">
+                          <span
+                            className={`font-semibold text-xs sm:text-sm ${
+                              item.transactionType === "deposit"
+                                ? "text-green-600"
+                                : "text-red-500"
+                            }`}
+                          >
+                            {meta.sign} {formatAmount(item.amount)}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+
+                  {paginated.length === 0 && (
+                    <tr>
+                      <td
+                        colSpan={4}
+                        className="py-12 sm:py-20 text-center text-gray-400 text-xs sm:text-sm"
+                      >
+                        No transaction found.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
             </div>
+
             <Pagination
               currentPage={safePage}
               totalPages={totalPages}

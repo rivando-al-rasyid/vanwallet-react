@@ -2,15 +2,17 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
 import Stepper from "../../components/Stepper";
-import { getUserById, verifyPin } from "../../utils/auth";
+import { getUserById, verifyPin, transaction } from "../../utils/auth";
 import TransferModal from "./TransferModal";
 import Toast from "../../components/Toast";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { resetHistory } from "../../store/slices/historySlice";
 import Joi from "joi";
 
 export default function SetNominal() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const currentUser = useSelector((state) => state.profile.user);
 
   const [amount, setAmount] = useState("");
@@ -80,7 +82,18 @@ export default function SetNominal() {
   const handlePinSubmit = async (pin) => {
     try {
       await verifyPin(currentUser?.id, pin);
-      // TODO: call actual transfer API here
+
+      const desc = `Transfer to ${selectedContact.name} (${selectedContact.phone})${notes ? `. Notes: ${notes}` : ""}`;
+      await transaction({
+        userId: currentUser?.id,
+        transactionType: "payment",
+        transactionDesc: desc,
+        amount: parseFloat(amount),
+      });
+
+      // Reset history so it refetches fresh on next visit
+      dispatch(resetHistory());
+
       setModalStep("success");
       setToast({
         open: true,
