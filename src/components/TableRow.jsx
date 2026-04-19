@@ -5,12 +5,22 @@ import { faStar as faStarSolid } from "@fortawesome/free-solid-svg-icons";
 
 /**
  * A versatile table component for displaying contact or transaction lists.
+ *
+ * Props:
+ * - items: array of row data
+ * - remove: boolean — show trash icon (delete mode)
+ * - onDelete: callback(id) when delete is triggered
+ * - onRowClick: callback(item) when row is clicked
+ * - actionIcon: ReactNode — custom icon to render in action cell (overrides star/trash)
+ * - onAction: callback(item) — fired when custom action button is clicked
  */
 export default function TableRow({
   items,
   remove = false,
   onDelete,
   onRowClick,
+  actionIcon,
+  onAction,
 }) {
   const [rows, setRows] = useState(() =>
     items.map((item) => ({ ...item, isFavorite: false })),
@@ -44,6 +54,50 @@ export default function TableRow({
   );
 
   const displayRows = remove ? items : rows;
+
+  const renderActionButton = (contact) => {
+    // Custom action icon mode (e.g. History page detail button)
+    if (actionIcon !== undefined) {
+      return (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onAction?.(contact);
+          }}
+          className="text-gray-300 hover:text-blue-400 transition-colors"
+        >
+          {actionIcon}
+        </button>
+      );
+    }
+
+    // Default: star / trash
+    return (
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          remove ? handleDelete(contact.id) : toggleFavorite(contact.id);
+        }}
+        className={`transition-colors ${
+          remove
+            ? "text-red-400 hover:text-red-500"
+            : contact.isFavorite
+              ? "text-yellow-400 hover:text-yellow-500"
+              : "text-gray-300 hover:text-yellow-400"
+        }`}
+      >
+        <FontAwesomeIcon
+          icon={
+            remove
+              ? faTrashCan
+              : contact.isFavorite
+                ? faStarSolid
+                : faStar
+          }
+        />
+      </button>
+    );
+  };
 
   return (
     <div className="flex flex-col">
@@ -85,31 +139,7 @@ export default function TableRow({
                 )}
 
                 <td className="px-2 sm:px-4 py-2 sm:py-3 text-right rounded-r-lg sm:rounded-r-xl">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      remove
-                        ? handleDelete(contact.id)
-                        : toggleFavorite(contact.id);
-                    }}
-                    className={`transition-colors ${
-                      remove
-                        ? "text-red-400 hover:text-red-500"
-                        : contact.isFavorite
-                          ? "text-yellow-400 hover:text-yellow-500"
-                          : "text-gray-300 hover:text-yellow-400"
-                    }`}
-                  >
-                    <FontAwesomeIcon
-                      icon={
-                        remove
-                          ? faTrashCan
-                          : contact.isFavorite
-                            ? faStarSolid
-                            : faStar
-                      }
-                    />
-                  </button>
+                  {renderActionButton(contact)}
                 </td>
               </tr>
             ))}

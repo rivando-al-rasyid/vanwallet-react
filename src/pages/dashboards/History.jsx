@@ -1,18 +1,56 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import SearchInput from "../../components/SearchInput";
 import { Pagination } from "../../components/Pagination";
-import { fetchAllHistory } from "../../store/slices/historySlice";
+import { fetchHistoryWithUsers } from "../../store/slices/historySlice";
+import TableRow from "../../components/TableRow";
+import Modal from "../../components/Modal";
 
 const ITEMS_PER_PAGE = 6;
 
 const TYPE_STYLE = {
-  deposit: { label: "Deposit", badge: "badge-success", sign: "+" },
-  withdrawal: { label: "Withdrawal", badge: "badge-danger", sign: "-" },
-  payment: { label: "Payment", badge: "badge-danger", sign: "-" },
-  invoice: { label: "Invoice", badge: "badge-warning", sign: "" },
+  deposit: {
+    label: "Deposit",
+    badge: "badge-success",
+    sign: "+",
+    amountClass: "text-green-600",
+  },
+  withdrawal: {
+    label: "Withdrawal",
+    badge: "badge-danger",
+    sign: "-",
+    amountClass: "text-red-500",
+  },
+  payment: {
+    label: "Payment",
+    badge: "badge-danger",
+    sign: "-",
+    amountClass: "text-red-500",
+  },
+  invoice: {
+    label: "Invoice",
+    badge: "badge-warning",
+    sign: "",
+    amountClass: "text-gray-700",
+  },
 };
+// Eye / detail icon
+const DetailIcon = () => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+    <circle cx="12" cy="12" r="3" />
+  </svg>
+);
 
 export default function History() {
   const dispatch = useDispatch();
@@ -22,23 +60,36 @@ export default function History() {
   const search = searchParams.get("search") || "";
   const currentPage = Number(searchParams.get("page") || "1");
 
+  const [selectedItem, setSelectedItem] = useState(null);
+
   useEffect(() => {
     if (status === "idle") {
-      dispatch(fetchAllHistory());
+      dispatch(fetchHistoryWithUsers());
     }
   }, [dispatch, status]);
 
-  const filtered = history.filter(
+  // Map history items to TableRow-compatible shape
+  const mappedItems = history.map((item) => ({
+    ...item,
+    // TableRow expects these fields at root level
+    name: item.user?.name ?? "Unknown",
+    avatar: item.user?.avatar ?? "",
+    phone: item.user?.phone ?? "-",
+    // keep original fields for modal
+  }));
+
+  const filtered = mappedItems.filter(
     (item) =>
       item.transactionDesc.toLowerCase().includes(search.toLowerCase()) ||
-      item.transactionType.toLowerCase().includes(search.toLowerCase())
+      item.transactionType.toLowerCase().includes(search.toLowerCase()) ||
+      item.name.toLowerCase().includes(search.toLowerCase()),
   );
 
   const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
   const safePage = Math.min(Math.max(currentPage, 1), totalPages || 1);
   const paginated = filtered.slice(
     (safePage - 1) * ITEMS_PER_PAGE,
-    safePage * ITEMS_PER_PAGE
+    safePage * ITEMS_PER_PAGE,
   );
 
   const handleSearchChange = (e) => {
@@ -83,6 +134,13 @@ export default function History() {
   };
 
   const loading = status === "loading";
+  const meta = selectedItem
+    ? (TYPE_STYLE[selectedItem.transactionType] ?? {
+        label: selectedItem.transactionType,
+        badge: "badge-warning",
+        sign: "",
+      })
+    : null;
 
   return (
     <>
@@ -130,7 +188,7 @@ export default function History() {
             <SearchInput
               value={search}
               onChange={handleSearchChange}
-              placeholder="Type or Description"
+              placeholder="Enter Number Or Full Name"
             />
           </div>
         </div>
@@ -157,7 +215,9 @@ export default function History() {
                 d="M4 12a8 8 0 018-8v8H4z"
               />
             </svg>
-            <span className="text-xs sm:text-sm">Mengambil data history...</span>
+            <span className="text-xs sm:text-sm">
+              Mengambil data history...
+            </span>
           </div>
         )}
 
@@ -166,7 +226,7 @@ export default function History() {
           <div className="flex flex-col items-center justify-center py-20 gap-3">
             <p className="text-red-500 font-semibold text-sm">{error}</p>
             <button
-              onClick={() => dispatch(fetchAllHistory())}
+              onClick={() => dispatch(fetchHistoryWithUsers())}
               className="text-xs text-blue-600 underline"
             >
               Coba lagi
@@ -177,82 +237,11 @@ export default function History() {
         {/* Table */}
         {!loading && !error && (
           <>
-            <div className="overflow-x-auto px-3 sm:px-4 lg:px-8 py-3 sm:py-4">
-              <table className="w-full border-separate border-spacing-y-2 text-sm sm:text-base">
-                <tbody>
-                  {paginated.map((item, index) => {
-                    const meta = TYPE_STYLE[item.transactionType] || {
-                      label: item.transactionType,
-                      badge: "badge-warning",
-                      sign: "",
-                    };
-                    return (
-                      <tr
-                        key={item.id}
-                        className={`group transition-colors hover:bg-blue-50 ${
-                          index % 2 !== 0 ? "bg-gray-50/50" : "bg-white"
-                        }`}
-                      >
-                        {/* Icon */}
-                        <td className="py-2 sm:py-3 pl-1 sm:pl-2 rounded-l-lg sm:rounded-l-xl w-10 sm:w-12">
-                          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                              <path
-                                d="M3 10H21M7 3H17C19.2091 3 21 4.79086 21 7V17C21 19.2091 19.2091 21 17 21H7C4.79086 21 3 19.2091 3 17V7C3 4.79086 4.79086 3 7 3Z"
-                                stroke="#2563EB"
-                                strokeWidth="1.8"
-                                strokeLinecap="round"
-                              />
-                            </svg>
-                          </div>
-                        </td>
-
-                        {/* Description */}
-                        <td className="px-2 sm:px-4 py-2 sm:py-3 max-w-xs lg:max-w-md">
-                          <p className="font-semibold text-gray-700 text-xs sm:text-sm truncate">
-                            {item.transactionDesc}
-                          </p>
-                          <p className="text-gray-400 text-xs mt-0.5">
-                            {formatDate(item.createdAt)}
-                          </p>
-                        </td>
-
-                        {/* Type Badge */}
-                        <td className="px-2 sm:px-4 py-2 sm:py-3 hidden sm:table-cell">
-                          <span className={`badge ${meta.badge}`}>
-                            {meta.label}
-                          </span>
-                        </td>
-
-                        {/* Amount */}
-                        <td className="px-2 sm:px-4 py-2 sm:py-3 text-right rounded-r-lg sm:rounded-r-xl">
-                          <span
-                            className={`font-semibold text-xs sm:text-sm ${
-                              item.transactionType === "deposit"
-                                ? "text-green-600"
-                                : "text-red-500"
-                            }`}
-                          >
-                            {meta.sign} {formatAmount(item.amount)}
-                          </span>
-                        </td>
-                      </tr>
-                    );
-                  })}
-
-                  {paginated.length === 0 && (
-                    <tr>
-                      <td
-                        colSpan={4}
-                        className="py-12 sm:py-20 text-center text-gray-400 text-xs sm:text-sm"
-                      >
-                        No transaction found.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
+            <TableRow
+              items={paginated}
+              actionIcon={<DetailIcon />}
+              onAction={(item) => setSelectedItem(item)}
+            />
 
             <Pagination
               currentPage={safePage}
@@ -264,6 +253,98 @@ export default function History() {
           </>
         )}
       </div>
+
+      {/* Detail Modal */}
+      <Modal open={!!selectedItem} panelClassName="text-left">
+        {selectedItem && (
+          <div className="flex flex-col gap-5">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-bold text-gray-800">
+                Transaction Detail
+              </h3>
+              <button
+                onClick={() => setSelectedItem(null)}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            </div>
+
+            {/* User Info */}
+            <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl">
+              <img
+                src={selectedItem.avatar}
+                alt={selectedItem.name}
+                className="w-14 h-14 rounded-xl object-cover shrink-0"
+              />
+              <div>
+                <p className="font-bold text-gray-800 text-base">
+                  {selectedItem.name}
+                </p>
+                <p className="text-sm text-gray-500">{selectedItem.phone}</p>
+              </div>
+            </div>
+
+            {/* Transaction Info */}
+            <div className="flex flex-col gap-3">
+              <DetailRow
+                label="Description"
+                value={selectedItem.transactionDesc}
+              />
+              <DetailRow
+                label="Type"
+                value={
+                  <span className={`badge ${meta.badge}`}>{meta.label}</span>
+                }
+              />
+
+              <DetailRow
+                label="Amount"
+                value={
+                  <span className={`font-bold ${meta.amountClass}`}>
+                    {meta.sign} {formatAmount(selectedItem.amount)}
+                  </span>
+                }
+              />
+              <DetailRow
+                label="Date"
+                value={formatDate(selectedItem.createdAt)}
+              />
+            </div>
+
+            {/* Close Button */}
+            <button
+              onClick={() => setSelectedItem(null)}
+              className="w-full mt-1 py-2.5 rounded-xl bg-blue-600 text-white font-semibold text-sm hover:bg-blue-700 transition-colors"
+            >
+              Close
+            </button>
+          </div>
+        )}
+      </Modal>
     </>
+  );
+}
+
+// Helper component for modal detail rows
+function DetailRow({ label, value }) {
+  return (
+    <div className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
+      <span className="text-sm text-gray-500">{label}</span>
+      <span className="text-sm font-medium text-gray-700">{value}</span>
+    </div>
   );
 }
