@@ -1,6 +1,7 @@
 import { useEffect, useCallback, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
+import { Icon } from "@iconify/react";
 import { fetchAllUsers } from "../../store/slices/transferSlice";
 import Stepper from "../../components/Stepper";
 import SearchInput from "../../components/SearchInput";
@@ -53,11 +54,7 @@ export default function Transfer() {
       const nextSearch = e.target.value;
       setSearchParams((prev) => {
         const next = new URLSearchParams(prev);
-        if (nextSearch) {
-          next.set("search", nextSearch);
-        } else {
-          next.delete("search");
-        }
+        if (nextSearch) { next.set("search", nextSearch); } else { next.delete("search"); }
         next.set("page", "1");
         return next;
       });
@@ -77,15 +74,11 @@ export default function Transfer() {
   );
 
   const handleRowClick = useCallback(
-    (contact) => {
-      navigate(`/dashboard/transfer/${contact.id}`);
-    },
+    (contact) => { navigate(`/dashboard/transfer/${contact.id}`); },
     [navigate],
   );
 
-  const handleRetry = useCallback(() => {
-    dispatch(fetchAllUsers());
-  }, [dispatch]);
+  const handleRetry = useCallback(() => { dispatch(fetchAllUsers()); }, [dispatch]);
 
   const resultsText = useMemo(() => {
     if (loading) return "Memuat kontak...";
@@ -99,16 +92,7 @@ export default function Transfer() {
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-6">
           <span className="text-blue-600">
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
-            </svg>
+            <Icon icon="lucide:send" width={24} height={24} aria-hidden="true" />
           </span>
           <h1 className="section-title">Transfer Money</h1>
         </div>
@@ -130,25 +114,11 @@ export default function Transfer() {
 
         {loading && (
           <div className="flex flex-col items-center justify-center py-20 gap-3 text-gray-400">
-            <svg
+            <Icon
+              icon="lucide:loader-circle"
               className="animate-spin w-8 h-8 text-blue-500"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              />
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8v8H4z"
-              />
-            </svg>
+              aria-hidden="true"
+            />
             <span className="text-sm">Mengambil data kontak...</span>
           </div>
         )}

@@ -1,24 +1,17 @@
 import { memo } from "react";
 import Brand from "../components/Brand";
-import { Phone, Mail } from "lucide-react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faTwitter,
-  faFacebookF,
-  faInstagram,
-  faGithub,
-} from "@fortawesome/free-brands-svg-icons";
+import { Icon } from "@iconify/react";
 
 const CONTACT_ITEMS = [
-  { Icon: Phone, text: "+62 5637 8882 9901" },
-  { Icon: Mail, text: "contact@zwallet.com" },
+  { icon: "lucide:phone", text: "+62 5637 8882 9901" },
+  { icon: "lucide:mail", text: "contact@zwallet.com" },
 ];
 
 const SOCIAL_LINKS = [
-  { icon: faTwitter, label: "Twitter", href: "#" },
-  { icon: faFacebookF, label: "Facebook", href: "#" },
-  { icon: faInstagram, label: "Instagram", href: "#" },
-  { icon: faGithub, label: "GitHub", href: "#" },
+  { icon: "simple-icons:twitter", label: "Twitter", href: "#" },
+  { icon: "simple-icons:facebook", label: "Facebook", href: "#" },
+  { icon: "simple-icons:instagram", label: "Instagram", href: "#" },
+  { icon: "simple-icons:github", label: "GitHub", href: "#" },
 ];
 
 const Footer = memo(function Footer() {
@@ -42,9 +35,9 @@ const Footer = memo(function Footer() {
             Get In Touch
           </h4>
           <ul className="space-y-4 text-sm text-white/90">
-            {CONTACT_ITEMS.map(({ Icon, text }) => (
+            {CONTACT_ITEMS.map(({ icon, text }) => (
               <li key={text} className="flex items-center gap-3">
-                <Icon size={16} aria-hidden="true" />
+                <Icon icon={icon} width={16} height={16} aria-hidden="true" />
                 <span>{text}</span>
               </li>
             ))}
@@ -64,7 +57,7 @@ const Footer = memo(function Footer() {
                 aria-label={label}
                 className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-blue-600 transition hover:bg-gray-100"
               >
-                <FontAwesomeIcon icon={icon} className="text-base" />
+                <Icon icon={icon} width={16} height={16} aria-hidden="true" />
               </a>
             ))}
           </div>

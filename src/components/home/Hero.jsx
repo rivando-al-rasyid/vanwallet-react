@@ -1,9 +1,7 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faGooglePlay, faApple } from "@fortawesome/free-brands-svg-icons";
+import { Icon } from "@iconify/react";
 import phoneBigImage from "../../assets/img/phonebig.png";
 import phoneSmallImage from "../../assets/img/phonesmall.png";
 
-// Constants
 const AVATAR_IDS = [21, 22, 23, 24];
 const USER_COUNT = "4.6 M";
 const ICON_SIZE = 18;
@@ -17,10 +15,7 @@ export default function Hero() {
         </h1>
 
         <div className="mt-8 grid items-center gap-8 lg:mt-14 lg:grid-cols-2 lg:gap-12">
-          {/* Phone Mockup Section */}
           <PhoneMockup />
-
-          {/* Content Section */}
           <ContentSection />
         </div>
       </div>
@@ -77,7 +72,7 @@ function DownloadButtons() {
 function PlayStoreButton() {
   return (
     <button className="flex w-full min-w-42.5 items-center justify-center gap-3 rounded-lg bg-white px-6 py-3 font-medium text-blue-600 shadow-lg transition hover:bg-gray-100 sm:w-auto">
-      <FontAwesomeIcon icon={faGooglePlay} height={ICON_SIZE} width={ICON_SIZE} />
+      <Icon icon="simple-icons:googleplay" width={ICON_SIZE} height={ICON_SIZE} aria-hidden="true" />
       <span>Play Store</span>
     </button>
   );
@@ -86,7 +81,7 @@ function PlayStoreButton() {
 function AppStoreButton() {
   return (
     <button className="flex w-full min-w-42.5 items-center justify-center gap-3 rounded-lg border border-white/50 px-6 py-3 font-medium text-white transition hover:bg-white/10 sm:w-auto">
-      <FontAwesomeIcon icon={faApple} height={ICON_SIZE} width={ICON_SIZE} />
+      <Icon icon="simple-icons:apple" width={ICON_SIZE} height={ICON_SIZE} aria-hidden="true" />
       <span>App Store</span>
     </button>
   );

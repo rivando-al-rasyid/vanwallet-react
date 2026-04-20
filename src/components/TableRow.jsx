@@ -1,7 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faStar, faTrashCan } from "@fortawesome/free-regular-svg-icons";
-import { faStar as faStarSolid } from "@fortawesome/free-solid-svg-icons";
+import { Icon } from "@iconify/react";
 
 /**
  * A versatile table component for displaying contact or transaction lists.
@@ -26,7 +24,6 @@ export default function TableRow({
     items.map((item) => ({ ...item, isFavorite: false })),
   );
 
-  // Sync rows when items prop changes (only if not in 'remove' mode)
   useEffect(() => {
     if (remove) return;
     setRows(items.map((item) => ({ ...item, isFavorite: false })));
@@ -56,7 +53,6 @@ export default function TableRow({
   const displayRows = remove ? items : rows;
 
   const renderActionButton = (contact) => {
-    // Custom action icon mode (e.g. History page detail button)
     if (actionIcon !== undefined) {
       return (
         <button
@@ -71,7 +67,6 @@ export default function TableRow({
       );
     }
 
-    // Default: star / trash
     return (
       <button
         onClick={(e) => {
@@ -85,16 +80,15 @@ export default function TableRow({
               ? "text-yellow-400 hover:text-yellow-500"
               : "text-gray-300 hover:text-yellow-400"
         }`}
+        aria-label={remove ? "Delete" : contact.isFavorite ? "Unfavorite" : "Favorite"}
       >
-        <FontAwesomeIcon
-          icon={
-            remove
-              ? faTrashCan
-              : contact.isFavorite
-                ? faStarSolid
-                : faStar
-          }
-        />
+        {remove ? (
+          <Icon icon="fa-regular:trash-can" width={16} height={16} />
+        ) : contact.isFavorite ? (
+          <Icon icon="fa-solid:star" width={16} height={16} />
+        ) : (
+          <Icon icon="fa-regular:star" width={16} height={16} />
+        )}
       </button>
     );
   };

@@ -2,7 +2,7 @@ import Brand from "../Brand";
 import { useState, useRef, useEffect, useContext } from "react";
 import { useNavigate } from "react-router";
 import { useSelector } from "react-redux";
-import { X, Menu } from "lucide-react";
+import { Icon } from "@iconify/react";
 
 import DashboardContext from "../../context/dashboard/context";
 import LogoutButton from "./LogoutButton";
@@ -16,7 +16,6 @@ export default function Header() {
   const { sidebarOpen, setSidebarOpen } = useContext(DashboardContext);
   const logoutAndRedirect = useLogout();
 
-  // Dropdown open state is local UI — belongs in useState, not Redux
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef(null);
 
@@ -42,28 +41,10 @@ export default function Header() {
         <div className="flex items-center gap-3">
           <div className="hidden lg:flex items-center gap-4 border-r border-slate-100 pr-4">
             <button className="text-slate-400 hover:text-blue-500 transition-colors">
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                viewBox="0 0 24 24"
-              >
-                <circle cx="11" cy="11" r="7" />
-                <path d="M21 21l-4.35-4.35" />
-              </svg>
+              <Icon icon="lucide:search" className="w-5 h-5" aria-hidden="true" />
             </button>
             <button className="text-slate-400 hover:text-blue-500 transition-colors">
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                viewBox="0 0 24 24"
-              >
-                <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
-                <path d="M16 10a4 4 0 01-8 0" />
-              </svg>
+              <Icon icon="lucide:shopping-bag" className="w-5 h-5" aria-hidden="true" />
             </button>
           </div>
 
@@ -81,15 +62,11 @@ export default function Header() {
                   className="w-8 h-8 rounded-full object-cover ring-2 ring-white shadow-sm"
                   alt="avatar"
                 />
-                <svg
+                <Icon
+                  icon="lucide:chevron-down"
                   className={`w-4 h-4 text-slate-400 transition-transform duration-300 ${open ? "rotate-180" : ""}`}
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M6 9l6 6 6-6" />
-                </svg>
+                  aria-hidden="true"
+                />
               </button>
 
               <div
@@ -116,16 +93,7 @@ export default function Header() {
                     }}
                     className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-blue-50 hover:text-blue-600 transition-colors"
                   >
-                    <svg
-                      className="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
-                      <circle cx="12" cy="7" r="4" />
-                    </svg>
+                    <Icon icon="lucide:user" className="w-4 h-4" aria-hidden="true" />
                     Profil Saya
                   </button>
 
@@ -152,7 +120,10 @@ export default function Header() {
             className="flex items-center justify-center rounded-lg p-2 text-slate-600 transition hover:bg-slate-100 lg:hidden"
             aria-label={sidebarOpen ? "Close sidebar" : "Open sidebar"}
           >
-            {sidebarOpen ? <X size={22} /> : <Menu size={22} />}
+            {sidebarOpen
+              ? <Icon icon="lucide:x" width={22} height={22} />
+              : <Icon icon="lucide:menu" width={22} height={22} />
+            }
           </button>
         </div>
       </nav>

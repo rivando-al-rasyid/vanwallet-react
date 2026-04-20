@@ -1,4 +1,5 @@
 import { useCallback, useContext, useRef, useState } from "react";
+import { Icon } from "@iconify/react";
 import ConfirmContext from "./context";
 
 export function ConfirmProvider({ children }) {
@@ -11,14 +12,8 @@ export function ConfirmProvider({ children }) {
     variant: "danger", // "danger" | "warning" | "info"
   });
 
-  // Store the resolve function from the Promise so we can call it later
   const resolveRef = useRef(null);
 
-  /**
-   * Opens the confirm dialog and returns a Promise<boolean>.
-   * true  = user clicked confirm
-   * false = user clicked cancel / closed
-   */
   const confirm = useCallback(
     ({
       title = "Konfirmasi",
@@ -49,11 +44,7 @@ export function ConfirmProvider({ children }) {
     danger: {
       icon: (
         <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#EF4444" strokeWidth="2">
-            <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
-            <line x1="12" y1="9" x2="12" y2="13"/>
-            <line x1="12" y1="17" x2="12.01" y2="17"/>
-          </svg>
+          <Icon icon="lucide:triangle-alert" width={24} height={24} color="#EF4444" aria-hidden="true" />
         </div>
       ),
       confirmBtn: "bg-red-500 hover:bg-red-600 text-white",
@@ -61,11 +52,7 @@ export function ConfirmProvider({ children }) {
     warning: {
       icon: (
         <div className="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center mx-auto mb-4">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" strokeWidth="2">
-            <circle cx="12" cy="12" r="10"/>
-            <line x1="12" y1="8" x2="12" y2="12"/>
-            <line x1="12" y1="16" x2="12.01" y2="16"/>
-          </svg>
+          <Icon icon="lucide:info" width={24} height={24} color="#F59E0B" aria-hidden="true" />
         </div>
       ),
       confirmBtn: "bg-yellow-500 hover:bg-yellow-600 text-white",
@@ -73,11 +60,7 @@ export function ConfirmProvider({ children }) {
     info: {
       icon: (
         <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-4">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" strokeWidth="2">
-            <circle cx="12" cy="12" r="10"/>
-            <line x1="12" y1="16" x2="12" y2="12"/>
-            <line x1="12" y1="8" x2="12.01" y2="8"/>
-          </svg>
+          <Icon icon="lucide:info" width={24} height={24} color="#3B82F6" aria-hidden="true" />
         </div>
       ),
       confirmBtn: "bg-blue-600 hover:bg-blue-700 text-white",

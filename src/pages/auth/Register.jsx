@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
-import { faEnvelope, faLock } from "@fortawesome/free-solid-svg-icons";
 
 import { register } from "../../store/slices/registerSlice";
 import Joi from "joi";
@@ -101,7 +100,7 @@ export default function Register() {
               label="Email"
               type="email"
               name="email"
-              icon={faEnvelope}
+              icon="lucide:mail"
               placeholder="Enter your email"
               value={form.email}
               onChange={handleChange}
@@ -110,7 +109,7 @@ export default function Register() {
               label="Password"
               type="password"
               name="password"
-              icon={faLock}
+              icon="lucide:lock"
               placeholder="Enter Your Password"
               value={form.password}
               onChange={handleChange}
@@ -119,7 +118,7 @@ export default function Register() {
               label="Confirm Password"
               type="password"
               name="confirmPassword"
-              icon={faLock}
+              icon="lucide:lock"
               placeholder="Enter Your Password Again"
               value={form.confirmPassword}
               onChange={handleChange}

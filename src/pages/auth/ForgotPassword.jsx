@@ -1,7 +1,6 @@
 import { useState } from "react";
 import Joi from "joi";
 import { useNavigate } from "react-router";
-import { faEnvelope } from "@fortawesome/free-solid-svg-icons";
 import Brand from "../../components/Brand";
 import LoginHeadline from "../../components/login/LoginHeadline";
 import Input from "../../components/Input";
@@ -55,7 +54,7 @@ export default function ForgotPassword() {
             label="Email"
             type="email"
             name="email"
-            icon={faEnvelope}
+            icon="lucide:mail"
             placeholder="Enter your email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}

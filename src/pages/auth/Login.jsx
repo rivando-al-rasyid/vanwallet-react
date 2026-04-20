@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
-import { faEnvelope, faLock } from "@fortawesome/free-solid-svg-icons";
 
 import { login } from "../../store/slices/authSlice";
 import Joi from "joi";
@@ -86,7 +85,7 @@ export default function Login() {
               label="Email"
               type="email"
               name="email"
-              icon={faEnvelope}
+              icon="lucide:mail"
               placeholder="Enter your email"
               value={form.email}
               onChange={handleChange}
@@ -95,7 +94,7 @@ export default function Login() {
               label="Password"
               type="password"
               name="password"
-              icon={faLock}
+              icon="lucide:lock"
               placeholder="Enter Your Password"
               value={form.password}
               onChange={handleChange}
