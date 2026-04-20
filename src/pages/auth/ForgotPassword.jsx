@@ -6,12 +6,13 @@ import Brand from "../../components/Brand";
 import LoginHeadline from "../../components/login/LoginHeadline";
 import Input from "../../components/Input";
 import Submit from "../../components/Submit";
+import { useToast } from "../../context/toast/provider";
 
 export default function ForgotPassword() {
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
   const [email, setEmail] = useState("");
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const forgotSchema = Joi.object({
@@ -24,11 +25,10 @@ export default function ForgotPassword() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
 
     const { error: validationError } = forgotSchema.validate({ email });
     if (validationError) {
-      setError(validationError.message);
+      showToast(validationError.message, "error");
       return;
     }
 
@@ -36,7 +36,8 @@ export default function ForgotPassword() {
 
     setTimeout(() => {
       setLoading(false);
-      navigate("/login/pin", { state: { email } });
+      showToast("Link reset password telah dikirim ke email kamu.", "success");
+      navigate("/login");
     }, 500);
   };
 
@@ -48,12 +49,6 @@ export default function ForgotPassword() {
           title={"Fill Out Form Correctly 👋"}
           text={"We will send new password to your email"}
         />
-
-        {error && (
-          <div className="mb-4 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-sm text-red-600 font-medium">
-            {error}
-          </div>
-        )}
 
         <form className="space-y-6" onSubmit={handleSubmit}>
           <Input

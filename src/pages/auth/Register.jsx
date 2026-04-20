@@ -14,6 +14,7 @@ import Submit from "../../components/Submit";
 import LoginImage from "../../components/login/LoginImage";
 import LoginSubtext from "../../components/LoginSubtext";
 import walletHandImage from "../../assets/img/3d-hand-wallet.png";
+import { useToast } from "../../context/toast/provider";
 
 const registerSchema = Joi.object({
   email: Joi.string()
@@ -39,31 +40,28 @@ const registerSchema = Joi.object({
 export default function Register() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
   const loading = useSelector((state) => state.register.registerLoading);
-  const apiError = useSelector((state) => state.register.registerError);
 
   const [form, setForm] = useState({
     email: "",
     password: "",
     confirmPassword: "",
   });
-  const [validationError, setValidationError] = useState("");
 
   const handleChange = (e) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-    setValidationError("");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setValidationError("");
 
     const { error: joiError } = registerSchema.validate(form, {
       abortEarly: true,
     });
     if (joiError) {
-      setValidationError(joiError.message);
+      showToast(joiError.message, "error");
       return;
     }
 
@@ -72,11 +70,16 @@ export default function Register() {
     );
 
     if (register.fulfilled.match(result)) {
+      showToast("Registrasi berhasil! Buat PIN kamu.", "success");
       navigate("/register/pin");
+    } else {
+      const msg =
+        result.payload ||
+        result.error?.message ||
+        "Registrasi gagal. Coba lagi.";
+      showToast(msg, "error");
     }
   };
-
-  const error = validationError || apiError;
 
   return (
     <main className="grid grid-cols-1 lg:grid-cols-2 min-h-screen bg-[#2948FF]">
@@ -92,12 +95,6 @@ export default function Register() {
             }
           />
           <SocialLogin />
-
-          {error && (
-            <div className="mb-4 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-sm text-red-600 font-medium">
-              {error}
-            </div>
-          )}
 
           <form className="space-y-6" onSubmit={handleSubmit}>
             <Input

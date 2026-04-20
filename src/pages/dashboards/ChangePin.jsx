@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useForm, FormProvider } from "react-hook-form";
 import { joiResolver } from "@hookform/resolvers/joi";
@@ -7,6 +6,7 @@ import Joi from "joi";
 
 import PinInput from "../../components/PinInput";
 import { changePin } from "../../store/slices/profileSlice";
+import { useToast } from "../../context/toast/provider";
 
 const defaultPin = Array(6)
   .fill(null)
@@ -26,12 +26,10 @@ const pinSchema = Joi.object({
 export default function ChangePin() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
   const userId = useSelector((state) => state.profile.user?.id ?? null);
   const loading = useSelector((state) => state.profile.loading);
-  const profileError = useSelector((state) => state.profile.error);
-
-  const [success, setSuccess] = useState("");
 
   const methods = useForm({
     resolver: joiResolver(pinSchema),
@@ -41,14 +39,17 @@ export default function ChangePin() {
 
   const onSubmit = async (data) => {
     const newPin = data.pin.map((item) => item.value).join("");
-    setSuccess("");
 
     const result = await dispatch(changePin({ userId, newPin }));
 
     if (changePin.fulfilled.match(result)) {
-      setSuccess("PIN berhasil diupdate!");
+      showToast("PIN berhasil diupdate!", "success");
       methods.reset({ pin: defaultPin });
-      setTimeout(() => navigate("/dashboard/profile"), 1200);
+      setTimeout(() => navigate("/dashboard/profile"), 1500);
+    } else {
+      const msg =
+        result.payload || result.error?.message || "Gagal mengupdate PIN.";
+      showToast(msg, "error");
     }
   };
 
@@ -88,13 +89,6 @@ export default function ChangePin() {
                 <p className="text-sm text-red-500 mt-4">
                   Please complete the 6-digit PIN.
                 </p>
-              )}
-
-              {profileError && (
-                <p className="text-sm text-red-500 mt-4">{profileError}</p>
-              )}
-              {success && (
-                <p className="text-sm text-green-600 mt-4">{success}</p>
               )}
 
               <button

@@ -22,48 +22,51 @@ import ChangePin from "./pages/dashboards/ChangePin.jsx";
 import SetNominal from "./pages/dashboards/SetNominal.jsx";
 import DashboardProvider from "./context/dashboard/provider.jsx";
 import { ToastProvider } from "./context/toast/provider.jsx";
+import { ConfirmProvider } from "./context/confirm/provider.jsx";
 import { persistor, store } from "./store/store";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <Provider store={store}>
     <PersistGate loading={null} persistor={persistor}>
       <ToastProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<App />} />
+        <ConfirmProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<App />} />
 
-            {/* Guest-only routes */}
-            <Route path="/login" element={<Login />} />
+              {/* Guest-only routes */}
+              <Route path="/login" element={<Login />} />
 
-            <Route path="register">
-              <Route index element={<Register />} />
-              <Route path="pin" element={<RegisterPin />} />
-            </Route>
+              <Route path="register">
+                <Route index element={<Register />} />
+                <Route path="pin" element={<RegisterPin />} />
+              </Route>
 
-            <Route path="forgotpassword" element={<ForgotPassword />} />
+              <Route path="forgotpassword" element={<ForgotPassword />} />
 
-            {/* Protected routes — redirect to /login if not authenticated */}
-            <Route element={<ProtectedRoute />}>
-              <Route path="dashboard" element={<DashboardProvider />}>
-                <Route index element={<Index />} />
+              {/* Protected routes — redirect to /login if not authenticated */}
+              <Route element={<ProtectedRoute />}>
+                <Route path="dashboard" element={<DashboardProvider />}>
+                  <Route index element={<Index />} />
 
-                <Route path="transfer">
-                  <Route index element={<Transfer />} />
-                  <Route path=":id" element={<SetNominal />} />
-                </Route>
+                  <Route path="transfer">
+                    <Route index element={<Transfer />} />
+                    <Route path=":id" element={<SetNominal />} />
+                  </Route>
 
-                <Route path="history" element={<History />} />
-                <Route path="topup" element={<TopUp />} />
+                  <Route path="history" element={<History />} />
+                  <Route path="topup" element={<TopUp />} />
 
-                <Route path="profile">
-                  <Route index element={<Profile />} />
-                  <Route path="change-password" element={<ChangePassword />} />
-                  <Route path="change-pin" element={<ChangePin />} />
+                  <Route path="profile">
+                    <Route index element={<Profile />} />
+                    <Route path="change-password" element={<ChangePassword />} />
+                    <Route path="change-pin" element={<ChangePin />} />
+                  </Route>
                 </Route>
               </Route>
-            </Route>
-          </Routes>
-        </BrowserRouter>
+            </Routes>
+          </BrowserRouter>
+        </ConfirmProvider>
       </ToastProvider>
     </PersistGate>
   </Provider>,

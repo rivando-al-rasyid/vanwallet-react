@@ -14,23 +14,19 @@ import Submit from "../../components/Submit";
 import LoginImage from "../../components/login/LoginImage";
 import LoginSubtext from "../../components/LoginSubtext";
 import loginPhoneImage from "../../assets/img/3d-hand-phone.png";
+import { useToast } from "../../context/toast/provider";
 
 export default function Login() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
-  const selectAuthLoading = (state) => state.auth.loading;
-  const selectAuthError = (state) => state.auth.error;
-
-  const loading = useSelector(selectAuthLoading);
-  const apiError = useSelector(selectAuthError);
+  const loading = useSelector((state) => state.auth.loading);
 
   const [form, setForm] = useState({ email: "", password: "" });
-  const [validationError, setValidationError] = useState("");
 
   const handleChange = (e) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-    setValidationError("");
   };
 
   const loginSchema = Joi.object({
@@ -51,24 +47,26 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setValidationError("");
 
     const { error: validationError } = loginSchema.validate(form, {
       abortEarly: true,
     });
     if (validationError) {
-      setValidationError(validationError.message);
+      showToast(validationError.message, "error");
       return;
     }
 
     const result = await dispatch(login(form));
 
     if (login.fulfilled.match(result)) {
+      showToast("Login berhasil! Selamat datang.", "success");
       navigate("/dashboard/");
+    } else {
+      const msg =
+        result.payload || result.error?.message || "Login gagal. Coba lagi.";
+      showToast(msg, "error");
     }
   };
-
-  const error = validationError || apiError;
 
   return (
     <main className="grid grid-cols-1 lg:grid-cols-2 min-h-screen bg-[#2948FF]">
@@ -82,12 +80,6 @@ export default function Login() {
             }
           />
           <SocialLogin />
-
-          {error && (
-            <div className="mb-4 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-sm text-red-600 font-medium">
-              {error}
-            </div>
-          )}
 
           <form className="space-y-6" onSubmit={handleSubmit}>
             <Input

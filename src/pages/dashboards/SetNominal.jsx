@@ -4,15 +4,16 @@ import { useParams, useNavigate } from "react-router";
 import Stepper from "../../components/Stepper";
 import { getUserById, verifyPin, transaction } from "../../utils/auth";
 import TransferModal from "./TransferModal";
-import Toast from "../../components/Toast";
 import { useSelector, useDispatch } from "react-redux";
 import { resetHistory } from "../../store/slices/historySlice";
 import Joi from "joi";
+import { useToast } from "../../context/toast/provider";
 
 export default function SetNominal() {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { showToast } = useToast();
   const currentUser = useSelector((state) => state.profile.user);
 
   const [amount, setAmount] = useState("");
@@ -20,11 +21,6 @@ export default function SetNominal() {
   const [selectedContact, setSelectedContact] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [toast, setToast] = useState({
-    open: false,
-    message: "",
-    type: "info",
-  });
 
   // "pin" | "failed" | "success" | null
   const [modalStep, setModalStep] = useState(null);
@@ -69,11 +65,7 @@ export default function SetNominal() {
       { abortEarly: true }
     );
     if (validationError) {
-      setToast({
-        open: true,
-        message: validationError.message,
-        type: "error",
-      });
+      showToast(validationError.message, "error");
       return;
     }
     setModalStep("pin");
@@ -95,18 +87,10 @@ export default function SetNominal() {
       dispatch(resetHistory());
 
       setModalStep("success");
-      setToast({
-        open: true,
-        message: "Transfer berhasil diproses.",
-        type: "success",
-      });
+      showToast("Transfer berhasil diproses! 🎉", "success");
     } catch (err) {
       setModalStep("failed");
-      setToast({
-        open: true,
-        message: err.message || "PIN tidak valid. Coba lagi.",
-        type: "error",
-      });
+      showToast(err.message || "PIN tidak valid. Coba lagi.", "error");
     }
   };
 
@@ -309,12 +293,6 @@ export default function SetNominal() {
         onTryAgain={handleTryAgain}
         onTransferAgain={handleTransferAgain}
         toName={selectedContact?.name ?? ""}
-      />
-      <Toast
-        open={toast.open}
-        message={toast.message}
-        type={toast.type}
-        onClose={() => setToast((prev) => ({ ...prev, open: false }))}
       />
     </>
   );

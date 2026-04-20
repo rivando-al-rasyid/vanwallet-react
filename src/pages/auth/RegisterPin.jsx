@@ -11,6 +11,7 @@ import LoginHeadline from "../../components/login/LoginHeadline";
 import Submit from "../../components/Submit";
 import { createPin } from "../../store/slices/registerSlice";
 import walletHandImage from "../../assets/img/3d-hand-wallet.png";
+import { useToast } from "../../context/toast/provider";
 
 const defaultPin = Array(6)
   .fill(null)
@@ -30,10 +31,10 @@ const pinSchema = Joi.object({
 export default function RegisterPin() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { showToast } = useToast();
 
   const userId = useSelector((state) => state.profile.user?.id ?? null);
   const pinLoading = useSelector((state) => state.register.pinLoading);
-  const pinError = useSelector((state) => state.register.pinError);
 
   const methods = useForm({
     resolver: joiResolver(pinSchema),
@@ -46,7 +47,14 @@ export default function RegisterPin() {
     const result = await dispatch(createPin({ userId, pin }));
 
     if (createPin.fulfilled.match(result)) {
+      showToast("PIN berhasil dibuat! Selamat datang.", "success");
       navigate("/dashboard");
+    } else {
+      const msg =
+        result.payload ||
+        result.error?.message ||
+        "Gagal membuat PIN. Coba lagi.";
+      showToast(msg, "error");
     }
   };
 
@@ -72,12 +80,6 @@ export default function RegisterPin() {
               {methods.formState.errors.pin && (
                 <div className="px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-sm text-red-600 font-medium">
                   Harap lengkapi 6-digit PIN.
-                </div>
-              )}
-
-              {pinError && (
-                <div className="px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-sm text-red-600 font-medium">
-                  {pinError}
                 </div>
               )}
 

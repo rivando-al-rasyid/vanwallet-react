@@ -1,6 +1,8 @@
 import { useMemo, useState } from "react";
 import Joi from "joi";
 import { useSelector } from "react-redux";
+import { useToast } from "../../context/toast/provider";
+import { useConfirm } from "../../context/confirm/provider";
 
 const TAX_RATE = 0.1;
 
@@ -33,9 +35,12 @@ const PAYMENT_METHODS = [
 ];
 
 export default function TopUp() {
+  const { showToast } = useToast();
+  const { confirm } = useConfirm();
   const currentUser = useSelector((state) => state.profile.user);
   const [amount, setAmount] = useState("");
   const [selectedMethod, setSelectedMethod] = useState("bri");
+
   const user = useMemo(() => {
     if (!currentUser?.id) return null;
     return {
@@ -52,8 +57,6 @@ export default function TopUp() {
   const fmtIdr = (val = 0) =>
     val === 0 ? "Idr. 0" : `Idr. ${val.toLocaleString("id-ID")}`;
 
-  const [topUpError, setTopUpError] = useState("");
-
   const topUpSchema = Joi.object({
     amount: Joi.number().positive().required().messages({
       "number.base": "Nominal harus berupa angka.",
@@ -65,32 +68,38 @@ export default function TopUp() {
     }),
   });
 
-  const handleSubmit = () => {
-    setTopUpError("");
+  const handleSubmit = async () => {
     const { error: validationError } = topUpSchema.validate(
       { amount: parseFloat(amount) || undefined, selectedMethod },
       { abortEarly: true },
     );
     if (validationError) {
-      setTopUpError(validationError.message);
+      showToast(validationError.message, "error");
       return;
     }
-    // const methodName = PAYMENT_METHODS.find((m) => m.id === selectedMethod)?.name;
-    // alert(\`Top Up \${fmtIdr(subTotal)} via \${methodName} berhasil!\`);
+
+    const methodName = PAYMENT_METHODS.find((m) => m.id === selectedMethod)?.name;
+
+    const ok = await confirm({
+      title: "Konfirmasi Top Up",
+      message: `Top Up ${fmtIdr(subTotal)} via ${methodName}. Lanjutkan?`,
+      confirmLabel: "Ya, Top Up",
+      cancelLabel: "Batal",
+      variant: "info",
+    });
+
+    if (!ok) return;
+
+    showToast(`Top Up ${fmtIdr(subTotal)} via ${methodName} berhasil!`, "success");
+    setAmount("");
   };
 
   return (
     <>
       {/* Page Title */}
       <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
-        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-blue-100 flex items-center justify-center ">
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            className="sm:w-4 sm:h-4"
-          >
+        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-blue-100 flex items-center justify-center">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="sm:w-4 sm:h-4">
             <path
               d="M19.5039 2.07729C20.1889 1.87802 20.931 2.07025 21.434 2.58253C21.937 3.0938 22.123 3.83957 21.918 4.52999L20.669 8.73188C20.55 9.13144 20.1339 9.35789 19.7359 9.23913C19.3389 9.11936 19.1129 8.69867 19.2319 8.30012L20.481 4.09722C20.551 3.86171 20.4259 3.7027 20.3689 3.64533C20.3119 3.58696 20.1519 3.46014 19.9209 3.52758L3.82937 8.20652C3.57336 8.281 3.51736 8.49537 3.50536 8.58394C3.49436 8.6725 3.49036 8.89392 3.71837 9.03482L7.10449 11.1182C7.4575 11.3355 7.5695 11.8005 7.35249 12.1568C7.21149 12.3883 6.96548 12.5171 6.71247 12.5171C6.57947 12.5171 6.44446 12.4819 6.32246 12.4064L2.93634 10.3221C2.26532 9.90942 1.91331 9.16667 2.01831 8.38265C2.12331 7.59762 2.65833 6.97464 3.41336 6.75523L19.5039 2.07729ZM18.0282 12.3492C18.1482 11.9487 18.5652 11.7212 18.9622 11.842C19.3592 11.9618 19.5852 12.3824 19.4662 12.782L17.1441 20.596C16.9191 21.3519 16.2971 21.8833 15.5201 21.9829C15.4331 21.995 15.3471 22 15.2611 22C14.583 22 13.963 21.6518 13.602 21.0539L9.50187 14.2645C9.32286 13.9666 9.36786 13.5841 9.61287 13.3386L15.4341 7.48007C15.7271 7.18518 16.2011 7.18518 16.4941 7.48007C16.7871 7.77496 16.7871 8.25302 16.4941 8.54791L11.0899 13.9877L14.8841 20.2699C15.0221 20.4984 15.2391 20.4964 15.3291 20.4863C15.4171 20.4742 15.6301 20.4199 15.7061 20.1643L18.0282 12.3492Z"
               fill="#2563EB"
@@ -117,12 +126,8 @@ export default function TopUp() {
                   }}
                 />
                 <div>
-                  <p className="font-semibold text-sm sm:text-base text-gray-800">
-                    {user.name}
-                  </p>
-                  <p className="text-xs sm:text-sm text-gray-500">
-                    {user.phone}
-                  </p>
+                  <p className="font-semibold text-sm sm:text-base text-gray-800">{user.name}</p>
+                  <p className="text-xs sm:text-sm text-gray-500">{user.phone}</p>
                   <span className="badge badge-success mt-1">Verified</span>
                 </div>
               </div>
@@ -182,8 +187,7 @@ export default function TopUp() {
                       alt={method.name}
                       className="max-w-full max-h-full object-contain"
                       onError={(e) => {
-                        e.currentTarget.src =
-                          "https://placehold.co/40x24?text=Pay";
+                        e.currentTarget.src = "https://placehold.co/40x24?text=Pay";
                       }}
                     />
                   </div>
@@ -202,30 +206,17 @@ export default function TopUp() {
           <div className="flex flex-col gap-3 sm:gap-4 mb-3 sm:mb-6">
             <div className="flex items-center justify-between">
               <span className="text-xs sm:text-sm text-gray-500">Order</span>
-              <span className="text-xs sm:text-sm font-semibold text-gray-800">
-                {fmtIdr(order)}
-              </span>
+              <span className="text-xs sm:text-sm font-semibold text-gray-800">{fmtIdr(order)}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-xs sm:text-sm text-gray-500">
-                Tax (10%)
-              </span>
-              <span className="text-xs sm:text-sm font-semibold text-gray-800">
-                {fmtIdr(tax)}
-              </span>
+              <span className="text-xs sm:text-sm text-gray-500">Tax (10%)</span>
+              <span className="text-xs sm:text-sm font-semibold text-gray-800">{fmtIdr(tax)}</span>
             </div>
             <div className="border-t border-gray-100 pt-3 sm:pt-4 flex items-center justify-between">
-              <span className="text-xs sm:text-sm font-bold text-gray-800">
-                Sub Total
-              </span>
-              <span className="text-xs sm:text-sm font-bold text-gray-800">
-                {fmtIdr(subTotal)}
-              </span>
+              <span className="text-xs sm:text-sm font-bold text-gray-800">Sub Total</span>
+              <span className="text-xs sm:text-sm font-bold text-gray-800">{fmtIdr(subTotal)}</span>
             </div>
           </div>
-          {topUpError && (
-            <p className="text-sm text-red-500 mb-3">{topUpError}</p>
-          )}
           <button onClick={handleSubmit} className="btn-primary w-full">
             Submit
           </button>

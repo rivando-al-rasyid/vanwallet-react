@@ -4,22 +4,21 @@ import { useNavigate } from "react-router";
 
 import { changePassword } from "../../store/slices/profileSlice";
 import Joi from "joi";
+import { useToast } from "../../context/toast/provider";
 
 export default function ChangePassword() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
   const userId = useSelector((state) => state.profile.user?.id ?? null);
   const loading = useSelector((state) => state.profile.loading);
-  const profileError = useSelector((state) => state.profile.error);
 
   const [form, setForm] = useState({
     currentPassword: "",
     newPassword: "",
     confirmNewPassword: "",
   });
-  const [success, setSuccess] = useState("");
-  const [localError, setLocalError] = useState("");
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
@@ -46,12 +45,9 @@ export default function ChangePassword() {
   });
 
   const handleSubmit = async () => {
-    setLocalError("");
-    setSuccess("");
-
     const { error: validationError } = changePasswordSchema.validate(form, { abortEarly: true });
     if (validationError) {
-      setLocalError(validationError.message);
+      showToast(validationError.message, "error");
       return;
     }
 
@@ -64,14 +60,17 @@ export default function ChangePassword() {
     );
 
     if (changePassword.fulfilled.match(result)) {
-      setSuccess("Password berhasil diupdate!");
+      showToast("Password berhasil diupdate!", "success");
       setForm({ currentPassword: "", newPassword: "", confirmNewPassword: "" });
-      setTimeout(() => navigate("/dashboard/profile"), 1200);
+      setTimeout(() => navigate("/dashboard/profile"), 1500);
+    } else {
+      const msg =
+        result.payload ||
+        result.error?.message ||
+        "Gagal mengupdate password.";
+      showToast(msg, "error");
     }
   };
-
-  // Client-side validation takes priority over API errors
-  const error = localError || profileError;
 
   const EyeButton = ({ onClick }) => (
     <button
@@ -195,9 +194,6 @@ export default function ChangePassword() {
                 />
               </div>
             </div>
-
-            {error && <p className="text-sm text-red-500">{error}</p>}
-            {success && <p className="text-sm text-green-600">{success}</p>}
 
             <button
               onClick={handleSubmit}
