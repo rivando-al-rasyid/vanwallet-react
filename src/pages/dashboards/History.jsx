@@ -1,88 +1,64 @@
-import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router";
-import { useDispatch, useSelector } from "react-redux";
+import { useState } from "react";
 import { Icon } from "@iconify/react";
 import SearchInput from "../../components/SearchInput";
 import { Pagination } from "../../components/Pagination";
-import { fetchHistoryWithUsers } from "../../store/slices/historySlice";
 import TableRow from "../../components/TableRow";
 import Modal from "../../components/Modal";
+import { useTransactionHistory } from "../../hooks/useTransactionHistory";
+import { useTransactionFilter } from "../../hooks/useTransactionFilter";
 
-const ITEMS_PER_PAGE = 6;
-
-const TYPE_STYLE = {
-  deposit:    { label: "Deposit",    badge: "badge-success", sign: "+", amountClass: "text-green-600" },
-  withdrawal: { label: "Withdrawal", badge: "badge-danger",  sign: "-", amountClass: "text-red-500"   },
-  payment:    { label: "Payment",    badge: "badge-danger",  sign: "-", amountClass: "text-red-500"   },
-  invoice:    { label: "Invoice",    badge: "badge-warning", sign: "",  amountClass: "text-gray-700"  },
+/**
+ * Single source of truth untuk mapping transactionType → badge & display info.
+ * Di-export agar bisa dipakai di hook dan file lain.
+ */
+export const TRANSACTION_TYPE_MAP = {
+  deposit:    { label: "Deposit",    badgeClass: "badge-success", sign: "+", amountClass: "text-green-600" },
+  withdrawal: { label: "Withdrawal", badgeClass: "badge-danger",  sign: "-", amountClass: "text-red-500"   },
+  payment:    { label: "Payment",    badgeClass: "badge-danger",  sign: "-", amountClass: "text-red-500"   },
+  invoice:    { label: "Invoice",    badgeClass: "badge-warning", sign: "",  amountClass: "text-gray-700"  },
 };
+
+/** Kembalikan config badge berdasarkan transactionType. */
+export function getTransactionMeta(transactionType) {
+  return (
+    TRANSACTION_TYPE_MAP[transactionType?.toLowerCase()] ?? {
+      label: transactionType || "Unknown",
+      badgeClass: "badge-warning",
+      sign: "",
+      amountClass: "text-gray-700",
+    }
+  );
+}
 
 const DetailIcon = () => (
   <Icon icon="lucide:eye" width={16} height={16} aria-hidden="true" />
 );
 
+const formatDate = (isoString) =>
+  new Date(isoString).toLocaleDateString("id-ID", {
+    day: "2-digit", month: "short", year: "numeric",
+    hour: "2-digit", minute: "2-digit",
+  });
+
+const formatAmount = (amount) =>
+  new Intl.NumberFormat("id-ID", {
+    style: "currency", currency: "IDR", minimumFractionDigits: 0,
+  }).format(Number(amount));
+
 export default function History() {
-  const dispatch = useDispatch();
-  const { history, status, error } = useSelector((state) => state.history);
-
-  const [searchParams, setSearchParams] = useSearchParams();
-  const search = searchParams.get("search") || "";
-  const currentPage = Number(searchParams.get("page") || "1");
-
   const [selectedItem, setSelectedItem] = useState(null);
 
-  useEffect(() => {
-    if (status === "idle") { dispatch(fetchHistoryWithUsers()); }
-  }, [dispatch, status]);
-
-  const mappedItems = history.map((item) => ({
-    ...item,
-    name: item.user?.name ?? "Unknown",
-    avatar: item.user?.avatar ?? "",
-    phone: item.user?.phone ?? "-",
-  }));
-
-  const filtered = mappedItems.filter(
-    (item) =>
-      item.transactionDesc.toLowerCase().includes(search.toLowerCase()) ||
-      item.transactionType.toLowerCase().includes(search.toLowerCase()) ||
-      item.name.toLowerCase().includes(search.toLowerCase()),
-  );
-
-  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
-  const safePage = Math.min(Math.max(currentPage, 1), totalPages || 1);
-  const paginated = filtered.slice((safePage - 1) * ITEMS_PER_PAGE, safePage * ITEMS_PER_PAGE);
-
-  const handleSearchChange = (e) => {
-    const nextSearch = e.target.value;
-    setSearchParams((prev) => {
-      const next = new URLSearchParams(prev);
-      if (nextSearch) { next.set("search", nextSearch); } else { next.delete("search"); }
-      next.set("page", "1");
-      return next;
-    });
-  };
-
-  const handlePageChange = (page) => {
-    setSearchParams((prev) => {
-      const next = new URLSearchParams(prev);
-      next.set("page", String(page));
-      return next;
-    });
-  };
-
-  const formatDate = (isoString) => {
-    const date = new Date(isoString);
-    return date.toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
-  };
-
-  const formatAmount = (amount) =>
-    new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(Number(amount));
+  // ── custom hooks ──────────────────────────────────────────────────────────
+  const { transactions, status, error, reload } = useTransactionHistory();
+  const {
+    paginated, filtered,
+    search, currentPage, totalPages,
+    handleSearch, handlePageChange,
+  } = useTransactionFilter(transactions);
+  // ─────────────────────────────────────────────────────────────────────────
 
   const loading = status === "loading";
-  const meta = selectedItem
-    ? (TYPE_STYLE[selectedItem.transactionType] ?? { label: selectedItem.transactionType, badge: "badge-warning", sign: "" })
-    : null;
+  const meta = selectedItem ? getTransactionMeta(selectedItem.transactionType) : null;
 
   return (
     <>
@@ -107,18 +83,14 @@ export default function History() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-4 sm:px-6 lg:px-8 py-4 sm:py-5 border-b border-gray-100">
           <h2 className="section-title order-2 sm:order-1">Find Transaction</h2>
           <div className="order-1 sm:order-2">
-            <SearchInput value={search} onChange={handleSearchChange} placeholder="Enter Number Or Full Name" />
+            <SearchInput value={search} onChange={handleSearch} placeholder="Enter Number Or Full Name" />
           </div>
         </div>
 
         {/* Loading */}
         {loading && (
           <div className="flex flex-col items-center justify-center py-12 sm:py-20 gap-3 text-gray-400">
-            <Icon
-              icon="lucide:loader-circle"
-              className="animate-spin w-6 h-6 sm:w-8 sm:h-8 text-blue-500"
-              aria-hidden="true"
-            />
+            <Icon icon="lucide:loader-circle" className="animate-spin w-6 h-6 sm:w-8 sm:h-8 text-blue-500" aria-hidden="true" />
             <span className="text-xs sm:text-sm">Mengambil data history...</span>
           </div>
         )}
@@ -127,7 +99,7 @@ export default function History() {
         {!loading && error && (
           <div className="flex flex-col items-center justify-center py-20 gap-3">
             <p className="text-red-500 font-semibold text-sm">{error}</p>
-            <button onClick={() => dispatch(fetchHistoryWithUsers())} className="text-xs text-blue-600 underline">
+            <button onClick={reload} className="text-xs text-blue-600 underline">
               Coba lagi
             </button>
           </div>
@@ -142,7 +114,7 @@ export default function History() {
               onAction={(item) => setSelectedItem(item)}
             />
             <Pagination
-              currentPage={safePage}
+              currentPage={currentPage}
               totalPages={totalPages}
               onPageChange={handlePageChange}
               visibleCount={paginated.length}
@@ -180,7 +152,7 @@ export default function History() {
             {/* Transaction Info */}
             <div className="flex flex-col gap-3">
               <DetailRow label="Description" value={selectedItem.transactionDesc} />
-              <DetailRow label="Type" value={<span className={`badge ${meta.badge}`}>{meta.label}</span>} />
+              <DetailRow label="Type" value={<span className={`badge ${meta.badgeClass}`}>{meta.label}</span>} />
               <DetailRow
                 label="Amount"
                 value={<span className={`font-bold ${meta.amountClass}`}>{meta.sign} {formatAmount(selectedItem.amount)}</span>}

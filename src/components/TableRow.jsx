@@ -122,13 +122,15 @@ export default function TableRow({
                   {contact.phone}
                 </td>
 
-                {contact.amount && (
-                  <td className="px-2 sm:px-4 py-2 sm:py-3">
-                    <span
-                      className={`badge ${contact.type === "income" ? "badge-success" : "badge-danger"}`}
-                    >
-                      {contact.type === "income" ? "+" : "-"} {contact.amount}
-                    </span>
+                {contact.amount !== undefined && contact.amount !== null && (
+                  <td className="px-2 sm:px-4 py-2 sm:py-3 text-right">
+                    <div className="flex flex-col items-end gap-0.5">
+                      <span className={`font-semibold text-xs sm:text-sm ${contact.amountClass ?? "text-gray-700"}`}>
+                        {contact.sign ? `${contact.sign} ` : ""}
+                        {contact.formattedAmount ?? contact.amount}
+                      </span>
+
+                    </div>
                   </td>
                 )}
 

@@ -1,11 +1,12 @@
-import { useState, useMemo, useEffect } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router";
-import { getUsers } from "../../utils/auth";
 import { Link } from "react-router";
 import { Icon } from "@iconify/react";
 
 import { Bar } from "react-chartjs-2";
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Tooltip, Legend } from "chart.js";
+
+import { useTransactionHistory } from "../../hooks/useTransactionHistory";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
@@ -13,50 +14,16 @@ const ALL_LABELS  = ["Sat", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri"];
 const ALL_INCOME  = [80000, 78000, 85000, 22000, 20000, 70000, 8000];
 const ALL_EXPENSE = [15000, 52000, 65000, 32000, 8000, 60000, 48000];
 
-const hardcodedMeta = [
-  { amount: "Rp.50.000", type: "income"  },
-  { amount: "Rp.50.000", type: "expense" },
-  { amount: "Rp.75.000", type: "income"  },
-  { amount: "Rp.50.000", type: "expense" },
-  { amount: "Rp.100.000", type: "income" },
-  { amount: "Rp.25.000", type: "expense" },
-  { amount: "Rp.60.000", type: "income"  },
-  { amount: "Rp.80.000", type: "expense" },
-  { amount: "Rp.50.000", type: "income"  },
-  { amount: "Rp.75.000", type: "expense" },
-];
-
 export default function Index() {
   const navigate = useNavigate();
   const [days, setDays] = useState("7");
   const [typeFilter, setTypeFilter] = useState("All");
-  const [transactionData, setTransactionData] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
 
-  useEffect(() => {
-    async function fetchTransactionHistory() {
-      setLoading(true);
-      setError("");
-      try {
-        const users = await getUsers();
-        const mapped = users.map((u, index) => ({
-          id: u.id,
-          img: u.avatar,
-          name: u.name,
-          phone: u.phone,
-          amount: hardcodedMeta[index % hardcodedMeta.length].amount,
-          type: hardcodedMeta[index % hardcodedMeta.length].type,
-        }));
-        setTransactionData(mapped);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchTransactionHistory();
-  }, []);
+  // ── custom hook ────────────────────────────────────────────────────────────
+  const { transactions, status, error, reload } = useTransactionHistory();
+  // ─────────────────────────────────────────────────────────────────────────
+
+  const loading = status === "loading";
 
   const chartData = useMemo(() => {
     const count = Math.min(parseInt(days), ALL_LABELS.length);
@@ -167,10 +134,11 @@ export default function Index() {
 
         {/* Transaction History */}
         <div className="col-span-full lg:col-span-1 card flex flex-col h-full fade-in delay-4">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mb-3">
             <h3 className="section-title">Transaction History</h3>
             <Link to="/dashboard/history" className="text-xs font-semibold text-blue-600 hover:underline">See All</Link>
           </div>
+
           <div className="flex-1 flex flex-col gap-2 sm:gap-3">
             {loading && (
               <div className="flex flex-col items-center justify-center py-10 gap-2 text-gray-400">
@@ -178,25 +146,37 @@ export default function Index() {
                 <span className="text-xs">Loading...</span>
               </div>
             )}
+
             {!loading && error && (
               <div className="flex flex-col items-center justify-center py-10 gap-2">
                 <p className="text-red-500 font-semibold text-xs">{error}</p>
-                <button onClick={() => window.location.reload()} className="text-xs text-blue-600 underline">Try again</button>
+                <button onClick={reload} className="text-xs text-blue-600 underline">Try again</button>
               </div>
             )}
-            {!loading && !error && transactionData.slice(0, 6).map((tx, i) => (
-              <div key={tx.id || i} className="flex items-center gap-2 sm:gap-3 hover:bg-slate-50 p-2 sm:p-3 rounded-lg transition-colors cursor-pointer">
+
+            {!loading && !error && transactions.length === 0 && (
+              <div className="flex flex-col items-center justify-center py-10 gap-2 text-gray-400">
+                <Icon icon="lucide:inbox" className="w-8 h-8" aria-hidden="true" />
+                <span className="text-xs">No transactions yet.</span>
+              </div>
+            )}
+
+            {!loading && !error && transactions.slice(0, 6).map((tx, i) => (
+              <div
+                key={tx.id || i}
+                className="flex items-center gap-2 sm:gap-3 hover:bg-slate-50 p-2 sm:p-3 rounded-lg transition-colors cursor-pointer"
+              >
                 <img
-                  src={tx.img || `https://i.pravatar.cc/40?img=${tx.img || 1}`}
-                  className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover"
+                  src={tx.avatar || `https://i.pravatar.cc/40?img=${i + 1}`}
+                  className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover shrink-0"
                   alt={tx.name}
                 />
                 <div className="flex-1 min-w-0">
                   <p className="text-xs sm:text-sm font-semibold text-slate-800 truncate">{tx.name}</p>
-                  <p className="text-xs text-slate-400">{tx.type === "income" ? "Transfer" : "Send"}</p>
+                  <p className="text-xs text-slate-400">{tx.badgeLabel}</p>
                 </div>
-                <span className={`text-xs sm:text-sm font-bold shrink-0 ${tx.type === "income" ? "text-emerald-500" : "text-red-500"}`}>
-                  {tx.type === "income" ? "+" : "-"}{tx.amount}
+                <span className={`text-xs sm:text-sm font-bold shrink-0 ${tx.amountClass}`}>
+                  {tx.sign} {tx.formattedAmount}
                 </span>
               </div>
             ))}
