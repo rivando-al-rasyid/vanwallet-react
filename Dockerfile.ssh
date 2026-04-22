@@ -19,11 +19,12 @@ COPY vando_key.pub /home/vando/.ssh/authorized_keys
 RUN chmod 600 /home/vando/.ssh/authorized_keys && \
     chown vando:vando /home/vando/.ssh/authorized_keys
 
-
+# run sed command  fist to remove comment PermitRootLogin to activate PermitRootLogin setting/config and the value no same thin with PasswordAuthentication and for PubkeyAuthentication is yes all of it on fuile /etc/ssh/sshd_config
 RUN sed -i 's/^#\?PermitRootLogin.*/PermitRootLogin no/' /etc/ssh/sshd_config && \
     sed -i 's/^#\?PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config && \
     sed -i 's/^#\?PubkeyAuthentication.*/PubkeyAuthentication yes/' /etc/ssh/sshd_config
 
+# make port for docker 
 EXPOSE 22
 
 # Start the SSH service
