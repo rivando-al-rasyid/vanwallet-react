@@ -1,27 +1,34 @@
-// src/pages/dashboard/TransferModal.jsx
 import { useForm, FormProvider } from "react-hook-form";
 import { joiResolver } from "@hookform/resolvers/joi";
-import Joi from "joi";
 import { useEffect } from "react";
-import PinInput from "../../components/PinInput";
-import Modal from "../../components/Modal";
+
+import PinInput from "../PinInput";
+import Modal from "../Modal";
+import {
+  PIN_LENGTH,
+  DEFAULT_PIN_VALUE,
+  pinFieldSchema,
+} from "../../schemas/pinSchema";
 import transferFailedImage from "../../assets/img/failed.png";
 import transferSuccessImage from "../../assets/img/success.png";
 
-const PIN_LENGTH = 6;
-const defaultPin = Array.from({ length: PIN_LENGTH }, () => ({ value: "" }));
-
-const pinSchema = Joi.object({
-  pin: Joi.array()
-    .items(
-      Joi.object({
-        value: Joi.string().length(1).pattern(/^\d$/).required(),
-      }),
-    )
-    .length(PIN_LENGTH)
-    .required(),
-});
-
+/**
+ * Multi-step modal for the transfer flow.
+ *
+ * Steps:
+ *   "pin"     → user enters their 6-digit PIN
+ *   "success" → transfer completed
+ *   "failed"  → transfer failed
+ *
+ * @param {object}   props
+ * @param {boolean}  props.open
+ * @param {"pin"|"success"|"failed"|null} props.step
+ * @param {Function} props.onPinSubmit    - (pinString: string) => void
+ * @param {Function} props.onDone         - navigates back to dashboard
+ * @param {Function} props.onTryAgain     - reopens PIN step
+ * @param {Function} props.onTransferAgain - starts a new transfer
+ * @param {string}   props.toName         - recipient display name
+ */
 export default function TransferModal({
   open,
   step,
@@ -32,24 +39,22 @@ export default function TransferModal({
   toName = "",
 }) {
   const methods = useForm({
-    resolver: joiResolver(pinSchema),
-    defaultValues: {
-      pin: defaultPin,
-    },
+    resolver: joiResolver(pinFieldSchema),
+    defaultValues: { pin: DEFAULT_PIN_VALUE },
     mode: "onChange",
   });
 
   useEffect(() => {
     if (open && step === "pin") {
-      methods.reset({ pin: defaultPin });
+      methods.reset({ pin: DEFAULT_PIN_VALUE });
     }
   }, [methods, open, step]);
 
   if (!open) return null;
 
-  const handleConfirm = ({ pin }) => {
-    const pinValue = pin.map((p) => p.value).join("");
-    onPinSubmit(pinValue);
+  const handlePinConfirm = ({ pin }) => {
+    const pinString = pin.map((p) => p.value).join("");
+    onPinSubmit(pinString);
   };
 
   if (step === "pin") {
@@ -67,7 +72,7 @@ export default function TransferModal({
 
         <FormProvider {...methods}>
           <form
-            onSubmit={methods.handleSubmit(handleConfirm)}
+            onSubmit={methods.handleSubmit(handlePinConfirm)}
             className="mb-2"
           >
             <div className="mb-8 flex justify-center">
@@ -80,10 +85,7 @@ export default function TransferModal({
               </p>
             )}
 
-            <button
-              type="submit"
-              className="btn-primary w-full mb-4"
-            >
+            <button type="submit" className="btn-primary w-full mb-4">
               Confirm & Transfer
             </button>
           </form>
@@ -104,7 +106,7 @@ export default function TransferModal({
       <Modal open={open}>
         <img
           src={transferFailedImage}
-          alt="failed"
+          alt="Transfer failed"
           className="mx-auto mb-4"
         />
 
@@ -116,13 +118,9 @@ export default function TransferModal({
           Sorry, there is an issue with your transfer. Try again later!
         </p>
 
-        <button
-          onClick={onTryAgain}
-          className="btn-primary w-full mb-3"
-        >
+        <button onClick={onTryAgain} className="btn-primary w-full mb-3">
           Try Again
         </button>
-
         <button
           onClick={onDone}
           className="w-full py-3.5 border border-blue-600 text-blue-600 rounded-xl"
@@ -138,7 +136,7 @@ export default function TransferModal({
       <Modal open={open}>
         <img
           src={transferSuccessImage}
-          alt="success"
+          alt="Transfer successful"
           className="mx-auto mb-4"
         />
 
@@ -150,13 +148,9 @@ export default function TransferModal({
           Thank you for using this application.
         </p>
 
-        <button
-          onClick={onDone}
-          className="btn-primary w-full mb-3"
-        >
+        <button onClick={onDone} className="btn-primary w-full mb-3">
           Done
         </button>
-
         <button
           onClick={onTransferAgain}
           className="w-full py-3.5 border border-blue-600 text-blue-600 rounded-xl"

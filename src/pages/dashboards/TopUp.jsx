@@ -1,46 +1,32 @@
 import { useMemo, useState } from "react";
 import Joi from "joi";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { Icon } from "@iconify/react";
 import { useToast } from "../../context/toast/provider";
 import { useConfirm } from "../../context/confirm/provider";
+import { getBalance, updateBalance } from "../../utils/balanceUtils";
+import { createTransaction } from "../../utils/transactionUtils";
+import { fetchBalance } from "../../store/slices/profileSlice";
+import { resetHistory } from "../../store/slices/historySlice";
 
 const TAX_RATE = 0.1;
 
 const PAYMENT_METHODS = [
-  {
-    id: "bri",
-    name: "Bank Rakyat Indonesia",
-    logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/BRI_2025.svg/500px-BRI_2025.svg.png",
-  },
-  {
-    id: "dana",
-    name: "Dana",
-    logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Logo_dana_blue.svg/500px-Logo_dana_blue.svg.png",
-  },
-  {
-    id: "bca",
-    name: "Bank Central Asia",
-    logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Bank_Central_Asia.svg/500px-Bank_Central_Asia.svg.png",
-  },
-  {
-    id: "gopay",
-    name: "Gopay",
-    logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Gopay_logo.svg/500px-Gopay_logo.svg.png",
-  },
-  {
-    id: "ovo",
-    name: "Ovo",
-    logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Logo_ovo_purple.svg/500px-Logo_ovo_purple.svg.png",
-  },
+  { id: "bri", name: "Bank Rakyat Indonesia", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/BRI_2025.svg/500px-BRI_2025.svg.png" },
+  { id: "dana", name: "Dana", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Logo_dana_blue.svg/500px-Logo_dana_blue.svg.png" },
+  { id: "bca", name: "Bank Central Asia", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Bank_Central_Asia.svg/500px-Bank_Central_Asia.svg.png" },
+  { id: "gopay", name: "Gopay", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Gopay_logo.svg/500px-Gopay_logo.svg.png" },
+  { id: "ovo", name: "Ovo", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Logo_ovo_purple.svg/500px-Logo_ovo_purple.svg.png" },
 ];
 
 export default function TopUp() {
   const { showToast } = useToast();
   const { confirm } = useConfirm();
+  const dispatch = useDispatch();
   const currentUser = useSelector((state) => state.profile.user);
   const [amount, setAmount] = useState("");
   const [selectedMethod, setSelectedMethod] = useState("bri");
+  const [submitting, setSubmitting] = useState(false);
 
   const user = useMemo(() => {
     if (!currentUser?.id) return null;
@@ -79,9 +65,7 @@ export default function TopUp() {
       return;
     }
 
-    const methodName = PAYMENT_METHODS.find(
-      (m) => m.id === selectedMethod,
-    )?.name;
+    const methodName = PAYMENT_METHODS.find((m) => m.id === selectedMethod)?.name;
 
     const ok = await confirm({
       title: "Konfirmasi Top Up",
@@ -93,26 +77,40 @@ export default function TopUp() {
 
     if (!ok) return;
 
-    showToast(
-      `Top Up ${fmtIdr(subTotal)} via ${methodName} berhasil!`,
-      "success",
-    );
-    setAmount("");
+    try {
+      setSubmitting(true);
+
+      // 1. POST /transactions — record the deposit
+      await createTransaction({
+        userId: currentUser?.id,
+        transactionType: "deposit",
+        transactionDesc: `Top Up via ${methodName} sebesar ${fmtIdr(subTotal)}`,
+        amount: subTotal,
+      });
+
+      // 2. PUT /balances/:userId — add to balance
+      const currentBal = await getBalance(currentUser?.id);
+      const newBalance = (currentBal?.balance ?? 0) + subTotal;
+      await updateBalance(currentUser?.id, newBalance);
+
+      // 3. Refresh Redux balance & history cache
+      dispatch(fetchBalance(currentUser?.id));
+      dispatch(resetHistory());
+
+      showToast(`Top Up ${fmtIdr(subTotal)} via ${methodName} berhasil! 🎉`, "success");
+      setAmount("");
+    } catch (err) {
+      showToast(err.message || "Top Up gagal. Coba lagi.", "error");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
     <>
-      {/* Page Title */}
       <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
         <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-blue-100 flex items-center justify-center">
-          <Icon
-            icon="lucide:upload"
-            width={14}
-            height={14}
-            color="#2563EB"
-            className="sm:w-4 sm:h-4"
-            aria-hidden="true"
-          />
+          <Icon icon="lucide:upload" width={14} height={14} color="#2563EB" className="sm:w-4 sm:h-4" aria-hidden="true" />
         </div>
         <h1 className="section-title">Top Up Account</h1>
       </div>
@@ -128,18 +126,11 @@ export default function TopUp() {
                   src={user.avatar}
                   alt={user.name}
                   className="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 rounded-lg sm:rounded-xl object-cover shrink-0"
-                  onError={(e) => {
-                    e.currentTarget.src =
-                      "https://ui-avatars.com/api/?name=User&background=EBF4FF&color=7F9CF5";
-                  }}
+                  onError={(e) => { e.currentTarget.src = "https://ui-avatars.com/api/?name=User&background=EBF4FF&color=7F9CF5"; }}
                 />
                 <div>
-                  <p className="font-semibold text-sm sm:text-base text-gray-800">
-                    {user.name}
-                  </p>
-                  <p className="text-xs sm:text-sm text-gray-500">
-                    {user.phone}
-                  </p>
+                  <p className="font-semibold text-sm sm:text-base text-gray-800">{user.name}</p>
+                  <p className="text-xs sm:text-sm text-gray-500">{user.phone}</p>
                   <span className="badge badge-success mt-1">Verified</span>
                 </div>
               </div>
@@ -198,15 +189,10 @@ export default function TopUp() {
                       src={method.logo}
                       alt={method.name}
                       className="max-w-full max-h-full object-contain"
-                      onError={(e) => {
-                        e.currentTarget.src =
-                          "https://placehold.co/40x24?text=Pay";
-                      }}
+                      onError={(e) => { e.currentTarget.src = "https://placehold.co/40x24?text=Pay"; }}
                     />
                   </div>
-                  <span className="text-xs sm:text-sm font-medium text-gray-700">
-                    {method.name}
-                  </span>
+                  <span className="text-xs sm:text-sm font-medium text-gray-700">{method.name}</span>
                 </label>
               ))}
             </div>
@@ -219,29 +205,19 @@ export default function TopUp() {
           <div className="flex flex-col gap-3 sm:gap-4 mb-3 sm:mb-6">
             <div className="flex items-center justify-between">
               <span className="text-xs sm:text-sm text-gray-500">Order</span>
-              <span className="text-xs sm:text-sm font-semibold text-gray-800">
-                {fmtIdr(order)}
-              </span>
+              <span className="text-xs sm:text-sm font-semibold text-gray-800">{fmtIdr(order)}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-xs sm:text-sm text-gray-500">
-                Tax (10%)
-              </span>
-              <span className="text-xs sm:text-sm font-semibold text-gray-800">
-                {fmtIdr(tax)}
-              </span>
+              <span className="text-xs sm:text-sm text-gray-500">Tax (10%)</span>
+              <span className="text-xs sm:text-sm font-semibold text-gray-800">{fmtIdr(tax)}</span>
             </div>
             <div className="border-t border-gray-100 pt-3 sm:pt-4 flex items-center justify-between">
-              <span className="text-xs sm:text-sm font-bold text-gray-800">
-                Sub Total
-              </span>
-              <span className="text-xs sm:text-sm font-bold text-gray-800">
-                {fmtIdr(subTotal)}
-              </span>
+              <span className="text-xs sm:text-sm font-bold text-gray-800">Sub Total</span>
+              <span className="text-xs sm:text-sm font-bold text-gray-800">{fmtIdr(subTotal)}</span>
             </div>
           </div>
-          <button onClick={handleSubmit} className="btn-primary w-full">
-            Submit
+          <button onClick={handleSubmit} disabled={submitting} className="btn-primary w-full disabled:opacity-60">
+            {submitting ? "Memproses..." : "Submit"}
           </button>
         </div>
       </div>

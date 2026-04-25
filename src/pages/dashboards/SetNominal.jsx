@@ -1,72 +1,113 @@
-// src/pages/transfer/SetNominal.jsx
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
-import { Icon } from "@iconify/react";
-import Stepper from "../../components/Stepper";
-import { getUserById, verifyPin, transaction } from "../../utils/auth";
-import TransferModal from "./TransferModal";
 import { useSelector, useDispatch } from "react-redux";
-import { resetHistory } from "../../store/slices/historySlice";
+import { Icon } from "@iconify/react";
 import Joi from "joi";
+
+import Stepper from "../../components/Stepper";
+import TransferModal from "../../components/transfer/TransferModal";
+import { getUserById, verifyPin } from "../../utils/userUtils";
+import { getBalance, updateBalance } from "../../utils/balanceUtils";
+import { createTransaction } from "../../utils/transactionUtils";
+import { resetHistory } from "../../store/slices/historySlice";
+import { fetchBalance } from "../../store/slices/profileSlice";
 import { useToast } from "../../context/toast/provider";
+
+const nominalSchema = Joi.object({
+  amount: Joi.number().positive().required().messages({
+    "number.base":     "Nominal harus berupa angka.",
+    "number.positive": "Nominal transfer harus lebih dari 0.",
+    "any.required":    "Nominal wajib diisi.",
+  }),
+  notes: Joi.string().allow("").max(200).messages({
+    "string.max": "Catatan maksimal 200 karakter.",
+  }),
+});
 
 export default function SetNominal() {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { showToast } = useToast();
-  const currentUser = useSelector((state) => state.profile.user);
 
-  const [amount, setAmount] = useState("");
-  const [notes, setNotes] = useState("");
+  const currentUser    = useSelector((state) => state.profile.user);
+  const currentBalance = useSelector((state) => state.profile.balance);
+
+  const [amount, setAmount]                   = useState("");
+  const [notes, setNotes]                     = useState("");
   const [selectedContact, setSelectedContact] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [modalStep, setModalStep] = useState(null);
+  const [loadingContact, setLoadingContact]   = useState(true);
+  const [contactError, setContactError]       = useState("");
+  const [modalStep, setModalStep]             = useState(null);
 
   useEffect(() => {
-    async function fetchContact() {
-      setLoading(true);
-      setError("");
+    async function loadContact() {
+      setLoadingContact(true);
+      setContactError("");
       try {
         const user = await getUserById(id);
         if (!user) throw new Error("Kontak tidak ditemukan.");
-        setSelectedContact({ id: user.id, name: user.name, phone: user.phone, img: user.avatar, verified: true });
+        setSelectedContact({
+          id:       user.id,
+          name:     user.name,
+          phone:    user.phone,
+          img:      user.avatar,
+          verified: true,
+        });
       } catch (err) {
-        setError(err.message);
+        setContactError(err.message);
       } finally {
-        setLoading(false);
+        setLoadingContact(false);
       }
     }
-    fetchContact();
+    loadContact();
   }, [id]);
 
-  const nominalSchema = Joi.object({
-    amount: Joi.number().positive().required().messages({
-      "number.base": "Nominal harus berupa angka.",
-      "number.positive": "Nominal transfer harus lebih dari 0.",
-      "any.required": "Nominal wajib diisi.",
-    }),
-    notes: Joi.string().allow("").max(200).messages({
-      "string.max": "Catatan maksimal 200 karakter.",
-    }),
-  });
-
   const handleOpenPinModal = () => {
+    const parsedAmount = parseFloat(amount);
+
     const { error: validationError } = nominalSchema.validate(
-      { amount: parseFloat(amount) || undefined, notes },
-      { abortEarly: true }
+      { amount: parsedAmount || undefined, notes },
+      { abortEarly: true },
     );
-    if (validationError) { showToast(validationError.message, "error"); return; }
+    if (validationError) {
+      showToast(validationError.message, "error");
+      return;
+    }
+
+    const availableBalance = currentBalance?.balance ?? 0;
+    if (parsedAmount > availableBalance) {
+      showToast(
+        `Saldo tidak cukup. Saldo tersedia: Rp ${availableBalance.toLocaleString("id-ID")}`,
+        "error",
+      );
+      return;
+    }
+
     setModalStep("pin");
   };
 
   const handlePinSubmit = async (pin) => {
     try {
       await verifyPin(currentUser?.id, pin);
+
+      const parsedAmount = parseFloat(amount);
       const desc = `Transfer to ${selectedContact.name} (${selectedContact.phone})${notes ? `. Notes: ${notes}` : ""}`;
-      await transaction({ userId: currentUser?.id, transactionType: "payment", transactionDesc: desc, amount: parseFloat(amount) });
+
+      await createTransaction({
+        userId:          currentUser?.id,
+        transactionType: "payment",
+        transactionDesc: desc,
+        amount:          parsedAmount,
+      });
+
+      const currentBal = await getBalance(currentUser?.id);
+      const newBalance  = (currentBal?.balance ?? 0) - parsedAmount;
+      await updateBalance(currentUser?.id, newBalance);
+
       dispatch(resetHistory());
+      dispatch(fetchBalance(currentUser?.id));
+
       setModalStep("success");
       showToast("Transfer berhasil diproses! 🎉", "success");
     } catch (err) {
@@ -75,13 +116,17 @@ export default function SetNominal() {
     }
   };
 
-  const handleDone = () => { setModalStep(null); navigate("/dashboard"); };
-  const handleTryAgain = () => setModalStep("pin");
-  const handleTransferAgain = () => { setModalStep(null); setAmount(""); setNotes(""); navigate("/dashboard/transfer"); };
+  const handleDone         = () => { setModalStep(null); navigate("/dashboard"); };
+  const handleTryAgain     = () => setModalStep("pin");
+  const handleTransferAgain = () => {
+    setModalStep(null);
+    setAmount("");
+    setNotes("");
+    navigate("/dashboard/transfer");
+  };
 
   return (
     <>
-      {/* Header & Stepper */}
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-6">
           <button
@@ -91,45 +136,58 @@ export default function SetNominal() {
           >
             <Icon icon="lucide:arrow-left" width={20} height={20} aria-hidden="true" />
           </button>
-
           <span className="text-blue-600">
             <Icon icon="lucide:send" width={24} height={24} aria-hidden="true" />
           </span>
-
           <h1 className="section-title">Transfer Money</h1>
         </div>
         <Stepper currentStep={2} />
       </div>
 
-      {/* Main Content Card */}
       <div className="card min-h-150">
         <h2 className="section-title mb-6">People Information</h2>
 
-        {loading && (
+        {loadingContact && (
           <div className="flex flex-col items-center justify-center py-20 gap-3 text-gray-400">
             <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full" />
             <span className="text-sm">Mengambil data kontak...</span>
           </div>
         )}
 
-        {!loading && error && (
+        {!loadingContact && contactError && (
           <div className="flex flex-col items-center justify-center py-20 gap-3">
-            <p className="text-red-500 font-semibold text-sm">{error}</p>
-            <button onClick={() => navigate("/dashboard/transfer")} className="text-xs text-blue-600 underline">
+            <p className="text-red-500 font-semibold text-sm">{contactError}</p>
+            <button
+              onClick={() => navigate("/dashboard/transfer")}
+              className="text-xs text-blue-600 underline"
+            >
               Kembali ke Transfer
             </button>
           </div>
         )}
 
-        {!loading && !error && selectedContact && (
+        {!loadingContact && !contactError && selectedContact && (
           <>
+            {currentBalance && (
+              <div className="mb-4 px-4 py-2 bg-blue-50 rounded-xl text-sm text-blue-700 font-medium flex items-center gap-2">
+                <Icon icon="lucide:wallet" width={16} height={16} aria-hidden="true" />
+                Saldo tersedia:{" "}
+                <span className="font-bold">
+                  Rp {(currentBalance.balance ?? 0).toLocaleString("id-ID")}
+                </span>
+              </div>
+            )}
+
             {/* Contact Card */}
             <div className="flex items-center gap-4 bg-gray-50 rounded-xl p-4 mb-8">
               <img
                 src={selectedContact.img}
                 alt={selectedContact.name}
                 className="w-14 h-14 rounded-xl object-cover shrink-0"
-                onError={(e) => { e.currentTarget.src = "https://ui-avatars.com/api/?name=User&background=EBF4FF&color=7F9CF5"; }}
+                onError={(e) => {
+                  e.currentTarget.src =
+                    "https://ui-avatars.com/api/?name=User&background=EBF4FF&color=7F9CF5";
+                }}
               />
               <div className="flex-1">
                 <p className="font-semibold text-gray-800">{selectedContact.name}</p>
@@ -141,7 +199,10 @@ export default function SetNominal() {
                   </span>
                 )}
               </div>
-              <button className="text-gray-300 hover:text-yellow-400 transition-colors ml-auto shrink-0" aria-label="Favorite">
+              <button
+                className="text-gray-300 hover:text-yellow-400 transition-colors ml-auto shrink-0"
+                aria-label="Favorite"
+              >
                 <Icon icon="lucide:star" width={20} height={20} aria-hidden="true" />
               </button>
             </div>

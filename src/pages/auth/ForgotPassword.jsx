@@ -59,7 +59,7 @@ export default function ForgotPassword() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
-          <Submit name={loading ? "Loading..." : "Submit"} disabled={loading} />
+          <Submit label={loading ? "Loading..." : "Submit"} disabled={loading} />
         </form>
       </section>
     </main>

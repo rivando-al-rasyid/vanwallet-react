@@ -1,40 +1,25 @@
-import { Icon } from "@iconify/react";
 import { useDispatch, useSelector } from "react-redux";
 import { useForm, FormProvider } from "react-hook-form";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { useNavigate } from "react-router";
-import Joi from "joi";
+import { Icon } from "@iconify/react";
 
 import PinInput from "../../components/PinInput";
 import { changePin } from "../../store/slices/profileSlice";
 import { useToast } from "../../context/toast/provider";
-
-const defaultPin = Array(6)
-  .fill(null)
-  .map(() => ({ value: "" }));
-
-const pinSchema = Joi.object({
-  pin: Joi.array()
-    .items(
-      Joi.object({
-        value: Joi.string().length(1).pattern(/^\d$/).required(),
-      })
-    )
-    .length(6)
-    .required(),
-});
+import { DEFAULT_PIN_VALUE, pinFieldSchema } from "../../components/pin/pinConfig";
 
 export default function ChangePin() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { showToast } = useToast();
 
-  const userId = useSelector((state) => state.profile.user?.id ?? null);
+  const userId  = useSelector((state) => state.profile.user?.id ?? null);
   const loading = useSelector((state) => state.profile.loading);
 
   const methods = useForm({
-    resolver: joiResolver(pinSchema),
-    defaultValues: { pin: defaultPin },
+    resolver: joiResolver(pinFieldSchema),
+    defaultValues: { pin: DEFAULT_PIN_VALUE },
     mode: "onChange",
   });
 
@@ -45,11 +30,10 @@ export default function ChangePin() {
 
     if (changePin.fulfilled.match(result)) {
       showToast("PIN berhasil diupdate!", "success");
-      methods.reset({ pin: defaultPin });
+      methods.reset({ pin: DEFAULT_PIN_VALUE });
       setTimeout(() => navigate("/dashboard/profile"), 1500);
     } else {
-      const msg =
-        result.payload || result.error?.message || "Gagal mengupdate PIN.";
+      const msg = result.payload || result.error?.message || "Gagal mengupdate PIN.";
       showToast(msg, "error");
     }
   };
@@ -65,9 +49,7 @@ export default function ChangePin() {
 
       <div className="bg-white rounded-2xl shadow-sm p-8">
         <div className="max-w-3xl mx-auto w-full text-center">
-          <h2 className="text-base font-bold text-gray-800 mb-1">
-            Change Pin 👋
-          </h2>
+          <h2 className="text-base font-bold text-gray-800 mb-1">Change Pin 👋</h2>
           <p className="text-sm text-gray-400 mb-8">
             Please save your pin because this so important.
           </p>

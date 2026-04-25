@@ -99,7 +99,7 @@ export default function Login() {
               value={form.password}
               onChange={handleChange}
             />
-            <Submit name={loading ? "Loading..." : "Login"} />
+            <Submit label={loading ? "Loading..." : "Login"} />
           </form>
 
           <LoginSubtext

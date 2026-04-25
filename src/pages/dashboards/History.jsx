@@ -7,24 +7,19 @@ import Modal from "../../components/Modal";
 import { useTransactionHistory } from "../../hooks/useTransactionHistory";
 import { useTransactionFilter } from "../../hooks/useTransactionFilter";
 
-/**
- * Single source of truth untuk mapping transactionType → badge & display info.
- * Di-export agar bisa dipakai di hook dan file lain.
- */
-export const TRANSACTION_TYPE_MAP = {
+const TRANSACTION_TYPE_MAP = {
   deposit:    { label: "Deposit",    badgeClass: "badge-success", sign: "+", amountClass: "text-green-600" },
   withdrawal: { label: "Withdrawal", badgeClass: "badge-danger",  sign: "-", amountClass: "text-red-500"   },
   payment:    { label: "Payment",    badgeClass: "badge-danger",  sign: "-", amountClass: "text-red-500"   },
   invoice:    { label: "Invoice",    badgeClass: "badge-warning", sign: "",  amountClass: "text-gray-700"  },
 };
 
-/** Kembalikan config badge berdasarkan transactionType. */
-export function getTransactionMeta(transactionType) {
+function getTransactionMeta(transactionType) {
   return (
     TRANSACTION_TYPE_MAP[transactionType?.toLowerCase()] ?? {
-      label: transactionType || "Unknown",
-      badgeClass: "badge-warning",
-      sign: "",
+      label:       transactionType || "Unknown",
+      badgeClass:  "badge-warning",
+      sign:        "",
       amountClass: "text-gray-700",
     }
   );

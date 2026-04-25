@@ -2,7 +2,6 @@ import { FormProvider, useForm } from "react-hook-form";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
-import Joi from "joi";
 
 import PinInput from "../../components/PinInput";
 import Brand from "../../components/Brand";
@@ -10,35 +9,21 @@ import LoginImage from "../../components/login/LoginImage";
 import LoginHeadline from "../../components/login/LoginHeadline";
 import Submit from "../../components/Submit";
 import { createPin } from "../../store/slices/registerSlice";
-import walletHandImage from "../../assets/img/3d-hand-wallet.png";
+import { DEFAULT_PIN_VALUE, pinFieldSchema } from "../../components/pin/pinConfig";
 import { useToast } from "../../context/toast/provider";
-
-const defaultPin = Array(6)
-  .fill(null)
-  .map(() => ({ value: "" }));
-
-const pinSchema = Joi.object({
-  pin: Joi.array()
-    .items(
-      Joi.object({
-        value: Joi.string().length(1).pattern(/^\d$/).required(),
-      })
-    )
-    .length(6)
-    .required(),
-});
+import walletHandImage from "../../assets/img/3d-hand-wallet.png";
 
 export default function RegisterPin() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { showToast } = useToast();
 
-  const userId = useSelector((state) => state.profile.user?.id ?? null);
+  const userId     = useSelector((state) => state.profile.user?.id ?? null);
   const pinLoading = useSelector((state) => state.register.pinLoading);
 
   const methods = useForm({
-    resolver: joiResolver(pinSchema),
-    defaultValues: { pin: defaultPin },
+    resolver: joiResolver(pinFieldSchema),
+    defaultValues: { pin: DEFAULT_PIN_VALUE },
     mode: "onChange",
   });
 
@@ -51,9 +36,7 @@ export default function RegisterPin() {
       navigate("/dashboard");
     } else {
       const msg =
-        result.payload ||
-        result.error?.message ||
-        "Gagal membuat PIN. Coba lagi.";
+        result.payload || result.error?.message || "Gagal membuat PIN. Coba lagi.";
       showToast(msg, "error");
     }
   };
@@ -64,17 +47,12 @@ export default function RegisterPin() {
         <div className="w-full max-w-175">
           <Brand />
           <LoginHeadline
-            title={"Buat PIN Kamu 🔐"}
-            text={
-              "Buat 6-digit PIN untuk mengamankan akses ke dompet digitalmu."
-            }
+            title="Buat PIN Kamu 🔐"
+            text="Buat 6-digit PIN untuk mengamankan akses ke dompet digitalmu."
           />
 
           <FormProvider {...methods}>
-            <form
-              className="space-y-6"
-              onSubmit={methods.handleSubmit(onSubmit)}
-            >
+            <form className="space-y-6" onSubmit={methods.handleSubmit(onSubmit)}>
               <PinInput />
 
               {methods.formState.errors.pin && (
@@ -84,7 +62,7 @@ export default function RegisterPin() {
               )}
 
               <Submit
-                name={pinLoading ? "Menyimpan..." : "Buat PIN"}
+                label={pinLoading ? "Menyimpan..." : "Buat PIN"}
                 disabled={pinLoading}
               />
             </form>

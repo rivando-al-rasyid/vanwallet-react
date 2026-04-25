@@ -123,7 +123,7 @@ export default function Register() {
               value={form.confirmPassword}
               onChange={handleChange}
             />
-            <Submit name={loading ? "Loading..." : "Register"} />
+            <Submit label={loading ? "Loading..." : "Register"} />
           </form>
 
           <LoginSubtext
