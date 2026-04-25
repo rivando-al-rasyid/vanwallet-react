@@ -1,11 +1,11 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { getUsers } from "../../utils/auth";
+import { getAllUsers } from "../../utils/userUtils";
 
 export const fetchAllUsers = createAsyncThunk(
   "transfer/fetchAllUsers",
   async (_, { rejectWithValue }) => {
     try {
-      const data = await getUsers();
+      const data = await getAllUsers();
       return data;
     } catch (error) {
       return rejectWithValue(error.message);

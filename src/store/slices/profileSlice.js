@@ -5,7 +5,8 @@ import {
   updateUser,
   changePassword as changePasswordApi,
   changePinApi,
-} from "../../utils/auth";
+} from "../../utils/userUtils";
+import { getBalance } from "../../utils/balanceUtils";
 
 // ─── Thunks ──────────────────────────────────────────────────────────────────
 
@@ -13,8 +14,20 @@ export const fetchProfile = createAsyncThunk(
   "profile/fetchProfile",
   async (userId, { rejectWithValue }) => {
     try {
-      const { getUserById } = await import("../../utils/auth");
+      const { getUserById } = await import("../../utils/userUtils");
       return await getUserById(userId);
+    } catch (err) {
+      return rejectWithValue(err.message);
+    }
+  },
+);
+
+// Separate thunk for balance — hits GET /balances/:userId
+export const fetchBalance = createAsyncThunk(
+  "profile/fetchBalance",
+  async (userId, { rejectWithValue }) => {
+    try {
+      return await getBalance(userId);
     } catch (err) {
       return rejectWithValue(err.message);
     }
@@ -58,8 +71,10 @@ export const changePin = createAsyncThunk(
 
 const initialState = {
   user: null,
-  avatarPath: null, // local image path, persisted across sessions
+  balance: null,        // { userId, balance, updatedAt }
+  avatarPath: null,
   loading: false,
+  balanceLoading: false,
   error: null,
 };
 
@@ -72,7 +87,6 @@ const profileSlice = createSlice({
     clearProfileError(state) {
       state.error = null;
     },
-    // Saves selected local avatar path — persisted via redux-persist whitelist
     setAvatar(state, action) {
       state.avatarPath = action.payload;
     },
@@ -82,20 +96,22 @@ const profileSlice = createSlice({
     builder
       .addCase(login.fulfilled, (state, action) => {
         state.user = action.payload;
+        state.balance = null; // will be fetched separately
         state.error = null;
       })
       .addCase(register.fulfilled, (state, action) => {
         state.user = action.payload;
+        state.balance = null;
         state.error = null;
       })
       .addCase(logout, (state) => {
         state.user = null;
+        state.balance = null;
         state.avatarPath = null;
         state.loading = false;
         state.error = null;
       });
 
-    // ── createPin cross-slice: sync user.pin after first-time PIN creation ──
     builder.addCase(createPin.fulfilled, (state, action) => {
       if (action.payload && state.user) {
         state.user = { ...state.user, ...action.payload };
@@ -115,6 +131,19 @@ const profileSlice = createSlice({
       .addCase(fetchProfile.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      });
+
+    // ── fetchBalance ──
+    builder
+      .addCase(fetchBalance.pending, (state) => {
+        state.balanceLoading = true;
+      })
+      .addCase(fetchBalance.fulfilled, (state, action) => {
+        state.balanceLoading = false;
+        state.balance = action.payload;
+      })
+      .addCase(fetchBalance.rejected, (state) => {
+        state.balanceLoading = false;
       });
 
     // ── updateProfile ──
