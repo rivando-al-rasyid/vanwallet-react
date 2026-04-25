@@ -5,17 +5,12 @@ import LogoutButton from "./LogoutButton";
 import { useLogout } from "../../hooks/useLogout";
 
 export default function Sidebar({ isOpen, setIsOpen }) {
-  const logoutAndRedirect = useLogout();
-
-  const handleLogout = () => {
-    logoutAndRedirect(() => setIsOpen(false));
-  };
+  // Unified logout — use directly, no wrapper
+  const handleLogout = useLogout();
 
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth >= 1024) {
-        setIsOpen(false);
-      }
+      if (window.innerWidth >= 1024) setIsOpen(false);
     };
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
@@ -51,54 +46,29 @@ export default function Sidebar({ isOpen, setIsOpen }) {
       >
         {/* Nav links */}
         <nav className="flex flex-col gap-1 flex-1 py-6 px-4 overflow-y-auto">
-          <NavLink
-            to="/dashboard/"
-            className={navLinkClass}
-            end
-            onClick={() => setIsOpen(false)}
-          >
+          <NavLink to="/dashboard/" className={navLinkClass} end onClick={() => setIsOpen(false)}>
             <Icon icon="lucide:gauge" width={24} height={24} aria-hidden="true" />
             Dashboard
           </NavLink>
-
-          <NavLink
-            to="/dashboard/transfer"
-            className={navLinkClass}
-            onClick={() => setIsOpen(false)}
-          >
+          <NavLink to="/dashboard/transfer" className={navLinkClass} onClick={() => setIsOpen(false)}>
             <Icon icon="lucide:send" width={24} height={24} aria-hidden="true" />
             Transfer
           </NavLink>
-
-          <NavLink
-            to="/dashboard/history"
-            className={navLinkClass}
-            onClick={() => setIsOpen(false)}
-          >
+          <NavLink to="/dashboard/history" className={navLinkClass} onClick={() => setIsOpen(false)}>
             <Icon icon="lucide:history" width={24} height={24} aria-hidden="true" />
             History
           </NavLink>
-
-          <NavLink
-            to="/dashboard/topup"
-            className={navLinkClass}
-            onClick={() => setIsOpen(false)}
-          >
+          <NavLink to="/dashboard/topup" className={navLinkClass} onClick={() => setIsOpen(false)}>
             <Icon icon="lucide:upload" width={24} height={24} aria-hidden="true" />
             Top Up
           </NavLink>
-
-          <NavLink
-            to="/dashboard/profile"
-            className={navLinkClass}
-            onClick={() => setIsOpen(false)}
-          >
+          <NavLink to="/dashboard/profile" className={navLinkClass} onClick={() => setIsOpen(false)}>
             <Icon icon="lucide:users" width={24} height={24} aria-hidden="true" />
             Profile
           </NavLink>
         </nav>
 
-        {/* Logout — pinned at bottom */}
+        {/* Logout — pinned at bottom, mobile only */}
         <div className="px-4 py-6 border-t border-slate-100 lg:hidden">
           <LogoutButton
             onLogout={handleLogout}

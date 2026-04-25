@@ -14,7 +14,9 @@ export default function Header() {
   const avatarPath = useSelector((state) => state.profile.avatarPath);
   const displayAvatar = avatarPath || user?.avatar || null;
   const { sidebarOpen, setSidebarOpen } = useContext(DashboardContext);
-  const logoutAndRedirect = useLogout();
+
+  // Unified logout — just pass it directly, no wrapper
+  const handleLogout = useLogout();
 
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef(null);
@@ -28,10 +30,6 @@ export default function Header() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
-  const handleLogout = () => {
-    logoutAndRedirect(() => setOpen(false));
-  };
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 w-full bg-white border-b border-slate-100 shadow-sm font-sans">
@@ -61,6 +59,7 @@ export default function Header() {
                   src={displayAvatar}
                   className="w-8 h-8 rounded-full object-cover ring-2 ring-white shadow-sm"
                   alt="avatar"
+                  onError={(e) => { e.currentTarget.src = "https://ui-avatars.com/api/?name=User&background=EBF4FF&color=7F9CF5"; }}
                 />
                 <Icon
                   icon="lucide:chevron-down"
@@ -80,17 +79,12 @@ export default function Header() {
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                     Akun Tersambung
                   </p>
-                  <p className="text-sm font-bold text-slate-700 truncate">
-                    {user.name}
-                  </p>
+                  <p className="text-sm font-bold text-slate-700 truncate">{user.name}</p>
                 </div>
 
                 <div className="p-1.5">
                   <button
-                    onClick={() => {
-                      navigate("/dashboard/profile");
-                      setOpen(false);
-                    }}
+                    onClick={() => { navigate("/dashboard/profile"); setOpen(false); }}
                     className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-blue-50 hover:text-blue-600 transition-colors"
                   >
                     <Icon icon="lucide:user" className="w-4 h-4" aria-hidden="true" />
