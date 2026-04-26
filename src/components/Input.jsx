@@ -1,6 +1,5 @@
 import { memo, useState, useCallback } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import { Icon } from "@iconify/react";
 
 const InputLabel = memo(({ htmlFor, label }) => (
   <label
@@ -13,7 +12,7 @@ const InputLabel = memo(({ htmlFor, label }) => (
 
 const InputIcon = memo(({ icon }) => (
   <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#6379F4] transition-colors">
-    <FontAwesomeIcon icon={icon} />
+    <Icon icon={icon} width={16} height={16} />
   </div>
 ));
 
@@ -33,7 +32,7 @@ const Input = memo(function Input({
   onChange,
   name,
   className = "",
-  required = false, // Now configurable
+  required = false,
   ...rest
 }) {
   const [showPassword, setShowPassword] = useState(false);
@@ -41,7 +40,6 @@ const Input = memo(function Input({
   const isPassword = type === "password";
   const inputId = name ? `input-${name}` : undefined;
 
-  // Logic to prevent text overlap with icons/buttons
   const paddingClasses = `${icon ? "pl-12" : "pl-4"} ${isPassword ? "pr-12" : "pr-4"}`;
 
   const handleToggle = useCallback(() => {
@@ -74,7 +72,11 @@ const Input = memo(function Input({
             className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 hover:text-[#6379F4] focus:outline-none transition-colors"
             aria-label={showPassword ? "Hide password" : "Show password"}
           >
-            <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+            <Icon
+              icon={showPassword ? "lucide:eye-off" : "lucide:eye"}
+              width={16}
+              height={16}
+            />
           </button>
         )}
       </div>

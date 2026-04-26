@@ -1,8 +1,5 @@
-import { useFormContext } from "react-hook-form";
 import { useRef } from "react";
-
-// Constants
-const PIN_LENGTH = 6;
+import { PIN_LENGTH } from "../schemas/pinSchema";
 const BASE_INPUT_CLASSES = `
   w-10 sm:w-12
   text-center
@@ -13,20 +10,32 @@ const BASE_INPUT_CLASSES = `
   transition
 `;
 
-export default function PinInput() {
-  const { setValue, watch } = useFormContext();
+export default function PinInput({
+  value = [],
+  onChange,
+  length = PIN_LENGTH,
+  type = "password",
+  ariaLabelPrefix = "PIN digit",
+  autoComplete = "off",
+  onComplete,
+}) {
   const inputsRef = useRef([]);
-
-  const values = watch("pin");
+  const values = value;
 
   const handleChange = (e, index) => {
     const numericValue = e.target.value.replace(/[^0-9]/g, "");
     const nextDigit = numericValue.slice(-1);
 
-    setValue(`pin.${index}.value`, nextDigit, {
-      shouldDirty: true,
-      shouldValidate: true,
-    });
+    const nextValues = values.map((item, currentIndex) =>
+      currentIndex === index ? { ...item, value: nextDigit } : item,
+    );
+    onChange(nextValues);
+
+    const isFilled = nextValues.length === length
+      && nextValues.every((item) => String(item?.value || "").length === 1);
+    if (onComplete && isFilled) {
+      onComplete(nextValues.map((item) => item.value).join(""), nextValues);
+    }
 
     // Auto-focus next input
     if (nextDigit && inputsRef.current[index + 1]) {
@@ -50,7 +59,7 @@ export default function PinInput() {
 
   return (
     <div className="flex justify-between gap-4">
-      {Array.from({ length: PIN_LENGTH }).map((_, index) => {
+      {Array.from({ length }).map((_, index) => {
         const isActive = values?.[index]?.value;
 
         return (
@@ -63,6 +72,9 @@ export default function PinInput() {
             onKeyDown={handleKeyDown}
             inputRef={(el) => (inputsRef.current[index] = el)}
             className={getInputClassName(isActive)}
+            type={type}
+            ariaLabelPrefix={ariaLabelPrefix}
+            autoComplete={index === 0 ? autoComplete : "off"}
           />
         );
       })}
@@ -73,15 +85,17 @@ export default function PinInput() {
 function PinInputField({
   index,
   value,
-  isActive,
   onChange,
   onKeyDown,
   inputRef,
   className,
+  type,
+  ariaLabelPrefix,
+  autoComplete,
 }) {
   return (
     <input
-      type="password"
+      type={type}
       maxLength={1}
       inputMode="numeric"
       value={value}
@@ -89,8 +103,8 @@ function PinInputField({
       onChange={(e) => onChange(e, index)}
       onKeyDown={(e) => onKeyDown(e, index)}
       className={className}
-      aria-label={`PIN digit ${index + 1}`}
-      autoComplete={index === 0 ? "one-time-code" : "off"}
+      aria-label={`${ariaLabelPrefix} ${index + 1}`}
+      autoComplete={autoComplete}
     />
   );
 }

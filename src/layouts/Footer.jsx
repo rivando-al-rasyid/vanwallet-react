@@ -1,28 +1,39 @@
 import { memo } from "react";
 import Brand from "../components/Brand";
-import { Phone, Mail } from "lucide-react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faTwitter,
-  faFacebookF,
-  faInstagram,
-  faGithub,
-} from "@fortawesome/free-brands-svg-icons";
+import { Icon } from "@iconify/react";
+import { useForm } from "react-hook-form";
+import { joiResolver } from "@hookform/resolvers/joi";
+import { newsletterSchema } from "../schemas/transactionSchemas";
 
 const CONTACT_ITEMS = [
-  { Icon: Phone, text: "+62 5637 8882 9901" },
-  { Icon: Mail, text: "contact@zwallet.com" },
+  { icon: "lucide:phone", text: "+62 5637 8882 9901" },
+  { icon: "lucide:mail", text: "contact@zwallet.com" },
 ];
 
 const SOCIAL_LINKS = [
-  { icon: faTwitter, label: "Twitter", href: "#" },
-  { icon: faFacebookF, label: "Facebook", href: "#" },
-  { icon: faInstagram, label: "Instagram", href: "#" },
-  { icon: faGithub, label: "GitHub", href: "#" },
+  { icon: "simple-icons:twitter", label: "Twitter", href: "#" },
+  { icon: "simple-icons:facebook", label: "Facebook", href: "#" },
+  { icon: "simple-icons:instagram", label: "Instagram", href: "#" },
+  { icon: "simple-icons:github", label: "GitHub", href: "#" },
 ];
 
 const Footer = memo(function Footer() {
   const currentYear = new Date().getFullYear();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: joiResolver(newsletterSchema),
+    defaultValues: {
+      email: "",
+    },
+  });
+
+  const onSubmit = () => {
+    reset({ email: "" });
+  };
 
   return (
     <footer className="bg-blue-600 px-6 pb-10 pt-16 text-white lg:px-10">
@@ -42,9 +53,9 @@ const Footer = memo(function Footer() {
             Get In Touch
           </h4>
           <ul className="space-y-4 text-sm text-white/90">
-            {CONTACT_ITEMS.map(({ Icon, text }) => (
+            {CONTACT_ITEMS.map(({ icon, text }) => (
               <li key={text} className="flex items-center gap-3">
-                <Icon size={16} aria-hidden="true" />
+                <Icon icon={icon} width={16} height={16} aria-hidden="true" />
                 <span>{text}</span>
               </li>
             ))}
@@ -64,7 +75,7 @@ const Footer = memo(function Footer() {
                 aria-label={label}
                 className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-blue-600 transition hover:bg-gray-100"
               >
-                <FontAwesomeIcon icon={icon} className="text-base" />
+                <Icon icon={icon} width={16} height={16} aria-hidden="true" />
               </a>
             ))}
           </div>
@@ -77,7 +88,7 @@ const Footer = memo(function Footer() {
           </h4>
           <form
             className="space-y-3"
-            onSubmit={(e) => e.preventDefault()}
+            onSubmit={handleSubmit(onSubmit)}
             aria-label="Newsletter signup"
           >
             <label htmlFor="newsletter-email" className="sr-only">
@@ -88,9 +99,12 @@ const Footer = memo(function Footer() {
               type="email"
               placeholder="Enter Your Email"
               autoComplete="email"
-              required
+              {...register("email")}
               className="w-full rounded-md border border-white/20 bg-white px-4 py-3 text-sm text-gray-800 outline-none focus:ring-2 focus:ring-white/50"
             />
+            {errors.email?.message && (
+              <p className="text-xs text-red-100">{errors.email.message}</p>
+            )}
             <button
               type="submit"
               className="w-full rounded-md bg-white px-4 py-3 text-sm font-semibold text-blue-600 transition hover:bg-gray-100"

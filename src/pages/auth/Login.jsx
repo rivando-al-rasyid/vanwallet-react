@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
-import { faEnvelope, faLock } from "@fortawesome/free-solid-svg-icons";
-import { useAuth } from "../../hooks/useAuth";
+import { Controller, useForm } from "react-hook-form";
+import { joiResolver } from "@hookform/resolvers/joi";
+
+import { login } from "../../store/slices/authSlice";
 import Brand from "../../components/Brand";
 import LoginHeadline from "../../components/login/LoginHeadline";
 import SocialLogin from "../../components/SocialLogin";
@@ -10,33 +12,38 @@ import Submit from "../../components/Submit";
 import LoginImage from "../../components/login/LoginImage";
 import LoginSubtext from "../../components/LoginSubtext";
 import loginPhoneImage from "../../assets/img/3d-hand-phone.png";
+import { useToast } from "../../context/toast/provider";
+import { loginSchema } from "../../schemas/authSchemas";
 
 export default function Login() {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { login, loading, error } = useAuth();
+  const { showToast } = useToast();
 
-  const [form, setForm] = useState({ email: "", password: "" });
-  const [validationError, setValidationError] = useState("");
+  const loading = useSelector((state) => state.auth.loading);
 
-  const handleChange = (e) => {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-    setValidationError("");
-  };
+  const {
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm({
+    resolver: joiResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setValidationError("");
+  const onSubmit = async (formValues) => {
+    const result = await dispatch(login(formValues));
 
-    if (!form.email || !form.password) {
-      setValidationError("Email dan password tidak boleh kosong.");
-      return;
-    }
-
-    try {
-      await login(form);
-      navigate("/login/pin");
-    } catch (err) {
-      // Error is already set in context
+    if (login.fulfilled.match(result)) {
+      showToast("Login berhasil! Selamat datang.", "success");
+      navigate("/dashboard/");
+    } else {
+      const msg =
+        result.payload || result.error?.message || "Login gagal. Coba lagi.";
+      showToast(msg, "error");
     }
   };
 
@@ -53,38 +60,55 @@ export default function Login() {
           />
           <SocialLogin />
 
-          {(validationError || error) && (
-            <div className="mb-4 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-sm text-red-600 font-medium">
-              {validationError || error}
+          <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+            <div>
+              <Controller
+                name="email"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    label="Email"
+                    type="email"
+                    icon="lucide:mail"
+                    placeholder="Enter your email"
+                    {...field}
+                  />
+                )}
+              />
+              {errors.email?.message && (
+                <p className="text-sm text-red-500 mt-1.5">{errors.email.message}</p>
+              )}
             </div>
-          )}
-
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            <Input
-              label="Email"
-              type="email"
-              name="email"
-              icon={faEnvelope}
-              placeholder="Enter your email"
-              value={form.email}
-              onChange={handleChange}
-            />
-            <Input
-              label="Password"
-              type="password"
-              name="password"
-              icon={faLock}
-              placeholder="Enter Your Password"
-              value={form.password}
-              onChange={handleChange}
-            />
-            <Submit name={loading ? "Loading..." : "Login"} />
+            <div>
+              <Controller
+                name="password"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    label="Password"
+                    type="password"
+                    icon="lucide:lock"
+                    placeholder="Enter Your Password"
+                    {...field}
+                  />
+                )}
+              />
+              {errors.password?.message && (
+                <p className="text-sm text-red-500 mt-1.5">{errors.password.message}</p>
+              )}
+            </div>
+            <Submit label={loading ? "Loading..." : "Login"} />
           </form>
 
           <LoginSubtext
             text={"Not Have An Account? "}
             link={"/register"}
             linklabel={"Register"}
+          />
+          <LoginSubtext
+            text={"Forgot Password? "}
+            link={"/forgotpassword"}
+            linklabel={"reset"}
           />
         </div>
       </section>

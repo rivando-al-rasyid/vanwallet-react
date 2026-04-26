@@ -1,159 +1,151 @@
-// src/pages/transfer/SetNominal.jsx
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
+import { useSelector, useDispatch } from "react-redux";
+import { Icon } from "@iconify/react";
+import { useForm } from "react-hook-form";
+import { joiResolver } from "@hookform/resolvers/joi";
+
 import Stepper from "../../components/Stepper";
-import { getUserById, verifyPin } from "../../utils/auth";
-import TransferModal from "./TransferModal";
-import Toast from "../../components/Toast";
-import { useAuth } from "../../hooks/useAuth";
+import TransferModal from "../../components/transfer/TransferModal";
+import { getUserById, verifyPin } from "../../utils/userUtils";
+import { applyTransactionWithBalanceUpdate } from "../../utils/transactionFlow";
+import { resetHistory } from "../../store/slices/historySlice";
+import { fetchBalance } from "../../store/slices/profileSlice";
+import { useToast } from "../../context/toast/provider";
+import { transferNominalSchema } from "../../schemas/transactionSchemas";
 
 export default function SetNominal() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user: currentUser } = useAuth();
+  const dispatch = useDispatch();
+  const { showToast } = useToast();
 
-  const [amount, setAmount] = useState("");
-  const [notes, setNotes] = useState("");
+  const currentUser    = useSelector((state) => state.profile.user);
+  const currentBalance = useSelector((state) => state.profile.balance);
+
   const [selectedContact, setSelectedContact] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [toast, setToast] = useState({
-    open: false,
-    message: "",
-    type: "info",
+  const [loadingContact, setLoadingContact]   = useState(true);
+  const [contactError, setContactError]       = useState("");
+  const [modalStep, setModalStep]             = useState(null);
+  const {
+    register,
+    watch,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: joiResolver(transferNominalSchema),
+    defaultValues: {
+      amount: "",
+      notes: "",
+    },
   });
-
-  // "pin" | "failed" | "success" | null
-  const [modalStep, setModalStep] = useState(null);
+  const amount = watch("amount");
+  const notes = watch("notes");
 
   useEffect(() => {
-    async function fetchContact() {
-      setLoading(true);
-      setError("");
+    async function loadContact() {
+      setLoadingContact(true);
+      setContactError("");
       try {
         const user = await getUserById(id);
         if (!user) throw new Error("Kontak tidak ditemukan.");
         setSelectedContact({
-          id: user.id,
-          name: user.name,
-          phone: user.phone,
-          img: user.avatar,
+          id:       user.id,
+          name:     user.name,
+          phone:    user.phone,
+          img:      user.avatar,
           verified: true,
         });
       } catch (err) {
-        setError(err.message);
+        setContactError(err.message);
       } finally {
-        setLoading(false);
+        setLoadingContact(false);
       }
     }
-    fetchContact();
+    loadContact();
   }, [id]);
 
   const handleOpenPinModal = () => {
-    if (!amount || Number(amount) <= 0) {
-      setToast({
-        open: true,
-        message: "Masukkan nominal transfer yang valid",
-        type: "error",
-      });
+    const parsedAmount = parseFloat(amount);
+    const availableBalance = currentBalance?.balance ?? 0;
+    if (parsedAmount > availableBalance) {
+      showToast(
+        `Saldo tidak cukup. Saldo tersedia: Rp ${availableBalance.toLocaleString("id-ID")}`,
+        "error",
+      );
       return;
     }
+
     setModalStep("pin");
   };
 
   const handlePinSubmit = async (pin) => {
     try {
       await verifyPin(currentUser?.id, pin);
-      // TODO: call actual transfer API here
-      setModalStep("success");
-      setToast({
-        open: true,
-        message: "Transfer berhasil diproses.",
-        type: "success",
+
+      const parsedAmount = parseFloat(amount);
+      const desc = `Transfer to ${selectedContact.name} (${selectedContact.phone})${notes ? `. Notes: ${notes}` : ""}`;
+
+      await applyTransactionWithBalanceUpdate({
+        userId:          currentUser?.id,
+        transactionType: "payment",
+        transactionDesc: desc,
+        amount:          parsedAmount,
+        balanceMutation: (currentBalanceValue) => currentBalanceValue - parsedAmount,
       });
+
+      dispatch(resetHistory());
+      dispatch(fetchBalance(currentUser?.id));
+
+      setModalStep("success");
+      showToast("Transfer berhasil diproses! 🎉", "success");
     } catch (err) {
       setModalStep("failed");
-      setToast({
-        open: true,
-        message: err.message || "PIN tidak valid. Coba lagi.",
-        type: "error",
-      });
+      showToast(err.message || "PIN tidak valid. Coba lagi.", "error");
     }
   };
 
-  const handleDone = () => {
-    setModalStep(null);
-    navigate("/dashboard");
-  };
-
-  const handleTryAgain = () => setModalStep("pin");
-
+  const handleDone         = () => { setModalStep(null); navigate("/dashboard"); };
+  const handleTryAgain     = () => setModalStep("pin");
   const handleTransferAgain = () => {
     setModalStep(null);
-    setAmount("");
-    setNotes("");
+    reset({ amount: "", notes: "" });
     navigate("/dashboard/transfer");
   };
 
   return (
     <>
-      {/* Header & Stepper */}
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-6">
           <button
             onClick={() => navigate(-1)}
             className="text-gray-400 hover:text-blue-600 transition-colors"
+            aria-label="Go back"
           >
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <path
-                d="M19 12H5M12 5l-7 7 7 7"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+            <Icon icon="lucide:arrow-left" width={20} height={20} aria-hidden="true" />
           </button>
-
           <span className="text-blue-600">
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
-            </svg>
+            <Icon icon="lucide:send" width={24} height={24} aria-hidden="true" />
           </span>
-
           <h1 className="section-title">Transfer Money</h1>
         </div>
         <Stepper currentStep={2} />
       </div>
 
-      {/* Main Content Card */}
       <div className="card min-h-150">
-        <h2 className="section-title mb-6">
-          People Information
-        </h2>
+        <h2 className="section-title mb-6">People Information</h2>
 
-        {loading && (
+        {loadingContact && (
           <div className="flex flex-col items-center justify-center py-20 gap-3 text-gray-400">
             <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full" />
             <span className="text-sm">Mengambil data kontak...</span>
           </div>
         )}
 
-        {!loading && error && (
+        {!loadingContact && contactError && (
           <div className="flex flex-col items-center justify-center py-20 gap-3">
-            <p className="text-red-500 font-semibold text-sm">{error}</p>
+            <p className="text-red-500 font-semibold text-sm">{contactError}</p>
             <button
               onClick={() => navigate("/dashboard/transfer")}
               className="text-xs text-blue-600 underline"
@@ -163,8 +155,18 @@ export default function SetNominal() {
           </div>
         )}
 
-        {!loading && !error && selectedContact && (
+        {!loadingContact && !contactError && selectedContact && (
           <>
+            {currentBalance && (
+              <div className="mb-4 px-4 py-2 bg-blue-50 rounded-xl text-sm text-blue-700 font-medium flex items-center gap-2">
+                <Icon icon="lucide:wallet" width={16} height={16} aria-hidden="true" />
+                Saldo tersedia:{" "}
+                <span className="font-bold">
+                  Rp {(currentBalance.balance ?? 0).toLocaleString("id-ID")}
+                </span>
+              </div>
+            )}
+
             {/* Contact Card */}
             <div className="flex items-center gap-4 bg-gray-50 rounded-xl p-4 mb-8">
               <img
@@ -177,97 +179,67 @@ export default function SetNominal() {
                 }}
               />
               <div className="flex-1">
-                <p className="font-semibold text-gray-800">
-                  {selectedContact.name}
-                </p>
+                <p className="font-semibold text-gray-800">{selectedContact.name}</p>
                 <p className="text-sm text-gray-500">{selectedContact.phone}</p>
                 {selectedContact.verified && (
                   <span className="inline-flex items-center gap-1 mt-1 text-xs bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full font-medium">
-                    <svg
-                      width="12"
-                      height="12"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                    >
-                      <polyline points="20 6 9 17 4 12" />
-                    </svg>
+                    <Icon icon="lucide:check" width={12} height={12} aria-hidden="true" />
                     Verified
                   </span>
                 )}
               </div>
-              <button className="text-gray-300 hover:text-yellow-400 transition-colors ml-auto shrink-0">
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                >
-                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                </svg>
+              <button
+                className="text-gray-300 hover:text-yellow-400 transition-colors ml-auto shrink-0"
+                aria-label="Favorite"
+              >
+                <Icon icon="lucide:star" width={20} height={20} aria-hidden="true" />
               </button>
             </div>
 
-            {/* Amount */}
-            <div className="mb-5">
-              <label className="block text-sm font-semibold text-gray-700 mb-1">
-                Amount
-              </label>
-              <p className="text-xs text-gray-400 mb-2">
-                Type the amount you want to transfer and then press continue to
-                the next steps.
-              </p>
-              <div className="relative">
-                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
-                    <line x1="1" y1="10" x2="23" y2="10" />
-                  </svg>
-                </span>
-                <input
-                  type="number"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  placeholder="Enter Nominal Transfer"
-                  className="w-full pl-10 pr-4 py-3 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition"
-                />
+            <form onSubmit={handleSubmit(handleOpenPinModal)}>
+              {/* Amount */}
+              <div className="mb-5">
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Amount</label>
+                <p className="text-xs text-gray-400 mb-2">
+                  Type the amount you want to transfer and then press continue to the next steps.
+                </p>
+                <div className="relative">
+                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
+                    <Icon icon="lucide:credit-card" width={16} height={16} aria-hidden="true" />
+                  </span>
+                  <input
+                    type="number"
+                    placeholder="Enter Nominal Transfer"
+                    className="w-full pl-10 pr-4 py-3 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition"
+                    {...register("amount")}
+                  />
+                </div>
+                {errors.amount?.message && (
+                  <p className="text-sm text-red-500 mt-1.5">{errors.amount.message}</p>
+                )}
               </div>
-            </div>
 
-            {/* Notes */}
-            <div className="mb-8">
-              <label className="block text-sm font-semibold text-gray-700 mb-1">
-                Notes
-              </label>
-              <p className="text-xs text-gray-400 mb-2">
-                You can add some notes for this transfer such as payment coffee
-                or something.
-              </p>
-              <textarea
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder="Enter Some Notes"
-                rows={5}
-                className="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition resize-none"
-              />
-            </div>
+              {/* Notes */}
+              <div className="mb-8">
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Notes</label>
+                <p className="text-xs text-gray-400 mb-2">
+                  You can add some notes for this transfer such as payment coffee or something.
+                </p>
+                <textarea
+                  placeholder="Enter Some Notes"
+                  rows={5}
+                  className="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition resize-none"
+                  {...register("notes")}
+                />
+                {errors.notes?.message && (
+                  <p className="text-sm text-red-500 mt-1.5">{errors.notes.message}</p>
+                )}
+              </div>
 
-            <button
-              onClick={handleOpenPinModal}
-              className="btn-primary w-full"
-            >
-              Submit &amp; Transfer
-            </button>
+              <button type="submit" className="btn-primary w-full">
+                Submit &amp; Transfer
+              </button>
+            </form>
           </>
         )}
       </div>
@@ -280,12 +252,6 @@ export default function SetNominal() {
         onTryAgain={handleTryAgain}
         onTransferAgain={handleTransferAgain}
         toName={selectedContact?.name ?? ""}
-      />
-      <Toast
-        open={toast.open}
-        message={toast.message}
-        type={toast.type}
-        onClose={() => setToast((prev) => ({ ...prev, open: false }))}
       />
     </>
   );

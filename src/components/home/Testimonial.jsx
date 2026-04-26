@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { Icon } from "@iconify/react";
 
 const TESTIMONIAL = {
   name: "James Bond",
@@ -25,7 +25,7 @@ export default function Testimonial() {
             className="absolute left-0 top-1/2 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700 shadow md:flex lg:h-11 lg:w-11"
             aria-label="Previous testimonial"
           >
-            <ArrowLeft size={16} />
+            <Icon icon="lucide:arrow-left" width={16} height={16} />
           </button>
 
           <div className="mx-auto max-w-2xl rounded-2xl bg-blue-600 px-6 py-8 text-white shadow-2xl sm:rounded-3xl sm:px-8 sm:py-10 lg:px-12">
@@ -53,7 +53,7 @@ export default function Testimonial() {
             className="absolute right-0 top-1/2 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-blue-600 text-white shadow md:flex lg:h-11 lg:w-11"
             aria-label="Next testimonial"
           >
-            <ArrowRight size={16} />
+            <Icon icon="lucide:arrow-right" width={16} height={16} />
           </button>
         </div>
       </div>

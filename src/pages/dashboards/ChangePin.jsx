@@ -1,109 +1,165 @@
-import { useState } from "react";
-import { useForm, FormProvider } from "react-hook-form";
-import { joiResolver } from "@hookform/resolvers/joi";
+import { useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
-import Joi from "joi";
+import { Icon } from "@iconify/react";
 
 import PinInput from "../../components/PinInput";
-import { useProfile } from "../../hooks/useProfile";
+import { changePin } from "../../store/slices/profileSlice";
+import { useToast } from "../../context/toast/provider";
+import { DEFAULT_PIN_VALUE, PIN_LENGTH } from "../../schemas/pinSchema";
+import { verifyPin } from "../../utils/userUtils";
 
-const defaultPin = Array(6)
-  .fill(null)
-  .map(() => ({ value: "" }));
+const PIN_STEP = {
+  CURRENT: "current",
+  NEW: "new",
+  CONFIRM: "confirm",
+};
 
-const pinSchema = Joi.object({
-  pin: Joi.array()
-    .items(
-      Joi.object({
-        value: Joi.string().length(1).pattern(/^\d$/).required(),
-      }),
-    )
-    .length(6)
-    .required(),
-});
+const createDigits = () =>
+  Array.from({ length: PIN_LENGTH }, () => ({ value: "" }));
 
 export default function ChangePin() {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { changePin, profileLoading, profileError } = useProfile();
+  const { showToast } = useToast();
 
-  const [success, setSuccess] = useState("");
+  const userId  = useSelector((state) => state.profile.user?.id ?? null);
+  const loading = useSelector((state) => state.profile.loading);
 
-  const methods = useForm({
-    resolver: joiResolver(pinSchema),
-    defaultValues: { pin: defaultPin },
-    mode: "onChange",
-  });
+  const [step, setStep] = useState(PIN_STEP.CURRENT);
+  const [currentPin, setCurrentPin] = useState(DEFAULT_PIN_VALUE);
+  const [newPin, setNewPin] = useState(DEFAULT_PIN_VALUE);
+  const [confirmPin, setConfirmPin] = useState(DEFAULT_PIN_VALUE);
+  const [inlineError, setInlineError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  const onSubmit = async (data) => {
-    const pinValue = data.pin.map((item) => item.value).join("");
+  const stepTitle = useMemo(() => {
+    if (step === PIN_STEP.CURRENT) return "Current PIN";
+    if (step === PIN_STEP.NEW) return "New PIN";
+    return "Confirm new PIN";
+  }, [step]);
 
-    setSuccess("");
+  const toPinString = (pinValue) => pinValue.map((item) => item.value).join("");
+  const isComplete = (pinValue) =>
+    pinValue.every((item) => String(item?.value || "").length === 1);
 
-    try {
-      await changePin(pinValue);
-      setSuccess("PIN berhasil diupdate!");
-      methods.reset({ pin: defaultPin });
-      setTimeout(() => navigate("/dashboard/profile"), 1200);
-    } catch {
-      // error is handled by context/Redux via profileError
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    setInlineError("");
+
+    if (step === PIN_STEP.CURRENT) {
+      if (!isComplete(currentPin)) {
+        setInlineError(`Please enter complete PIN (${PIN_LENGTH} digits).`);
+        return;
+      }
+      setSubmitting(true);
+      try {
+        await verifyPin(userId, toPinString(currentPin));
+      } catch (error) {
+        setInlineError("Incorrect current PIN");
+        setSubmitting(false);
+        return;
+      }
+      setSubmitting(false);
+      setStep(PIN_STEP.NEW);
+      return;
+    }
+
+    if (step === PIN_STEP.NEW) {
+      if (!isComplete(newPin)) {
+        setInlineError(`Please enter complete PIN (${PIN_LENGTH} digits).`);
+        return;
+      }
+      setStep(PIN_STEP.CONFIRM);
+      return;
+    }
+
+    if (!isComplete(confirmPin)) {
+      setInlineError(`Please enter complete PIN (${PIN_LENGTH} digits).`);
+      return;
+    }
+
+    const currentPinValue = toPinString(currentPin);
+    const newPinValue = toPinString(newPin);
+    const confirmPinValue = toPinString(confirmPin);
+
+    if (newPinValue !== confirmPinValue) {
+      setInlineError("PIN does not match, please enter again");
+      setConfirmPin(createDigits());
+      return;
+    }
+
+    setSubmitting(true);
+    const result = await dispatch(changePin({ userId, currentPin: currentPinValue, newPin: newPinValue }));
+    setSubmitting(false);
+
+    if (changePin.fulfilled.match(result)) {
+      showToast("PIN berhasil diupdate!", "success");
+      setStep(PIN_STEP.CURRENT);
+      setCurrentPin(createDigits());
+      setNewPin(createDigits());
+      setConfirmPin(createDigits());
+      setTimeout(() => navigate("/dashboard/profile"), 1500);
+    } else {
+      if (String(result.payload || "").toLowerCase().includes("invalid pin")) {
+        setInlineError("Incorrect current PIN");
+        setStep(PIN_STEP.CURRENT);
+        setCurrentPin(createDigits());
+        return;
+      }
+      const msg = result.payload || result.error?.message || "Gagal mengupdate PIN.";
+      setInlineError(msg);
     }
   };
 
   return (
     <>
-      {/* Page Title */}
       <div className="flex items-center gap-3">
         <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-            <path
-              fillRule="evenodd"
-              clipRule="evenodd"
-              d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"
-              fill="#2563EB"
-            />
-          </svg>
+          <Icon icon="lucide:user-round" width={18} height={18} color="#2563EB" aria-hidden="true" />
         </div>
         <h1 className="text-xl font-bold text-gray-800">Profile</h1>
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm p-8">
         <div className="max-w-3xl mx-auto w-full text-center">
-          <h2 className="text-base font-bold text-gray-800 mb-1">
-            Change Pin 👋
-          </h2>
+          <h2 className="text-base font-bold text-gray-800 mb-1">Change Pin 👋</h2>
           <p className="text-sm text-gray-400 mb-8">
             Please save your pin because this so important.
           </p>
 
-          <FormProvider {...methods}>
-            <form
-              onSubmit={methods.handleSubmit(onSubmit)}
-              className="flex flex-col items-center"
+          <form
+            onSubmit={onSubmit}
+            className="flex flex-col items-center"
+          >
+            <p className="w-full text-left text-sm font-semibold text-gray-600 mb-4">
+              {stepTitle}
+            </p>
+
+            {step === PIN_STEP.CURRENT && (
+              <PinInput value={currentPin} onChange={setCurrentPin} />
+            )}
+            {step === PIN_STEP.NEW && (
+              <PinInput value={newPin} onChange={setNewPin} />
+            )}
+            {step === PIN_STEP.CONFIRM && (
+              <PinInput value={confirmPin} onChange={setConfirmPin} />
+            )}
+
+            {inlineError && (
+              <p className="text-sm text-red-500 mt-4">
+                {inlineError}
+              </p>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading || submitting}
+              className="w-full mt-10 py-3.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 disabled:opacity-60 transition"
             >
-              <PinInput />
-
-              {methods.formState.errors.pin && (
-                <p className="text-sm text-red-500 mt-4">
-                  Please complete the 6-digit PIN.
-                </p>
-              )}
-
-              {profileError && (
-                <p className="text-sm text-red-500 mt-4">{profileError}</p>
-              )}
-              {success && (
-                <p className="text-sm text-green-600 mt-4">{success}</p>
-              )}
-
-              <button
-                type="submit"
-                disabled={profileLoading}
-                className="w-full mt-10 py-3.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 disabled:opacity-60 transition"
-              >
-                {profileLoading ? "Menyimpan..." : "Submit"}
-              </button>
-            </form>
-          </FormProvider>
+              {loading || submitting ? "Menyimpan..." : step === PIN_STEP.CONFIRM ? "Submit" : "Continue"}
+            </button>
+          </form>
         </div>
       </div>
     </>

@@ -1,20 +1,17 @@
-import { faApple, faGooglePlay } from "@fortawesome/free-brands-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Icon } from "@iconify/react";
 import phoneBigImage from "../../assets/img/phonebig.png";
 import phoneSmallImage from "../../assets/img/phonesmall.png";
 
 const STORE_BUTTONS = [
   {
     label: "Play Store",
-    icon: faGooglePlay,
-    className:
-      "bg-blue-600 text-white hover:bg-blue-700",
+    icon: "simple-icons:googleplay",
+    className: "bg-blue-600 text-white hover:bg-blue-700",
   },
   {
     label: "App Store",
-    icon: faApple,
-    className:
-      "border border-blue-600 text-blue-600 hover:bg-blue-50",
+    icon: "simple-icons:apple",
+    className: "border border-blue-600 text-blue-600 hover:bg-blue-50",
   },
 ];
 
@@ -55,7 +52,7 @@ export default function DownloadCTA() {
               key={label}
               className={`flex w-full min-w-45 items-center justify-center gap-3 rounded-lg px-6 py-3 font-medium transition sm:w-auto ${className}`}
             >
-              <FontAwesomeIcon icon={icon} aria-hidden="true" />
+              <Icon icon={icon} width={18} height={18} aria-hidden="true" />
               <span>{label}</span>
             </button>
           ))}
