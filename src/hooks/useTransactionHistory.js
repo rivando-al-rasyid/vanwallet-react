@@ -1,24 +1,7 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchHistoryWithUsers } from "../store/slices/historySlice";
-
-const TRANSACTION_TYPE_MAP = {
-  deposit:    { label: "Deposit",    badgeClass: "badge-success", sign: "+", amountClass: "text-green-600" },
-  withdrawal: { label: "Withdrawal", badgeClass: "badge-danger",  sign: "-", amountClass: "text-red-500"   },
-  payment:    { label: "Payment",    badgeClass: "badge-danger",  sign: "-", amountClass: "text-red-500"   },
-  invoice:    { label: "Invoice",    badgeClass: "badge-warning", sign: "",  amountClass: "text-gray-700"  },
-};
-
-function getTransactionMeta(transactionType) {
-  return (
-    TRANSACTION_TYPE_MAP[transactionType?.toLowerCase()] ?? {
-      label:       transactionType || "Unknown",
-      badgeClass:  "badge-warning",
-      sign:        "",
-      amountClass: "text-gray-700",
-    }
-  );
-}
+import { getTransactionMeta } from "../utils/transactionMeta";
 
 /**
  * useTransactionHistory

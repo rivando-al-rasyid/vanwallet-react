@@ -7,8 +7,7 @@ import Joi from "joi";
 import Stepper from "../../components/Stepper";
 import TransferModal from "../../components/transfer/TransferModal";
 import { getUserById, verifyPin } from "../../utils/userUtils";
-import { getBalance, updateBalance } from "../../utils/balanceUtils";
-import { createTransaction } from "../../utils/transactionUtils";
+import { applyTransactionWithBalanceUpdate } from "../../utils/transactionFlow";
 import { resetHistory } from "../../store/slices/historySlice";
 import { fetchBalance } from "../../store/slices/profileSlice";
 import { useToast } from "../../context/toast/provider";
@@ -94,16 +93,13 @@ export default function SetNominal() {
       const parsedAmount = parseFloat(amount);
       const desc = `Transfer to ${selectedContact.name} (${selectedContact.phone})${notes ? `. Notes: ${notes}` : ""}`;
 
-      await createTransaction({
+      await applyTransactionWithBalanceUpdate({
         userId:          currentUser?.id,
         transactionType: "payment",
         transactionDesc: desc,
         amount:          parsedAmount,
+        balanceMutation: (currentBalanceValue) => currentBalanceValue - parsedAmount,
       });
-
-      const currentBal = await getBalance(currentUser?.id);
-      const newBalance  = (currentBal?.balance ?? 0) - parsedAmount;
-      await updateBalance(currentUser?.id, newBalance);
 
       dispatch(resetHistory());
       dispatch(fetchBalance(currentUser?.id));

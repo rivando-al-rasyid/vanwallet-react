@@ -1,6 +1,4 @@
-import { useForm, FormProvider } from "react-hook-form";
-import { joiResolver } from "@hookform/resolvers/joi";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import PinInput from "../PinInput";
 import Modal from "../Modal";
@@ -38,21 +36,27 @@ export default function TransferModal({
   onTransferAgain,
   toName = "",
 }) {
-  const methods = useForm({
-    resolver: joiResolver(pinFieldSchema),
-    defaultValues: { pin: DEFAULT_PIN_VALUE },
-    mode: "onChange",
-  });
+  const [pin, setPin] = useState(DEFAULT_PIN_VALUE);
+  const [pinError, setPinError] = useState("");
 
   useEffect(() => {
     if (open && step === "pin") {
-      methods.reset({ pin: DEFAULT_PIN_VALUE });
+      setPin(DEFAULT_PIN_VALUE);
+      setPinError("");
     }
-  }, [methods, open, step]);
+  }, [open, step]);
 
   if (!open) return null;
 
-  const handlePinConfirm = ({ pin }) => {
+  const handlePinConfirm = (e) => {
+    e.preventDefault();
+    const { error } = pinFieldSchema.validate({ pin }, { abortEarly: true });
+    if (error) {
+      setPinError(`Masukkan PIN lengkap (${PIN_LENGTH} digit)`);
+      return;
+    }
+
+    setPinError("");
     const pinString = pin.map((p) => p.value).join("");
     onPinSubmit(pinString);
   };
@@ -70,26 +74,24 @@ export default function TransferModal({
           Enter Your Pin For Transaction
         </p>
 
-        <FormProvider {...methods}>
-          <form
-            onSubmit={methods.handleSubmit(handlePinConfirm)}
-            className="mb-2"
-          >
-            <div className="mb-8 flex justify-center">
-              <PinInput />
-            </div>
+        <form
+          onSubmit={handlePinConfirm}
+          className="mb-2"
+        >
+          <div className="mb-8 flex justify-center">
+            <PinInput value={pin} onChange={setPin} />
+          </div>
 
-            {methods.formState.errors.pin && (
-              <p className="text-sm text-red-500 mb-4 text-left">
-                Masukkan PIN lengkap ({PIN_LENGTH} digit)
-              </p>
-            )}
+          {pinError && (
+            <p className="text-sm text-red-500 mb-4 text-left">
+              {pinError}
+            </p>
+          )}
 
-            <button type="submit" className="btn-primary w-full mb-4">
-              Confirm & Transfer
-            </button>
-          </form>
-        </FormProvider>
+          <button type="submit" className="btn-primary w-full mb-4">
+            Confirm & Transfer
+          </button>
+        </form>
 
         <p className="text-sm text-gray-500">
           Forgot Your Pin?{" "}

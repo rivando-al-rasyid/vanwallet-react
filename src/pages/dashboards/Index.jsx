@@ -16,12 +16,15 @@ import {
 
 import { useTransactionHistory } from "../../hooks/useTransactionHistory";
 import { fetchBalance } from "../../store/slices/profileSlice";
+import { buildDashboardAnalytics } from "../../utils/dashboardAnalytics";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
-const ALL_LABELS = ["Sat", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri"];
-const ALL_INCOME = [80000, 78000, 85000, 22000, 20000, 70000, 8000];
-const ALL_EXPENSE = [15000, 52000, 65000, 32000, 8000, 60000, 48000];
+const DAY_FILTER_OPTIONS = [
+  { value: "7", label: "7 Days" },
+  { value: "14", label: "14 Days" },
+  { value: "30", label: "30 Days" },
+];
 
 export default function Index() {
   const navigate = useNavigate();
@@ -50,16 +53,17 @@ export default function Index() {
       minimumFractionDigits: 0,
     }).format(val);
 
+  const analytics = useMemo(
+    () => buildDashboardAnalytics(transactions, Number(days)),
+    [transactions, days],
+  );
+
   const chartData = useMemo(() => {
-    const count = Math.min(parseInt(days), ALL_LABELS.length);
-    const labels = ALL_LABELS.slice(-count);
-    const income = ALL_INCOME.slice(-count);
-    const expense = ALL_EXPENSE.slice(-count);
     const datasets = [];
     if (typeFilter === "All" || typeFilter === "Income") {
       datasets.push({
         label: "Income",
-        data: income,
+        data: analytics.incomeSeries,
         backgroundColor: "#4D7CFF",
         borderRadius: 10,
         borderSkipped: false,
@@ -69,15 +73,15 @@ export default function Index() {
     if (typeFilter === "All" || typeFilter === "Expense") {
       datasets.push({
         label: "Expense",
-        data: expense,
+        data: analytics.expenseSeries,
         backgroundColor: "#CC0000",
         borderRadius: 10,
         borderSkipped: false,
         barPercentage: 0.45,
       });
     }
-    return { labels, datasets };
-  }, [days, typeFilter]);
+    return { labels: analytics.labels, datasets };
+  }, [analytics, typeFilter]);
 
   const options = {
     responsive: true,
@@ -156,7 +160,7 @@ export default function Index() {
                   Income
                 </p>
                 <p className="text-sm font-semibold text-emerald-500 flex items-center gap-1">
-                  Rp.200k <span className="badge badge-success">+2%</span>
+                  {fmtIdr(analytics.totalIncome)}
                 </p>
               </div>
               <div>
@@ -164,7 +168,7 @@ export default function Index() {
                   Expense
                 </p>
                 <p className="text-sm font-semibold text-red-500 flex items-center gap-1">
-                  Rp.100k <span className="badge badge-danger">+5%</span>
+                  {fmtIdr(analytics.totalExpense)}
                 </p>
               </div>
             </div>
@@ -200,9 +204,11 @@ export default function Index() {
                   onChange={(e) => setDays(e.target.value)}
                   className="text-xs font-semibold text-slate-600 border border-slate-200 rounded-lg px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-200"
                 >
-                  <option value="7">7 Days</option>
-                  <option value="14">14 Days</option>
-                  <option value="30">30 Days</option>
+                  {DAY_FILTER_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
                 </select>
                 <select
                   value={typeFilter}
@@ -215,7 +221,29 @@ export default function Index() {
                 </select>
               </div>
             </div>
-            <Bar data={chartData} options={options} />
+            {loading && (
+              <div className="flex flex-col items-center justify-center py-12 gap-3 text-gray-400">
+                <Icon icon="lucide:loader-circle" className="animate-spin w-6 h-6 text-blue-500" aria-hidden="true" />
+                <span className="text-xs">Loading chart data...</span>
+              </div>
+            )}
+            {!loading && error && (
+              <div className="flex flex-col items-center justify-center py-12 gap-2">
+                <p className="text-red-500 font-semibold text-xs">{error}</p>
+                <button onClick={reload} className="text-xs text-blue-600 underline">
+                  Try again
+                </button>
+              </div>
+            )}
+            {!loading && !error && transactions.length === 0 && (
+              <div className="flex flex-col items-center justify-center py-12 gap-2 text-gray-400">
+                <Icon icon="lucide:bar-chart-3" className="w-7 h-7" aria-hidden="true" />
+                <span className="text-xs">No data available for chart.</span>
+              </div>
+            )}
+            {!loading && !error && transactions.length > 0 && (
+              <Bar data={chartData} options={options} />
+            )}
           </div>
         </div>
 
@@ -266,19 +294,25 @@ export default function Index() {
                   key={tx.id || i}
                   className="flex items-center gap-2 sm:gap-3 hover:bg-slate-50 p-2 sm:p-3 rounded-lg transition-colors cursor-pointer"
                 >
-                  <img
-                    src={tx.avatar || `https://i.pravatar.cc/40?img=${i + 1}`}
-                    className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover shrink-0"
-                    alt={tx.name}
-                  />
+                  {tx.avatar ? (
+                    <img
+                      src={tx.avatar}
+                      className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover shrink-0"
+                      alt={tx.name}
+                    />
+                  ) : (
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center shrink-0">
+                      <Icon icon="lucide:user" className="w-4 h-4" aria-hidden="true" />
+                    </div>
+                  )}
                   <div className="flex-1 min-w-0">
                     <p className="text-xs sm:text-sm font-semibold text-slate-800 truncate">
-                      {tx.name}
+                      {tx.name || "Unknown"}
                     </p>
-                    <p className="text-xs text-slate-400">{tx.badgeLabel}</p>
+                    <p className="text-xs text-slate-400">{tx.badgeLabel || "Unknown"}</p>
                   </div>
                   <span className={`text-xs sm:text-sm font-bold shrink-0 ${tx.amountClass}`}>
-                    {tx.sign} {tx.formattedAmount}
+                    {tx.sign || ""} {tx.formattedAmount || fmtIdr(0)}
                   </span>
                 </div>
               ))}

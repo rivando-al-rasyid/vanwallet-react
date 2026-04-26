@@ -4,8 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { Icon } from "@iconify/react";
 import { useToast } from "../../context/toast/provider";
 import { useConfirm } from "../../context/confirm/provider";
-import { getBalance, updateBalance } from "../../utils/balanceUtils";
-import { createTransaction } from "../../utils/transactionUtils";
+import { applyTransactionWithBalanceUpdate } from "../../utils/transactionFlow";
 import { fetchBalance } from "../../store/slices/profileSlice";
 import { resetHistory } from "../../store/slices/historySlice";
 
@@ -80,20 +79,13 @@ export default function TopUp() {
     try {
       setSubmitting(true);
 
-      // 1. POST /transactions — record the deposit
-      await createTransaction({
+      await applyTransactionWithBalanceUpdate({
         userId: currentUser?.id,
         transactionType: "deposit",
         transactionDesc: `Top Up via ${methodName} sebesar ${fmtIdr(subTotal)}`,
         amount: subTotal,
+        balanceMutation: (currentBalanceValue) => currentBalanceValue + subTotal,
       });
-
-      // 2. PUT /balances/:userId — add to balance
-      const currentBal = await getBalance(currentUser?.id);
-      const newBalance = (currentBal?.balance ?? 0) + subTotal;
-      await updateBalance(currentUser?.id, newBalance);
-
-      // 3. Refresh Redux balance & history cache
       dispatch(fetchBalance(currentUser?.id));
       dispatch(resetHistory());
 

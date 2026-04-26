@@ -6,24 +6,7 @@ import TableRow from "../../components/TableRow";
 import Modal from "../../components/Modal";
 import { useTransactionHistory } from "../../hooks/useTransactionHistory";
 import { useTransactionFilter } from "../../hooks/useTransactionFilter";
-
-const TRANSACTION_TYPE_MAP = {
-  deposit:    { label: "Deposit",    badgeClass: "badge-success", sign: "+", amountClass: "text-green-600" },
-  withdrawal: { label: "Withdrawal", badgeClass: "badge-danger",  sign: "-", amountClass: "text-red-500"   },
-  payment:    { label: "Payment",    badgeClass: "badge-danger",  sign: "-", amountClass: "text-red-500"   },
-  invoice:    { label: "Invoice",    badgeClass: "badge-warning", sign: "",  amountClass: "text-gray-700"  },
-};
-
-function getTransactionMeta(transactionType) {
-  return (
-    TRANSACTION_TYPE_MAP[transactionType?.toLowerCase()] ?? {
-      label:       transactionType || "Unknown",
-      badgeClass:  "badge-warning",
-      sign:        "",
-      amountClass: "text-gray-700",
-    }
-  );
-}
+import { getTransactionMeta } from "../../utils/transactionMeta";
 
 const DetailIcon = () => (
   <Icon icon="lucide:eye" width={16} height={16} aria-hidden="true" />

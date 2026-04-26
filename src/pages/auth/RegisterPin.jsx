@@ -1,5 +1,4 @@
-import { FormProvider, useForm } from "react-hook-form";
-import { joiResolver } from "@hookform/resolvers/joi";
+import { useState } from "react";
 import { useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -9,7 +8,7 @@ import LoginImage from "../../components/login/LoginImage";
 import LoginHeadline from "../../components/login/LoginHeadline";
 import Submit from "../../components/Submit";
 import { createPin } from "../../store/slices/registerSlice";
-import { DEFAULT_PIN_VALUE, pinFieldSchema } from "../../components/pin/pinConfig";
+import { DEFAULT_PIN_VALUE, pinFieldSchema } from "../../schemas/pinSchema";
 import { useToast } from "../../context/toast/provider";
 import walletHandImage from "../../assets/img/3d-hand-wallet.png";
 
@@ -21,15 +20,20 @@ export default function RegisterPin() {
   const userId     = useSelector((state) => state.profile.user?.id ?? null);
   const pinLoading = useSelector((state) => state.register.pinLoading);
 
-  const methods = useForm({
-    resolver: joiResolver(pinFieldSchema),
-    defaultValues: { pin: DEFAULT_PIN_VALUE },
-    mode: "onChange",
-  });
+  const [pin, setPin] = useState(DEFAULT_PIN_VALUE);
+  const [pinError, setPinError] = useState("");
 
-  const onSubmit = async (data) => {
-    const pin = data.pin.map((item) => item.value).join("");
-    const result = await dispatch(createPin({ userId, pin }));
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    const { error } = pinFieldSchema.validate({ pin }, { abortEarly: true });
+    if (error) {
+      setPinError("Harap lengkapi 6-digit PIN.");
+      return;
+    }
+
+    setPinError("");
+    const pinValue = pin.map((item) => item.value).join("");
+    const result = await dispatch(createPin({ userId, pin: pinValue }));
 
     if (createPin.fulfilled.match(result)) {
       showToast("PIN berhasil dibuat! Selamat datang.", "success");
@@ -51,22 +55,20 @@ export default function RegisterPin() {
             text="Buat 6-digit PIN untuk mengamankan akses ke dompet digitalmu."
           />
 
-          <FormProvider {...methods}>
-            <form className="space-y-6" onSubmit={methods.handleSubmit(onSubmit)}>
-              <PinInput />
+          <form className="space-y-6" onSubmit={onSubmit}>
+            <PinInput value={pin} onChange={setPin} />
 
-              {methods.formState.errors.pin && (
-                <div className="px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-sm text-red-600 font-medium">
-                  Harap lengkapi 6-digit PIN.
-                </div>
-              )}
+            {pinError && (
+              <div className="px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-sm text-red-600 font-medium">
+                {pinError}
+              </div>
+            )}
 
-              <Submit
-                label={pinLoading ? "Menyimpan..." : "Buat PIN"}
-                disabled={pinLoading}
-              />
-            </form>
-          </FormProvider>
+            <Submit
+              label={pinLoading ? "Menyimpan..." : "Buat PIN"}
+              disabled={pinLoading}
+            />
+          </form>
         </div>
       </section>
 
