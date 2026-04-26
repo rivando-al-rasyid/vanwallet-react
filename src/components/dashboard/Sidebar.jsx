@@ -1,7 +1,7 @@
 import { NavLink } from "react-router";
 import { useEffect } from "react";
 import { Icon } from "@iconify/react";
-import LogoutButton from "./LogoutButton";
+import LogoutButton from "../ui/LogoutButton";
 import { useLogout } from "../../hooks/useLogout";
 
 export default function Sidebar({ isOpen, setIsOpen }) {
