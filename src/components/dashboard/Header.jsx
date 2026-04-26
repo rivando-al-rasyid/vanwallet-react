@@ -5,7 +5,7 @@ import { useSelector } from "react-redux";
 import { Icon } from "@iconify/react";
 
 import DashboardContext from "../../context/dashboard/context";
-import LogoutButton from "./LogoutButton";
+import LogoutButton from "../ui/LogoutButton";
 import { useLogout } from "../../hooks/useLogout";
 
 export default function Header() {
