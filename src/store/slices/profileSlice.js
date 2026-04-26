@@ -5,6 +5,7 @@ import {
   updateUser,
   changePassword as changePasswordApi,
   changePinApi,
+  verifyPin,
 } from "../../utils/userUtils";
 import { getBalance } from "../../utils/balanceUtils";
 
@@ -58,8 +59,9 @@ export const changePassword = createAsyncThunk(
 
 export const changePin = createAsyncThunk(
   "profile/changePin",
-  async ({ userId, newPin }, { rejectWithValue }) => {
+  async ({ userId, currentPin, newPin }, { rejectWithValue }) => {
     try {
+      await verifyPin(userId, currentPin);
       return await changePinApi(userId, newPin);
     } catch (err) {
       return rejectWithValue(err.message);

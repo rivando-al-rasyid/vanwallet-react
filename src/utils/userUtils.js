@@ -64,3 +64,43 @@ export async function changePassword({ userId, oldPassword, newPassword }) {
 export async function changePinApi(id, newPin) {
   return apiPut(`/users/${id}`, { pin: newPin });
 }
+
+const otpStore = new Map();
+const OTP_EXPIRY_MS = 2 * 60 * 1000;
+
+export async function requestPasswordResetOtp(email) {
+  const users = await getAllUsers();
+  const user = users.find((item) => item.email === email);
+  if (!user) throw new Error("Email is not registered.");
+
+  const otp = String(Math.floor(100000 + Math.random() * 900000));
+  otpStore.set(email, {
+    code: otp,
+    expiresAt: Date.now() + OTP_EXPIRY_MS,
+  });
+
+  return { sent: true, code: otp, expiresAt: Date.now() + OTP_EXPIRY_MS };
+}
+
+export async function verifyPasswordResetOtp(email, otpCode) {
+  const record = otpStore.get(email);
+  if (!record || String(record.code) !== String(otpCode)) {
+    throw new Error("Invalid OTP");
+  }
+
+  if (Date.now() > record.expiresAt) {
+    throw new Error("OTP expired, request a new code");
+  }
+
+  return { verified: true };
+}
+
+export async function resetPasswordWithOtp({ email, otpCode, newPassword }) {
+  const users = await getAllUsers();
+  const user = users.find((item) => item.email === email);
+  if (!user) throw new Error("Email is not registered.");
+
+  await verifyPasswordResetOtp(email, otpCode);
+  otpStore.delete(email);
+  return apiPut(`/users/${user.id}`, { password: newPassword }, { auth: false });
+}
