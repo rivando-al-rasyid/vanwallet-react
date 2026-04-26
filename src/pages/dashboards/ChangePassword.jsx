@@ -1,29 +1,13 @@
-import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import { Icon } from "@iconify/react";
-import Joi from "joi";
+import { Controller, useForm } from "react-hook-form";
+import { joiResolver } from "@hookform/resolvers/joi";
 
 import { changePassword } from "../../store/slices/profileSlice";
 import { useToast } from "../../context/toast/provider";
 import PasswordField from "../../components/ui/PasswordField";
-
-const changePasswordSchema = Joi.object({
-  currentPassword: Joi.string().required().messages({
-    "string.empty": "Password saat ini tidak boleh kosong.",
-    "any.required": "Password saat ini wajib diisi.",
-  }),
-  newPassword: Joi.string().min(8).required().messages({
-    "string.empty": "Password baru tidak boleh kosong.",
-    "string.min": "Password baru minimal 8 karakter.",
-    "any.required": "Password baru wajib diisi.",
-  }),
-  confirmNewPassword: Joi.string().valid(Joi.ref("newPassword")).required().messages({
-    "string.empty": "Konfirmasi password tidak boleh kosong.",
-    "any.only": "Konfirmasi password baru tidak cocok.",
-    "any.required": "Konfirmasi password wajib diisi.",
-  }),
-});
+import { changePasswordSchema } from "../../schemas/profileSchemas";
 
 export default function ChangePassword() {
   const dispatch = useDispatch();
@@ -33,34 +17,32 @@ export default function ChangePassword() {
   const userId  = useSelector((state) => state.profile.user?.id ?? null);
   const loading = useSelector((state) => state.profile.loading);
 
-  const [form, setForm] = useState({
-    currentPassword:    "",
-    newPassword:        "",
-    confirmNewPassword: "",
+  const {
+    handleSubmit,
+    control,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: joiResolver(changePasswordSchema),
+    defaultValues: {
+      currentPassword: "",
+      newPassword: "",
+      confirmNewPassword: "",
+    },
   });
 
-  const handleChange = (e) => {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  };
-
-  const handleSubmit = async () => {
-    const { error: validationError } = changePasswordSchema.validate(form, { abortEarly: true });
-    if (validationError) {
-      showToast(validationError.message, "error");
-      return;
-    }
-
+  const onSubmit = async (formValues) => {
     const result = await dispatch(
       changePassword({
         userId,
-        oldPassword: form.currentPassword,
-        newPassword: form.newPassword,
+        oldPassword: formValues.currentPassword,
+        newPassword: formValues.newPassword,
       }),
     );
 
     if (changePassword.fulfilled.match(result)) {
       showToast("Password berhasil diupdate!", "success");
-      setForm({ currentPassword: "", newPassword: "", confirmNewPassword: "" });
+      reset({ currentPassword: "", newPassword: "", confirmNewPassword: "" });
       setTimeout(() => navigate("/dashboard/profile"), 1500);
     } else {
       const msg = result.payload || result.error?.message || "Gagal mengupdate password.";
@@ -80,37 +62,72 @@ export default function ChangePassword() {
       <div className="bg-white rounded-2xl shadow-sm p-8">
         <h2 className="text-base font-bold text-gray-800 mb-4">Change Password</h2>
 
-        <div className="flex flex-col gap-5 w-full">
-          <PasswordField
-            label="Existing Password"
-            name="currentPassword"
-            value={form.currentPassword}
-            onChange={handleChange}
-            placeholder="Enter Your Existing Password"
-          />
-          <PasswordField
-            label="New Password"
-            name="newPassword"
-            value={form.newPassword}
-            onChange={handleChange}
-            placeholder="Enter Your New Password"
-          />
-          <PasswordField
-            label="Confirm New Password"
-            name="confirmNewPassword"
-            value={form.confirmNewPassword}
-            onChange={handleChange}
-            placeholder="Re-Type Your New Password"
-          />
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 w-full">
+          <div>
+            <Controller
+              name="currentPassword"
+              control={control}
+              render={({ field }) => (
+                <PasswordField
+                  label="Existing Password"
+                  name={field.name}
+                  value={field.value}
+                  onChange={field.onChange}
+                  placeholder="Enter Your Existing Password"
+                />
+              )}
+            />
+            {errors.currentPassword?.message && (
+              <p className="text-sm text-red-500 mt-1.5">{errors.currentPassword.message}</p>
+            )}
+          </div>
+          <div>
+            <Controller
+              name="newPassword"
+              control={control}
+              render={({ field }) => (
+                <PasswordField
+                  label="New Password"
+                  name={field.name}
+                  value={field.value}
+                  onChange={field.onChange}
+                  placeholder="Enter Your New Password"
+                />
+              )}
+            />
+            {errors.newPassword?.message && (
+              <p className="text-sm text-red-500 mt-1.5">{errors.newPassword.message}</p>
+            )}
+          </div>
+          <div>
+            <Controller
+              name="confirmNewPassword"
+              control={control}
+              render={({ field }) => (
+                <PasswordField
+                  label="Confirm New Password"
+                  name={field.name}
+                  value={field.value}
+                  onChange={field.onChange}
+                  placeholder="Re-Type Your New Password"
+                />
+              )}
+            />
+            {errors.confirmNewPassword?.message && (
+              <p className="text-sm text-red-500 mt-1.5">
+                {errors.confirmNewPassword.message}
+              </p>
+            )}
+          </div>
 
           <button
-            onClick={handleSubmit}
+            type="submit"
             disabled={loading}
             className="w-full py-3.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 disabled:opacity-60 transition"
           >
             {loading ? "Menyimpan..." : "Submit"}
           </button>
-        </div>
+        </form>
       </div>
     </>
   );

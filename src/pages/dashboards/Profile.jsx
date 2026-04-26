@@ -2,11 +2,13 @@ import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import { Icon } from "@iconify/react";
-import Joi from "joi";
+import { useForm } from "react-hook-form";
+import { joiResolver } from "@hookform/resolvers/joi";
 
 import { updateProfile, setAvatar } from "../../store/slices/profileSlice";
 import { useToast } from "../../context/toast/provider";
 import { useConfirm } from "../../context/confirm/provider";
+import { avatarUrlSchema, profileSchema } from "../../schemas/profileSchemas";
 
 export default function Profile() {
   const dispatch = useDispatch();
@@ -19,49 +21,70 @@ export default function Profile() {
   const loading = useSelector((state) => state.profile.loading);
   const avatarPath = useSelector((state) => state.profile.avatarPath);
 
-  const [form, setForm] = useState({ name: "", phone: "", email: "" });
   const [showUrlInput, setShowUrlInput] = useState(false);
-  const [urlInput, setUrlInput] = useState("");
-  const [urlError, setUrlError] = useState("");
   const [imgLoadError, setImgLoadError] = useState(false);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm({
+    resolver: joiResolver(profileSchema),
+    defaultValues: {
+      name: "",
+      phone: "",
+      email: "",
+    },
+  });
+  const {
+    register: registerAvatar,
+    handleSubmit: handleAvatarSubmit,
+    watch: watchAvatar,
+    reset: resetAvatar,
+    formState: { errors: avatarErrors },
+  } = useForm({
+    resolver: joiResolver(avatarUrlSchema),
+    defaultValues: {
+      avatarUrl: "",
+    },
+  });
+  const avatarUrl = watchAvatar("avatarUrl");
 
   useEffect(() => {
     if (user) {
-      setForm({ name: user.name || "", phone: user.phone || "", email: user.email || "" });
+      reset({ name: user.name || "", phone: user.phone || "", email: user.email || "" });
     }
-  }, [user]);
+  }, [reset, user]);
 
-  const handleChange = (e) => {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  const handleAvatarInputChange = (event) => {
+    const nextValue = event.target.value;
+    registerAvatar("avatarUrl").onChange(event);
+    if (nextValue) {
+      setImgLoadError(false);
+    }
   };
 
-  const handleUrlInputChange = (e) => {
-    setUrlInput(e.target.value);
-    setUrlError("");
-    setImgLoadError(false);
+  const isValidUrl = (inputValue) => {
+    if (!inputValue) return false;
+    try {
+      const parsed = new URL(inputValue);
+      return parsed.protocol === "http:" || parsed.protocol === "https:";
+    } catch {
+      return false;
+    }
   };
 
-  const isValidUrl = (str) => {
-    try { const url = new URL(str); return url.protocol === "http:" || url.protocol === "https:"; }
-    catch { return false; }
-  };
-
-  const handleSaveUrl = () => {
-    const trimmed = urlInput.trim();
-    if (!trimmed) { setUrlError("URL tidak boleh kosong."); return; }
-    if (!isValidUrl(trimmed)) { setUrlError("Format URL tidak valid. Gunakan http:// atau https://"); return; }
-    dispatch(setAvatar(trimmed));
+  const handleSaveUrl = ({ avatarUrl: nextAvatarUrl }) => {
+    dispatch(setAvatar(nextAvatarUrl.trim()));
     setShowUrlInput(false);
-    setUrlInput("");
-    setUrlError("");
+    resetAvatar({ avatarUrl: "" });
     setImgLoadError(false);
     showToast("Avatar berhasil diupdate!", "success");
   };
 
   const handleCancelUrl = () => {
     setShowUrlInput(false);
-    setUrlInput("");
-    setUrlError("");
+    resetAvatar({ avatarUrl: "" });
     setImgLoadError(false);
   };
 
@@ -78,29 +101,13 @@ export default function Profile() {
     showToast("Avatar berhasil dihapus.", "info");
   };
 
-  const profileSchema = Joi.object({
-    name: Joi.string().min(2).required().messages({
-      "string.empty": "Nama tidak boleh kosong.",
-      "string.min": "Nama minimal 2 karakter.",
-      "any.required": "Nama wajib diisi.",
-    }),
-    phone: Joi.string().pattern(/^[0-9+\-\s]{8,15}$/).required().messages({
-      "string.empty": "Nomor telepon tidak boleh kosong.",
-      "string.pattern.base": "Format nomor telepon tidak valid.",
-      "any.required": "Nomor telepon wajib diisi.",
-    }),
-    email: Joi.string().email({ tlds: { allow: false } }).required().messages({
-      "string.empty": "Email tidak boleh kosong.",
-      "string.email": "Format email tidak valid.",
-      "any.required": "Email wajib diisi.",
-    }),
-  });
-
-  const handleSubmit = async () => {
-    const { error: validationError } = profileSchema.validate(form, { abortEarly: true });
-    if (validationError) { showToast(validationError.message, "error"); return; }
-
-    const result = await dispatch(updateProfile({ userId, payload: { name: form.name, phone: form.phone, email: form.email } }));
+  const onSubmit = async (formValues) => {
+    const result = await dispatch(
+      updateProfile({
+        userId,
+        payload: { name: formValues.name, phone: formValues.phone, email: formValues.email },
+      }),
+    );
 
     if (updateProfile.fulfilled.match(result)) {
       showToast("Profile berhasil diupdate!", "success");
@@ -145,7 +152,11 @@ export default function Profile() {
 
               <div className="flex flex-col gap-2 w-auto">
                 <button
-                  onClick={() => { setShowUrlInput((v) => !v); setUrlError(""); setImgLoadError(false); }}
+                  onClick={() => {
+                    setShowUrlInput((v) => !v);
+                    resetAvatar({ avatarUrl: "" });
+                    setImgLoadError(false);
+                  }}
                   className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition"
                 >
                   <Icon icon="lucide:pencil" width={16} height={16} aria-hidden="true" />
@@ -165,52 +176,61 @@ export default function Profile() {
 
             {/* URL Input Panel */}
             {showUrlInput && (
-              <div className="mt-4 p-4 border border-gray-100 rounded-xl bg-gray-50">
+              <form
+                onSubmit={handleAvatarSubmit(handleSaveUrl)}
+                className="mt-4 p-4 border border-gray-100 rounded-xl bg-gray-50"
+              >
                 <p className="text-xs font-semibold text-gray-500 mb-3 uppercase tracking-wide">Avatar URL</p>
 
-                {urlInput && isValidUrl(urlInput) && !imgLoadError && (
+                {avatarUrl && isValidUrl(avatarUrl) && !imgLoadError && (
                   <div className="mb-3 flex items-center gap-3">
                     <div className="w-12 h-12 rounded-lg border border-gray-200 overflow-hidden bg-gray-100 shrink-0">
-                      <img src={urlInput} alt="preview" className="w-full h-full object-cover" onError={() => setImgLoadError(true)} />
+                      <img src={avatarUrl} alt="preview" className="w-full h-full object-cover" onError={() => setImgLoadError(true)} />
                     </div>
                     <span className="text-xs text-gray-400">Preview</span>
                   </div>
                 )}
 
-                {imgLoadError && urlInput && (
+                {imgLoadError && avatarUrl && (
                   <p className="text-xs text-red-500 mb-2">Gambar tidak dapat dimuat. Coba URL lain.</p>
                 )}
 
                 <input
                   type="url"
-                  value={urlInput}
-                  onChange={handleUrlInputChange}
                   placeholder="https://example.com/avatar.jpg"
                   className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition"
+                  {...registerAvatar("avatarUrl")}
+                  onChange={handleAvatarInputChange}
                 />
 
-                {urlError && <p className="text-xs text-red-500 mt-1.5">{urlError}</p>}
+                {avatarErrors.avatarUrl?.message && (
+                  <p className="text-xs text-red-500 mt-1.5">{avatarErrors.avatarUrl.message}</p>
+                )}
 
                 <div className="flex gap-2 mt-3">
-                  <button onClick={handleSaveUrl} className="flex-1 py-2 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition">Simpan</button>
-                  <button onClick={handleCancelUrl} className="flex-1 py-2 border border-gray-200 text-gray-600 text-sm font-medium rounded-xl hover:bg-gray-100 transition">Batal</button>
+                  <button type="submit" className="flex-1 py-2 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition">Simpan</button>
+                  <button type="button" onClick={handleCancelUrl} className="flex-1 py-2 border border-gray-200 text-gray-600 text-sm font-medium rounded-xl hover:bg-gray-100 transition">Batal</button>
                 </div>
-              </div>
+              </form>
             )}
 
             <div className="border-t border-gray-100 mt-6 mb-8" />
 
             {/* Form Fields */}
-            <div className="flex flex-col gap-4 sm:gap-5 w-full">
+            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 sm:gap-5 w-full">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Full Name</label>
                 <div className="relative">
                   <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
                     <Icon icon="lucide:user" width={16} height={16} aria-hidden="true" />
                   </span>
-                  <input type="text" name="name" value={form.name} onChange={handleChange} placeholder="Enter Full Name"
+                  <input type="text" placeholder="Enter Full Name"
+                    {...register("name")}
                     className="w-full pl-10 pr-4 py-2.5 sm:py-3 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition" />
                 </div>
+                {errors.name?.message && (
+                  <p className="text-sm text-red-500 mt-1.5">{errors.name.message}</p>
+                )}
               </div>
 
               <div>
@@ -219,9 +239,13 @@ export default function Profile() {
                   <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
                     <Icon icon="lucide:phone" width={16} height={16} aria-hidden="true" />
                   </span>
-                  <input type="text" name="phone" value={form.phone} onChange={handleChange} placeholder="Enter Your Number Phone"
+                  <input type="text" placeholder="Enter Your Number Phone"
+                    {...register("phone")}
                     className="w-full pl-10 pr-4 py-2.5 sm:py-3 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition" />
                 </div>
+                {errors.phone?.message && (
+                  <p className="text-sm text-red-500 mt-1.5">{errors.phone.message}</p>
+                )}
               </div>
 
               <div>
@@ -230,9 +254,13 @@ export default function Profile() {
                   <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
                     <Icon icon="lucide:mail" width={16} height={16} aria-hidden="true" />
                   </span>
-                  <input type="email" name="email" value={form.email} onChange={handleChange} placeholder="Enter Your Email"
+                  <input type="email" placeholder="Enter Your Email"
+                    {...register("email")}
                     className="w-full pl-10 pr-4 py-2.5 sm:py-3 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition" />
                 </div>
+                {errors.email?.message && (
+                  <p className="text-sm text-red-500 mt-1.5">{errors.email.message}</p>
+                )}
               </div>
 
               <div>
@@ -249,10 +277,10 @@ export default function Profile() {
                 </button>
               </div>
 
-              <button onClick={handleSubmit} disabled={loading} className="w-full py-3 sm:py-3.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 disabled:opacity-60 transition mt-2">
+              <button type="submit" disabled={loading} className="w-full py-3 sm:py-3.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 disabled:opacity-60 transition mt-2">
                 {loading ? "Menyimpan..." : "Submit"}
               </button>
-            </div>
+            </form>
           </>
         )}
       </div>
