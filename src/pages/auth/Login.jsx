@@ -1,10 +1,9 @@
-import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
+import { Controller, useForm } from "react-hook-form";
+import { joiResolver } from "@hookform/resolvers/joi";
 
 import { login } from "../../store/slices/authSlice";
-import Joi from "joi";
-
 import Brand from "../../components/Brand";
 import LoginHeadline from "../../components/login/LoginHeadline";
 import SocialLogin from "../../components/SocialLogin";
@@ -14,6 +13,7 @@ import LoginImage from "../../components/login/LoginImage";
 import LoginSubtext from "../../components/LoginSubtext";
 import loginPhoneImage from "../../assets/img/3d-hand-phone.png";
 import { useToast } from "../../context/toast/provider";
+import { loginSchema } from "../../schemas/authSchemas";
 
 export default function Login() {
   const dispatch = useDispatch();
@@ -22,40 +22,20 @@ export default function Login() {
 
   const loading = useSelector((state) => state.auth.loading);
 
-  const [form, setForm] = useState({ email: "", password: "" });
-
-  const handleChange = (e) => {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  };
-
-  const loginSchema = Joi.object({
-    email: Joi.string()
-      .email({ tlds: { allow: false } })
-      .required()
-      .messages({
-        "string.empty": "Email tidak boleh kosong.",
-        "string.email": "Format email tidak valid.",
-        "any.required": "Email wajib diisi.",
-      }),
-    password: Joi.string().min(8).required().messages({
-      "string.empty": "Password tidak boleh kosong.",
-      "string.min": "Password minimal 8 karakter.",
-      "any.required": "Password wajib diisi.",
-    }),
+  const {
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm({
+    resolver: joiResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
   });
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const { error: validationError } = loginSchema.validate(form, {
-      abortEarly: true,
-    });
-    if (validationError) {
-      showToast(validationError.message, "error");
-      return;
-    }
-
-    const result = await dispatch(login(form));
+  const onSubmit = async (formValues) => {
+    const result = await dispatch(login(formValues));
 
     if (login.fulfilled.match(result)) {
       showToast("Login berhasil! Selamat datang.", "success");
@@ -80,25 +60,43 @@ export default function Login() {
           />
           <SocialLogin />
 
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            <Input
-              label="Email"
-              type="email"
-              name="email"
-              icon="lucide:mail"
-              placeholder="Enter your email"
-              value={form.email}
-              onChange={handleChange}
-            />
-            <Input
-              label="Password"
-              type="password"
-              name="password"
-              icon="lucide:lock"
-              placeholder="Enter Your Password"
-              value={form.password}
-              onChange={handleChange}
-            />
+          <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+            <div>
+              <Controller
+                name="email"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    label="Email"
+                    type="email"
+                    icon="lucide:mail"
+                    placeholder="Enter your email"
+                    {...field}
+                  />
+                )}
+              />
+              {errors.email?.message && (
+                <p className="text-sm text-red-500 mt-1.5">{errors.email.message}</p>
+              )}
+            </div>
+            <div>
+              <Controller
+                name="password"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    label="Password"
+                    type="password"
+                    icon="lucide:lock"
+                    placeholder="Enter Your Password"
+                    {...field}
+                  />
+                )}
+              />
+              {errors.password?.message && (
+                <p className="text-sm text-red-500 mt-1.5">{errors.password.message}</p>
+              )}
+            </div>
             <Submit label={loading ? "Loading..." : "Login"} />
           </form>
 

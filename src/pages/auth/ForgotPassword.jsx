@@ -1,36 +1,31 @@
 import { useState } from "react";
-import Joi from "joi";
 import { useNavigate } from "react-router";
+import { Controller, useForm } from "react-hook-form";
+import { joiResolver } from "@hookform/resolvers/joi";
 import Brand from "../../components/Brand";
 import LoginHeadline from "../../components/login/LoginHeadline";
 import Input from "../../components/Input";
 import Submit from "../../components/Submit";
 import { useToast } from "../../context/toast/provider";
+import { forgotPasswordSchema } from "../../schemas/authSchemas";
 
 export default function ForgotPassword() {
   const navigate = useNavigate();
   const { showToast } = useToast();
 
-  const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
-
-  const forgotSchema = Joi.object({
-    email: Joi.string().email({ tlds: { allow: false } }).required().messages({
-      "string.empty": "Email tidak boleh kosong.",
-      "string.email": "Format email tidak valid.",
-      "any.required": "Email wajib diisi.",
-    }),
+  const {
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm({
+    resolver: joiResolver(forgotPasswordSchema),
+    defaultValues: {
+      email: "",
+    },
   });
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const { error: validationError } = forgotSchema.validate({ email });
-    if (validationError) {
-      showToast(validationError.message, "error");
-      return;
-    }
-
+  const onSubmit = async () => {
     setLoading(true);
 
     setTimeout(() => {
@@ -49,16 +44,25 @@ export default function ForgotPassword() {
           text={"We will send new password to your email"}
         />
 
-        <form className="space-y-6" onSubmit={handleSubmit}>
-          <Input
-            label="Email"
-            type="email"
-            name="email"
-            icon="lucide:mail"
-            placeholder="Enter your email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
+        <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+          <div>
+            <Controller
+              name="email"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  label="Email"
+                  type="email"
+                  icon="lucide:mail"
+                  placeholder="Enter your email"
+                  {...field}
+                />
+              )}
+            />
+            {errors.email?.message && (
+              <p className="text-sm text-red-500 mt-1.5">{errors.email.message}</p>
+            )}
+          </div>
           <Submit label={loading ? "Loading..." : "Submit"} disabled={loading} />
         </form>
       </section>
