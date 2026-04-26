@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
 import { useSelector, useDispatch } from "react-redux";
 import { Icon } from "@iconify/react";
-import Joi from "joi";
+import { useForm } from "react-hook-form";
+import { joiResolver } from "@hookform/resolvers/joi";
 
 import Stepper from "../../components/Stepper";
 import TransferModal from "../../components/transfer/TransferModal";
@@ -11,17 +12,7 @@ import { applyTransactionWithBalanceUpdate } from "../../utils/transactionFlow";
 import { resetHistory } from "../../store/slices/historySlice";
 import { fetchBalance } from "../../store/slices/profileSlice";
 import { useToast } from "../../context/toast/provider";
-
-const nominalSchema = Joi.object({
-  amount: Joi.number().positive().required().messages({
-    "number.base":     "Nominal harus berupa angka.",
-    "number.positive": "Nominal transfer harus lebih dari 0.",
-    "any.required":    "Nominal wajib diisi.",
-  }),
-  notes: Joi.string().allow("").max(200).messages({
-    "string.max": "Catatan maksimal 200 karakter.",
-  }),
-});
+import { transferNominalSchema } from "../../schemas/transactionSchemas";
 
 export default function SetNominal() {
   const { id } = useParams();
@@ -32,12 +23,25 @@ export default function SetNominal() {
   const currentUser    = useSelector((state) => state.profile.user);
   const currentBalance = useSelector((state) => state.profile.balance);
 
-  const [amount, setAmount]                   = useState("");
-  const [notes, setNotes]                     = useState("");
   const [selectedContact, setSelectedContact] = useState(null);
   const [loadingContact, setLoadingContact]   = useState(true);
   const [contactError, setContactError]       = useState("");
   const [modalStep, setModalStep]             = useState(null);
+  const {
+    register,
+    watch,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: joiResolver(transferNominalSchema),
+    defaultValues: {
+      amount: "",
+      notes: "",
+    },
+  });
+  const amount = watch("amount");
+  const notes = watch("notes");
 
   useEffect(() => {
     async function loadContact() {
@@ -64,16 +68,6 @@ export default function SetNominal() {
 
   const handleOpenPinModal = () => {
     const parsedAmount = parseFloat(amount);
-
-    const { error: validationError } = nominalSchema.validate(
-      { amount: parsedAmount || undefined, notes },
-      { abortEarly: true },
-    );
-    if (validationError) {
-      showToast(validationError.message, "error");
-      return;
-    }
-
     const availableBalance = currentBalance?.balance ?? 0;
     if (parsedAmount > availableBalance) {
       showToast(
@@ -116,8 +110,7 @@ export default function SetNominal() {
   const handleTryAgain     = () => setModalStep("pin");
   const handleTransferAgain = () => {
     setModalStep(null);
-    setAmount("");
-    setNotes("");
+    reset({ amount: "", notes: "" });
     navigate("/dashboard/transfer");
   };
 
@@ -203,44 +196,50 @@ export default function SetNominal() {
               </button>
             </div>
 
-            {/* Amount */}
-            <div className="mb-5">
-              <label className="block text-sm font-semibold text-gray-700 mb-1">Amount</label>
-              <p className="text-xs text-gray-400 mb-2">
-                Type the amount you want to transfer and then press continue to the next steps.
-              </p>
-              <div className="relative">
-                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
-                  <Icon icon="lucide:credit-card" width={16} height={16} aria-hidden="true" />
-                </span>
-                <input
-                  type="number"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  placeholder="Enter Nominal Transfer"
-                  className="w-full pl-10 pr-4 py-3 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition"
-                />
+            <form onSubmit={handleSubmit(handleOpenPinModal)}>
+              {/* Amount */}
+              <div className="mb-5">
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Amount</label>
+                <p className="text-xs text-gray-400 mb-2">
+                  Type the amount you want to transfer and then press continue to the next steps.
+                </p>
+                <div className="relative">
+                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
+                    <Icon icon="lucide:credit-card" width={16} height={16} aria-hidden="true" />
+                  </span>
+                  <input
+                    type="number"
+                    placeholder="Enter Nominal Transfer"
+                    className="w-full pl-10 pr-4 py-3 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition"
+                    {...register("amount")}
+                  />
+                </div>
+                {errors.amount?.message && (
+                  <p className="text-sm text-red-500 mt-1.5">{errors.amount.message}</p>
+                )}
               </div>
-            </div>
 
-            {/* Notes */}
-            <div className="mb-8">
-              <label className="block text-sm font-semibold text-gray-700 mb-1">Notes</label>
-              <p className="text-xs text-gray-400 mb-2">
-                You can add some notes for this transfer such as payment coffee or something.
-              </p>
-              <textarea
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder="Enter Some Notes"
-                rows={5}
-                className="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition resize-none"
-              />
-            </div>
+              {/* Notes */}
+              <div className="mb-8">
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Notes</label>
+                <p className="text-xs text-gray-400 mb-2">
+                  You can add some notes for this transfer such as payment coffee or something.
+                </p>
+                <textarea
+                  placeholder="Enter Some Notes"
+                  rows={5}
+                  className="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition resize-none"
+                  {...register("notes")}
+                />
+                {errors.notes?.message && (
+                  <p className="text-sm text-red-500 mt-1.5">{errors.notes.message}</p>
+                )}
+              </div>
 
-            <button onClick={handleOpenPinModal} className="btn-primary w-full">
-              Submit &amp; Transfer
-            </button>
+              <button type="submit" className="btn-primary w-full">
+                Submit &amp; Transfer
+              </button>
+            </form>
           </>
         )}
       </div>

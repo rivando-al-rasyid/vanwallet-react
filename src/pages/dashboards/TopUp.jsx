@@ -1,12 +1,14 @@
 import { useMemo, useState } from "react";
-import Joi from "joi";
 import { useSelector, useDispatch } from "react-redux";
 import { Icon } from "@iconify/react";
+import { useForm } from "react-hook-form";
+import { joiResolver } from "@hookform/resolvers/joi";
 import { useToast } from "../../context/toast/provider";
 import { useConfirm } from "../../context/confirm/provider";
 import { applyTransactionWithBalanceUpdate } from "../../utils/transactionFlow";
 import { fetchBalance } from "../../store/slices/profileSlice";
 import { resetHistory } from "../../store/slices/historySlice";
+import { topUpSchema } from "../../schemas/transactionSchemas";
 
 const TAX_RATE = 0.1;
 
@@ -23,9 +25,20 @@ export default function TopUp() {
   const { confirm } = useConfirm();
   const dispatch = useDispatch();
   const currentUser = useSelector((state) => state.profile.user);
-  const [amount, setAmount] = useState("");
-  const [selectedMethod, setSelectedMethod] = useState("bri");
   const [submitting, setSubmitting] = useState(false);
+  const {
+    register,
+    handleSubmit,
+    reset,
+    watch,
+    formState: { errors },
+  } = useForm({
+    resolver: joiResolver(topUpSchema),
+    defaultValues: {
+      amount: "",
+      selectedMethod: "bri",
+    },
+  });
 
   const user = useMemo(() => {
     if (!currentUser?.id) return null;
@@ -36,6 +49,8 @@ export default function TopUp() {
     };
   }, [currentUser]);
 
+  const amount = watch("amount");
+  const selectedMethod = watch("selectedMethod");
   const order = parseFloat(amount) || 0;
   const tax = Math.round(order * TAX_RATE);
   const subTotal = order + tax;
@@ -43,32 +58,15 @@ export default function TopUp() {
   const fmtIdr = (val = 0) =>
     val === 0 ? "Idr. 0" : `Idr. ${val.toLocaleString("id-ID")}`;
 
-  const topUpSchema = Joi.object({
-    amount: Joi.number().positive().required().messages({
-      "number.base": "Nominal harus berupa angka.",
-      "number.positive": "Nominal harus lebih dari 0.",
-      "any.required": "Nominal wajib diisi.",
-    }),
-    selectedMethod: Joi.string().required().messages({
-      "any.required": "Pilih metode pembayaran.",
-    }),
-  });
-
-  const handleSubmit = async () => {
-    const { error: validationError } = topUpSchema.validate(
-      { amount: parseFloat(amount) || undefined, selectedMethod },
-      { abortEarly: true },
-    );
-    if (validationError) {
-      showToast(validationError.message, "error");
-      return;
-    }
-
+  const onSubmit = async (formValues) => {
+    const selectedAmount = parseFloat(formValues.amount) || 0;
+    const selectedTax = Math.round(selectedAmount * TAX_RATE);
+    const selectedSubTotal = selectedAmount + selectedTax;
     const methodName = PAYMENT_METHODS.find((m) => m.id === selectedMethod)?.name;
 
     const ok = await confirm({
       title: "Konfirmasi Top Up",
-      message: `Top Up ${fmtIdr(subTotal)} via ${methodName}. Lanjutkan?`,
+      message: `Top Up ${fmtIdr(selectedSubTotal)} via ${methodName}. Lanjutkan?`,
       confirmLabel: "Ya, Top Up",
       cancelLabel: "Batal",
       variant: "info",
@@ -82,15 +80,15 @@ export default function TopUp() {
       await applyTransactionWithBalanceUpdate({
         userId: currentUser?.id,
         transactionType: "deposit",
-        transactionDesc: `Top Up via ${methodName} sebesar ${fmtIdr(subTotal)}`,
-        amount: subTotal,
-        balanceMutation: (currentBalanceValue) => currentBalanceValue + subTotal,
+        transactionDesc: `Top Up via ${methodName} sebesar ${fmtIdr(selectedSubTotal)}`,
+        amount: selectedSubTotal,
+        balanceMutation: (currentBalanceValue) => currentBalanceValue + selectedSubTotal,
       });
       dispatch(fetchBalance(currentUser?.id));
       dispatch(resetHistory());
 
-      showToast(`Top Up ${fmtIdr(subTotal)} via ${methodName} berhasil! 🎉`, "success");
-      setAmount("");
+      showToast(`Top Up ${fmtIdr(selectedSubTotal)} via ${methodName} berhasil! 🎉`, "success");
+      reset({ amount: "", selectedMethod: "bri" });
     } catch (err) {
       showToast(err.message || "Top Up gagal. Coba lagi.", "error");
     } finally {
@@ -145,11 +143,13 @@ export default function TopUp() {
             </p>
             <input
               type="number"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
               placeholder="Enter Nominal Transfer"
               className="form-input"
+              {...register("amount")}
             />
+            {errors.amount?.message && (
+              <p className="text-sm text-red-500 mt-1.5">{errors.amount.message}</p>
+            )}
           </div>
 
           {/* Payment Methods */}
@@ -170,10 +170,9 @@ export default function TopUp() {
                 >
                   <input
                     type="radio"
-                    name="payment"
+                    {...register("selectedMethod")}
                     value={method.id}
                     checked={selectedMethod === method.id}
-                    onChange={() => setSelectedMethod(method.id)}
                     className="accent-blue-600 w-4 h-4 shrink-0"
                   />
                   <div className="w-10 h-7 sm:w-12 sm:h-8 flex items-center justify-center shrink-0">
@@ -188,6 +187,9 @@ export default function TopUp() {
                 </label>
               ))}
             </div>
+            {errors.selectedMethod?.message && (
+              <p className="text-sm text-red-500 mt-1.5">{errors.selectedMethod.message}</p>
+            )}
           </div>
         </div>
 
@@ -208,7 +210,11 @@ export default function TopUp() {
               <span className="text-xs sm:text-sm font-bold text-gray-800">{fmtIdr(subTotal)}</span>
             </div>
           </div>
-          <button onClick={handleSubmit} disabled={submitting} className="btn-primary w-full disabled:opacity-60">
+          <button
+            onClick={handleSubmit(onSubmit)}
+            disabled={submitting}
+            className="btn-primary w-full disabled:opacity-60"
+          >
             {submitting ? "Memproses..." : "Submit"}
           </button>
         </div>
