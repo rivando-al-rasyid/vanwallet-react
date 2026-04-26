@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { joiResolver } from "@hookform/resolvers/joi";
 
 import PinInput from "../PinInput";
 import Modal from "../Modal";
 import {
-  PIN_LENGTH,
   DEFAULT_PIN_VALUE,
   pinFieldSchema,
 } from "../../schemas/pinSchema";
@@ -36,27 +37,29 @@ export default function TransferModal({
   onTransferAgain,
   toName = "",
 }) {
-  const [pin, setPin] = useState(DEFAULT_PIN_VALUE);
-  const [pinError, setPinError] = useState("");
+  const {
+    handleSubmit,
+    control,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: joiResolver(pinFieldSchema),
+    defaultValues: {
+      pin: DEFAULT_PIN_VALUE,
+    },
+  });
 
   useEffect(() => {
     if (open && step === "pin") {
-      setPin(DEFAULT_PIN_VALUE);
-      setPinError("");
+      reset({ pin: DEFAULT_PIN_VALUE });
     }
-  }, [open, step]);
+  }, [open, reset, step]);
+
+  const pinErrorMessage = errors.pin?.message || errors.pin?.[0]?.value?.message;
 
   if (!open) return null;
 
-  const handlePinConfirm = (e) => {
-    e.preventDefault();
-    const { error } = pinFieldSchema.validate({ pin }, { abortEarly: true });
-    if (error) {
-      setPinError(`Masukkan PIN lengkap (${PIN_LENGTH} digit)`);
-      return;
-    }
-
-    setPinError("");
+  const handlePinConfirm = ({ pin }) => {
     const pinString = pin.map((p) => p.value).join("");
     onPinSubmit(pinString);
   };
@@ -75,16 +78,22 @@ export default function TransferModal({
         </p>
 
         <form
-          onSubmit={handlePinConfirm}
+          onSubmit={handleSubmit(handlePinConfirm)}
           className="mb-2"
         >
           <div className="mb-8 flex justify-center">
-            <PinInput value={pin} onChange={setPin} />
+            <Controller
+              name="pin"
+              control={control}
+              render={({ field }) => (
+                <PinInput value={field.value} onChange={field.onChange} />
+              )}
+            />
           </div>
 
-          {pinError && (
+          {pinErrorMessage && (
             <p className="text-sm text-red-500 mb-4 text-left">
-              {pinError}
+              {pinErrorMessage}
             </p>
           )}
 

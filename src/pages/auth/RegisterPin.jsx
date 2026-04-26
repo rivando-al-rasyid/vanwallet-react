@@ -1,6 +1,7 @@
-import { useState } from "react";
 import { useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
+import { Controller, useForm } from "react-hook-form";
+import { joiResolver } from "@hookform/resolvers/joi";
 
 import PinInput from "../../components/PinInput";
 import Brand from "../../components/Brand";
@@ -20,18 +21,18 @@ export default function RegisterPin() {
   const userId     = useSelector((state) => state.profile.user?.id ?? null);
   const pinLoading = useSelector((state) => state.register.pinLoading);
 
-  const [pin, setPin] = useState(DEFAULT_PIN_VALUE);
-  const [pinError, setPinError] = useState("");
+  const {
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm({
+    resolver: joiResolver(pinFieldSchema),
+    defaultValues: {
+      pin: DEFAULT_PIN_VALUE,
+    },
+  });
 
-  const onSubmit = async (e) => {
-    e.preventDefault();
-    const { error } = pinFieldSchema.validate({ pin }, { abortEarly: true });
-    if (error) {
-      setPinError("Harap lengkapi 6-digit PIN.");
-      return;
-    }
-
-    setPinError("");
+  const onSubmit = async ({ pin }) => {
     const pinValue = pin.map((item) => item.value).join("");
     const result = await dispatch(createPin({ userId, pin: pinValue }));
 
@@ -44,6 +45,7 @@ export default function RegisterPin() {
       showToast(msg, "error");
     }
   };
+  const pinErrorMessage = errors.pin?.message || errors.pin?.[0]?.value?.message;
 
   return (
     <main className="grid grid-cols-1 lg:grid-cols-2 min-h-screen bg-[#2948FF]">
@@ -55,12 +57,18 @@ export default function RegisterPin() {
             text="Buat 6-digit PIN untuk mengamankan akses ke dompet digitalmu."
           />
 
-          <form className="space-y-6" onSubmit={onSubmit}>
-            <PinInput value={pin} onChange={setPin} />
+          <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+            <Controller
+              name="pin"
+              control={control}
+              render={({ field }) => (
+                <PinInput value={field.value} onChange={field.onChange} />
+              )}
+            />
 
-            {pinError && (
+            {pinErrorMessage && (
               <div className="px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-sm text-red-600 font-medium">
-                {pinError}
+                {pinErrorMessage}
               </div>
             )}
 

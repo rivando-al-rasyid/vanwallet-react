@@ -1,7 +1,8 @@
 import { useDispatch, useSelector } from "react-redux";
-import { useState } from "react";
 import { useNavigate } from "react-router";
 import { Icon } from "@iconify/react";
+import { Controller, useForm } from "react-hook-form";
+import { joiResolver } from "@hookform/resolvers/joi";
 
 import PinInput from "../../components/PinInput";
 import { changePin } from "../../store/slices/profileSlice";
@@ -16,31 +17,33 @@ export default function ChangePin() {
   const userId  = useSelector((state) => state.profile.user?.id ?? null);
   const loading = useSelector((state) => state.profile.loading);
 
-  const [pin, setPin] = useState(DEFAULT_PIN_VALUE);
-  const [pinError, setPinError] = useState("");
+  const {
+    handleSubmit,
+    control,
+    formState: { errors },
+    reset,
+  } = useForm({
+    resolver: joiResolver(pinFieldSchema),
+    defaultValues: {
+      pin: DEFAULT_PIN_VALUE,
+    },
+  });
 
-  const onSubmit = async (e) => {
-    e.preventDefault();
-    const { error } = pinFieldSchema.validate({ pin }, { abortEarly: true });
-    if (error) {
-      setPinError("Please complete the 6-digit PIN.");
-      return;
-    }
-    setPinError("");
-
+  const onSubmit = async ({ pin }) => {
     const newPin = pin.map((item) => item.value).join("");
 
     const result = await dispatch(changePin({ userId, newPin }));
 
     if (changePin.fulfilled.match(result)) {
       showToast("PIN berhasil diupdate!", "success");
-      setPin(DEFAULT_PIN_VALUE);
+      reset({ pin: DEFAULT_PIN_VALUE });
       setTimeout(() => navigate("/dashboard/profile"), 1500);
     } else {
       const msg = result.payload || result.error?.message || "Gagal mengupdate PIN.";
       showToast(msg, "error");
     }
   };
+  const pinErrorMessage = errors.pin?.message || errors.pin?.[0]?.value?.message;
 
   return (
     <>
@@ -59,14 +62,20 @@ export default function ChangePin() {
           </p>
 
           <form
-            onSubmit={onSubmit}
+            onSubmit={handleSubmit(onSubmit)}
             className="flex flex-col items-center"
           >
-            <PinInput value={pin} onChange={setPin} />
+            <Controller
+              name="pin"
+              control={control}
+              render={({ field }) => (
+                <PinInput value={field.value} onChange={field.onChange} />
+              )}
+            />
 
-            {pinError && (
+            {pinErrorMessage && (
               <p className="text-sm text-red-500 mt-4">
-                {pinError}
+                {pinErrorMessage}
               </p>
             )}
 
