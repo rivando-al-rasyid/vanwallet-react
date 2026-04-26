@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import { Icon } from "@iconify/react";
 
 /**
  * @typedef {Object} SearchInputProps
@@ -12,10 +11,6 @@ import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
  * @property {boolean} [disabled=false] - Whether input is disabled
  */
 
-/**
- * A semantic search input component with debouncing support.
- * @type {React.FC<SearchInputProps>}
- */
 export default function SearchInput({
   value,
   onChange,
@@ -26,17 +21,14 @@ export default function SearchInput({
 }) {
   const [localValue, setLocalValue] = useState(String(value || ""));
 
-  // Update local value when prop value changes (e.g., from URL params)
   useEffect(() => {
     setLocalValue(String(value || ""));
   }, [value]);
 
-  // Memoized synthetic event creator
   const createSyntheticEvent = useCallback((newValue) => ({
-    target: { value: newValue }
+    target: { value: newValue },
   }), []);
 
-  // Debounced onChange handler
   useEffect(() => {
     if (localValue === String(value || "")) return;
 
@@ -68,8 +60,10 @@ export default function SearchInput({
         aria-label={placeholder}
         aria-disabled={disabled}
       />
-      <FontAwesomeIcon
-        icon={faMagnifyingGlass}
+      <Icon
+        icon="lucide:search"
+        width={16}
+        height={16}
         className={`absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none transition-colors ${
           disabled ? "text-gray-300" : "text-gray-400"
         }`}

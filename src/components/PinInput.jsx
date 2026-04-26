@@ -1,8 +1,5 @@
-import { useFormContext } from "react-hook-form";
 import { useRef } from "react";
-
-// Constants
-const PIN_LENGTH = 6;
+import { PIN_LENGTH } from "../schemas/pinSchema";
 const BASE_INPUT_CLASSES = `
   w-10 sm:w-12
   text-center
@@ -13,20 +10,18 @@ const BASE_INPUT_CLASSES = `
   transition
 `;
 
-export default function PinInput() {
-  const { setValue, watch } = useFormContext();
+export default function PinInput({ value = [], onChange }) {
   const inputsRef = useRef([]);
-
-  const values = watch("pin");
+  const values = value;
 
   const handleChange = (e, index) => {
     const numericValue = e.target.value.replace(/[^0-9]/g, "");
     const nextDigit = numericValue.slice(-1);
 
-    setValue(`pin.${index}.value`, nextDigit, {
-      shouldDirty: true,
-      shouldValidate: true,
-    });
+    const nextValues = values.map((item, currentIndex) =>
+      currentIndex === index ? { ...item, value: nextDigit } : item,
+    );
+    onChange(nextValues);
 
     // Auto-focus next input
     if (nextDigit && inputsRef.current[index + 1]) {
@@ -73,7 +68,6 @@ export default function PinInput() {
 function PinInputField({
   index,
   value,
-  isActive,
   onChange,
   onKeyDown,
   inputRef,

@@ -1,14 +1,11 @@
-import { CheckCircle2 } from "lucide-react";
+import { Icon } from "@iconify/react";
 import featureImage from "../../assets/img/imagez.png";
 
-// Constants
 const FEATURES = [
   "Small Fee",
-  "Data Secured", 
+  "Data Secured",
   "User Friendly"
 ];
-
-const ICON_SIZE = 22;
 
 export default function FeatureList() {
   return (
@@ -74,8 +71,10 @@ function FeatureListItems() {
 function FeatureItem({ text }) {
   return (
     <li className="flex items-center gap-3">
-      <CheckCircle2
-        size={ICON_SIZE}
+      <Icon
+        icon="lucide:check-circle-2"
+        width={22}
+        height={22}
         className="text-green-500 shrink-0"
         aria-hidden="true"
       />

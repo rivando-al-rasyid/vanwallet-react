@@ -1,32 +1,37 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import { faEnvelope } from "@fortawesome/free-solid-svg-icons";
+import { Controller, useForm } from "react-hook-form";
+import { joiResolver } from "@hookform/resolvers/joi";
 import Brand from "../../components/Brand";
 import LoginHeadline from "../../components/login/LoginHeadline";
 import Input from "../../components/Input";
 import Submit from "../../components/Submit";
+import { useToast } from "../../context/toast/provider";
+import { forgotPasswordSchema } from "../../schemas/authSchemas";
 
 export default function ForgotPassword() {
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
-  const [email, setEmail] = useState("");
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const {
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm({
+    resolver: joiResolver(forgotPasswordSchema),
+    defaultValues: {
+      email: "",
+    },
+  });
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-
-    if (!email.trim()) {
-      setError("Email tidak boleh kosong.");
-      return;
-    }
-
+  const onSubmit = async () => {
     setLoading(true);
 
     setTimeout(() => {
       setLoading(false);
-      navigate("/login/pin", { state: { email } });
+      showToast("Link reset password telah dikirim ke email kamu.", "success");
+      navigate("/login");
     }, 500);
   };
 
@@ -39,23 +44,26 @@ export default function ForgotPassword() {
           text={"We will send new password to your email"}
         />
 
-        {error && (
-          <div className="mb-4 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-sm text-red-600 font-medium">
-            {error}
+        <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+          <div>
+            <Controller
+              name="email"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  label="Email"
+                  type="email"
+                  icon="lucide:mail"
+                  placeholder="Enter your email"
+                  {...field}
+                />
+              )}
+            />
+            {errors.email?.message && (
+              <p className="text-sm text-red-500 mt-1.5">{errors.email.message}</p>
+            )}
           </div>
-        )}
-
-        <form className="space-y-6" onSubmit={handleSubmit}>
-          <Input
-            label="Email"
-            type="email"
-            name="email"
-            icon={faEnvelope}
-            placeholder="Enter your email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <Submit name={loading ? "Loading..." : "Submit"} disabled={loading} />
+          <Submit label={loading ? "Loading..." : "Submit"} disabled={loading} />
         </form>
       </section>
     </main>

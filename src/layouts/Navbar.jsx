@@ -1,7 +1,7 @@
 import { memo, useState } from "react";
 import Brand from "../components/Brand";
 import { NavLink } from "react-router";
-import { Menu, X } from "lucide-react";
+import { Icon } from "@iconify/react";
 
 const NAV_LINKS = [
   {
@@ -41,7 +41,10 @@ const Navbar = memo(function Navbar() {
           className="flex items-center justify-center rounded-lg p-2 text-white transition hover:bg-white/10 sm:hidden"
           aria-label="Toggle menu"
         >
-          {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          {isMenuOpen
+            ? <Icon icon="lucide:x" width={24} height={24} />
+            : <Icon icon="lucide:menu" width={24} height={24} />
+          }
         </button>
       </div>
 

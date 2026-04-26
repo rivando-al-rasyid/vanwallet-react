@@ -1,109 +1,92 @@
-import { useState } from "react";
-import { useForm, FormProvider } from "react-hook-form";
-import { joiResolver } from "@hookform/resolvers/joi";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
-import Joi from "joi";
+import { Icon } from "@iconify/react";
+import { Controller, useForm } from "react-hook-form";
+import { joiResolver } from "@hookform/resolvers/joi";
 
 import PinInput from "../../components/PinInput";
-import { useProfile } from "../../hooks/useProfile";
-
-const defaultPin = Array(6)
-  .fill(null)
-  .map(() => ({ value: "" }));
-
-const pinSchema = Joi.object({
-  pin: Joi.array()
-    .items(
-      Joi.object({
-        value: Joi.string().length(1).pattern(/^\d$/).required(),
-      }),
-    )
-    .length(6)
-    .required(),
-});
+import { changePin } from "../../store/slices/profileSlice";
+import { useToast } from "../../context/toast/provider";
+import { DEFAULT_PIN_VALUE, pinFieldSchema } from "../../schemas/pinSchema";
 
 export default function ChangePin() {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { changePin, profileLoading, profileError } = useProfile();
+  const { showToast } = useToast();
 
-  const [success, setSuccess] = useState("");
+  const userId  = useSelector((state) => state.profile.user?.id ?? null);
+  const loading = useSelector((state) => state.profile.loading);
 
-  const methods = useForm({
-    resolver: joiResolver(pinSchema),
-    defaultValues: { pin: defaultPin },
-    mode: "onChange",
+  const {
+    handleSubmit,
+    control,
+    formState: { errors },
+    reset,
+  } = useForm({
+    resolver: joiResolver(pinFieldSchema),
+    defaultValues: {
+      pin: DEFAULT_PIN_VALUE,
+    },
   });
 
-  const onSubmit = async (data) => {
-    const pinValue = data.pin.map((item) => item.value).join("");
+  const onSubmit = async ({ pin }) => {
+    const newPin = pin.map((item) => item.value).join("");
 
-    setSuccess("");
+    const result = await dispatch(changePin({ userId, newPin }));
 
-    try {
-      await changePin(pinValue);
-      setSuccess("PIN berhasil diupdate!");
-      methods.reset({ pin: defaultPin });
-      setTimeout(() => navigate("/dashboard/profile"), 1200);
-    } catch {
-      // error is handled by context/Redux via profileError
+    if (changePin.fulfilled.match(result)) {
+      showToast("PIN berhasil diupdate!", "success");
+      reset({ pin: DEFAULT_PIN_VALUE });
+      setTimeout(() => navigate("/dashboard/profile"), 1500);
+    } else {
+      const msg = result.payload || result.error?.message || "Gagal mengupdate PIN.";
+      showToast(msg, "error");
     }
   };
+  const pinErrorMessage = errors.pin?.message || errors.pin?.[0]?.value?.message;
 
   return (
     <>
-      {/* Page Title */}
       <div className="flex items-center gap-3">
         <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-            <path
-              fillRule="evenodd"
-              clipRule="evenodd"
-              d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"
-              fill="#2563EB"
-            />
-          </svg>
+          <Icon icon="lucide:user-round" width={18} height={18} color="#2563EB" aria-hidden="true" />
         </div>
         <h1 className="text-xl font-bold text-gray-800">Profile</h1>
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm p-8">
         <div className="max-w-3xl mx-auto w-full text-center">
-          <h2 className="text-base font-bold text-gray-800 mb-1">
-            Change Pin 👋
-          </h2>
+          <h2 className="text-base font-bold text-gray-800 mb-1">Change Pin 👋</h2>
           <p className="text-sm text-gray-400 mb-8">
             Please save your pin because this so important.
           </p>
 
-          <FormProvider {...methods}>
-            <form
-              onSubmit={methods.handleSubmit(onSubmit)}
-              className="flex flex-col items-center"
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="flex flex-col items-center"
+          >
+            <Controller
+              name="pin"
+              control={control}
+              render={({ field }) => (
+                <PinInput value={field.value} onChange={field.onChange} />
+              )}
+            />
+
+            {pinErrorMessage && (
+              <p className="text-sm text-red-500 mt-4">
+                {pinErrorMessage}
+              </p>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full mt-10 py-3.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 disabled:opacity-60 transition"
             >
-              <PinInput />
-
-              {methods.formState.errors.pin && (
-                <p className="text-sm text-red-500 mt-4">
-                  Please complete the 6-digit PIN.
-                </p>
-              )}
-
-              {profileError && (
-                <p className="text-sm text-red-500 mt-4">{profileError}</p>
-              )}
-              {success && (
-                <p className="text-sm text-green-600 mt-4">{success}</p>
-              )}
-
-              <button
-                type="submit"
-                disabled={profileLoading}
-                className="w-full mt-10 py-3.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 disabled:opacity-60 transition"
-              >
-                {profileLoading ? "Menyimpan..." : "Submit"}
-              </button>
-            </form>
-          </FormProvider>
+              {loading ? "Menyimpan..." : "Submit"}
+            </button>
+          </form>
         </div>
       </div>
     </>
