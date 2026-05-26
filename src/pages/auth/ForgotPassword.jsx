@@ -31,8 +31,8 @@ export default function ForgotPassword() {
   };
 
   return (
-    <main className="min-h-screen bg-[#2948FF] flex items-center justify-center px-6 py-10">
-      <section className="w-full max-w-xl rounded-3xl bg-white p-8 sm:p-10 shadow-xl">
+    <main className="flex min-h-screen items-center justify-center bg-[#2948FF] px-6 py-10">
+      <section className="w-full max-w-xl rounded-3xl bg-white p-8 shadow-xl sm:p-10">
         <Brand />
         <LoginHeadline
           title={"Fill Out Form Correctly 👋"}
@@ -40,7 +40,7 @@ export default function ForgotPassword() {
         />
 
         {error && (
-          <div className="mb-4 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-sm text-red-600 font-medium">
+          <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-600">
             {error}
           </div>
         )}

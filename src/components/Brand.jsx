@@ -8,9 +8,9 @@ import logoImage from "../assets/img/logo.png";
  */
 const Brand = memo(function Brand({ isWhite = false }) {
   return (
-    <div className="flex gap-4 items-center group">
+    <div className="group flex items-center gap-4">
       <div
-        className={`p-2 rounded-lg transition-colors ${
+        className={`rounded-lg p-2 transition-colors ${
           isWhite
             ? "bg-white/20 group-hover:bg-white/40"
             : "bg-[#6379F415] group-hover:bg-[#6379F4]"
@@ -19,7 +19,7 @@ const Brand = memo(function Brand({ isWhite = false }) {
         <img
           src={logoImage}
           alt="E-Wallet logo"
-          className="w-6 h-6 object-contain"
+          className="h-6 w-6 object-contain"
         />
       </div>
 

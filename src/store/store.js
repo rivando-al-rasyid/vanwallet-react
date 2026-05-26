@@ -54,9 +54,8 @@ export const {
   setProfileError,
   setUser,
   clearAuth,
-  mergeUser
+  mergeUser,
 } = authSlice.actions;
-
 
 const authPersistConfig = {
   key: "auth",

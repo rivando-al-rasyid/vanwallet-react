@@ -24,7 +24,7 @@ export default function Toast({
   return (
     <div className="fixed top-4 right-4 z-60">
       <div
-        className={`min-w-64 max-w-sm rounded-xl px-4 py-3 text-sm font-medium text-white shadow-lg ${toneMap[type] || toneMap.info}`}
+        className={`max-w-sm min-w-64 rounded-xl px-4 py-3 text-sm font-medium text-white shadow-lg ${toneMap[type] || toneMap.info}`}
       >
         {message}
       </div>

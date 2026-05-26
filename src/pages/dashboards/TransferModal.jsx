@@ -55,35 +55,29 @@ export default function TransferModal({
   if (step === "pin") {
     return (
       <Modal open={open}>
-        <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-4 text-left">
+        <p className="mb-4 text-left text-xs font-semibold tracking-widest text-gray-400 uppercase">
           Transfer to {toName}
         </p>
 
-        <h3 className="text-2xl font-bold mb-1 text-left">Enter Your Pin 👋</h3>
+        <h3 className="mb-1 text-left text-2xl font-bold">Enter Your Pin 👋</h3>
 
-        <p className="text-sm text-gray-400 mb-8 text-left">
+        <p className="mb-8 text-left text-sm text-gray-400">
           Enter Your Pin For Transaction
         </p>
 
         <FormProvider {...methods}>
-          <form
-            onSubmit={methods.handleSubmit(handleConfirm)}
-            className="mb-2"
-          >
+          <form onSubmit={methods.handleSubmit(handleConfirm)} className="mb-2">
             <div className="mb-8 flex justify-center">
               <PinInput />
             </div>
 
             {methods.formState.errors.pin && (
-              <p className="text-sm text-red-500 mb-4 text-left">
+              <p className="mb-4 text-left text-sm text-red-500">
                 Masukkan PIN lengkap ({PIN_LENGTH} digit)
               </p>
             )}
 
-            <button
-              type="submit"
-              className="btn-primary w-full mb-4"
-            >
+            <button type="submit" className="btn-primary mb-4 w-full">
               Confirm & Transfer
             </button>
           </form>
@@ -91,7 +85,7 @@ export default function TransferModal({
 
         <p className="text-sm text-gray-500">
           Forgot Your Pin?{" "}
-          <button className="text-blue-600 font-semibold hover:underline">
+          <button className="font-semibold text-blue-600 hover:underline">
             Reset
           </button>
         </p>
@@ -102,30 +96,23 @@ export default function TransferModal({
   if (step === "failed") {
     return (
       <Modal open={open}>
-        <img
-          src={transferFailedImage}
-          alt="failed"
-          className="mx-auto mb-4"
-        />
+        <img src={transferFailedImage} alt="failed" className="mx-auto mb-4" />
 
         <h3 className="section-title mb-2">
           Oops Transfer <span className="text-red-500">Failed</span>
         </h3>
 
-        <p className="text-sm text-gray-400 mb-8">
+        <p className="mb-8 text-sm text-gray-400">
           Sorry, there is an issue with your transfer. Try again later!
         </p>
 
-        <button
-          onClick={onTryAgain}
-          className="btn-primary w-full mb-3"
-        >
+        <button onClick={onTryAgain} className="btn-primary mb-3 w-full">
           Try Again
         </button>
 
         <button
           onClick={onDone}
-          className="w-full py-3.5 border border-blue-600 text-blue-600 rounded-xl"
+          className="w-full rounded-xl border border-blue-600 py-3.5 text-blue-600"
         >
           Back To Dashboard
         </button>
@@ -146,20 +133,17 @@ export default function TransferModal({
           Yeay Transfer <span className="text-green-500">Success</span>
         </h3>
 
-        <p className="text-sm text-gray-400 mb-8">
+        <p className="mb-8 text-sm text-gray-400">
           Thank you for using this application.
         </p>
 
-        <button
-          onClick={onDone}
-          className="btn-primary w-full mb-3"
-        >
+        <button onClick={onDone} className="btn-primary mb-3 w-full">
           Done
         </button>
 
         <button
           onClick={onTransferAgain}
-          className="w-full py-3.5 border border-blue-600 text-blue-600 rounded-xl"
+          className="w-full rounded-xl border border-blue-600 py-3.5 text-blue-600"
         >
           Transfer Again
         </button>

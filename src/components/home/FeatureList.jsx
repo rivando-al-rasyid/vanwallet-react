@@ -2,11 +2,7 @@ import { CheckCircle2 } from "lucide-react";
 import featureImage from "../../assets/img/imagez.png";
 
 // Constants
-const FEATURES = [
-  "Small Fee",
-  "Data Secured", 
-  "User Friendly"
-];
+const FEATURES = ["Small Fee", "Data Secured", "User Friendly"];
 
 const ICON_SIZE = 22;
 
@@ -46,7 +42,7 @@ function ContentSection() {
 
 function SectionTitle() {
   return (
-    <h2 className="max-w-lg text-4xl font-semibold leading-tight text-gray-900">
+    <h2 className="max-w-lg text-4xl leading-tight font-semibold text-gray-900">
       All The Great Zwallet Features.
     </h2>
   );
@@ -55,8 +51,8 @@ function SectionTitle() {
 function SectionDescription() {
   return (
     <p className="mt-4 max-w-md text-base leading-7 text-gray-500">
-      We have some great features from the application and it is totally
-      free to use by all users around the world.
+      We have some great features from the application and it is totally free to
+      use by all users around the world.
     </p>
   );
 }
@@ -76,7 +72,7 @@ function FeatureItem({ text }) {
     <li className="flex items-center gap-3">
       <CheckCircle2
         size={ICON_SIZE}
-        className="text-green-500 shrink-0"
+        className="shrink-0 text-green-500"
         aria-hidden="true"
       />
       <span className="font-semibold text-gray-800">{text}</span>

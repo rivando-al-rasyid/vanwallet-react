@@ -32,24 +32,16 @@ export default function Sidebar({ isOpen, setIsOpen }) {
       {/* Overlay — mobile only */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
           onClick={() => setIsOpen(false)}
         />
       )}
 
       <aside
-        className={`
-          fixed top-16 right-0 z-50 h-[calc(100vh-4rem)] w-72 bg-white border-l border-slate-100
-          flex flex-col
-          transform transition-transform duration-300 ease-in-out
-          lg:sticky lg:left-0 lg:top-16 lg:h-[calc(100vh-4rem)] lg:w-56
-          lg:border-l-0 lg:border-r lg:border-slate-100
-          lg:translate-x-0 lg:z-auto
-          ${isOpen ? "translate-x-0" : "translate-x-full lg:translate-x-0"}
-        `}
+        className={`fixed top-16 right-0 z-50 flex h-[calc(100vh-4rem)] w-72 transform flex-col border-l border-slate-100 bg-white transition-transform duration-300 ease-in-out lg:sticky lg:top-16 lg:left-0 lg:z-auto lg:h-[calc(100vh-4rem)] lg:w-56 lg:translate-x-0 lg:border-r lg:border-l-0 lg:border-slate-100 ${isOpen ? "translate-x-0" : "translate-x-full lg:translate-x-0"} `}
       >
         {/* Nav links */}
-        <nav className="flex flex-col gap-1 flex-1 py-6 px-4 overflow-y-auto">
+        <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-4 py-6">
           <NavLink
             to="/dashboard/"
             className={navLinkClass}
@@ -234,7 +226,7 @@ export default function Sidebar({ isOpen, setIsOpen }) {
         </nav>
 
         {/* Logout — pinned at bottom */}
-        <div className="px-4 py-6 border-t border-slate-100 lg:hidden">
+        <div className="border-t border-slate-100 px-4 py-6 lg:hidden">
           <LogoutButton
             onLogout={handleLogout}
             className="w-full px-4 py-3"

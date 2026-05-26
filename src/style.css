@@ -7,13 +7,13 @@
    ============================================================ */
 @theme {
   /* Brand & UI Colors */
-  --color-primary:   #2948ff;
+  --color-primary: #2948ff;
   --color-secondary: #4f5665;
-  --color-success:   #1ec15f;
-  --color-danger:    #d00000;
-  --color-warning:   #ffc107;
-  --color-info:      #0dcaf0;
-  --color-light:     #f8f9fa;
+  --color-success: #1ec15f;
+  --color-danger: #d00000;
+  --color-warning: #ffc107;
+  --color-info: #0dcaf0;
+  --color-light: #f8f9fa;
 
   /* Typography */
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
@@ -43,7 +43,7 @@
   body {
     font-family: var(--font-sans);
     background-color: #f1f5f9; /* slate-100 — dashboard bg */
-    color: #1e293b;            /* slate-800 */
+    color: #1e293b; /* slate-800 */
   }
 
   img {
@@ -61,7 +61,6 @@
    Reusable classes used across the app.
    ============================================================ */
 @layer components {
-
   /* Card */
   .card {
     background-color: #ffffff;
@@ -72,7 +71,9 @@
   }
 
   @media (min-width: 1024px) {
-    .card { padding: 1.5rem; }
+    .card {
+      padding: 1.5rem;
+    }
   }
 
   /* Auth Panel */
@@ -103,7 +104,9 @@
     font-size: 0.875rem;
     color: #1e293b;
     background-color: #ffffff;
-    transition: border-color 200ms, box-shadow 200ms;
+    transition:
+      border-color 200ms,
+      box-shadow 200ms;
     outline: none;
   }
 
@@ -112,7 +115,9 @@
     box-shadow: 0 0 0 3px rgba(41, 72, 255, 0.15);
   }
 
-  .form-input::placeholder { color: #94a3b8; }
+  .form-input::placeholder {
+    color: #94a3b8;
+  }
 
   /* Primary Button */
   .btn-primary {
@@ -126,12 +131,19 @@
     font-size: 0.875rem;
     padding: 0.625rem 1.25rem;
     border-radius: 0.75rem;
-    transition: background-color 200ms, transform 200ms, box-shadow 200ms;
+    transition:
+      background-color 200ms,
+      transform 200ms,
+      box-shadow 200ms;
     box-shadow: 0 4px 12px rgba(41, 72, 255, 0.3);
   }
 
-  .btn-primary:hover   { background-color: #1f3be0; }
-  .btn-primary:active  { transform: scale(0.97); }
+  .btn-primary:hover {
+    background-color: #1f3be0;
+  }
+  .btn-primary:active {
+    transform: scale(0.97);
+  }
 
   /* Ghost Button */
   .btn-ghost {
@@ -149,7 +161,9 @@
     transition: background-color 200ms;
   }
 
-  .btn-ghost:hover { background-color: rgba(41, 72, 255, 0.06); }
+  .btn-ghost:hover {
+    background-color: rgba(41, 72, 255, 0.06);
+  }
 
   /* Status Badges */
   .badge {
@@ -162,9 +176,18 @@
     letter-spacing: 0.02em;
   }
 
-  .badge-success { background-color: #ecfdf5; color: #059669; }
-  .badge-danger  { background-color: #fef2f2; color: #dc2626; }
-  .badge-warning { background-color: #fffbeb; color: #d97706; }
+  .badge-success {
+    background-color: #ecfdf5;
+    color: #059669;
+  }
+  .badge-danger {
+    background-color: #fef2f2;
+    color: #dc2626;
+  }
+  .badge-warning {
+    background-color: #fffbeb;
+    color: #d97706;
+  }
 
   /* Section Title */
   .section-title {
@@ -175,7 +198,9 @@
   }
 
   @media (min-width: 640px) {
-    .section-title { font-size: 1.25rem; }
+    .section-title {
+      font-size: 1.25rem;
+    }
   }
 }
 
@@ -184,15 +209,22 @@
    fade-in + delay-1..4 used in Index.jsx dashboard cards.
    ============================================================ */
 @layer utilities {
-
   .fade-in {
     animation: fadeInUp 0.45s ease both;
   }
 
-  .delay-1 { animation-delay: 0.05s; }
-  .delay-2 { animation-delay: 0.12s; }
-  .delay-3 { animation-delay: 0.20s; }
-  .delay-4 { animation-delay: 0.30s; }
+  .delay-1 {
+    animation-delay: 0.05s;
+  }
+  .delay-2 {
+    animation-delay: 0.12s;
+  }
+  .delay-3 {
+    animation-delay: 0.2s;
+  }
+  .delay-4 {
+    animation-delay: 0.3s;
+  }
 
   /* Skeleton shimmer for loading states */
   .skeleton {
@@ -226,23 +258,40 @@
    KEYFRAMES
    ============================================================ */
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: translateY(0);     }
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes shimmer {
-  0%   { background-position:  200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 /* ============================================================
    SCROLLBAR STYLING (Webkit)
    Keeps sidebar & content scrollbars subtle.
    ============================================================ */
-::-webkit-scrollbar       { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
 ::-webkit-scrollbar-thumb {
   background: #cbd5e1;
   border-radius: 9999px;
 }
-::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}

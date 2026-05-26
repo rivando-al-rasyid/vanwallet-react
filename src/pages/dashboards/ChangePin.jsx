@@ -53,7 +53,7 @@ export default function ChangePin() {
     <>
       {/* Page Title */}
       <div className="flex items-center gap-3">
-        <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-100">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
             <path
               fillRule="evenodd"
@@ -66,12 +66,12 @@ export default function ChangePin() {
         <h1 className="text-xl font-bold text-gray-800">Profile</h1>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm p-8">
-        <div className="max-w-3xl mx-auto w-full text-center">
-          <h2 className="text-base font-bold text-gray-800 mb-1">
+      <div className="rounded-2xl bg-white p-8 shadow-sm">
+        <div className="mx-auto w-full max-w-3xl text-center">
+          <h2 className="mb-1 text-base font-bold text-gray-800">
             Change Pin 👋
           </h2>
-          <p className="text-sm text-gray-400 mb-8">
+          <p className="mb-8 text-sm text-gray-400">
             Please save your pin because this so important.
           </p>
 
@@ -83,22 +83,22 @@ export default function ChangePin() {
               <PinInput />
 
               {methods.formState.errors.pin && (
-                <p className="text-sm text-red-500 mt-4">
+                <p className="mt-4 text-sm text-red-500">
                   Please complete the 6-digit PIN.
                 </p>
               )}
 
               {profileError && (
-                <p className="text-sm text-red-500 mt-4">{profileError}</p>
+                <p className="mt-4 text-sm text-red-500">{profileError}</p>
               )}
               {success && (
-                <p className="text-sm text-green-600 mt-4">{success}</p>
+                <p className="mt-4 text-sm text-green-600">{success}</p>
               )}
 
               <button
                 type="submit"
                 disabled={profileLoading}
-                className="w-full mt-10 py-3.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 disabled:opacity-60 transition"
+                className="mt-10 w-full rounded-xl bg-blue-600 py-3.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-60"
               >
                 {profileLoading ? "Menyimpan..." : "Submit"}
               </button>

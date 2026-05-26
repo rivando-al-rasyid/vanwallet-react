@@ -7,14 +7,12 @@ const STORE_BUTTONS = [
   {
     label: "Play Store",
     icon: faGooglePlay,
-    className:
-      "bg-blue-600 text-white hover:bg-blue-700",
+    className: "bg-blue-600 text-white hover:bg-blue-700",
   },
   {
     label: "App Store",
     icon: faApple,
-    className:
-      "border border-blue-600 text-blue-600 hover:bg-blue-50",
+    className: "border border-blue-600 text-blue-600 hover:bg-blue-50",
   },
 ];
 
@@ -34,14 +32,14 @@ export default function DownloadCTA() {
             src={phoneSmallImage}
             alt="Secondary app screen"
             loading="lazy"
-            className="absolute bottom-0 -right-6 z-20 w-28 drop-shadow-2xl sm:w-36 md:w-40 lg:w-52 lg:-right-10"
+            className="absolute -right-6 bottom-0 z-20 w-28 drop-shadow-2xl sm:w-36 md:w-40 lg:-right-10 lg:w-52"
           />
         </div>
       </div>
 
       {/* CTA content */}
       <div className="text-center lg:text-left">
-        <h2 className="text-2xl font-semibold leading-tight text-gray-900 sm:text-3xl lg:text-4xl">
+        <h2 className="text-2xl leading-tight font-semibold text-gray-900 sm:text-3xl lg:text-4xl">
           Download The App
         </h2>
         <p className="mx-auto mt-4 max-w-lg text-sm leading-6 text-gray-500 sm:mt-5 sm:text-base sm:leading-7 lg:mx-0">
@@ -49,7 +47,7 @@ export default function DownloadCTA() {
           enjoy a world of convenience at your fingertips.
         </p>
 
-        <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:gap-4 sm:justify-center lg:mt-8 lg:justify-start">
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center sm:gap-4 lg:mt-8 lg:justify-start">
           {STORE_BUTTONS.map(({ label, icon, className }) => (
             <button
               key={label}

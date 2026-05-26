@@ -95,14 +95,14 @@ export default function History() {
   return (
     <>
       {/* Page Title */}
-      <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
-        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
+      <div className="mb-4 flex items-center gap-2 sm:mb-6 sm:gap-3">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-100 sm:h-10 sm:w-10">
           <svg
             width="16"
             height="16"
             viewBox="0 0 24 24"
             fill="none"
-            className="sm:w-5 sm:h-5"
+            className="sm:h-5 sm:w-5"
           >
             <path
               d="M12 8V12L14.5 14.5"
@@ -132,10 +132,8 @@ export default function History() {
       {/* Main Card */}
       <div className="card min-h-150">
         {/* Card Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-4 sm:px-6 lg:px-8 py-4 sm:py-5 border-b border-gray-100">
-          <h2 className="section-title order-2 sm:order-1">
-            Find Transaction
-          </h2>
+        <div className="flex flex-col gap-4 border-b border-gray-100 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-5 lg:px-8">
+          <h2 className="section-title order-2 sm:order-1">Find Transaction</h2>
           <div className="order-1 sm:order-2">
             <SearchInput
               value={search}
@@ -146,9 +144,9 @@ export default function History() {
         </div>
 
         {loading && (
-          <div className="flex flex-col items-center justify-center py-12 sm:py-20 gap-3 text-gray-400">
+          <div className="flex flex-col items-center justify-center gap-3 py-12 text-gray-400 sm:py-20">
             <svg
-              className="animate-spin w-6 h-6 sm:w-8 sm:h-8 text-blue-500"
+              className="h-6 w-6 animate-spin text-blue-500 sm:h-8 sm:w-8"
               fill="none"
               viewBox="0 0 24 24"
             >
@@ -173,8 +171,8 @@ export default function History() {
         )}
 
         {!loading && error && (
-          <div className="flex flex-col items-center justify-center py-20 gap-3">
-            <p className="text-red-500 font-semibold text-sm">{error}</p>
+          <div className="flex flex-col items-center justify-center gap-3 py-20">
+            <p className="text-sm font-semibold text-red-500">{error}</p>
             <button
               onClick={() => window.location.reload()}
               className="text-xs text-blue-600 underline"

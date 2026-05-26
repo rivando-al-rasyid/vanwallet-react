@@ -1,4 +1,4 @@
-import {  useState } from "react";
+import { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import PinInput from "../../components/PinInput";
@@ -44,7 +44,7 @@ export default function LoginPin() {
   };
 
   return (
-    <main className="grid grid-cols-1 lg:grid-cols-2 min-h-screen bg-[#2948FF]">
+    <main className="grid min-h-screen grid-cols-1 bg-[#2948FF] lg:grid-cols-2">
       <section className="auth-panel">
         <div className="w-full max-w-175">
           <Brand />
@@ -61,7 +61,7 @@ export default function LoginPin() {
               <PinInput />
 
               {error && (
-                <div className="px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-sm text-red-600 font-medium">
+                <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-600">
                   {error}
                 </div>
               )}

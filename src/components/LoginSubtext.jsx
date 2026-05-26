@@ -10,9 +10,9 @@ import { NavLink } from "react-router";
  */
 const LoginSubtext = memo(function LoginSubtext({ text, linklabel, link }) {
   return (
-    <p className="text-center text-sm text-slate-400 mt-8 font-medium">
+    <p className="mt-8 text-center text-sm font-medium text-slate-400">
       {text}
-      <NavLink className="text-[#6379F4] hover:underline font-bold" to={link}>
+      <NavLink className="font-bold text-[#6379F4] hover:underline" to={link}>
         {linklabel}
       </NavLink>
     </p>

@@ -27,17 +27,20 @@ A modern, responsive e-wallet application built with React, Vite, and Tailwind C
 ## 📦 Installation
 
 1. Clone the repository:
+
 ```bash
 git clone https://github.com/rivando-al-rasyid/vanwallet-react.git
 cd vanwallet-react
 ```
 
 2. Install dependencies:
+
 ```bash
 npm install
 ```
 
 3. Start the development server:
+
 ```bash
 npm run dev
 ```
@@ -72,17 +75,20 @@ src/
 ## 🌟 Key Features
 
 ### Landing Page
+
 - Eye-catching hero section with app download CTAs
 - Feature highlights and benefits
 - User testimonials and partner logos
 - Responsive design for all devices
 
 ### Authentication
+
 - Secure user registration and login
 - Form validation with Joi schemas
 - Smooth user experience with React Hook Form
 
 ### Dashboard
+
 - Real-time balance display
 - Transaction history with filters
 - Spending analytics with interactive charts
@@ -91,12 +97,15 @@ src/
 ## 🔧 Development
 
 ### Environment Variables
+
 Create a `.env` file in the root directory with your environment variables.
 
 ### Code Quality
+
 The project uses ESLint with React-specific rules to maintain code quality and consistency.
 
 ### Build Optimization
+
 The application is optimized for production with Vite's build system, providing fast load times and efficient bundle sizes.
 
 ## 📄 License

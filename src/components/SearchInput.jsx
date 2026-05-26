@@ -32,9 +32,12 @@ export default function SearchInput({
   }, [value]);
 
   // Memoized synthetic event creator
-  const createSyntheticEvent = useCallback((newValue) => ({
-    target: { value: newValue }
-  }), []);
+  const createSyntheticEvent = useCallback(
+    (newValue) => ({
+      target: { value: newValue },
+    }),
+    [],
+  );
 
   // Debounced onChange handler
   useEffect(() => {
@@ -52,7 +55,9 @@ export default function SearchInput({
   }, []);
 
   const inputClassName = useMemo(() => {
-    const disabledClasses = disabled ? "bg-gray-100 cursor-not-allowed opacity-60" : "";
+    const disabledClasses = disabled
+      ? "bg-gray-100 cursor-not-allowed opacity-60"
+      : "";
     return `form-input pl-4 pr-10 ${disabledClasses} ${className}`.trim();
   }, [className, disabled]);
 
@@ -70,7 +75,7 @@ export default function SearchInput({
       />
       <FontAwesomeIcon
         icon={faMagnifyingGlass}
-        className={`absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none transition-colors ${
+        className={`pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 transition-colors ${
           disabled ? "text-gray-300" : "text-gray-400"
         }`}
         aria-hidden="true"

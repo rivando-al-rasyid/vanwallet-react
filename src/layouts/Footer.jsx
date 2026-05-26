@@ -25,7 +25,7 @@ const Footer = memo(function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-blue-600 px-6 pb-10 pt-16 text-white lg:px-10">
+    <footer className="bg-blue-600 px-6 pt-16 pb-10 text-white lg:px-10">
       <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-4">
         {/* Brand */}
         <div>
@@ -38,7 +38,7 @@ const Footer = memo(function Footer() {
 
         {/* Contact */}
         <div>
-          <h4 className="mb-5 text-sm font-semibold uppercase tracking-wider">
+          <h4 className="mb-5 text-sm font-semibold tracking-wider uppercase">
             Get In Touch
           </h4>
           <ul className="space-y-4 text-sm text-white/90">
@@ -53,7 +53,7 @@ const Footer = memo(function Footer() {
 
         {/* Social */}
         <div>
-          <h4 className="mb-5 text-sm font-semibold uppercase tracking-wider">
+          <h4 className="mb-5 text-sm font-semibold tracking-wider uppercase">
             Social Media
           </h4>
           <div className="flex gap-4">
@@ -72,7 +72,7 @@ const Footer = memo(function Footer() {
 
         {/* Newsletter */}
         <div>
-          <h4 className="mb-5 text-sm font-semibold uppercase tracking-wider">
+          <h4 className="mb-5 text-sm font-semibold tracking-wider uppercase">
             Newsletter
           </h4>
           <form

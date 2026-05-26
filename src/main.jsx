@@ -61,5 +61,5 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         </Routes>
       </BrowserRouter>
     </PersistGate>
-  </Provider>
+  </Provider>,
 );

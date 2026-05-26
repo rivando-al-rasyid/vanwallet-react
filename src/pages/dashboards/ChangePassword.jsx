@@ -25,7 +25,11 @@ export default function ChangePassword() {
     setLocalError("");
     setSuccess("");
 
-    if (!form.currentPassword || !form.newPassword || !form.confirmNewPassword) {
+    if (
+      !form.currentPassword ||
+      !form.newPassword ||
+      !form.confirmNewPassword
+    ) {
       setLocalError("Semua field password wajib diisi.");
       return;
     }
@@ -49,7 +53,7 @@ export default function ChangePassword() {
     <button
       type="button"
       onClick={onClick}
-      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+      className="absolute top-1/2 right-3.5 -translate-y-1/2 text-gray-400 hover:text-gray-600"
     >
       <svg
         width="18"
@@ -88,7 +92,7 @@ export default function ChangePassword() {
     <>
       {/* Page Title */}
       <div className="flex items-center gap-3">
-        <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-100">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
             <path
               fillRule="evenodd"
@@ -101,20 +105,20 @@ export default function ChangePassword() {
         <h1 className="text-xl font-bold text-gray-800">Profile</h1>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm p-8">
+      <div className="rounded-2xl bg-white p-8 shadow-sm">
         <div className="w-full">
-          <h2 className="text-base font-bold text-gray-800 mb-4">
+          <h2 className="mb-4 text-base font-bold text-gray-800">
             Change Password
           </h2>
 
-          <div className="flex flex-col gap-5 w-full">
+          <div className="flex w-full flex-col gap-5">
             {/* Current Password */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="mb-2 block text-sm font-semibold text-gray-700">
                 Existing Password
               </label>
               <div className="relative">
-                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
+                <span className="absolute top-1/2 left-3.5 -translate-y-1/2 text-gray-400">
                   <LockIcon />
                 </span>
                 <input
@@ -123,7 +127,7 @@ export default function ChangePassword() {
                   value={form.currentPassword}
                   onChange={handleChange}
                   placeholder="Enter Your Existing Password"
-                  className="w-full pl-10 pr-12 py-3 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition"
+                  className="w-full rounded-xl border border-gray-200 py-3 pr-12 pl-10 text-sm text-gray-700 placeholder-gray-400 transition outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
                 />
                 <EyeButton
                   onClick={() => setShowCurrentPassword(!showCurrentPassword)}
@@ -133,11 +137,11 @@ export default function ChangePassword() {
 
             {/* New Password */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="mb-2 block text-sm font-semibold text-gray-700">
                 New Password
               </label>
               <div className="relative">
-                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
+                <span className="absolute top-1/2 left-3.5 -translate-y-1/2 text-gray-400">
                   <LockIcon />
                 </span>
                 <input
@@ -146,7 +150,7 @@ export default function ChangePassword() {
                   value={form.newPassword}
                   onChange={handleChange}
                   placeholder="Enter Your New Password"
-                  className="w-full pl-10 pr-12 py-3 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition"
+                  className="w-full rounded-xl border border-gray-200 py-3 pr-12 pl-10 text-sm text-gray-700 placeholder-gray-400 transition outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
                 />
                 <EyeButton
                   onClick={() => setShowNewPassword(!showNewPassword)}
@@ -156,11 +160,11 @@ export default function ChangePassword() {
 
             {/* Confirm New Password */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="mb-2 block text-sm font-semibold text-gray-700">
                 Confirm New Password
               </label>
               <div className="relative">
-                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
+                <span className="absolute top-1/2 left-3.5 -translate-y-1/2 text-gray-400">
                   <LockIcon />
                 </span>
                 <input
@@ -169,7 +173,7 @@ export default function ChangePassword() {
                   value={form.confirmNewPassword}
                   onChange={handleChange}
                   placeholder="Re-Type Your New Password"
-                  className="w-full pl-10 pr-12 py-3 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition"
+                  className="w-full rounded-xl border border-gray-200 py-3 pr-12 pl-10 text-sm text-gray-700 placeholder-gray-400 transition outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
                 />
                 <EyeButton
                   onClick={() =>
@@ -185,7 +189,7 @@ export default function ChangePassword() {
             <button
               onClick={handleSubmit}
               disabled={profileLoading}
-              className="w-full py-3.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 disabled:opacity-60 transition"
+              className="w-full rounded-xl bg-blue-600 py-3.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-60"
             >
               {profileLoading ? "Menyimpan..." : "Submit"}
             </button>

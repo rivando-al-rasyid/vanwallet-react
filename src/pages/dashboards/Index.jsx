@@ -154,16 +154,16 @@ export default function Index() {
   };
 
   return (
-    <section className="flex-1 flex flex-col gap-4 p-4 pt-4 sm:gap-6 sm:px-6 sm:pt-6 lg:px-8 lg:pt-8 overflow-hidden">
+    <section className="flex flex-1 flex-col gap-4 overflow-hidden p-4 pt-4 sm:gap-6 sm:px-6 sm:pt-6 lg:px-8 lg:pt-8">
       <div className="flex flex-col gap-4 lg:gap-5">
         {/* Balance Card */}
         {/* Note: Removed 'col-span' as we are using flex-col for the main stack */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 items-start">
+        <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-3 lg:gap-6">
           {/* Balance Card (Occupies 1 column on desktop) */}
-          <div className="fade-in delay-1 card flex flex-col gap-4">
-            <div className="flex items-center gap-2 text-slate-500 text-xs font-medium">
+          <div className="fade-in card flex flex-col gap-4 delay-1">
+            <div className="flex items-center gap-2 text-xs font-medium text-slate-500">
               <svg
-                className="w-4 h-4"
+                className="h-4 w-4"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="2.2"
@@ -176,26 +176,26 @@ export default function Index() {
             </div>
 
             <div>
-              <p className="text-2xl lg:text-3xl font-extrabold text-slate-800 tracking-tight">
+              <p className="text-2xl font-extrabold tracking-tight text-slate-800 lg:text-3xl">
                 Rp.120.000
               </p>
             </div>
 
             <div className="flex gap-6">
               <div>
-                <p className="text-[10px] uppercase tracking-wider text-slate-400 mb-1 font-bold">
+                <p className="mb-1 text-[10px] font-bold tracking-wider text-slate-400 uppercase">
                   Income
                 </p>
-                <p className="text-sm font-semibold text-emerald-500 flex items-center gap-1">
+                <p className="flex items-center gap-1 text-sm font-semibold text-emerald-500">
                   Rp.200k
                   <span className="badge badge-success">+2%</span>
                 </p>
               </div>
               <div>
-                <p className="text-[10px] uppercase tracking-wider text-slate-400 mb-1 font-bold">
+                <p className="mb-1 text-[10px] font-bold tracking-wider text-slate-400 uppercase">
                   Expense
                 </p>
-                <p className="text-sm font-semibold text-red-500 flex items-center gap-1">
+                <p className="flex items-center gap-1 text-sm font-semibold text-red-500">
                   Rp.100k
                   <span className="badge badge-danger">+5%</span>
                 </p>
@@ -203,7 +203,7 @@ export default function Index() {
             </div>
           </div>
           {/* Fast Service Card */}
-          <div className="fade-in delay-2 lg:col-span-2 card flex items-center justify-between h-full">
+          <div className="fade-in card flex h-full items-center justify-between delay-2 lg:col-span-2">
             {/* Title stays on the left */}
             <div>
               <h2 className="section-title">Fast Service</h2>
@@ -222,7 +222,7 @@ export default function Index() {
                 onClick={() => navigate("/dashboard/transfer")}
               >
                 <svg
-                  className="w-4 h-4 -rotate-45"
+                  className="h-4 w-4 -rotate-45"
                   fill="currentColor"
                   viewBox="0 0 24 24"
                 >
@@ -234,19 +234,17 @@ export default function Index() {
           </div>{" "}
         </div>
       </div>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5 fade-in delay-3">
+      <div className="fade-in grid grid-cols-1 gap-4 delay-3 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
         {/* Chart */}
-        <div className="col-span-full lg:col-span-2 card">
-          <div className="rounded-lg w-full">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6">
-              <h2 className="section-title">
-                Financial Chart
-              </h2>
+        <div className="card col-span-full lg:col-span-2">
+          <div className="w-full rounded-lg">
+            <div className="mb-4 flex flex-col sm:mb-6 sm:flex-row sm:items-center sm:justify-between">
+              <h2 className="section-title">Financial Chart</h2>
               <div className="flex gap-2 sm:gap-3">
                 <select
                   value={days}
                   onChange={(e) => setDays(e.target.value)}
-                  className="text-xs font-semibold text-slate-600 border border-slate-200 rounded-lg px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-200"
+                  className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 focus:ring-2 focus:ring-blue-200 focus:outline-none"
                 >
                   <option value="7">7 Days</option>
                   <option value="14">14 Days</option>
@@ -255,7 +253,7 @@ export default function Index() {
                 <select
                   value={typeFilter}
                   onChange={(e) => setTypeFilter(e.target.value)}
-                  className="text-xs font-semibold text-slate-600 border border-slate-200 rounded-lg px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-200"
+                  className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 focus:ring-2 focus:ring-blue-200 focus:outline-none"
                 >
                   <option value="All">All</option>
                   <option value="Income">Income</option>
@@ -268,11 +266,9 @@ export default function Index() {
         </div>
 
         {/* Transaction History */}
-        <div className="col-span-full lg:col-span-1 card flex flex-col h-full fade-in delay-4">
+        <div className="card fade-in col-span-full flex h-full flex-col delay-4 lg:col-span-1">
           <div className="flex items-center justify-between">
-            <h3 className="section-title">
-              Transaction History
-            </h3>
+            <h3 className="section-title">Transaction History</h3>
             <Link
               to="/dashboard/history"
               className="text-xs font-semibold text-blue-600 hover:underline"
@@ -280,11 +276,11 @@ export default function Index() {
               See All
             </Link>
           </div>
-          <div className="flex-1 flex flex-col gap-2 sm:gap-3">
+          <div className="flex flex-1 flex-col gap-2 sm:gap-3">
             {loading && (
-              <div className="flex flex-col items-center justify-center py-10 gap-2 text-gray-400">
+              <div className="flex flex-col items-center justify-center gap-2 py-10 text-gray-400">
                 <svg
-                  className="animate-spin w-6 h-6 text-blue-500"
+                  className="h-6 w-6 animate-spin text-blue-500"
                   fill="none"
                   viewBox="0 0 24 24"
                 >
@@ -306,8 +302,8 @@ export default function Index() {
               </div>
             )}
             {!loading && error && (
-              <div className="flex flex-col items-center justify-center py-10 gap-2">
-                <p className="text-red-500 font-semibold text-xs">{error}</p>
+              <div className="flex flex-col items-center justify-center gap-2 py-10">
+                <p className="text-xs font-semibold text-red-500">{error}</p>
                 <button
                   onClick={() => window.location.reload()}
                   className="text-xs text-blue-600 underline"
@@ -321,17 +317,17 @@ export default function Index() {
               transactionData.slice(0, 6).map((tx, i) => (
                 <div
                   key={tx.id || i}
-                  className="flex items-center gap-2 sm:gap-3 hover:bg-slate-50 p-2 sm:p-3 rounded-lg transition-colors cursor-pointer"
+                  className="flex cursor-pointer items-center gap-2 rounded-lg p-2 transition-colors hover:bg-slate-50 sm:gap-3 sm:p-3"
                 >
                   <img
                     src={
                       tx.img || `https://i.pravatar.cc/40?img=${tx.img || 1}`
                     }
-                    className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover"
+                    className="h-8 w-8 rounded-full object-cover sm:h-10 sm:w-10"
                     alt={tx.name}
                   />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs sm:text-sm font-semibold text-slate-800 truncate">
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-xs font-semibold text-slate-800 sm:text-sm">
                       {tx.name}
                     </p>
                     <p className="text-xs text-slate-400">
@@ -339,7 +335,7 @@ export default function Index() {
                     </p>
                   </div>
                   <span
-                    className={`text-xs sm:text-sm font-bold shrink-0 ${tx.type === "income" ? "text-emerald-500" : "text-red-500"}`}
+                    className={`shrink-0 text-xs font-bold sm:text-sm ${tx.type === "income" ? "text-emerald-500" : "text-red-500"}`}
                   >
                     {tx.type === "income" ? "+" : "-"}
                     {tx.amount}

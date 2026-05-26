@@ -110,7 +110,7 @@ export default function Transfer() {
   return (
     <>
       <div className="mb-8">
-        <div className="flex items-center gap-3 mb-6">
+        <div className="mb-6 flex items-center gap-3">
           <span className="text-blue-600">
             <svg
               width="24"
@@ -129,7 +129,7 @@ export default function Transfer() {
       </div>
 
       <div className="card min-h-150">
-        <div className="flex justify-between items-center mb-6">
+        <div className="mb-6 flex items-center justify-between">
           <div>
             <h2 className="section-title">Find People</h2>
             <p className="text-xs text-gray-400">{resultsText}</p>
@@ -142,9 +142,9 @@ export default function Transfer() {
         </div>
 
         {loading && (
-          <div className="flex flex-col items-center justify-center py-20 gap-3 text-gray-400">
+          <div className="flex flex-col items-center justify-center gap-3 py-20 text-gray-400">
             <svg
-              className="animate-spin w-8 h-8 text-blue-500"
+              className="h-8 w-8 animate-spin text-blue-500"
               fill="none"
               viewBox="0 0 24 24"
             >
@@ -167,8 +167,8 @@ export default function Transfer() {
         )}
 
         {!loading && error && (
-          <div className="flex flex-col items-center justify-center py-20 gap-3">
-            <p className="text-red-500 font-semibold text-sm">{error}</p>
+          <div className="flex flex-col items-center justify-center gap-3 py-20">
+            <p className="text-sm font-semibold text-red-500">{error}</p>
             <button
               onClick={handleRetry}
               className="text-xs text-blue-600 underline hover:text-blue-700"
@@ -180,10 +180,7 @@ export default function Transfer() {
 
         {!loading && !error && (
           <>
-            <TableRow
-              items={paginatedContacts}
-              onRowClick={handleRowClick}
-            />
+            <TableRow items={paginatedContacts} onRowClick={handleRowClick} />
             <Pagination
               currentPage={safePage}
               totalPages={totalPages}

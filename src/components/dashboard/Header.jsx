@@ -31,18 +31,18 @@ export default function Header() {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 w-full bg-white border-b border-slate-100 shadow-sm font-sans">
-      <nav className="flex items-center justify-between px-4 h-16 sm:px-6 lg:px-8">
+    <header className="fixed top-0 right-0 left-0 z-50 w-full border-b border-slate-100 bg-white font-sans shadow-sm">
+      <nav className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* LEFT: Brand — always visible */}
         <Brand />
 
         {/* RIGHT side */}
         <div className="flex items-center gap-3">
           {/* Icon buttons — hidden on mobile */}
-          <div className="hidden lg:flex items-center gap-4 border-r border-slate-100 pr-4">
-            <button className="text-slate-400 hover:text-blue-500 transition-colors">
+          <div className="hidden items-center gap-4 border-r border-slate-100 pr-4 lg:flex">
+            <button className="text-slate-400 transition-colors hover:text-blue-500">
               <svg
-                className="w-5 h-5"
+                className="h-5 w-5"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="2"
@@ -52,9 +52,9 @@ export default function Header() {
                 <path d="M21 21l-4.35-4.35" />
               </svg>
             </button>
-            <button className="text-slate-400 hover:text-blue-500 transition-colors">
+            <button className="text-slate-400 transition-colors hover:text-blue-500">
               <svg
-                className="w-5 h-5"
+                className="h-5 w-5"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="2"
@@ -70,18 +70,18 @@ export default function Header() {
             <div className="relative hidden lg:block" ref={wrapperRef}>
               <button
                 onClick={() => setOpen((v) => !v)}
-                className="flex items-center gap-2 p-1 pr-3 rounded-full hover:bg-slate-50 border border-transparent hover:border-slate-100 transition-all"
+                className="flex items-center gap-2 rounded-full border border-transparent p-1 pr-3 transition-all hover:border-slate-100 hover:bg-slate-50"
               >
-                <span className="text-sm font-medium text-slate-700 max-w-28 truncate">
+                <span className="max-w-28 truncate text-sm font-medium text-slate-700">
                   {user.name}
                 </span>
                 <img
                   src={user.avatar}
-                  className="w-8 h-8 rounded-full object-cover ring-2 ring-white shadow-sm"
+                  className="h-8 w-8 rounded-full object-cover shadow-sm ring-2 ring-white"
                   alt="avatar"
                 />
                 <svg
-                  className={`w-4 h-4 text-slate-400 transition-transform duration-300 ${open ? "rotate-180" : ""}`}
+                  className={`h-4 w-4 text-slate-400 transition-transform duration-300 ${open ? "rotate-180" : ""}`}
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="2.5"
@@ -93,17 +93,17 @@ export default function Header() {
 
               {/* Dropdown */}
               <div
-                className={`absolute right-0 top-[calc(100%+12px)] w-60 bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden transition-all duration-200 origin-top-right ${
+                className={`absolute top-[calc(100%+12px)] right-0 w-60 origin-top-right overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl transition-all duration-200 ${
                   open
-                    ? "opacity-100 scale-100 translate-y-0"
-                    : "opacity-0 scale-95 -translate-y-2 pointer-events-none"
+                    ? "translate-y-0 scale-100 opacity-100"
+                    : "pointer-events-none -translate-y-2 scale-95 opacity-0"
                 }`}
               >
-                <div className="px-4 py-3 bg-slate-50/50 border-b border-slate-100">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                <div className="border-b border-slate-100 bg-slate-50/50 px-4 py-3">
+                  <p className="text-[10px] font-bold tracking-widest text-slate-400 uppercase">
                     Akun Tersambung
                   </p>
-                  <p className="text-sm font-bold text-slate-700 truncate">
+                  <p className="truncate text-sm font-bold text-slate-700">
                     {user.name}
                   </p>
                 </div>
@@ -114,10 +114,10 @@ export default function Header() {
                       navigate("/dashboard/profile");
                       setOpen(false);
                     }}
-                    className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                    className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-blue-50 hover:text-blue-600"
                   >
                     <svg
-                      className="w-4 h-4"
+                      className="h-4 w-4"
                       fill="none"
                       stroke="currentColor"
                       strokeWidth="2"
@@ -141,7 +141,7 @@ export default function Header() {
           ) : (
             <button
               onClick={() => navigate("/login")}
-              className="hidden lg:block text-sm font-bold text-white bg-blue-600 px-6 py-2.5 rounded-full hover:bg-blue-700 transition-all active:scale-95"
+              className="hidden rounded-full bg-blue-600 px-6 py-2.5 text-sm font-bold text-white transition-all hover:bg-blue-700 active:scale-95 lg:block"
             >
               Masuk
             </button>

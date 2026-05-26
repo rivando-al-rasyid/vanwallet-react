@@ -53,7 +53,7 @@ export default function Register() {
   };
 
   return (
-    <main className="grid grid-cols-1 lg:grid-cols-2 min-h-screen bg-[#2948FF]">
+    <main className="grid min-h-screen grid-cols-1 bg-[#2948FF] lg:grid-cols-2">
       <section className="auth-panel">
         <div className="w-full max-w-175">
           <Brand />
@@ -68,7 +68,7 @@ export default function Register() {
           <SocialLogin />
 
           {(validationError || error) && (
-            <div className="mb-4 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-sm text-red-600 font-medium">
+            <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-600">
               {validationError || error}
             </div>
           )}

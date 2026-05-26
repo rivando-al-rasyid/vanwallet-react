@@ -12,7 +12,7 @@ export default function Hero() {
   return (
     <header className="bg-blue-600 text-white">
       <div className="mx-auto max-w-7xl px-4 pt-8 sm:px-6 sm:pt-10 lg:px-10 lg:pt-14">
-        <h1 className="mx-auto max-w-5xl text-center text-2xl font-semibold leading-tight tracking-tight sm:text-3xl lg:text-6xl">
+        <h1 className="mx-auto max-w-5xl text-center text-2xl leading-tight font-semibold tracking-tight sm:text-3xl lg:text-6xl">
           Experience the Future of Digital Payments with e-wallet
         </h1>
 
@@ -40,7 +40,7 @@ function PhoneMockup() {
         <img
           src={phoneSmallImage}
           alt="Secondary app screen"
-          className="absolute bottom-0 -right-6 z-20 w-28 drop-shadow-2xl sm:w-36 md:w-40 lg:w-52 lg:-right-10"
+          className="absolute -right-6 bottom-0 z-20 w-28 drop-shadow-2xl sm:w-36 md:w-40 lg:-right-10 lg:w-52"
         />
       </div>
     </div>
@@ -77,7 +77,11 @@ function DownloadButtons() {
 function PlayStoreButton() {
   return (
     <button className="flex w-full min-w-42.5 items-center justify-center gap-3 rounded-lg bg-white px-6 py-3 font-medium text-blue-600 shadow-lg transition hover:bg-gray-100 sm:w-auto">
-      <FontAwesomeIcon icon={faGooglePlay} height={ICON_SIZE} width={ICON_SIZE} />
+      <FontAwesomeIcon
+        icon={faGooglePlay}
+        height={ICON_SIZE}
+        width={ICON_SIZE}
+      />
       <span>Play Store</span>
     </button>
   );
@@ -95,7 +99,9 @@ function AppStoreButton() {
 function UserStats() {
   return (
     <div className="flex items-center gap-4 sm:gap-5">
-      <div className="text-3xl font-semibold leading-none sm:text-4xl lg:text-5xl">{USER_COUNT}</div>
+      <div className="text-3xl leading-none font-semibold sm:text-4xl lg:text-5xl">
+        {USER_COUNT}
+      </div>
       <div>
         <UserAvatars />
         <UserDescription />
@@ -122,7 +128,8 @@ function UserAvatars() {
 function UserDescription() {
   return (
     <p className="max-w-xs text-xs leading-5 text-white/80 sm:text-sm sm:leading-6">
-      Around the world, we already have over {USER_COUNT.toLowerCase()} happy users
+      Around the world, we already have over {USER_COUNT.toLowerCase()} happy
+      users
     </p>
   );
 }

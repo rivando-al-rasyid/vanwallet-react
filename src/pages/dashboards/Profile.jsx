@@ -65,7 +65,7 @@ export default function Profile() {
     <>
       {/* Page Title */}
       <div className="flex items-center gap-3">
-        <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-100">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
             <path
               fillRule="evenodd"
@@ -78,9 +78,9 @@ export default function Profile() {
         <h1 className="text-xl font-bold text-gray-800">Profile</h1>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 lg:p-8">
+      <div className="rounded-2xl bg-white p-4 shadow-sm sm:p-6 lg:p-8">
         {!reduxUser ? (
-          <div className="flex items-center justify-center py-20 text-gray-400 text-sm">
+          <div className="flex items-center justify-center py-20 text-sm text-gray-400">
             Memuat data profile...
           </div>
         ) : (
@@ -88,12 +88,12 @@ export default function Profile() {
             {/* Avatar Section */}
             <div className="flex flex-row items-center gap-6">
               {/* Avatar Image Container */}
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl border-2 border-gray-200 overflow-hidden bg-gray-100 flex items-center justify-center shrink-0">
+              <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl border-2 border-gray-200 bg-gray-100 sm:h-20 sm:w-20">
                 {form.avatar ? (
                   <img
                     src={form.avatar}
                     alt="avatar"
-                    className="w-full h-full object-cover"
+                    className="h-full w-full object-cover"
                   />
                 ) : (
                   <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
@@ -106,10 +106,10 @@ export default function Profile() {
               </div>
 
               {/* Buttons Container */}
-              <div className="flex flex-col gap-2 w-auto">
+              <div className="flex w-auto flex-col gap-2">
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition"
+                  className="flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
                 >
                   <svg
                     width="16"
@@ -127,7 +127,7 @@ export default function Profile() {
 
                 <button
                   onClick={handleDeleteAvatar}
-                  className="flex items-center justify-center gap-2 px-4 py-2 border border-red-400 text-red-500 text-sm font-medium rounded-xl hover:bg-red-50 transition"
+                  className="flex items-center justify-center gap-2 rounded-xl border border-red-400 px-4 py-2 text-sm font-medium text-red-500 transition hover:bg-red-50"
                 >
                   <svg
                     width="16"
@@ -146,7 +146,7 @@ export default function Profile() {
                 </button>
               </div>
             </div>
-            <div className="border-t border-gray-100 mb-8" />
+            <div className="mb-8 border-t border-gray-100" />
 
             {/* Hidden file input */}
             <input
@@ -158,13 +158,13 @@ export default function Profile() {
             />
 
             {/* Form Fields */}
-            <div className="flex flex-col gap-4 sm:gap-5 w-full">
+            <div className="flex w-full flex-col gap-4 sm:gap-5">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="mb-2 block text-sm font-semibold text-gray-700">
                   Full Name
                 </label>
                 <div className="relative">
-                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
+                  <span className="absolute top-1/2 left-3.5 -translate-y-1/2 text-gray-400">
                     <svg
                       width="16"
                       height="16"
@@ -183,17 +183,17 @@ export default function Profile() {
                     value={form.name}
                     onChange={handleChange}
                     placeholder="Enter Full Name"
-                    className="w-full pl-10 pr-4 py-2.5 sm:py-3 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition"
+                    className="w-full rounded-xl border border-gray-200 py-2.5 pr-4 pl-10 text-sm text-gray-700 placeholder-gray-400 transition outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 sm:py-3"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="mb-2 block text-sm font-semibold text-gray-700">
                   Phone
                 </label>
                 <div className="relative">
-                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
+                  <span className="absolute top-1/2 left-3.5 -translate-y-1/2 text-gray-400">
                     <svg
                       width="16"
                       height="16"
@@ -211,17 +211,17 @@ export default function Profile() {
                     value={form.phone}
                     onChange={handleChange}
                     placeholder="Enter Your Number Phone"
-                    className="w-full pl-10 pr-4 py-2.5 sm:py-3 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition"
+                    className="w-full rounded-xl border border-gray-200 py-2.5 pr-4 pl-10 text-sm text-gray-700 placeholder-gray-400 transition outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 sm:py-3"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="mb-2 block text-sm font-semibold text-gray-700">
                   Email
                 </label>
                 <div className="relative">
-                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
+                  <span className="absolute top-1/2 left-3.5 -translate-y-1/2 text-gray-400">
                     <svg
                       width="16"
                       height="16"
@@ -240,44 +240,46 @@ export default function Profile() {
                     value={form.email}
                     onChange={handleChange}
                     placeholder="Enter Your Email"
-                    className="w-full pl-10 pr-4 py-2.5 sm:py-3 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition"
+                    className="w-full rounded-xl border border-gray-200 py-2.5 pr-4 pl-10 text-sm text-gray-700 placeholder-gray-400 transition outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 sm:py-3"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                <label className="mb-1 block text-sm font-semibold text-gray-700">
                   Password
                 </label>
                 <button
                   type="button"
                   onClick={() => navigate("/dashboard/profile/change-password")}
-                  className="text-sm text-blue-600 hover:underline font-medium"
+                  className="text-sm font-medium text-blue-600 hover:underline"
                 >
                   Change Password
                 </button>
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                <label className="mb-1 block text-sm font-semibold text-gray-700">
                   Pin
                 </label>
                 <button
                   type="button"
                   onClick={() => navigate("/dashboard/profile/change-pin")}
-                  className="text-sm text-blue-600 hover:underline font-medium"
+                  className="text-sm font-medium text-blue-600 hover:underline"
                 >
                   Change Pin
                 </button>
               </div>
 
-              {profileError && <p className="text-sm text-red-500">{profileError}</p>}
+              {profileError && (
+                <p className="text-sm text-red-500">{profileError}</p>
+              )}
               {success && <p className="text-sm text-green-600">{success}</p>}
 
               <button
                 onClick={handleSubmit}
                 disabled={profileLoading}
-                className="w-full py-3 sm:py-3.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 disabled:opacity-60 transition mt-2"
+                className="mt-2 w-full rounded-xl bg-blue-600 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-60 sm:py-3.5"
               >
                 {profileLoading ? "Menyimpan..." : "Submit"}
               </button>

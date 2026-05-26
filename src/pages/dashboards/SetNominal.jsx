@@ -99,10 +99,10 @@ export default function SetNominal() {
     <>
       {/* Header & Stepper */}
       <div className="mb-8">
-        <div className="flex items-center gap-3 mb-6">
+        <div className="mb-6 flex items-center gap-3">
           <button
             onClick={() => navigate(-1)}
-            className="text-gray-400 hover:text-blue-600 transition-colors"
+            className="text-gray-400 transition-colors hover:text-blue-600"
           >
             <svg
               width="20"
@@ -140,20 +140,18 @@ export default function SetNominal() {
 
       {/* Main Content Card */}
       <div className="card min-h-150">
-        <h2 className="section-title mb-6">
-          People Information
-        </h2>
+        <h2 className="section-title mb-6">People Information</h2>
 
         {loading && (
-          <div className="flex flex-col items-center justify-center py-20 gap-3 text-gray-400">
-            <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full" />
+          <div className="flex flex-col items-center justify-center gap-3 py-20 text-gray-400">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent" />
             <span className="text-sm">Mengambil data kontak...</span>
           </div>
         )}
 
         {!loading && error && (
-          <div className="flex flex-col items-center justify-center py-20 gap-3">
-            <p className="text-red-500 font-semibold text-sm">{error}</p>
+          <div className="flex flex-col items-center justify-center gap-3 py-20">
+            <p className="text-sm font-semibold text-red-500">{error}</p>
             <button
               onClick={() => navigate("/dashboard/transfer")}
               className="text-xs text-blue-600 underline"
@@ -166,11 +164,11 @@ export default function SetNominal() {
         {!loading && !error && selectedContact && (
           <>
             {/* Contact Card */}
-            <div className="flex items-center gap-4 bg-gray-50 rounded-xl p-4 mb-8">
+            <div className="mb-8 flex items-center gap-4 rounded-xl bg-gray-50 p-4">
               <img
                 src={selectedContact.img}
                 alt={selectedContact.name}
-                className="w-14 h-14 rounded-xl object-cover shrink-0"
+                className="h-14 w-14 shrink-0 rounded-xl object-cover"
                 onError={(e) => {
                   e.currentTarget.src =
                     "https://ui-avatars.com/api/?name=User&background=EBF4FF&color=7F9CF5";
@@ -182,7 +180,7 @@ export default function SetNominal() {
                 </p>
                 <p className="text-sm text-gray-500">{selectedContact.phone}</p>
                 {selectedContact.verified && (
-                  <span className="inline-flex items-center gap-1 mt-1 text-xs bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full font-medium">
+                  <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-600">
                     <svg
                       width="12"
                       height="12"
@@ -197,7 +195,7 @@ export default function SetNominal() {
                   </span>
                 )}
               </div>
-              <button className="text-gray-300 hover:text-yellow-400 transition-colors ml-auto shrink-0">
+              <button className="ml-auto shrink-0 text-gray-300 transition-colors hover:text-yellow-400">
                 <svg
                   width="20"
                   height="20"
@@ -213,15 +211,15 @@ export default function SetNominal() {
 
             {/* Amount */}
             <div className="mb-5">
-              <label className="block text-sm font-semibold text-gray-700 mb-1">
+              <label className="mb-1 block text-sm font-semibold text-gray-700">
                 Amount
               </label>
-              <p className="text-xs text-gray-400 mb-2">
+              <p className="mb-2 text-xs text-gray-400">
                 Type the amount you want to transfer and then press continue to
                 the next steps.
               </p>
               <div className="relative">
-                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
+                <span className="absolute top-1/2 left-3.5 -translate-y-1/2 text-gray-400">
                   <svg
                     width="16"
                     height="16"
@@ -239,17 +237,17 @@ export default function SetNominal() {
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                   placeholder="Enter Nominal Transfer"
-                  className="w-full pl-10 pr-4 py-3 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition"
+                  className="w-full rounded-xl border border-gray-200 py-3 pr-4 pl-10 text-sm text-gray-700 placeholder-gray-400 transition outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
                 />
               </div>
             </div>
 
             {/* Notes */}
             <div className="mb-8">
-              <label className="block text-sm font-semibold text-gray-700 mb-1">
+              <label className="mb-1 block text-sm font-semibold text-gray-700">
                 Notes
               </label>
-              <p className="text-xs text-gray-400 mb-2">
+              <p className="mb-2 text-xs text-gray-400">
                 You can add some notes for this transfer such as payment coffee
                 or something.
               </p>
@@ -258,14 +256,11 @@ export default function SetNominal() {
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Enter Some Notes"
                 rows={5}
-                className="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 placeholder-gray-400 text-gray-700 transition resize-none"
+                className="w-full resize-none rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-700 placeholder-gray-400 transition outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
               />
             </div>
 
-            <button
-              onClick={handleOpenPinModal}
-              className="btn-primary w-full"
-            >
+            <button onClick={handleOpenPinModal} className="btn-primary w-full">
               Submit &amp; Transfer
             </button>
           </>

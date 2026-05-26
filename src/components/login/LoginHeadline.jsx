@@ -9,10 +9,10 @@ import { memo } from "react";
 const LoginHeadline = memo(function LoginHeadline({ title, text }) {
   return (
     <div className="mb-10">
-      <h2 className="text-2xl font-extrabold text-[#3A3D42] leading-tight mb-4">
+      <h2 className="mb-4 text-2xl leading-tight font-extrabold text-[#3A3D42]">
         {title}
       </h2>
-      <p className="text-base text-slate-400 leading-relaxed">{text}</p>
+      <p className="text-base leading-relaxed text-slate-400">{text}</p>
     </div>
   );
 });

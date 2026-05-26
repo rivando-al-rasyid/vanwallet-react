@@ -5,14 +5,14 @@ import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 const InputLabel = memo(({ htmlFor, label }) => (
   <label
     htmlFor={htmlFor}
-    className="text-sm font-bold text-[#3A3D42] ml-1 block"
+    className="ml-1 block text-sm font-bold text-[#3A3D42]"
   >
     {label}
   </label>
 ));
 
 const InputIcon = memo(({ icon }) => (
-  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#6379F4] transition-colors">
+  <div className="absolute top-1/2 left-4 -translate-y-1/2 text-slate-300 transition-colors group-focus-within:text-[#6379F4]">
     <FontAwesomeIcon icon={icon} />
   </div>
 ));
@@ -20,7 +20,7 @@ const InputIcon = memo(({ icon }) => (
 const InputField = memo(({ paddingClasses, className, ...props }) => (
   <input
     {...props}
-    className={`w-full bg-slate-50 border border-transparent focus:bg-white text-sm text-[#3A3D42] py-4 rounded-2xl focus:border-[#6379F4] outline-none transition-all placeholder:text-slate-300 ${paddingClasses} ${className || ""}`}
+    className={`w-full rounded-2xl border border-transparent bg-slate-50 py-4 text-sm text-[#3A3D42] transition-all outline-none placeholder:text-slate-300 focus:border-[#6379F4] focus:bg-white ${paddingClasses} ${className || ""}`}
   />
 ));
 
@@ -52,7 +52,7 @@ const Input = memo(function Input({
     <div className={`space-y-2 ${className}`}>
       {label && <InputLabel htmlFor={inputId} label={label} />}
 
-      <div className="relative group">
+      <div className="group relative">
         {icon && <InputIcon icon={icon} />}
 
         <InputField
@@ -71,7 +71,7 @@ const Input = memo(function Input({
           <button
             type="button"
             onClick={handleToggle}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 hover:text-[#6379F4] focus:outline-none transition-colors"
+            className="absolute top-1/2 right-4 -translate-y-1/2 text-slate-300 transition-colors hover:text-[#6379F4] focus:outline-none"
             aria-label={showPassword ? "Hide password" : "Show password"}
           >
             <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />

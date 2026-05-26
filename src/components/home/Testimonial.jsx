@@ -22,7 +22,7 @@ export default function Testimonial() {
 
         <div className="relative mt-8 sm:mt-14">
           <button
-            className="absolute left-0 top-1/2 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700 shadow md:flex lg:h-11 lg:w-11"
+            className="absolute top-1/2 left-0 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700 shadow md:flex lg:h-11 lg:w-11"
             aria-label="Previous testimonial"
           >
             <ArrowLeft size={16} />
@@ -34,7 +34,9 @@ export default function Testimonial() {
               alt={TESTIMONIAL.name}
               className="mx-auto h-12 w-12 rounded-full border-3 border-white/20 object-cover sm:h-16 sm:w-16 sm:border-4"
             />
-            <h3 className="mt-3 text-lg font-semibold sm:mt-4 sm:text-xl">{TESTIMONIAL.name}</h3>
+            <h3 className="mt-3 text-lg font-semibold sm:mt-4 sm:text-xl">
+              {TESTIMONIAL.name}
+            </h3>
             <div
               className="mt-2 flex justify-center gap-1 text-yellow-300 sm:mt-3"
               aria-label={`Rating: ${TESTIMONIAL.rating} out of 5`}
@@ -50,7 +52,7 @@ export default function Testimonial() {
           </div>
 
           <button
-            className="absolute right-0 top-1/2 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-blue-600 text-white shadow md:flex lg:h-11 lg:w-11"
+            className="absolute top-1/2 right-0 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-blue-600 text-white shadow md:flex lg:h-11 lg:w-11"
             aria-label="Next testimonial"
           >
             <ArrowRight size={16} />
