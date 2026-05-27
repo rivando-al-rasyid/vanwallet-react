@@ -1,6 +1,6 @@
-// src/hooks/useAuth.js
 import { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { clearToken } from "../utils/api";
 import { loginUser, registerUser } from "../utils/auth";
 import {
   clearAuth,
@@ -37,8 +37,8 @@ export function useAuth() {
       dispatch(setAuthError(null));
       try {
         const created = await registerUser({
-          ...data,
-          name: data.email?.split("@")[0] || "User",
+          email: data.email,
+          password: data.password,
         });
         dispatch(setUser(created));
         return created;
@@ -53,6 +53,7 @@ export function useAuth() {
   );
 
   const logout = useCallback(() => {
+    clearToken();
     dispatch(clearAuth());
   }, [dispatch]);
 

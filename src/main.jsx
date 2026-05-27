@@ -11,7 +11,7 @@ import ProtectedRoute from "./components/ProtectedRoute.jsx"; // 👈 import
 import Login from "./pages/auth/Login.jsx";
 import Register from "./pages/auth/Register.jsx";
 import ForgotPassword from "./pages/auth/ForgotPassword.jsx";
-import LoginPin from "./pages/auth/LoginPin.jsx";
+import AskPin from "./pages/auth/AskPin.jsx";
 import Index from "./pages/dashboards/Index.jsx";
 import Transfer from "./pages/dashboards/Transfer.jsx";
 import History from "./pages/dashboards/History.jsx";
@@ -33,7 +33,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           {/* Guest-only routes */}
           <Route path="login">
             <Route index element={<Login />} />
-            <Route path="pin" element={<LoginPin />} />
+            <Route path="pin" element={<AskPin />} />
           </Route>
           <Route path="register" element={<Register />} />
           <Route path="forgotpassword" element={<ForgotPassword />} />

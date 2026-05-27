@@ -1,105 +1,53 @@
-const BASE_URL = import.meta.env.VITE_API_BASE_URL;
-const API_ROOT = String(BASE_URL || "").replace(/\/+$/, "");
-
-async function requestJson(
-  path,
-  options = {},
-  fallbackMessage = "Request failed",
-) {
-  const res = await fetch(`${API_ROOT}${path}`, options);
-  const data = await res.json();
-  if (!res.ok) throw new Error(data?.message || fallbackMessage);
-  return data;
-}
+import {
+  clearToken,
+  fetchUserInfo,
+  mapUserFromInfo,
+  requestData,
+  requestJson,
+  setToken,
+} from "./api";
 
 export async function loginUser({ email, password }) {
-  const users = await getAllUsers();
-  const match = users.find(
-    (user) => user.email === email && user.password === password,
-  );
-  if (!match) throw new Error("Invalid email or password");
-  return match;
-}
-
-// Simulated register: POST new user
-export async function registerUser({ email, password }) {
-  return requestJson(
-    "/user",
+  const envelope = await requestJson(
+    "/auth/login",
     {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    },
+    "Login failed",
+  );
+
+  const token = envelope.data;
+  setToken(token);
+
+  const info = await fetchUserInfo();
+  return mapUserFromInfo(info, token);
+}
+
+export async function registerUser({ email, password }) {
+  const user = await requestData(
+    "/auth/register",
+    {
+      method: "POST",
       body: JSON.stringify({ email, password }),
     },
     "Registration failed",
   );
+
+  const loggedIn = await loginUser({ email, password });
+  return { ...loggedIn, id: user?.id || loggedIn.id };
 }
 
-// GET single user by ID
-export async function getUserById(id) {
-  return requestJson(`/user/${id}`, {}, "Failed to fetch user data");
-}
-
-// GET all users (for Transfer page contact list)
-export async function getUsers() {
-  return getAllUsers();
-}
-
-// PUT update user by ID
-export async function updateUser(id, payload) {
-  return requestJson(
-    `/user/${id}`,
+export async function verifyPin(pin) {
+  await requestJson(
+    "/auth/pin/verify",
     {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+      method: "POST",
+      body: JSON.stringify({ pin }),
     },
-    "Failed to update user data",
+    "Invalid PIN. Please try again.",
   );
-}
-
-export async function verifyPin(userId, inputPin) {
-  if (!userId) throw new Error("User session not found");
-
-  const user = await requestJson(
-    `/user/${userId}`,
-    {},
-    "Failed to verify user",
-  );
-
-  // Checking if the PIN matches (assuming 'pin' is a field in your user object)
-  if (String(user.pin) !== String(inputPin)) {
-    throw new Error("Invalid PIN. Please try again.");
-  }
-
   return true;
 }
 
-// PUT change password — verifies old password first, then updates
-export async function changePassword({ userId, oldPassword, newPassword }) {
-  const user = await requestJson(`/user/${userId}`, {}, "Failed to fetch user");
-  if (user.password !== oldPassword) {
-    throw new Error("Password lama tidak sesuai.");
-  }
-  return requestJson(
-    `/user/${userId}`,
-    {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ password: newPassword }),
-    },
-    "Failed to change password",
-  );
-}
-
-// PUT change PIN
-export async function changePinApi(id, newPin) {
-  return requestJson(
-    `/user/${id}`,
-    {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ pin: newPin }),
-    },
-    "Failed to change PIN",
-  );
-}
+export { clearToken, fetchUserInfo };
