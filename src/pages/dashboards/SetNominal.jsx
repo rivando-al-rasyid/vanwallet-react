@@ -1,20 +1,19 @@
-// src/pages/transfer/SetNominal.jsx
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router";
+import { useParams, useNavigate, useLocation } from "react-router";
 import Stepper from "../../components/Stepper";
-import { getUserById, verifyPin } from "../../utils/auth";
+import { createTransfer, fetchSummary } from "../../utils/api";
 import TransferModal from "./TransferModal";
 import Toast from "../../components/Toast";
-import { useAuth } from "../../hooks/useAuth";
 
 export default function SetNominal() {
-  const { id } = useParams();
+  const { id: recipientWalletId } = useParams();
   const navigate = useNavigate();
-  const { user: currentUser } = useAuth();
+  const location = useLocation();
 
   const [amount, setAmount] = useState("");
   const [notes, setNotes] = useState("");
   const [selectedContact, setSelectedContact] = useState(null);
+  const [senderWalletId, setSenderWalletId] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [toast, setToast] = useState({
@@ -23,31 +22,43 @@ export default function SetNominal() {
     type: "info",
   });
 
-  // "pin" | "failed" | "success" | null
   const [modalStep, setModalStep] = useState(null);
 
   useEffect(() => {
-    async function fetchContact() {
+    async function initPage() {
       setLoading(true);
       setError("");
       try {
-        const user = await getUserById(id);
-        if (!user) throw new Error("Kontak tidak ditemukan.");
-        setSelectedContact({
-          id: user.id,
-          name: user.name,
-          phone: user.phone,
-          img: user.avatar,
-          verified: true,
-        });
+        const contact = location.state?.contact;
+        if (!contact && !recipientWalletId) {
+          throw new Error("Kontak tidak ditemukan.");
+        }
+
+        const summary = await fetchSummary();
+        const defaultWallet = summary?.wallets?.[0];
+        if (!defaultWallet?.id) {
+          throw new Error("Wallet pengirim tidak ditemukan.");
+        }
+
+        setSenderWalletId(defaultWallet.id);
+        setSelectedContact(
+          contact || {
+            walletId: recipientWalletId,
+            name: "Recipient",
+            phone: recipientWalletId,
+            img: `https://ui-avatars.com/api/?name=Recipient&background=EBF4FF&color=7F9CF5`,
+            verified: true,
+          },
+        );
       } catch (err) {
         setError(err.message);
       } finally {
         setLoading(false);
       }
     }
-    fetchContact();
-  }, [id]);
+
+    initPage();
+  }, [location.state, recipientWalletId]);
 
   const handleOpenPinModal = () => {
     if (!amount || Number(amount) <= 0) {
@@ -63,8 +74,13 @@ export default function SetNominal() {
 
   const handlePinSubmit = async (pin) => {
     try {
-      await verifyPin(currentUser?.id, pin);
-      // TODO: call actual transfer API here
+      await createTransfer({
+        senderWalletId,
+        recipientWalletId: selectedContact?.walletId || recipientWalletId,
+        amount: Number(amount),
+        note: notes,
+        pin,
+      });
       setModalStep("success");
       setToast({
         open: true,
@@ -75,7 +91,7 @@ export default function SetNominal() {
       setModalStep("failed");
       setToast({
         open: true,
-        message: err.message || "PIN tidak valid. Coba lagi.",
+        message: err.message || "Transfer gagal. Coba lagi.",
         type: "error",
       });
     }
@@ -97,7 +113,6 @@ export default function SetNominal() {
 
   return (
     <>
-      {/* Header & Stepper */}
       <div className="mb-8">
         <div className="mb-6 flex items-center gap-3">
           <button
@@ -138,7 +153,6 @@ export default function SetNominal() {
         <Stepper currentStep={2} />
       </div>
 
-      {/* Main Content Card */}
       <div className="card min-h-150">
         <h2 className="section-title mb-6">People Information</h2>
 
@@ -163,7 +177,6 @@ export default function SetNominal() {
 
         {!loading && !error && selectedContact && (
           <>
-            {/* Contact Card */}
             <div className="mb-8 flex items-center gap-4 rounded-xl bg-gray-50 p-4">
               <img
                 src={selectedContact.img}
@@ -195,21 +208,8 @@ export default function SetNominal() {
                   </span>
                 )}
               </div>
-              <button className="ml-auto shrink-0 text-gray-300 transition-colors hover:text-yellow-400">
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                >
-                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                </svg>
-              </button>
             </div>
 
-            {/* Amount */}
             <div className="mb-5">
               <label className="mb-1 block text-sm font-semibold text-gray-700">
                 Amount
@@ -242,7 +242,6 @@ export default function SetNominal() {
               </div>
             </div>
 
-            {/* Notes */}
             <div className="mb-8">
               <label className="mb-1 block text-sm font-semibold text-gray-700">
                 Notes

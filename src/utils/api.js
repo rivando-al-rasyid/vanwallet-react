@@ -46,7 +46,8 @@ export function mapUserFromInfo(info, token) {
     email: info?.email || "",
     name: info?.full_name || info?.email?.split("@")[0] || "User",
     phone: info?.phone || "",
-    avatar: resolveAssetUrl(info?.photo) ||
+    avatar:
+      resolveAssetUrl(info?.photo) ||
       `https://ui-avatars.com/api/?name=${encodeURIComponent(info?.full_name || info?.email || "User")}&background=EBF4FF&color=7F9CF5`,
     currentBalance: info?.current_balance ?? 0,
     pin: info?.pin_hash || info?.pin || null,
@@ -55,7 +56,8 @@ export function mapUserFromInfo(info, token) {
 }
 
 export function mapHistoryItem(item) {
-  const direction = item.direction || (INCOME_TYPES.has(item.type) ? "income" : "expense");
+  const direction =
+    item.direction || (INCOME_TYPES.has(item.type) ? "income" : "expense");
   const name = item.title || item.note || item.type || "Transaction";
   return {
     id: item.id,
@@ -216,12 +218,28 @@ export async function changePasswordApi(oldPassword, newPassword) {
   );
 }
 
-export async function changePinApi(newPin) {
+// First-time PIN setup (no old_pin required)
+export async function setPinApi(pin) {
   await requestJson(
     "/profile/change/pin",
     {
       method: "POST",
-      body: JSON.stringify({ pin_hash: newPin }),
+      body: JSON.stringify({ pin_hash: pin }),
+    },
+    "Failed to set PIN",
+  );
+}
+
+// Change existing PIN (requires current PIN verification)
+export async function changePinApi(currentPin, newPin) {
+  await requestJson(
+    "/profile/change/pin",
+    {
+      method: "POST",
+      body: JSON.stringify({
+        old_pin: currentPin,
+        pin_hash: newPin,
+      }),
     },
     "Failed to change PIN",
   );

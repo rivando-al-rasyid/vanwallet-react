@@ -1,26 +1,44 @@
-// src/hooks/useProfile.js
 import { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  updateUser,
-  changePassword as changePasswordApi,
+  changePasswordApi,
   changePinApi,
-} from "../utils/auth";
+  fetchUserInfo,
+  mapUserFromInfo,
+  updateProfile,
+} from "../utils/api";
 import { mergeUser, setProfileError, setProfileLoading } from "../store/store";
 
 export function useProfile() {
   const dispatch = useDispatch();
   const { user, profileStatus } = useSelector((state) => state.auth);
 
-  const updateProfile = useCallback(
-    async (payload) => {
-      if (!user?.id) throw new Error("User not authenticated");
+  const loadProfile = useCallback(async () => {
+    dispatch(setProfileLoading(true));
+    dispatch(setProfileError(null));
+    try {
+      const info = await fetchUserInfo();
+      const mapped = mapUserFromInfo(info, user?.token);
+      dispatch(mergeUser(mapped));
+      return mapped;
+    } catch (err) {
+      dispatch(setProfileError(err.message));
+      throw err;
+    } finally {
+      dispatch(setProfileLoading(false));
+    }
+  }, [dispatch, user?.token]);
+
+  const updateProfileFields = useCallback(
+    async ({ fullName, phone, photoFile }) => {
       dispatch(setProfileLoading(true));
       dispatch(setProfileError(null));
       try {
-        const updated = await updateUser(user.id, payload);
-        dispatch(mergeUser(updated));
-        return updated;
+        await updateProfile({ fullName, phone, photoFile });
+        const info = await fetchUserInfo();
+        const mapped = mapUserFromInfo(info, user?.token);
+        dispatch(mergeUser(mapped));
+        return mapped;
       } catch (err) {
         dispatch(setProfileError(err.message));
         throw err;
@@ -28,7 +46,7 @@ export function useProfile() {
         dispatch(setProfileLoading(false));
       }
     },
-    [dispatch, user?.id],
+    [dispatch, user?.token],
   );
 
   const changePassword = useCallback(
@@ -36,7 +54,7 @@ export function useProfile() {
       dispatch(setProfileLoading(true));
       dispatch(setProfileError(null));
       try {
-        await changePasswordApi({ userId: user.id, oldPassword, newPassword });
+        await changePasswordApi(oldPassword, newPassword);
       } catch (err) {
         dispatch(setProfileError(err.message));
         throw err;
@@ -44,16 +62,15 @@ export function useProfile() {
         dispatch(setProfileLoading(false));
       }
     },
-    [dispatch, user?.id],
+    [dispatch],
   );
 
   const changePin = useCallback(
-    async (newPin) => {
+    async (currentPin, newPin) => {
       dispatch(setProfileLoading(true));
       dispatch(setProfileError(null));
       try {
-        const updated = await changePinApi(user.id, newPin);
-        dispatch(mergeUser(updated));
+        await changePinApi(currentPin, newPin);
       } catch (err) {
         dispatch(setProfileError(err.message));
         throw err;
@@ -61,15 +78,18 @@ export function useProfile() {
         dispatch(setProfileLoading(false));
       }
     },
-    [dispatch, user?.id],
+    [dispatch],
   );
 
   return {
     user,
-    updateProfile,
+    loadProfile,
+    updateProfile: updateProfileFields,
     changePassword,
     changePin,
     loading: profileStatus?.loading ?? false,
+    profileLoading: profileStatus?.loading ?? false,
     error: profileStatus?.error ?? null,
+    profileError: profileStatus?.error ?? null,
   };
 }

@@ -1,74 +1,51 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "react-router";
 import TableRow from "../../components/TableRow";
 import SearchInput from "../../components/SearchInput";
 import { Pagination } from "../../components/Pagination";
-import { getUsers } from "../../utils/auth";
+import { fetchHistory } from "../../utils/api";
 
 const ITEMS_PER_PAGE = 6;
-
-const hardcodedMeta = [
-  { amount: "Rp.50.000", type: "income" },
-  { amount: "Rp.50.000", type: "expense" },
-  { amount: "Rp.75.000", type: "income" },
-  { amount: "Rp.50.000", type: "expense" },
-  { amount: "Rp.100.000", type: "income" },
-  { amount: "Rp.25.000", type: "expense" },
-  { amount: "Rp.60.000", type: "income" },
-  { amount: "Rp.80.000", type: "expense" },
-  { amount: "Rp.50.000", type: "income" },
-  { amount: "Rp.75.000", type: "expense" },
-];
 
 export default function History() {
   const [searchParams, setSearchParams] = useSearchParams();
   const search = searchParams.get("search") || "";
   const currentPage = Number(searchParams.get("page") || "1");
   const [data, setData] = useState([]);
+  const [totalItems, setTotalItems] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    async function fetchHistory() {
-      setLoading(true);
-      setError("");
-      try {
-        const users = await getUsers();
-        const mapped = users.map((u, index) => ({
-          id: u.id,
-          img: u.avatar,
-          name: u.name,
-          phone: u.phone,
-          amount: hardcodedMeta[index % hardcodedMeta.length].amount,
-          type: hardcodedMeta[index % hardcodedMeta.length].type,
-        }));
-        setData(mapped);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
+  const loadHistory = useCallback(async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const result = await fetchHistory({
+        page: currentPage,
+        limit: ITEMS_PER_PAGE,
+      });
+      setData(result.items);
+      setTotalItems(result.total);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
+  }, [currentPage]);
 
-    fetchHistory();
-  }, []);
+  useEffect(() => {
+    loadHistory();
+  }, [loadHistory]);
 
   const filtered = data.filter(
     (item) =>
       item.name.toLowerCase().includes(search.toLowerCase()) ||
-      item.phone.includes(search),
+      String(item.phone || "").includes(search),
   );
 
-  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
-  const safePage = Math.min(Math.max(currentPage, 1), totalPages || 1);
-  const paginated = filtered.slice(
-    (safePage - 1) * ITEMS_PER_PAGE,
-    safePage * ITEMS_PER_PAGE,
-  );
-
-  const handleDelete = (id) => {
-    setData((prev) => prev.filter((item) => item.id !== id));
-  };
+  const totalPages = Math.max(1, Math.ceil(totalItems / ITEMS_PER_PAGE));
+  const safePage = Math.min(Math.max(currentPage, 1), totalPages);
+  const paginated = search ? filtered : data;
 
   const handleSearchChange = (e) => {
     const nextSearch = e.target.value;
@@ -94,7 +71,6 @@ export default function History() {
 
   return (
     <>
-      {/* Page Title */}
       <div className="mb-4 flex items-center gap-2 sm:mb-6 sm:gap-3">
         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-100 sm:h-10 sm:w-10">
           <svg
@@ -129,9 +105,7 @@ export default function History() {
         <h1 className="section-title">History Transaction</h1>
       </div>
 
-      {/* Main Card */}
       <div className="card min-h-150">
-        {/* Card Header */}
         <div className="flex flex-col gap-4 border-b border-gray-100 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-5 lg:px-8">
           <h2 className="section-title order-2 sm:order-1">Find Transaction</h2>
           <div className="order-1 sm:order-2">
@@ -174,7 +148,7 @@ export default function History() {
           <div className="flex flex-col items-center justify-center gap-3 py-20">
             <p className="text-sm font-semibold text-red-500">{error}</p>
             <button
-              onClick={() => window.location.reload()}
+              onClick={loadHistory}
               className="text-xs text-blue-600 underline"
             >
               Coba lagi
@@ -185,19 +159,22 @@ export default function History() {
         {!loading && !error && (
           <>
             <div className="overflow-x-auto">
-              <TableRow
-                items={paginated}
-                remove={true}
-                onDelete={handleDelete}
-              />
+              <TableRow items={paginated} remove={false} />
             </div>
-            <Pagination
-              currentPage={safePage}
-              totalPages={totalPages}
-              onPageChange={handlePageChange}
-              visibleCount={paginated.length}
-              totalItems={filtered.length}
-            />
+            {!search && (
+              <Pagination
+                currentPage={safePage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+                visibleCount={paginated.length}
+                totalItems={totalItems}
+              />
+            )}
+            {search && paginated.length === 0 && (
+              <div className="py-10 text-center text-sm text-slate-400">
+                No matching transactions on this page.
+              </div>
+            )}
           </>
         )}
       </div>

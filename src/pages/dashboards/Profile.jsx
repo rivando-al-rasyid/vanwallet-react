@@ -1,4 +1,4 @@
-import { useState, useRef, useContext, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { useSelector } from "react-redux";
 import { useProfile } from "../../hooks/useProfile";
@@ -6,7 +6,8 @@ import { useProfile } from "../../hooks/useProfile";
 export default function Profile() {
   const navigate = useNavigate();
   const reduxUser = useSelector((state) => state.auth.user);
-  const { updateProfile, profileLoading, profileError } = useProfile();
+  const { updateProfile, loadProfile, profileLoading, profileError } =
+    useProfile();
 
   const [form, setForm] = useState({
     name: "",
@@ -14,10 +15,14 @@ export default function Profile() {
     email: "",
     avatar: "",
   });
+  const [photoFile, setPhotoFile] = useState(null);
   const [success, setSuccess] = useState("");
   const fileInputRef = useRef(null);
 
-  // Sync form from Redux user (covers initial load + after mergeUser updates)
+  useEffect(() => {
+    loadProfile().catch(() => {});
+  }, [loadProfile]);
+
   useEffect(() => {
     if (reduxUser) {
       setForm({
@@ -36,6 +41,7 @@ export default function Profile() {
   const handleAvatarChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
+    setPhotoFile(file);
     const reader = new FileReader();
     reader.onload = () =>
       setForm((prev) => ({ ...prev, avatar: reader.result }));
@@ -44,26 +50,26 @@ export default function Profile() {
 
   const handleDeleteAvatar = () => {
     setForm((prev) => ({ ...prev, avatar: "" }));
+    setPhotoFile(null);
   };
 
   const handleSubmit = async () => {
     setSuccess("");
     try {
       await updateProfile({
-        name: form.name,
+        fullName: form.name,
         phone: form.phone,
-        email: form.email,
-        avatar: form.avatar,
+        photoFile,
       });
+      setPhotoFile(null);
       setSuccess("Profile berhasil diupdate!");
     } catch {
-      // error is handled by context/Redux via profileError
+      // error is handled via profileError
     }
   };
 
   return (
     <>
-      {/* Page Title */}
       <div className="flex items-center gap-3">
         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-100">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -85,9 +91,7 @@ export default function Profile() {
           </div>
         ) : (
           <>
-            {/* Avatar Section */}
             <div className="flex flex-row items-center gap-6">
-              {/* Avatar Image Container */}
               <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl border-2 border-gray-200 bg-gray-100 sm:h-20 sm:w-20">
                 {form.avatar ? (
                   <img
@@ -105,23 +109,11 @@ export default function Profile() {
                 )}
               </div>
 
-              {/* Buttons Container */}
               <div className="flex w-auto flex-col gap-2">
                 <button
                   onClick={() => fileInputRef.current?.click()}
                   className="flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
                 >
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
-                    <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
-                  </svg>
                   Change Profile
                 </button>
 
@@ -129,26 +121,12 @@ export default function Profile() {
                   onClick={handleDeleteAvatar}
                   className="flex items-center justify-center gap-2 rounded-xl border border-red-400 px-4 py-2 text-sm font-medium text-red-500 transition hover:bg-red-50"
                 >
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <polyline points="3 6 5 6 21 6" />
-                    <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
-                    <path d="M10 11v6M14 11v6" />
-                    <path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" />
-                  </svg>
                   Delete Profile
                 </button>
               </div>
             </div>
             <div className="mb-8 border-t border-gray-100" />
 
-            {/* Hidden file input */}
             <input
               ref={fileInputRef}
               type="file"
@@ -157,92 +135,46 @@ export default function Profile() {
               onChange={handleAvatarChange}
             />
 
-            {/* Form Fields */}
             <div className="flex w-full flex-col gap-4 sm:gap-5">
               <div>
                 <label className="mb-2 block text-sm font-semibold text-gray-700">
                   Full Name
                 </label>
-                <div className="relative">
-                  <span className="absolute top-1/2 left-3.5 -translate-y-1/2 text-gray-400">
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    >
-                      <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
-                      <circle cx="12" cy="7" r="4" />
-                    </svg>
-                  </span>
-                  <input
-                    type="text"
-                    name="name"
-                    value={form.name}
-                    onChange={handleChange}
-                    placeholder="Enter Full Name"
-                    className="w-full rounded-xl border border-gray-200 py-2.5 pr-4 pl-10 text-sm text-gray-700 placeholder-gray-400 transition outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 sm:py-3"
-                  />
-                </div>
+                <input
+                  type="text"
+                  name="name"
+                  value={form.name}
+                  onChange={handleChange}
+                  placeholder="Enter Full Name"
+                  className="w-full rounded-xl border border-gray-200 py-2.5 pr-4 pl-4 text-sm text-gray-700 placeholder-gray-400 transition outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 sm:py-3"
+                />
               </div>
 
               <div>
                 <label className="mb-2 block text-sm font-semibold text-gray-700">
                   Phone
                 </label>
-                <div className="relative">
-                  <span className="absolute top-1/2 left-3.5 -translate-y-1/2 text-gray-400">
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    >
-                      <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.68A2 2 0 012 .99h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" />
-                    </svg>
-                  </span>
-                  <input
-                    type="text"
-                    name="phone"
-                    value={form.phone}
-                    onChange={handleChange}
-                    placeholder="Enter Your Number Phone"
-                    className="w-full rounded-xl border border-gray-200 py-2.5 pr-4 pl-10 text-sm text-gray-700 placeholder-gray-400 transition outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 sm:py-3"
-                  />
-                </div>
+                <input
+                  type="text"
+                  name="phone"
+                  value={form.phone}
+                  onChange={handleChange}
+                  placeholder="+628123456789"
+                  className="w-full rounded-xl border border-gray-200 py-2.5 pr-4 pl-4 text-sm text-gray-700 placeholder-gray-400 transition outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 sm:py-3"
+                />
               </div>
 
               <div>
                 <label className="mb-2 block text-sm font-semibold text-gray-700">
                   Email
                 </label>
-                <div className="relative">
-                  <span className="absolute top-1/2 left-3.5 -translate-y-1/2 text-gray-400">
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    >
-                      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-                      <polyline points="22,6 12,13 2,6" />
-                    </svg>
-                  </span>
-                  <input
-                    type="email"
-                    name="email"
-                    value={form.email}
-                    onChange={handleChange}
-                    placeholder="Enter Your Email"
-                    className="w-full rounded-xl border border-gray-200 py-2.5 pr-4 pl-10 text-sm text-gray-700 placeholder-gray-400 transition outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 sm:py-3"
-                  />
-                </div>
+                <input
+                  type="email"
+                  name="email"
+                  value={form.email}
+                  readOnly
+                  className="w-full rounded-xl border border-gray-200 bg-gray-50 py-2.5 pr-4 pl-4 text-sm text-gray-500 sm:py-3"
+                />
               </div>
 
               <div>

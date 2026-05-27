@@ -1,7 +1,13 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router";
-import { getUsers } from "../../utils/auth";
 import { Link } from "react-router";
+import {
+  fetchHistory,
+  fetchReport,
+  fetchSummary,
+  formatRupiah,
+  formatRupiahShort,
+} from "../../utils/api";
 
 import { Bar } from "react-chartjs-2";
 import {
@@ -15,68 +21,56 @@ import {
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
-const ALL_LABELS = ["Sat", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri"];
-const ALL_INCOME = [80000, 78000, 85000, 22000, 20000, 70000, 8000];
-const ALL_EXPENSE = [15000, 52000, 65000, 32000, 8000, 60000, 48000];
-
-const hardcodedMeta = [
-  { amount: "Rp.50.000", type: "income" },
-  { amount: "Rp.50.000", type: "expense" },
-  { amount: "Rp.75.000", type: "income" },
-  { amount: "Rp.50.000", type: "expense" },
-  { amount: "Rp.100.000", type: "income" },
-  { amount: "Rp.25.000", type: "expense" },
-  { amount: "Rp.60.000", type: "income" },
-  { amount: "Rp.80.000", type: "expense" },
-  { amount: "Rp.50.000", type: "income" },
-  { amount: "Rp.75.000", type: "expense" },
-];
-
 export default function Index() {
   const navigate = useNavigate();
   const [days, setDays] = useState("7");
   const [typeFilter, setTypeFilter] = useState("All");
+  const [summary, setSummary] = useState(null);
+  const [report, setReport] = useState(null);
   const [transactionData, setTransactionData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    async function fetchTransactionHistory() {
-      setLoading(true);
-      setError("");
-      try {
-        const users = await getUsers();
-        const mapped = users.map((u, index) => ({
-          id: u.id,
-          img: u.avatar,
-          name: u.name,
-          phone: u.phone,
-          amount: hardcodedMeta[index % hardcodedMeta.length].amount,
-          type: hardcodedMeta[index % hardcodedMeta.length].type,
-        }));
-        setTransactionData(mapped);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    }
+  const reportRange = days === "30" ? "30days" : "7days";
+  const reportType =
+    typeFilter === "Income"
+      ? "income"
+      : typeFilter === "Expense"
+        ? "expense"
+        : "both";
 
-    fetchTransactionHistory();
-  }, []);
+  const loadDashboard = useCallback(async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const [summaryData, reportData, historyData] = await Promise.all([
+        fetchSummary(),
+        fetchReport({ range: reportRange, type: reportType }),
+        fetchHistory({ page: 1, limit: 6 }),
+      ]);
+      setSummary(summaryData);
+      setReport(reportData);
+      setTransactionData(historyData.items);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [reportRange, reportType]);
+
+  useEffect(() => {
+    loadDashboard();
+  }, [loadDashboard]);
 
   const chartData = useMemo(() => {
-    const count = Math.min(parseInt(days), ALL_LABELS.length);
-    const labels = ALL_LABELS.slice(-count);
-    const income = ALL_INCOME.slice(-count);
-    const expense = ALL_EXPENSE.slice(-count);
-
+    const points = report?.points || [];
+    const labels = points.map((point) => point.label);
     const datasets = [];
 
     if (typeFilter === "All" || typeFilter === "Income") {
       datasets.push({
         label: "Income",
-        data: income,
+        data: points.map((point) => point.income || 0),
         backgroundColor: "#4D7CFF",
         borderRadius: 10,
         borderSkipped: false,
@@ -87,7 +81,7 @@ export default function Index() {
     if (typeFilter === "All" || typeFilter === "Expense") {
       datasets.push({
         label: "Expense",
-        data: expense,
+        data: points.map((point) => point.expense || 0),
         backgroundColor: "#CC0000",
         borderRadius: 10,
         borderSkipped: false,
@@ -96,7 +90,7 @@ export default function Index() {
     }
 
     return { labels, datasets };
-  }, [days, typeFilter]);
+  }, [report, typeFilter]);
 
   const options = {
     responsive: true,
@@ -156,10 +150,7 @@ export default function Index() {
   return (
     <section className="flex flex-1 flex-col gap-4 overflow-hidden p-4 pt-4 sm:gap-6 sm:px-6 sm:pt-6 lg:px-8 lg:pt-8">
       <div className="flex flex-col gap-4 lg:gap-5">
-        {/* Balance Card */}
-        {/* Note: Removed 'col-span' as we are using flex-col for the main stack */}
         <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-3 lg:gap-6">
-          {/* Balance Card (Occupies 1 column on desktop) */}
           <div className="fade-in card flex flex-col gap-4 delay-1">
             <div className="flex items-center gap-2 text-xs font-medium text-slate-500">
               <svg
@@ -177,7 +168,9 @@ export default function Index() {
 
             <div>
               <p className="text-2xl font-extrabold tracking-tight text-slate-800 lg:text-3xl">
-                Rp.120.000
+                {loading
+                  ? "..."
+                  : formatRupiah(summary?.current_balance ?? 0)}
               </p>
             </div>
 
@@ -187,8 +180,9 @@ export default function Index() {
                   Income
                 </p>
                 <p className="flex items-center gap-1 text-sm font-semibold text-emerald-500">
-                  Rp.200k
-                  <span className="badge badge-success">+2%</span>
+                  {loading
+                    ? "..."
+                    : formatRupiahShort(summary?.total_income ?? 0)}
                 </p>
               </div>
               <div>
@@ -196,20 +190,19 @@ export default function Index() {
                   Expense
                 </p>
                 <p className="flex items-center gap-1 text-sm font-semibold text-red-500">
-                  Rp.100k
-                  <span className="badge badge-danger">+5%</span>
+                  {loading
+                    ? "..."
+                    : formatRupiahShort(summary?.total_expense ?? 0)}
                 </p>
               </div>
             </div>
           </div>
-          {/* Fast Service Card */}
+
           <div className="fade-in card flex h-full items-center justify-between delay-2 lg:col-span-2">
-            {/* Title stays on the left */}
             <div>
               <h2 className="section-title">Fast Service</h2>
             </div>
 
-            {/* Buttons moved to the right side */}
             <div className="flex flex-row gap-3">
               <button
                 className="btn-primary"
@@ -231,11 +224,10 @@ export default function Index() {
                 Transfer
               </button>
             </div>
-          </div>{" "}
+          </div>
         </div>
       </div>
       <div className="fade-in grid grid-cols-1 gap-4 delay-3 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
-        {/* Chart */}
         <div className="card col-span-full lg:col-span-2">
           <div className="w-full rounded-lg">
             <div className="mb-4 flex flex-col sm:mb-6 sm:flex-row sm:items-center sm:justify-between">
@@ -261,11 +253,16 @@ export default function Index() {
                 </select>
               </div>
             </div>
-            <Bar data={chartData} options={options} />
+            {loading ? (
+              <div className="flex h-48 items-center justify-center text-sm text-slate-400">
+                Loading chart...
+              </div>
+            ) : (
+              <Bar data={chartData} options={options} />
+            )}
           </div>
         </div>
 
-        {/* Transaction History */}
         <div className="card fade-in col-span-full flex h-full flex-col delay-4 lg:col-span-1">
           <div className="flex items-center justify-between">
             <h3 className="section-title">Transaction History</h3>
@@ -305,24 +302,27 @@ export default function Index() {
               <div className="flex flex-col items-center justify-center gap-2 py-10">
                 <p className="text-xs font-semibold text-red-500">{error}</p>
                 <button
-                  onClick={() => window.location.reload()}
+                  onClick={loadDashboard}
                   className="text-xs text-blue-600 underline"
                 >
                   Try again
                 </button>
               </div>
             )}
+            {!loading && !error && transactionData.length === 0 && (
+              <div className="py-10 text-center text-xs text-slate-400">
+                No transactions yet.
+              </div>
+            )}
             {!loading &&
               !error &&
-              transactionData.slice(0, 6).map((tx, i) => (
+              transactionData.map((tx) => (
                 <div
-                  key={tx.id || i}
+                  key={tx.id}
                   className="flex cursor-pointer items-center gap-2 rounded-lg p-2 transition-colors hover:bg-slate-50 sm:gap-3 sm:p-3"
                 >
                   <img
-                    src={
-                      tx.img || `https://i.pravatar.cc/40?img=${tx.img || 1}`
-                    }
+                    src={tx.img}
                     className="h-8 w-8 rounded-full object-cover sm:h-10 sm:w-10"
                     alt={tx.name}
                   />
@@ -331,7 +331,7 @@ export default function Index() {
                       {tx.name}
                     </p>
                     <p className="text-xs text-slate-400">
-                      {tx.type === "income" ? "Transfer" : "Send"}
+                      {tx.type === "income" ? "Income" : "Expense"}
                     </p>
                   </div>
                   <span

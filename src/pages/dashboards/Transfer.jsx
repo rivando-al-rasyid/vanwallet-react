@@ -4,7 +4,7 @@ import Stepper from "../../components/Stepper";
 import SearchInput from "../../components/SearchInput";
 import TableRow from "../../components/TableRow";
 import { Pagination } from "../../components/Pagination";
-import { getUsers } from "../../utils/auth";
+import { searchReceivers } from "../../utils/api";
 
 const ITEMS_PER_PAGE = 6;
 
@@ -12,54 +12,43 @@ export default function Transfer() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [contacts, setContacts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [totalItems, setTotalItems] = useState(0);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const search = searchParams.get("search") || "";
   const currentPage = Number(searchParams.get("page") || "1");
 
-  const fetchUsers = useCallback(async () => {
+  const fetchContacts = useCallback(async () => {
+    if (search.trim().length < 2) {
+      setContacts([]);
+      setTotalItems(0);
+      setError("");
+      return;
+    }
+
     setLoading(true);
     setError("");
     try {
-      const users = await getUsers();
-      const mapped = users.map((u) => ({
-        id: u.id,
-        name: u.name,
-        phone: u.phone,
-        img: u.avatar,
-      }));
-      setContacts(mapped);
+      const result = await searchReceivers({
+        q: search.trim(),
+        page: currentPage,
+        limit: ITEMS_PER_PAGE,
+      });
+      setContacts(result.items);
+      setTotalItems(result.total);
     } catch (err) {
       setError(err.message || "Failed to load contacts");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [search, currentPage]);
 
   useEffect(() => {
-    fetchUsers();
-  }, [fetchUsers]);
+    fetchContacts();
+  }, [fetchContacts]);
 
-  const filteredContacts = useMemo(() => {
-    if (!search.trim()) return contacts;
-    const searchTerm = search.toLowerCase().trim();
-    return contacts.filter(
-      (contact) =>
-        contact.name.toLowerCase().includes(searchTerm) ||
-        contact.phone.toLowerCase().includes(searchTerm),
-    );
-  }, [contacts, search]);
-
-  const totalPages = Math.ceil(filteredContacts.length / ITEMS_PER_PAGE);
-  const safePage = Math.min(Math.max(currentPage, 1), totalPages || 1);
-  const paginatedContacts = useMemo(
-    () =>
-      filteredContacts.slice(
-        (safePage - 1) * ITEMS_PER_PAGE,
-        safePage * ITEMS_PER_PAGE,
-      ),
-    [filteredContacts, safePage],
-  );
+  const totalPages = Math.max(1, Math.ceil(totalItems / ITEMS_PER_PAGE));
+  const safePage = Math.min(Math.max(currentPage, 1), totalPages);
 
   const handleSearchChange = useCallback(
     (e) => {
@@ -91,21 +80,26 @@ export default function Transfer() {
 
   const handleRowClick = useCallback(
     (contact) => {
-      navigate(`/dashboard/transfer/${contact.id}`);
+      navigate(`/dashboard/transfer/${contact.walletId}`, {
+        state: { contact },
+      });
     },
     [navigate],
   );
 
   const handleRetry = useCallback(() => {
-    fetchUsers();
-  }, [fetchUsers]);
+    fetchContacts();
+  }, [fetchContacts]);
 
   const resultsText = useMemo(() => {
     if (loading) return "Memuat kontak...";
-    const count = filteredContacts.length;
+    if (search.trim().length < 2) {
+      return "Ketik minimal 2 karakter untuk mencari penerima";
+    }
+    const count = totalItems;
     const baseText = `${count} Result Found`;
     return search ? `${baseText} For "${search}"` : baseText;
-  }, [loading, filteredContacts.length, search]);
+  }, [loading, totalItems, search]);
 
   return (
     <>
@@ -178,17 +172,23 @@ export default function Transfer() {
           </div>
         )}
 
-        {!loading && !error && (
+        {!loading && !error && search.trim().length >= 2 && (
           <>
-            <TableRow items={paginatedContacts} onRowClick={handleRowClick} />
+            <TableRow items={contacts} onRowClick={handleRowClick} />
             <Pagination
               currentPage={safePage}
               totalPages={totalPages}
               onPageChange={handlePageChange}
-              visibleCount={paginatedContacts.length}
-              totalItems={filteredContacts.length}
+              visibleCount={contacts.length}
+              totalItems={totalItems}
             />
           </>
+        )}
+
+        {!loading && !error && search.trim().length < 2 && (
+          <div className="py-20 text-center text-sm text-slate-400">
+            Search for a recipient by name or phone number.
+          </div>
         )}
       </div>
     </>

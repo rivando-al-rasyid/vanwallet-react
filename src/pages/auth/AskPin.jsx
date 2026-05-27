@@ -1,14 +1,15 @@
 import { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import PinInput from "../../components/PinInput";
 import Brand from "../../components/Brand";
 import LoginImage from "../../components/login/LoginImage";
 import LoginHeadline from "../../components/login/LoginHeadline";
 import Submit from "../../components/Submit";
 import LoginSubtext from "../../components/LoginSubtext";
-import { changePinApi } from "../../utils/auth";
+import { setPinApi, fetchUserInfo, mapUserFromInfo } from "../../utils/api";
+import { mergeUser } from "../../store/store";
 import loginPhoneImage from "../../assets/img/3d-hand-phone.png";
 
 const PIN_LENGTH = 6;
@@ -16,6 +17,7 @@ const defaultPin = Array.from({ length: PIN_LENGTH }, () => ({ value: "" }));
 
 export default function AskPin() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
 
   const methods = useForm({
@@ -25,7 +27,6 @@ export default function AskPin() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
-  // If not logged in at all, redirect to login
   if (!user) {
     navigate("/login", { replace: true });
     return null;
@@ -41,16 +42,21 @@ export default function AskPin() {
     setSubmitting(true);
     setError("");
     try {
-      await changePinApi(pin);
+      await setPinApi(pin);
+
+      // Refresh user profile so user.pin is updated in Redux
+      // before ProtectedRoute checks it
+      const info = await fetchUserInfo();
+      const updated = mapUserFromInfo(info, user.token);
+      dispatch(mergeUser(updated));
+
       navigate("/dashboard");
     } catch (err) {
-      setError(err.message || "Invalid PIN. Please try again.");
+      setError(err.message || "Failed to set PIN. Please try again.");
     } finally {
       setSubmitting(false);
     }
   };
-
-  const hasPin = user?.pin && String(user.pin).length >= 6;
 
   return (
     <main className="grid min-h-screen grid-cols-1 bg-[#2948FF] lg:grid-cols-2">
@@ -58,12 +64,8 @@ export default function AskPin() {
         <div className="w-full max-w-175">
           <Brand />
           <LoginHeadline
-            title={hasPin ? "Enter Your PIN 👋" : "Create Your PIN 🔐"}
-            text={
-              hasPin
-                ? "Input your 6-digit PIN to continue to your dashboard."
-                : "Set a 6-digit PIN to secure your account."
-            }
+            title="Create Your PIN 🔐"
+            text="Set a 6-digit PIN to secure your account."
           />
 
           <FormProvider {...methods}>
@@ -80,7 +82,7 @@ export default function AskPin() {
               )}
 
               <Submit
-                name={submitting ? "Checking..." : "Continue"}
+                name={submitting ? "Saving..." : "Continue"}
                 disabled={submitting}
               />
             </form>

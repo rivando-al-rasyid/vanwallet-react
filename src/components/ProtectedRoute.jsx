@@ -5,7 +5,7 @@ import { Navigate, Outlet, useLocation } from "react-router";
 /**
  * ProtectedRoute - Guards routes that require authentication.
  * If the user is not logged in, redirects to /login.
- * If the user has no valid PIN (null or < 6 digits), redirects to /login/pin.
+ * If the user has no PIN set, redirects to /login/pin.
  */
 function ProtectedRoute() {
   const user = useSelector((state) => state.auth.user);
@@ -15,8 +15,7 @@ function ProtectedRoute() {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  const pin = user?.pin;
-  if (!pin || String(pin).length < 6) {
+  if (!user.pin) {
     return <Navigate to="/login/pin" replace />;
   }
 
