@@ -33,8 +33,12 @@ export default function Login() {
     }
 
     try {
-      await login(form);
-      navigate("/dashboard");
+      const loggedInUser = await login(form);
+      if (!loggedInUser?.pin) {
+        navigate("/login/pin", { replace: true });
+      } else {
+        navigate("/dashboard", { replace: true });
+      }
     } catch (err) {
       // Error is already set in context
     }

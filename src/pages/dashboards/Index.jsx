@@ -31,7 +31,7 @@ export default function Index() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const reportRange = days === "30" ? "30days" : "7days";
+  const reportRange = days === "30" ? "30days" : days === "14" ? "14days" : "7days";
   const reportType =
     typeFilter === "Income"
       ? "income"

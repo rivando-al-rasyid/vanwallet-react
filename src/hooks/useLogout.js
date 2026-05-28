@@ -15,6 +15,9 @@ export function useLogout() {
       try {
         await logoutApi();
       } catch {
+        // API call failed — still clear local auth state
+      } finally {
+        // Always clear Redux + token regardless of API success/failure
         logout();
       }
 

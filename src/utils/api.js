@@ -50,7 +50,7 @@ export function mapUserFromInfo(info, token) {
       resolveAssetUrl(info?.photo) ||
       `https://ui-avatars.com/api/?name=${encodeURIComponent(info?.full_name || info?.email || "User")}&background=EBF4FF&color=7F9CF5`,
     currentBalance: info?.current_balance ?? 0,
-    pin: info?.pin_hash || info?.pin || null,
+    pin: (info?.pin_hash && info.pin_hash.trim() !== "") ? info.pin_hash : null,
     token,
   };
 }

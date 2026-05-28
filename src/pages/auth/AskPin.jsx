@@ -32,6 +32,11 @@ export default function AskPin() {
     return null;
   }
 
+  if (user.pin) {
+    navigate("/dashboard", { replace: true });
+    return null;
+  }
+
   const onSubmit = async (data) => {
     const pin = data.pin.map((item) => item.value).join("");
     if (pin.length !== PIN_LENGTH) {
