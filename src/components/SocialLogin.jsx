@@ -1,7 +1,7 @@
 const FacebookIcon = () => (
   <svg
     viewBox="0 0 24 24"
-    className="w-6 h-6 fill-[#1877F2]"
+    className="h-6 w-6 fill-[#1877F2]"
     xmlns="http://www.w3.org/2000/svg"
     aria-hidden="true"
   >
@@ -16,7 +16,7 @@ const SOCIAL_BUTTONS = [
       <img
         src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
         alt=""
-        className="w-5 h-5"
+        className="h-5 w-5"
       />
     ),
   },
@@ -29,11 +29,11 @@ const SOCIAL_BUTTONS = [
 export default function SocialLogin() {
   return (
     <>
-      <div className="grid grid-cols-1 gap-4 mb-8">
+      <div className="mb-8 grid grid-cols-1 gap-4">
         {SOCIAL_BUTTONS.map(({ label, icon }) => (
           <button
             key={label}
-            className="flex items-center justify-center gap-3 py-3 px-6 border border-slate-100 rounded-2xl bg-white shadow-sm hover:shadow-md hover:border-slate-200 transition-all text-slate-600 font-medium"
+            className="flex items-center justify-center gap-3 rounded-2xl border border-slate-100 bg-white px-6 py-3 font-medium text-slate-600 shadow-sm transition-all hover:border-slate-200 hover:shadow-md"
           >
             {icon}
             <span>{label}</span>
@@ -41,9 +41,9 @@ export default function SocialLogin() {
         ))}
       </div>
 
-      <div className="relative flex items-center mb-8" aria-hidden="true">
+      <div className="relative mb-8 flex items-center" aria-hidden="true">
         <div className="grow border-t border-slate-100" />
-        <span className="shrink mx-4 text-sm font-medium text-slate-300">
+        <span className="mx-4 shrink text-sm font-medium text-slate-300">
           Or
         </span>
         <div className="grow border-t border-slate-100" />

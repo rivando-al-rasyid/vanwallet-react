@@ -12,14 +12,14 @@ const LoginImage = memo(function LoginImage({
 }) {
   return (
     <aside
-      className="hidden lg:flex flex-col items-center justify-center h-full p-20 bg-[radial-gradient(circle,#3868fd_0%,transparent_100%)] bg-opacity-90"
+      className="bg-opacity-90 hidden h-full flex-col items-center justify-center bg-[radial-gradient(circle,#3868fd_0%,transparent_100%)] p-20 lg:flex"
       aria-label="Decorative sidebar"
     >
       <img
         src={img}
         alt={alt}
         loading="lazy"
-        className="w-4/5 h-auto object-contain drop-shadow-2xl"
+        className="h-auto w-4/5 object-contain drop-shadow-2xl"
       />
     </aside>
   );

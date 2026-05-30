@@ -1,21 +1,29 @@
+// src/components/ProtectedRoute.jsx
 import { useSelector } from "react-redux";
 import { Navigate, Outlet, useLocation } from "react-router";
-/**
- * Guards routes that require authentication.
- * Redirects to /login and preserves the attempted URL via state.from.
- */
+import { getToken } from "../utils/api";
+
 function ProtectedRoute() {
-  const user = useSelector((state) => state.profile.user);
+  const user = useSelector((state) => state.auth.user);
   const location = useLocation();
 
+  // 1. Not logged in (no Redux state)
   if (!user) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
-  const isPinSetupComplete = user.pin?.toString().length === 6;
 
-  if (!isPinSetupComplete) {
-    return <Navigate to="/register/pin" state={{ from: location }} replace />;
+  // 2. Token missing from localStorage (e.g. cleared externally)
+  const token = getToken();
+  if (!token) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
+
+  // 3. Logged in but PIN not set → redirect to PIN setup
+  if (!user.pin) {
+    return <Navigate to="/login/pin" replace />;
+  }
+
+  // 4. All checks passed → render child routes
   return <Outlet />;
 }
 

@@ -24,8 +24,10 @@ export default function Stepper({ currentStep }) {
               }`}
             >
               <span
-                className={`w-6 h-6 rounded-full flex items-center justify-center text-xs transition-colors ${
-                  isHighlighted ? "bg-blue-600 text-white" : "bg-gray-400 text-white"
+                className={`flex h-6 w-6 items-center justify-center rounded-full text-xs transition-colors ${
+                  isHighlighted
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-400 text-white"
                 }`}
               >
                 {isCompleted ? "✓" : stepNumber}

@@ -1,60 +1,65 @@
-import { useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router";
-import { useDispatch, useSelector } from "react-redux";
-import { Icon } from "@iconify/react";
-import { fetchAllUsers } from "../../store/slices/transferSlice";
 import Stepper from "../../components/Stepper";
 import SearchInput from "../../components/SearchInput";
 import TableRow from "../../components/TableRow";
 import { Pagination } from "../../components/Pagination";
+import { searchReceivers } from "../../utils/api";
 
 const ITEMS_PER_PAGE = 6;
 
 export default function Transfer() {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
   const [searchParams, setSearchParams] = useSearchParams();
-
-  const { users, status, error } = useSelector((state) => state.transfer);
-  const loading = status === "loading";
-
+  const [contacts, setContacts] = useState([]);
+  const [totalItems, setTotalItems] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const search = searchParams.get("search") || "";
   const currentPage = Number(searchParams.get("page") || "1");
 
-  useEffect(() => {
-    if (status === "idle") {
-      dispatch(fetchAllUsers());
+  const fetchContacts = useCallback(async () => {
+    if (search.trim().length < 2) {
+      setContacts([]);
+      setTotalItems(0);
+      setError("");
+      return;
     }
-  }, [dispatch, status]);
 
-  const filteredContacts = useMemo(() => {
-    if (!search.trim()) return users;
-    const searchTerm = search.toLowerCase().trim();
-    return users.filter(
-      (contact) =>
-        contact.name.toLowerCase().includes(searchTerm) ||
-        contact.phone.toLowerCase().includes(searchTerm),
-    );
-  }, [users, search]);
+    setLoading(true);
+    setError("");
+    try {
+      const result = await searchReceivers({
+        q: search.trim(),
+        page: currentPage,
+        limit: ITEMS_PER_PAGE,
+      });
+      setContacts(result.items);
+      setTotalItems(result.total);
+    } catch (err) {
+      setError(err.message || "Failed to load contacts");
+    } finally {
+      setLoading(false);
+    }
+  }, [search, currentPage]);
 
-  const totalPages = Math.ceil(filteredContacts.length / ITEMS_PER_PAGE);
-  const safePage = Math.min(Math.max(currentPage, 1), totalPages || 1);
+  useEffect(() => {
+    fetchContacts();
+  }, [fetchContacts]);
 
-  const paginatedContacts = useMemo(
-    () =>
-      filteredContacts.slice(
-        (safePage - 1) * ITEMS_PER_PAGE,
-        safePage * ITEMS_PER_PAGE,
-      ),
-    [filteredContacts, safePage],
-  );
+  const totalPages = Math.max(1, Math.ceil(totalItems / ITEMS_PER_PAGE));
+  const safePage = Math.min(Math.max(currentPage, 1), totalPages);
 
   const handleSearchChange = useCallback(
     (e) => {
       const nextSearch = e.target.value;
       setSearchParams((prev) => {
         const next = new URLSearchParams(prev);
-        if (nextSearch) { next.set("search", nextSearch); } else { next.delete("search"); }
+        if (nextSearch) {
+          next.set("search", nextSearch);
+        } else {
+          next.delete("search");
+        }
         next.set("page", "1");
         return next;
       });
@@ -74,25 +79,43 @@ export default function Transfer() {
   );
 
   const handleRowClick = useCallback(
-    (contact) => { navigate(`/dashboard/transfer/${contact.id}`); },
+    (contact) => {
+      navigate(`/dashboard/transfer/${contact.walletId}`, {
+        state: { contact },
+      });
+    },
     [navigate],
   );
 
-  const handleRetry = useCallback(() => { dispatch(fetchAllUsers()); }, [dispatch]);
+  const handleRetry = useCallback(() => {
+    fetchContacts();
+  }, [fetchContacts]);
 
   const resultsText = useMemo(() => {
     if (loading) return "Memuat kontak...";
-    const count = filteredContacts.length;
+    if (search.trim().length < 2) {
+      return "Ketik minimal 2 karakter untuk mencari penerima";
+    }
+    const count = totalItems;
     const baseText = `${count} Result Found`;
     return search ? `${baseText} For "${search}"` : baseText;
-  }, [loading, filteredContacts.length, search]);
+  }, [loading, totalItems, search]);
 
   return (
     <>
       <div className="mb-8">
-        <div className="flex items-center gap-3 mb-6">
+        <div className="mb-6 flex items-center gap-3">
           <span className="text-blue-600">
-            <Icon icon="lucide:send" width={24} height={24} aria-hidden="true" />
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
+            </svg>
           </span>
           <h1 className="section-title">Transfer Money</h1>
         </div>
@@ -100,7 +123,7 @@ export default function Transfer() {
       </div>
 
       <div className="card min-h-150">
-        <div className="flex justify-between items-center mb-6">
+        <div className="mb-6 flex items-center justify-between">
           <div>
             <h2 className="section-title">Find People</h2>
             <p className="text-xs text-gray-400">{resultsText}</p>
@@ -113,19 +136,33 @@ export default function Transfer() {
         </div>
 
         {loading && (
-          <div className="flex flex-col items-center justify-center py-20 gap-3 text-gray-400">
-            <Icon
-              icon="lucide:loader-circle"
-              className="animate-spin w-8 h-8 text-blue-500"
-              aria-hidden="true"
-            />
+          <div className="flex flex-col items-center justify-center gap-3 py-20 text-gray-400">
+            <svg
+              className="h-8 w-8 animate-spin text-blue-500"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              />
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v8H4z"
+              />
+            </svg>
             <span className="text-sm">Mengambil data kontak...</span>
           </div>
         )}
 
         {!loading && error && (
-          <div className="flex flex-col items-center justify-center py-20 gap-3">
-            <p className="text-red-500 font-semibold text-sm">{error}</p>
+          <div className="flex flex-col items-center justify-center gap-3 py-20">
+            <p className="text-sm font-semibold text-red-500">{error}</p>
             <button
               onClick={handleRetry}
               className="text-xs text-blue-600 underline hover:text-blue-700"
@@ -135,17 +172,23 @@ export default function Transfer() {
           </div>
         )}
 
-        {!loading && !error && (
+        {!loading && !error && search.trim().length >= 2 && (
           <>
-            <TableRow items={paginatedContacts} onRowClick={handleRowClick} />
+            <TableRow items={contacts} onRowClick={handleRowClick} />
             <Pagination
               currentPage={safePage}
               totalPages={totalPages}
               onPageChange={handlePageChange}
-              visibleCount={paginatedContacts.length}
-              totalItems={filteredContacts.length}
+              visibleCount={contacts.length}
+              totalItems={totalItems}
             />
           </>
+        )}
+
+        {!loading && !error && search.trim().length < 2 && (
+          <div className="py-20 text-center text-sm text-slate-400">
+            Search for a recipient by name or phone number.
+          </div>
         )}
       </div>
     </>

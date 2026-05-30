@@ -1,42 +1,31 @@
 import { memo } from "react";
 import Brand from "../components/Brand";
-import { Icon } from "@iconify/react";
-import { useForm } from "react-hook-form";
-import { joiResolver } from "@hookform/resolvers/joi";
-import { newsletterSchema } from "../schemas/transactionSchemas";
+import { Phone, Mail } from "lucide-react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faTwitter,
+  faFacebookF,
+  faInstagram,
+  faGithub,
+} from "@fortawesome/free-brands-svg-icons";
 
 const CONTACT_ITEMS = [
-  { icon: "lucide:phone", text: "+62 5637 8882 9901" },
-  { icon: "lucide:mail", text: "contact@zwallet.com" },
+  { Icon: Phone, text: "+62 5637 8882 9901" },
+  { Icon: Mail, text: "contact@zwallet.com" },
 ];
 
 const SOCIAL_LINKS = [
-  { icon: "simple-icons:twitter", label: "Twitter", href: "#" },
-  { icon: "simple-icons:facebook", label: "Facebook", href: "#" },
-  { icon: "simple-icons:instagram", label: "Instagram", href: "#" },
-  { icon: "simple-icons:github", label: "GitHub", href: "#" },
+  { icon: faTwitter, label: "Twitter", href: "#" },
+  { icon: faFacebookF, label: "Facebook", href: "#" },
+  { icon: faInstagram, label: "Instagram", href: "#" },
+  { icon: faGithub, label: "GitHub", href: "#" },
 ];
 
 const Footer = memo(function Footer() {
   const currentYear = new Date().getFullYear();
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm({
-    resolver: joiResolver(newsletterSchema),
-    defaultValues: {
-      email: "",
-    },
-  });
-
-  const onSubmit = () => {
-    reset({ email: "" });
-  };
 
   return (
-    <footer className="bg-blue-600 px-6 pb-10 pt-16 text-white lg:px-10">
+    <footer className="bg-blue-600 px-6 pt-16 pb-10 text-white lg:px-10">
       <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-4">
         {/* Brand */}
         <div>
@@ -49,13 +38,13 @@ const Footer = memo(function Footer() {
 
         {/* Contact */}
         <div>
-          <h4 className="mb-5 text-sm font-semibold uppercase tracking-wider">
+          <h4 className="mb-5 text-sm font-semibold tracking-wider uppercase">
             Get In Touch
           </h4>
           <ul className="space-y-4 text-sm text-white/90">
-            {CONTACT_ITEMS.map(({ icon, text }) => (
+            {CONTACT_ITEMS.map(({ Icon, text }) => (
               <li key={text} className="flex items-center gap-3">
-                <Icon icon={icon} width={16} height={16} aria-hidden="true" />
+                <Icon size={16} aria-hidden="true" />
                 <span>{text}</span>
               </li>
             ))}
@@ -64,7 +53,7 @@ const Footer = memo(function Footer() {
 
         {/* Social */}
         <div>
-          <h4 className="mb-5 text-sm font-semibold uppercase tracking-wider">
+          <h4 className="mb-5 text-sm font-semibold tracking-wider uppercase">
             Social Media
           </h4>
           <div className="flex gap-4">
@@ -75,7 +64,7 @@ const Footer = memo(function Footer() {
                 aria-label={label}
                 className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-blue-600 transition hover:bg-gray-100"
               >
-                <Icon icon={icon} width={16} height={16} aria-hidden="true" />
+                <FontAwesomeIcon icon={icon} className="text-base" />
               </a>
             ))}
           </div>
@@ -83,12 +72,12 @@ const Footer = memo(function Footer() {
 
         {/* Newsletter */}
         <div>
-          <h4 className="mb-5 text-sm font-semibold uppercase tracking-wider">
+          <h4 className="mb-5 text-sm font-semibold tracking-wider uppercase">
             Newsletter
           </h4>
           <form
             className="space-y-3"
-            onSubmit={handleSubmit(onSubmit)}
+            onSubmit={(e) => e.preventDefault()}
             aria-label="Newsletter signup"
           >
             <label htmlFor="newsletter-email" className="sr-only">
@@ -99,12 +88,9 @@ const Footer = memo(function Footer() {
               type="email"
               placeholder="Enter Your Email"
               autoComplete="email"
-              {...register("email")}
+              required
               className="w-full rounded-md border border-white/20 bg-white px-4 py-3 text-sm text-gray-800 outline-none focus:ring-2 focus:ring-white/50"
             />
-            {errors.email?.message && (
-              <p className="text-xs text-red-100">{errors.email.message}</p>
-            )}
             <button
               type="submit"
               className="w-full rounded-md bg-white px-4 py-3 text-sm font-semibold text-blue-600 transition hover:bg-gray-100"

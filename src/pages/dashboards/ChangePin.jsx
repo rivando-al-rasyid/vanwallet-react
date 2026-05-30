@@ -1,165 +1,187 @@
-import { useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useState } from "react";
+import { useForm, FormProvider } from "react-hook-form";
+import { joiResolver } from "@hookform/resolvers/joi";
 import { useNavigate } from "react-router";
-import { Icon } from "@iconify/react";
+import Joi from "joi";
 
 import PinInput from "../../components/PinInput";
-import { changePin } from "../../store/slices/profileSlice";
-import { useToast } from "../../context/toast/provider";
-import { DEFAULT_PIN_VALUE, PIN_LENGTH } from "../../schemas/pinSchema";
-import { verifyPin } from "../../utils/userUtils";
+import { useProfile } from "../../hooks/useProfile";
 
-const PIN_STEP = {
-  CURRENT: "current",
-  NEW: "new",
-  CONFIRM: "confirm",
-};
+const defaultPin = Array(6)
+  .fill(null)
+  .map(() => ({ value: "" }));
 
-const createDigits = () =>
-  Array.from({ length: PIN_LENGTH }, () => ({ value: "" }));
+const pinSchema = Joi.object({
+  pin: Joi.array()
+    .items(
+      Joi.object({
+        value: Joi.string().length(1).pattern(/^\d$/).required(),
+      }),
+    )
+    .length(6)
+    .required(),
+});
 
 export default function ChangePin() {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { showToast } = useToast();
+  const { changePin, profileLoading, profileError } = useProfile();
 
-  const userId  = useSelector((state) => state.profile.user?.id ?? null);
-  const loading = useSelector((state) => state.profile.loading);
+  const [step, setStep] = useState("current"); // "current" | "new" | "confirm"
+  const [currentPinValue, setCurrentPinValue] = useState("");
+  const [newPinValue, setNewPinValue] = useState("");
+  const [localError, setLocalError] = useState("");
+  const [success, setSuccess] = useState("");
 
-  const [step, setStep] = useState(PIN_STEP.CURRENT);
-  const [currentPin, setCurrentPin] = useState(DEFAULT_PIN_VALUE);
-  const [newPin, setNewPin] = useState(DEFAULT_PIN_VALUE);
-  const [confirmPin, setConfirmPin] = useState(DEFAULT_PIN_VALUE);
-  const [inlineError, setInlineError] = useState("");
-  const [submitting, setSubmitting] = useState(false);
+  const methods = useForm({
+    resolver: joiResolver(pinSchema),
+    defaultValues: { pin: defaultPin },
+    mode: "onChange",
+  });
 
-  const stepTitle = useMemo(() => {
-    if (step === PIN_STEP.CURRENT) return "Current PIN";
-    if (step === PIN_STEP.NEW) return "New PIN";
-    return "Confirm new PIN";
-  }, [step]);
+  const getPinFromData = (data) =>
+    data.pin.map((item) => item.value).join("");
 
-  const toPinString = (pinValue) => pinValue.map((item) => item.value).join("");
-  const isComplete = (pinValue) =>
-    pinValue.every((item) => String(item?.value || "").length === 1);
+  const handleNext = methods.handleSubmit((data) => {
+    const pin = getPinFromData(data);
+    setLocalError("");
 
-  const onSubmit = async (e) => {
-    e.preventDefault();
-    setInlineError("");
-
-    if (step === PIN_STEP.CURRENT) {
-      if (!isComplete(currentPin)) {
-        setInlineError(`Please enter complete PIN (${PIN_LENGTH} digits).`);
+    if (step === "current") {
+      setCurrentPinValue(pin);
+      setStep("new");
+      methods.reset({ pin: defaultPin });
+    } else if (step === "new") {
+      setNewPinValue(pin);
+      setStep("confirm");
+      methods.reset({ pin: defaultPin });
+    } else if (step === "confirm") {
+      const confirmPin = pin;
+      if (confirmPin !== newPinValue) {
+        setLocalError("PIN baru tidak cocok. Silakan ulangi.");
+        methods.reset({ pin: defaultPin });
         return;
       }
-      setSubmitting(true);
-      try {
-        await verifyPin(userId, toPinString(currentPin));
-      } catch (error) {
-        setInlineError("Incorrect current PIN");
-        setSubmitting(false);
-        return;
-      }
-      setSubmitting(false);
-      setStep(PIN_STEP.NEW);
-      return;
+      submitPin(confirmPin);
     }
+  });
 
-    if (step === PIN_STEP.NEW) {
-      if (!isComplete(newPin)) {
-        setInlineError(`Please enter complete PIN (${PIN_LENGTH} digits).`);
-        return;
-      }
-      setStep(PIN_STEP.CONFIRM);
-      return;
-    }
-
-    if (!isComplete(confirmPin)) {
-      setInlineError(`Please enter complete PIN (${PIN_LENGTH} digits).`);
-      return;
-    }
-
-    const currentPinValue = toPinString(currentPin);
-    const newPinValue = toPinString(newPin);
-    const confirmPinValue = toPinString(confirmPin);
-
-    if (newPinValue !== confirmPinValue) {
-      setInlineError("PIN does not match, please enter again");
-      setConfirmPin(createDigits());
-      return;
-    }
-
-    setSubmitting(true);
-    const result = await dispatch(changePin({ userId, currentPin: currentPinValue, newPin: newPinValue }));
-    setSubmitting(false);
-
-    if (changePin.fulfilled.match(result)) {
-      showToast("PIN berhasil diupdate!", "success");
-      setStep(PIN_STEP.CURRENT);
-      setCurrentPin(createDigits());
-      setNewPin(createDigits());
-      setConfirmPin(createDigits());
-      setTimeout(() => navigate("/dashboard/profile"), 1500);
-    } else {
-      if (String(result.payload || "").toLowerCase().includes("invalid pin")) {
-        setInlineError("Incorrect current PIN");
-        setStep(PIN_STEP.CURRENT);
-        setCurrentPin(createDigits());
-        return;
-      }
-      const msg = result.payload || result.error?.message || "Gagal mengupdate PIN.";
-      setInlineError(msg);
+  const submitPin = async (confirmPin) => {
+    setSuccess("");
+    try {
+      await changePin(currentPinValue, confirmPin);
+      setSuccess("PIN berhasil diupdate!");
+      setTimeout(() => navigate("/dashboard/profile"), 1200);
+    } catch {
+      // error handled by Redux via profileError
     }
   };
+
+  const stepConfig = {
+    current: {
+      title: "Current PIN",
+      description: "Enter your current 6-digit PIN to verify your identity.",
+      button: "Next",
+    },
+    new: {
+      title: "New PIN",
+      description: "Enter your new 6-digit PIN.",
+      button: "Next",
+    },
+    confirm: {
+      title: "Confirm New PIN",
+      description: "Re-enter your new PIN to confirm.",
+      button: profileLoading ? "Menyimpan..." : "Submit",
+    },
+  };
+
+  const config = stepConfig[step];
+  const error = localError || profileError;
 
   return (
     <>
       <div className="flex items-center gap-3">
-        <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
-          <Icon icon="lucide:user-round" width={18} height={18} color="#2563EB" aria-hidden="true" />
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-100">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path
+              fillRule="evenodd"
+              clipRule="evenodd"
+              d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"
+              fill="#2563EB"
+            />
+          </svg>
         </div>
         <h1 className="text-xl font-bold text-gray-800">Profile</h1>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm p-8">
-        <div className="max-w-3xl mx-auto w-full text-center">
-          <h2 className="text-base font-bold text-gray-800 mb-1">Change Pin 👋</h2>
-          <p className="text-sm text-gray-400 mb-8">
-            Please save your pin because this so important.
-          </p>
+      <div className="rounded-2xl bg-white p-8 shadow-sm">
+        <div className="mx-auto w-full max-w-3xl text-center">
+          {/* Step indicator */}
+          <div className="mb-6 flex items-center justify-center gap-2">
+            {["current", "new", "confirm"].map((s, i) => (
+              <div key={s} className="flex items-center gap-2">
+                <div
+                  className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold transition-colors ${
+                    step === s
+                      ? "bg-blue-600 text-white"
+                      : ["new", "confirm"].indexOf(s) <
+                          ["current", "new", "confirm"].indexOf(step)
+                        ? "bg-blue-200 text-blue-700"
+                        : "bg-gray-100 text-gray-400"
+                  }`}
+                >
+                  {i + 1}
+                </div>
+                {i < 2 && <div className="h-px w-6 bg-gray-200" />}
+              </div>
+            ))}
+          </div>
 
-          <form
-            onSubmit={onSubmit}
-            className="flex flex-col items-center"
-          >
-            <p className="w-full text-left text-sm font-semibold text-gray-600 mb-4">
-              {stepTitle}
-            </p>
+          <h2 className="mb-1 text-base font-bold text-gray-800">
+            {config.title}
+          </h2>
+          <p className="mb-8 text-sm text-gray-400">{config.description}</p>
 
-            {step === PIN_STEP.CURRENT && (
-              <PinInput value={currentPin} onChange={setCurrentPin} />
-            )}
-            {step === PIN_STEP.NEW && (
-              <PinInput value={newPin} onChange={setNewPin} />
-            )}
-            {step === PIN_STEP.CONFIRM && (
-              <PinInput value={confirmPin} onChange={setConfirmPin} />
-            )}
-
-            {inlineError && (
-              <p className="text-sm text-red-500 mt-4">
-                {inlineError}
-              </p>
-            )}
-
-            <button
-              type="submit"
-              disabled={loading || submitting}
-              className="w-full mt-10 py-3.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 disabled:opacity-60 transition"
+          <FormProvider {...methods}>
+            <form
+              onSubmit={handleNext}
+              className="flex flex-col items-center"
             >
-              {loading || submitting ? "Menyimpan..." : step === PIN_STEP.CONFIRM ? "Submit" : "Continue"}
-            </button>
-          </form>
+              <PinInput key={step} />
+
+              {methods.formState.errors.pin && (
+                <p className="mt-4 text-sm text-red-500">
+                  Please complete the 6-digit PIN.
+                </p>
+              )}
+              {error && (
+                <p className="mt-4 text-sm text-red-500">{error}</p>
+              )}
+              {success && (
+                <p className="mt-4 text-sm text-green-600">{success}</p>
+              )}
+
+              <button
+                type="submit"
+                disabled={profileLoading}
+                className="mt-10 w-full rounded-xl bg-blue-600 py-3.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-60"
+              >
+                {config.button}
+              </button>
+
+              {step !== "current" && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setStep(step === "confirm" ? "new" : "current");
+                    setLocalError("");
+                    methods.reset({ pin: defaultPin });
+                  }}
+                  className="mt-3 text-sm text-gray-400 hover:text-gray-600"
+                >
+                  ← Back
+                </button>
+              )}
+            </form>
+          </FormProvider>
         </div>
       </div>
     </>

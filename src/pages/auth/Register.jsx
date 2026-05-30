@@ -1,9 +1,7 @@
-import { useDispatch, useSelector } from "react-redux";
+import { useState } from "react";
 import { useNavigate } from "react-router";
-import { Controller, useForm } from "react-hook-form";
-import { joiResolver } from "@hookform/resolvers/joi";
-import { register } from "../../store/slices/registerSlice";
-
+import { faEnvelope, faLock } from "@fortawesome/free-solid-svg-icons";
+import { useAuth } from "../../hooks/useAuth";
 import Brand from "../../components/Brand";
 import LoginHeadline from "../../components/login/LoginHeadline";
 import SocialLogin from "../../components/SocialLogin";
@@ -12,48 +10,50 @@ import Submit from "../../components/Submit";
 import LoginImage from "../../components/login/LoginImage";
 import LoginSubtext from "../../components/LoginSubtext";
 import walletHandImage from "../../assets/img/3d-hand-wallet.png";
-import { useToast } from "../../context/toast/provider";
-import { registerSchema } from "../../schemas/authSchemas";
 
 export default function Register() {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { showToast } = useToast();
+  const { register, loading, error } = useAuth();
 
-  const loading = useSelector((state) => state.register.registerLoading);
-
-  const {
-    handleSubmit,
-    control,
-    formState: { errors },
-  } = useForm({
-    resolver: joiResolver(registerSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-      confirmPassword: "",
-    },
+  const [form, setForm] = useState({
+    email: "",
+    password: "",
+    confirmPassword: "",
   });
+  const [validationError, setValidationError] = useState("");
 
-  const onSubmit = async (formValues) => {
-    const result = await dispatch(
-      register({ email: formValues.email, password: formValues.password }),
-    );
+  const handleChange = (e) => {
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    setValidationError("");
+  };
 
-    if (register.fulfilled.match(result)) {
-      showToast("Registrasi berhasil! Buat PIN kamu.", "success");
-      navigate("/register/pin");
-    } else {
-      const msg =
-        result.payload ||
-        result.error?.message ||
-        "Registrasi gagal. Coba lagi.";
-      showToast(msg, "error");
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setValidationError("");
+
+    if (!form.email || !form.password || !form.confirmPassword) {
+      setValidationError("Semua field harus diisi.");
+      return;
+    }
+
+    if (form.password !== form.confirmPassword) {
+      setValidationError("Password dan konfirmasi password tidak cocok.");
+      return;
+    }
+
+    try {
+      await register({
+        email: form.email,
+        password: form.password,
+      });
+      navigate("/login/pin");
+    } catch (err) {
+      // Error is already set in context
     }
   };
 
   return (
-    <main className="grid grid-cols-1 lg:grid-cols-2 min-h-screen bg-[#2948FF]">
+    <main className="grid min-h-screen grid-cols-1 bg-[#2948FF] lg:grid-cols-2">
       <section className="auth-panel">
         <div className="w-full max-w-175">
           <Brand />
@@ -67,64 +67,41 @@ export default function Register() {
           />
           <SocialLogin />
 
-          <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-            <div>
-              <Controller
-                name="email"
-                control={control}
-                render={({ field }) => (
-                  <Input
-                    label="Email"
-                    type="email"
-                    icon="lucide:mail"
-                    placeholder="Enter your email"
-                    {...field}
-                  />
-                )}
-              />
-              {errors.email?.message && (
-                <p className="text-sm text-red-500 mt-1.5">{errors.email.message}</p>
-              )}
+          {(validationError || error) && (
+            <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-600">
+              {validationError || error}
             </div>
-            <div>
-              <Controller
-                name="password"
-                control={control}
-                render={({ field }) => (
-                  <Input
-                    label="Password"
-                    type="password"
-                    icon="lucide:lock"
-                    placeholder="Enter Your Password"
-                    {...field}
-                  />
-                )}
-              />
-              {errors.password?.message && (
-                <p className="text-sm text-red-500 mt-1.5">{errors.password.message}</p>
-              )}
-            </div>
-            <div>
-              <Controller
-                name="confirmPassword"
-                control={control}
-                render={({ field }) => (
-                  <Input
-                    label="Confirm Password"
-                    type="password"
-                    icon="lucide:lock"
-                    placeholder="Enter Your Password Again"
-                    {...field}
-                  />
-                )}
-              />
-              {errors.confirmPassword?.message && (
-                <p className="text-sm text-red-500 mt-1.5">
-                  {errors.confirmPassword.message}
-                </p>
-              )}
-            </div>
-            <Submit label={loading ? "Loading..." : "Register"} />
+          )}
+
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            <Input
+              label="Email"
+              type="email"
+              name="email"
+              icon={faEnvelope}
+              placeholder="Enter your email"
+              value={form.email}
+              onChange={handleChange}
+            />
+            <Input
+              label="Password"
+              type="password"
+              name="password"
+              icon={faLock}
+              placeholder="Enter Your Password"
+              value={form.password}
+              onChange={handleChange}
+            />
+            <Input
+              label="Confirm Password"
+              type="password"
+              name="confirmPassword"
+              icon={faLock}
+              placeholder="Enter Your Password Again"
+              value={form.confirmPassword}
+              onChange={handleChange}
+            />
+            <Submit name={loading ? "Loading..." : "Register"} />
           </form>
 
           <LoginSubtext

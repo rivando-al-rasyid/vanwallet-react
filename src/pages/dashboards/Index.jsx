@@ -1,8 +1,13 @@
-import { useEffect, useMemo, useState } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router";
 import { Link } from "react-router";
-import { Icon } from "@iconify/react";
-import { useDispatch, useSelector } from "react-redux";
+import {
+  fetchHistory,
+  fetchReport,
+  fetchSummary,
+  formatRupiah,
+  formatRupiahShort,
+} from "../../utils/api";
 
 import { Bar } from "react-chartjs-2";
 import {
@@ -14,74 +19,78 @@ import {
   Legend,
 } from "chart.js";
 
-import { useTransactionHistory } from "../../hooks/useTransactionHistory";
-import { fetchBalance } from "../../store/slices/profileSlice";
-import { buildDashboardAnalytics } from "../../utils/dashboardAnalytics";
-
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
-
-const DAY_FILTER_OPTIONS = [
-  { value: "7", label: "7 Days" },
-  { value: "14", label: "14 Days" },
-  { value: "30", label: "30 Days" },
-];
 
 export default function Index() {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
   const [days, setDays] = useState("7");
   const [typeFilter, setTypeFilter] = useState("All");
+  const [summary, setSummary] = useState(null);
+  const [report, setReport] = useState(null);
+  const [transactionData, setTransactionData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const currentUser = useSelector((state) => state.profile.user);
-  const balance = useSelector((state) => state.profile.balance);
-  const balanceLoading = useSelector((state) => state.profile.balanceLoading);
+  const reportRange = days === "30" ? "30days" : days === "14" ? "14days" : "7days";
+  const reportType =
+    typeFilter === "Income"
+      ? "income"
+      : typeFilter === "Expense"
+        ? "expense"
+        : "both";
 
-  // Fetch balance on mount
-  useEffect(() => {
-    if (currentUser?.id && balance === null) {
-      dispatch(fetchBalance(currentUser.id));
+  const loadDashboard = useCallback(async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const [summaryData, reportData, historyData] = await Promise.all([
+        fetchSummary(),
+        fetchReport({ range: reportRange, type: reportType }),
+        fetchHistory({ page: 1, limit: 6 }),
+      ]);
+      setSummary(summaryData);
+      setReport(reportData);
+      setTransactionData(historyData.items);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
-  }, [dispatch, currentUser?.id, balance]);
+  }, [reportRange, reportType]);
 
-  const { transactions, status, error, reload } = useTransactionHistory();
-  const loading = status === "loading";
-
-  const fmtIdr = (val = 0) =>
-    new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      minimumFractionDigits: 0,
-    }).format(val);
-
-  const analytics = useMemo(
-    () => buildDashboardAnalytics(transactions, Number(days)),
-    [transactions, days],
-  );
+  useEffect(() => {
+    loadDashboard();
+  }, [loadDashboard]);
 
   const chartData = useMemo(() => {
+    const points = report?.points || [];
+    const labels = points.map((point) => point.label);
     const datasets = [];
+
     if (typeFilter === "All" || typeFilter === "Income") {
       datasets.push({
         label: "Income",
-        data: analytics.incomeSeries,
+        data: points.map((point) => point.income || 0),
         backgroundColor: "#4D7CFF",
         borderRadius: 10,
         borderSkipped: false,
         barPercentage: 0.45,
       });
     }
+
     if (typeFilter === "All" || typeFilter === "Expense") {
       datasets.push({
         label: "Expense",
-        data: analytics.expenseSeries,
+        data: points.map((point) => point.expense || 0),
         backgroundColor: "#CC0000",
         borderRadius: 10,
         borderSkipped: false,
         barPercentage: 0.45,
       });
     }
-    return { labels: analytics.labels, datasets };
-  }, [analytics, typeFilter]);
+
+    return { labels, datasets };
+  }, [report, typeFilter]);
 
   const options = {
     responsive: true,
@@ -124,7 +133,10 @@ export default function Index() {
       y: {
         beginAtZero: true,
         border: { display: false },
-        ticks: { stepSize: 25000, font: { family: "Montserrat", size: 11 } },
+        ticks: {
+          stepSize: 25000,
+          font: { family: "Montserrat", size: 11 },
+        },
         grid: {
           color: "rgba(0,0,0,0.06)",
           drawTicks: true,
@@ -136,84 +148,104 @@ export default function Index() {
   };
 
   return (
-    <section className="flex-1 flex flex-col gap-4 p-4 pt-4 sm:gap-6 sm:px-6 sm:pt-6 lg:px-8 lg:pt-8 overflow-hidden">
+    <section className="flex flex-1 flex-col gap-4 overflow-hidden p-4 pt-4 sm:gap-6 sm:px-6 sm:pt-6 lg:px-8 lg:pt-8">
       <div className="flex flex-col gap-4 lg:gap-5">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 items-start">
-          {/* Balance Card */}
-          <div className="fade-in delay-1 card flex flex-col gap-4">
-            <div className="flex items-center gap-2 text-slate-500 text-xs font-medium">
-              <Icon icon="lucide:credit-card" className="w-4 h-4" aria-hidden="true" />
+        <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-3 lg:gap-6">
+          <div className="fade-in card flex flex-col gap-4 delay-1">
+            <div className="flex items-center gap-2 text-xs font-medium text-slate-500">
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.2"
+                viewBox="0 0 24 24"
+              >
+                <rect x="2" y="5" width="20" height="14" rx="3" />
+                <path d="M2 10h20" />
+              </svg>
               Balance
             </div>
+
             <div>
-              {balanceLoading ? (
-                <div className="h-8 bg-gray-100 rounded animate-pulse w-40" />
-              ) : (
-                <p className="text-2xl lg:text-3xl font-extrabold text-slate-800 tracking-tight">
-                  {fmtIdr(balance?.balance ?? 0)}
-                </p>
-              )}
+              <p className="text-2xl font-extrabold tracking-tight text-slate-800 lg:text-3xl">
+                {loading
+                  ? "..."
+                  : formatRupiah(summary?.current_balance ?? 0)}
+              </p>
             </div>
+
             <div className="flex gap-6">
               <div>
-                <p className="text-[10px] uppercase tracking-wider text-slate-400 mb-1 font-bold">
+                <p className="mb-1 text-[10px] font-bold tracking-wider text-slate-400 uppercase">
                   Income
                 </p>
-                <p className="text-sm font-semibold text-emerald-500 flex items-center gap-1">
-                  {fmtIdr(analytics.totalIncome)}
+                <p className="flex items-center gap-1 text-sm font-semibold text-emerald-500">
+                  {loading
+                    ? "..."
+                    : formatRupiahShort(summary?.total_income ?? 0)}
                 </p>
               </div>
               <div>
-                <p className="text-[10px] uppercase tracking-wider text-slate-400 mb-1 font-bold">
+                <p className="mb-1 text-[10px] font-bold tracking-wider text-slate-400 uppercase">
                   Expense
                 </p>
-                <p className="text-sm font-semibold text-red-500 flex items-center gap-1">
-                  {fmtIdr(analytics.totalExpense)}
+                <p className="flex items-center gap-1 text-sm font-semibold text-red-500">
+                  {loading
+                    ? "..."
+                    : formatRupiahShort(summary?.total_expense ?? 0)}
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Fast Service Card */}
-          <div className="fade-in delay-2 lg:col-span-2 card flex items-center justify-between h-full">
+          <div className="fade-in card flex h-full items-center justify-between delay-2 lg:col-span-2">
             <div>
               <h2 className="section-title">Fast Service</h2>
             </div>
+
             <div className="flex flex-row gap-3">
-              <button className="btn-primary" onClick={() => navigate("/dashboard/topup")}>
+              <button
+                className="btn-primary"
+                onClick={() => navigate("/dashboard/topup")}
+              >
                 <span className="text-lg">+</span> Top Up
               </button>
-              <button className="btn-primary" onClick={() => navigate("/dashboard/transfer")}>
-                <Icon icon="lucide:send" className="w-4 h-4 -rotate-45" aria-hidden="true" />
+              <button
+                className="btn-primary"
+                onClick={() => navigate("/dashboard/transfer")}
+              >
+                <svg
+                  className="h-4 w-4 -rotate-45"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+                </svg>
                 Transfer
               </button>
             </div>
           </div>
         </div>
       </div>
-
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5 fade-in delay-3">
-        {/* Chart */}
-        <div className="col-span-full lg:col-span-2 card">
-          <div className="rounded-lg w-full">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6">
+      <div className="fade-in grid grid-cols-1 gap-4 delay-3 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
+        <div className="card col-span-full lg:col-span-2">
+          <div className="w-full rounded-lg">
+            <div className="mb-4 flex flex-col sm:mb-6 sm:flex-row sm:items-center sm:justify-between">
               <h2 className="section-title">Financial Chart</h2>
               <div className="flex gap-2 sm:gap-3">
                 <select
                   value={days}
                   onChange={(e) => setDays(e.target.value)}
-                  className="text-xs font-semibold text-slate-600 border border-slate-200 rounded-lg px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-200"
+                  className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 focus:ring-2 focus:ring-blue-200 focus:outline-none"
                 >
-                  {DAY_FILTER_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
+                  <option value="7">7 Days</option>
+                  <option value="14">14 Days</option>
+                  <option value="30">30 Days</option>
                 </select>
                 <select
                   value={typeFilter}
                   onChange={(e) => setTypeFilter(e.target.value)}
-                  className="text-xs font-semibold text-slate-600 border border-slate-200 rounded-lg px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-200"
+                  className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 focus:ring-2 focus:ring-blue-200 focus:outline-none"
                 >
                   <option value="All">All</option>
                   <option value="Income">Income</option>
@@ -221,35 +253,18 @@ export default function Index() {
                 </select>
               </div>
             </div>
-            {loading && (
-              <div className="flex flex-col items-center justify-center py-12 gap-3 text-gray-400">
-                <Icon icon="lucide:loader-circle" className="animate-spin w-6 h-6 text-blue-500" aria-hidden="true" />
-                <span className="text-xs">Loading chart data...</span>
+            {loading ? (
+              <div className="flex h-48 items-center justify-center text-sm text-slate-400">
+                Loading chart...
               </div>
-            )}
-            {!loading && error && (
-              <div className="flex flex-col items-center justify-center py-12 gap-2">
-                <p className="text-red-500 font-semibold text-xs">{error}</p>
-                <button onClick={reload} className="text-xs text-blue-600 underline">
-                  Try again
-                </button>
-              </div>
-            )}
-            {!loading && !error && transactions.length === 0 && (
-              <div className="flex flex-col items-center justify-center py-12 gap-2 text-gray-400">
-                <Icon icon="lucide:bar-chart-3" className="w-7 h-7" aria-hidden="true" />
-                <span className="text-xs">No data available for chart.</span>
-              </div>
-            )}
-            {!loading && !error && transactions.length > 0 && (
+            ) : (
               <Bar data={chartData} options={options} />
             )}
           </div>
         </div>
 
-        {/* Transaction History */}
-        <div className="col-span-full lg:col-span-1 card flex flex-col h-full fade-in delay-4">
-          <div className="flex items-center justify-between mb-3">
+        <div className="card fade-in col-span-full flex h-full flex-col delay-4 lg:col-span-1">
+          <div className="flex items-center justify-between">
             <h3 className="section-title">Transaction History</h3>
             <Link
               to="/dashboard/history"
@@ -258,61 +273,72 @@ export default function Index() {
               See All
             </Link>
           </div>
-
-          <div className="flex-1 flex flex-col gap-2 sm:gap-3">
+          <div className="flex flex-1 flex-col gap-2 sm:gap-3">
             {loading && (
-              <div className="flex flex-col items-center justify-center py-10 gap-2 text-gray-400">
-                <Icon
-                  icon="lucide:loader-circle"
-                  className="animate-spin w-6 h-6 text-blue-500"
-                  aria-hidden="true"
-                />
+              <div className="flex flex-col items-center justify-center gap-2 py-10 text-gray-400">
+                <svg
+                  className="h-6 w-6 animate-spin text-blue-500"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v8H4z"
+                  />
+                </svg>
                 <span className="text-xs">Loading...</span>
               </div>
             )}
-
             {!loading && error && (
-              <div className="flex flex-col items-center justify-center py-10 gap-2">
-                <p className="text-red-500 font-semibold text-xs">{error}</p>
-                <button onClick={reload} className="text-xs text-blue-600 underline">
+              <div className="flex flex-col items-center justify-center gap-2 py-10">
+                <p className="text-xs font-semibold text-red-500">{error}</p>
+                <button
+                  onClick={loadDashboard}
+                  className="text-xs text-blue-600 underline"
+                >
                   Try again
                 </button>
               </div>
             )}
-
-            {!loading && !error && transactions.length === 0 && (
-              <div className="flex flex-col items-center justify-center py-10 gap-2 text-gray-400">
-                <Icon icon="lucide:inbox" className="w-8 h-8" aria-hidden="true" />
-                <span className="text-xs">No transactions yet.</span>
+            {!loading && !error && transactionData.length === 0 && (
+              <div className="py-10 text-center text-xs text-slate-400">
+                No transactions yet.
               </div>
             )}
-
             {!loading &&
               !error &&
-              transactions.slice(0, 6).map((tx, i) => (
+              transactionData.map((tx) => (
                 <div
-                  key={tx.id || i}
-                  className="flex items-center gap-2 sm:gap-3 hover:bg-slate-50 p-2 sm:p-3 rounded-lg transition-colors cursor-pointer"
+                  key={tx.id}
+                  className="flex cursor-pointer items-center gap-2 rounded-lg p-2 transition-colors hover:bg-slate-50 sm:gap-3 sm:p-3"
                 >
-                  {tx.avatar ? (
-                    <img
-                      src={tx.avatar}
-                      className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover shrink-0"
-                      alt={tx.name}
-                    />
-                  ) : (
-                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center shrink-0">
-                      <Icon icon="lucide:user" className="w-4 h-4" aria-hidden="true" />
-                    </div>
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs sm:text-sm font-semibold text-slate-800 truncate">
-                      {tx.name || "Unknown"}
+                  <img
+                    src={tx.img}
+                    className="h-8 w-8 rounded-full object-cover sm:h-10 sm:w-10"
+                    alt={tx.name}
+                  />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-xs font-semibold text-slate-800 sm:text-sm">
+                      {tx.name}
                     </p>
-                    <p className="text-xs text-slate-400">{tx.badgeLabel || "Unknown"}</p>
+                    <p className="text-xs text-slate-400">
+                      {tx.type === "income" ? "Income" : "Expense"}
+                    </p>
                   </div>
-                  <span className={`text-xs sm:text-sm font-bold shrink-0 ${tx.amountClass}`}>
-                    {tx.sign || ""} {tx.formattedAmount || fmtIdr(0)}
+                  <span
+                    className={`shrink-0 text-xs font-bold sm:text-sm ${tx.type === "income" ? "text-emerald-500" : "text-red-500"}`}
+                  >
+                    {tx.type === "income" ? "+" : "-"}
+                    {tx.amount}
                   </span>
                 </div>
               ))}
