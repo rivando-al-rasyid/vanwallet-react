@@ -46,7 +46,7 @@ export default function Register() {
         email: form.email,
         password: form.password,
       });
-      navigate("/login/pin");
+      navigate("/register/pin");
     } catch (err) {
       // Error is already set in context
     }

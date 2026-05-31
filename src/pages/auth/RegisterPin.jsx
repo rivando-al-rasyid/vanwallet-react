@@ -1,3 +1,10 @@
+/**
+ * RegisterPin.jsx
+ *
+ * Shown after successful registration.
+ * Calls PATCH /profile/change/pin (first-time setup, no old_pin needed).
+ */
+
 import { useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { Controller, useForm } from "react-hook-form";
@@ -18,7 +25,6 @@ export default function RegisterPin() {
   const dispatch = useDispatch();
   const { showToast } = useToast();
 
-  const userId     = useSelector((state) => state.profile.user?.id ?? null);
   const pinLoading = useSelector((state) => state.register.pinLoading);
 
   const {
@@ -34,7 +40,8 @@ export default function RegisterPin() {
 
   const onSubmit = async ({ pin }) => {
     const pinValue = pin.map((item) => item.value).join("");
-    const result = await dispatch(createPin({ userId, pin: pinValue }));
+    // createPin dispatches PATCH /profile/change/pin (token-based, no userId needed)
+    const result = await dispatch(createPin({ pin: pinValue }));
 
     if (createPin.fulfilled.match(result)) {
       showToast("PIN berhasil dibuat! Selamat datang.", "success");
@@ -45,6 +52,7 @@ export default function RegisterPin() {
       showToast(msg, "error");
     }
   };
+
   const pinErrorMessage = errors.pin?.message || errors.pin?.[0]?.value?.message;
 
   return (

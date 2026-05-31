@@ -1,14 +1,21 @@
+/**
+ * registerSlice.js
+ *
+ * Handles:
+ *   - POST /auth/register  → create user
+ *   - PATCH /profile/change/pin → set initial PIN (no old_pin)
+ */
+
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { registerUser, changePinApi } from "../../utils/userUtils";
+import { registerUser } from "../../utils/auth";
+import { setPinApi } from "../../utils/api";
 
 export const register = createAsyncThunk(
   "register/create",
-  async (data, { rejectWithValue }) => {
+  async ({ email, password }, { rejectWithValue }) => {
     try {
-      return await registerUser({
-        ...data,
-        name: data.email?.split("@")[0] || "User",
-      });
+      // POST /auth/register then auto-login → returns full user object
+      return await registerUser({ email, password });
     } catch (err) {
       return rejectWithValue(err.message);
     }
@@ -17,9 +24,11 @@ export const register = createAsyncThunk(
 
 export const createPin = createAsyncThunk(
   "register/createPin",
-  async ({ userId, pin }, { rejectWithValue }) => {
+  async ({ pin }, { rejectWithValue }) => {
     try {
-      return await changePinApi(userId, pin);
+      // PATCH /profile/change/pin — first-time setup, no old_pin required
+      await setPinApi(pin);
+      return { pinSet: true };
     } catch (err) {
       return rejectWithValue(err.message);
     }
@@ -65,7 +74,7 @@ const registerSlice = createSlice({
         state.registerError = action.payload;
       })
 
-      // create pin
+      // createPin
       .addCase(createPin.pending, (state) => {
         state.pinLoading = true;
         state.pinError = null;

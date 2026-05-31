@@ -1,7 +1,26 @@
+/**
+ * api.js — Central API utility for VanWallet
+ * Aligned to Swagger spec: Vanwallet 1.0 (Gin backend, base: localhost:8080/)
+ *
+ * Swagger endpoints used:
+ *   Auth:         POST /auth/login, POST /auth/logout, POST /auth/register
+ *                 GET  /auth/pin, POST /auth/pin/verify
+ *   Profile:      GET  /profile, GET /profile/info
+ *                 PATCH /profile/edit, PATCH /profile/password, PATCH /profile/change/pin
+ *   Transactions: GET  /transactions, GET /transactions/history, GET /transactions/{id}
+ *                 GET  /transactions/summary, GET /transactions/report
+ *                 GET  /transactions/receivers
+ *                 POST /transactions/topup, POST /transactions/topup/{id}/confirm
+ *                 POST /transactions/transfer, POST /transactions/withdraw
+ *                 POST /transactions/expense
+ */
+
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const TOKEN_KEY = "vanwallet_token";
 
 const INCOME_TYPES = new Set(["TOPUP", "TRANSFER_IN"]);
+
+// ─── URL & Token helpers ──────────────────────────────────────────────────────
 
 export function resolveApiRoot() {
   const raw = String(BASE_URL || "").replace(/\/+$/, "");
@@ -29,6 +48,8 @@ export function resolveAssetUrl(path) {
   return `${resolveApiRoot()}${path.startsWith("/") ? path : `/${path}`}`;
 }
 
+// ─── Formatters ───────────────────────────────────────────────────────────────
+
 export function formatRupiah(amount) {
   return `Rp.${Number(amount || 0).toLocaleString("id-ID")}`;
 }
@@ -40,6 +61,8 @@ export function formatRupiahShort(amount) {
   return formatRupiah(value);
 }
 
+// ─── Data Mappers ─────────────────────────────────────────────────────────────
+
 export function mapUserFromInfo(info, token) {
   return {
     id: info?.id,
@@ -50,7 +73,7 @@ export function mapUserFromInfo(info, token) {
       resolveAssetUrl(info?.photo) ||
       `https://ui-avatars.com/api/?name=${encodeURIComponent(info?.full_name || info?.email || "User")}&background=EBF4FF&color=7F9CF5`,
     currentBalance: info?.current_balance ?? 0,
-    pin: (info?.pin_hash && info.pin_hash.trim() !== "") ? info.pin_hash : null,
+    pin: info?.pin_hash && info.pin_hash.trim() !== "" ? info.pin_hash : null,
     token,
   };
 }
@@ -69,6 +92,8 @@ export function mapHistoryItem(item) {
     createdAt: item.created_at,
   };
 }
+
+// ─── Core HTTP helpers ────────────────────────────────────────────────────────
 
 export async function requestJson(
   path,
@@ -118,34 +143,150 @@ export async function requestData(
   return envelope?.data;
 }
 
-export async function fetchUserInfo() {
-  return requestData("/profile/me", {}, "Failed to fetch user info");
+// ─── Auth ─────────────────────────────────────────────────────────────────────
+
+/**
+ * GET /auth/pin
+ * Returns the PIN hash sequence for the current user (used to check if PIN is set)
+ */
+export async function fetchPinStatus() {
+  return requestData("/auth/pin", {}, "Failed to fetch PIN status");
 }
 
+/**
+ * POST /auth/pin/verify
+ * Verifies validity of PIN entry blocks
+ */
+export async function verifyPinApi(pin) {
+  await requestJson(
+    "/auth/pin/verify",
+    {
+      method: "POST",
+      body: JSON.stringify({ pin }),
+    },
+    "Invalid PIN. Please try again.",
+  );
+  return true;
+}
+
+// ─── Profile ──────────────────────────────────────────────────────────────────
+
+/**
+ * GET /profile
+ * Returns the current user's profile details
+ */
 export async function fetchProfile() {
-  return requestData("/profile/", {}, "Failed to fetch profile");
+  return requestData("/profile", {}, "Failed to fetch profile");
 }
 
+/**
+ * GET /profile/info
+ * Returns unified user statistics (balance, income, expense, etc.)
+ */
+export async function fetchUserInfo() {
+  return requestData("/profile/info", {}, "Failed to fetch user info");
+}
+
+/**
+ * PATCH /profile/edit
+ * Updates name, phone, and optionally photo (multipart/form-data)
+ */
+export async function updateProfile({ fullName, phone, photoFile }) {
+  const formData = new FormData();
+  if (fullName) formData.append("full_name", fullName);
+  if (phone) formData.append("phone", phone);
+  if (photoFile) formData.append("photo", photoFile);
+
+  await requestJson(
+    "/profile/edit",
+    { method: "PATCH", body: formData },
+    "Failed to update profile",
+  );
+}
+
+/**
+ * PATCH /profile/password
+ * Changes the user's login password
+ */
+export async function changePasswordApi(oldPassword, newPassword) {
+  await requestJson(
+    "/profile/password",
+    {
+      method: "PATCH",
+      body: JSON.stringify({
+        old_password: oldPassword,
+        password: newPassword,
+      }),
+    },
+    "Failed to change password",
+  );
+}
+
+/**
+ * PATCH /profile/change/pin  — First-time PIN setup (no old_pin)
+ */
+export async function setPinApi(pin) {
+  await requestJson(
+    "/profile/change/pin",
+    {
+      method: "PATCH",
+      body: JSON.stringify({ pin_hash: pin }),
+    },
+    "Failed to set PIN",
+  );
+}
+
+/**
+ * PATCH /profile/change/pin  — Change existing PIN (requires old_pin verification)
+ */
+export async function changePinApi(currentPin, newPin) {
+  await requestJson(
+    "/profile/change/pin",
+    {
+      method: "PATCH",
+      body: JSON.stringify({
+        old_pin: currentPin,
+        pin_hash: newPin,
+      }),
+    },
+    "Failed to change PIN",
+  );
+}
+
+// ─── Transactions ─────────────────────────────────────────────────────────────
+
+/**
+ * GET /transactions/summary
+ * Returns current_balance, total_income, total_expense
+ */
 export async function fetchSummary() {
-  return requestData("/transaction/summary", {}, "Failed to fetch summary");
+  return requestData("/transactions/summary", {}, "Failed to fetch summary");
 }
 
+/**
+ * GET /transactions/report?range=7days&type=both
+ * Returns chart report analytics with daily points
+ */
 export async function fetchReport({ range = "7days", type = "both" } = {}) {
   const params = new URLSearchParams({ range, type });
   return requestData(
-    `/transaction/report?${params.toString()}`,
+    `/transactions/report?${params.toString()}`,
     {},
     "Failed to fetch report",
   );
 }
 
+/**
+ * GET /transactions/history?page=1&limit=10
+ * Returns paginated, user-friendly historical transaction logs
+ */
 export async function fetchHistory({ page = 1, limit = 10 } = {}) {
   const params = new URLSearchParams({
     page: String(page),
     limit: String(limit),
   });
   const data = await requestData(
-    `/transaction/history?${params.toString()}`,
+    `/transactions/history?${params.toString()}`,
     {},
     "Failed to fetch history",
   );
@@ -159,6 +300,26 @@ export async function fetchHistory({ page = 1, limit = 10 } = {}) {
   };
 }
 
+/**
+ * GET /transactions
+ * Returns all raw technical ledger records
+ */
+export async function fetchAllTransactions() {
+  return requestData("/transactions", {}, "Failed to fetch transactions");
+}
+
+/**
+ * GET /transactions/{id}
+ * Returns a single transaction detail
+ */
+export async function fetchTransactionById(id) {
+  return requestData(`/transactions/${id}`, {}, "Failed to fetch transaction");
+}
+
+/**
+ * GET /transactions/receivers?q=&page=1&limit=10
+ * Searches profiles available as transfer recipients
+ */
 export async function searchReceivers({ q, page = 1, limit = 10 }) {
   const params = new URLSearchParams({
     q,
@@ -166,7 +327,7 @@ export async function searchReceivers({ q, page = 1, limit = 10 }) {
     limit: String(limit),
   });
   const data = await requestData(
-    `/transaction/receiver?${params.toString()}`,
+    `/transactions/receivers?${params.toString()}`,
     {},
     "Failed to search receivers",
   );
@@ -191,60 +352,40 @@ export async function searchReceivers({ q, page = 1, limit = 10 }) {
   };
 }
 
-export async function updateProfile({ fullName, phone, photoFile }) {
-  const formData = new FormData();
-  if (fullName) formData.append("full_name", fullName);
-  if (phone) formData.append("phone", phone);
-  if (photoFile) formData.append("photo", photoFile);
-
-  await requestJson(
-    "/profile/",
-    { method: "POST", body: formData },
-    "Failed to update profile",
-  );
-}
-
-export async function changePasswordApi(oldPassword, newPassword) {
-  await requestJson(
-    "/profile/change/password",
+/**
+ * POST /transactions/topup
+ * Initiates a top-up deposit pipeline. Returns { id, ... } for confirmation.
+ */
+export async function initiateTopup({ amount, paymentMethod }) {
+  return requestData(
+    "/transactions/topup",
     {
       method: "POST",
       body: JSON.stringify({
-        old_password: oldPassword,
-        password: newPassword,
+        amount: Number(amount),
+        payment_method: paymentMethod,
       }),
     },
-    "Failed to change password",
+    "Failed to initiate top up",
   );
 }
 
-// First-time PIN setup (no old_pin required)
-export async function setPinApi(pin) {
-  await requestJson(
-    "/profile/change/pin",
-    {
-      method: "POST",
-      body: JSON.stringify({ pin_hash: pin }),
-    },
-    "Failed to set PIN",
+/**
+ * POST /transactions/topup/{id}/confirm
+ * Finalizes (confirms) a pending top-up event
+ */
+export async function confirmTopup(topupId) {
+  return requestData(
+    `/transactions/topup/${topupId}/confirm`,
+    { method: "POST" },
+    "Failed to confirm top up",
   );
 }
 
-// Change existing PIN (requires current PIN verification)
-export async function changePinApi(currentPin, newPin) {
-  await requestJson(
-    "/profile/change/pin",
-    {
-      method: "POST",
-      body: JSON.stringify({
-        old_pin: currentPin,
-        pin_hash: newPin,
-      }),
-    },
-    "Failed to change PIN",
-  );
-}
-
+/**
+ * POST /transactions/transfer
+ * Inter-wallet peer asset migration (requires PIN)
+ */
 export async function createTransfer({
   senderWalletId,
   recipientWalletId,
@@ -253,7 +394,7 @@ export async function createTransfer({
   pin,
 }) {
   return requestData(
-    "/transaction/transfer",
+    "/transactions/transfer",
     {
       method: "POST",
       body: JSON.stringify({
@@ -268,6 +409,52 @@ export async function createTransfer({
   );
 }
 
+/**
+ * POST /transactions/withdraw
+ * Executes a capital exit (withdrawal) pipeline
+ */
+export async function createWithdraw({ amount, bankAccount, bankName, pin }) {
+  return requestData(
+    "/transactions/withdraw",
+    {
+      method: "POST",
+      body: JSON.stringify({
+        amount: Number(amount),
+        bank_account: bankAccount,
+        bank_name: bankName,
+        pin,
+      }),
+    },
+    "Withdrawal failed",
+  );
+}
+
+/**
+ * POST /transactions/expense
+ * Logs an outward operational purchase (expense)
+ */
+export async function createExpense({ amount, note, category, pin }) {
+  return requestData(
+    "/transactions/expense",
+    {
+      method: "POST",
+      body: JSON.stringify({
+        amount: Number(amount),
+        note: note || "",
+        category: category || "",
+        pin,
+      }),
+    },
+    "Failed to log expense",
+  );
+}
+
+// ─── Auth session ─────────────────────────────────────────────────────────────
+
+/**
+ * POST /auth/logout
+ * Terminates the server-side session token, then clears local token
+ */
 export async function logoutApi() {
   try {
     await requestJson("/auth/logout", { method: "POST" }, "Logout failed");

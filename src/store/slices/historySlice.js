@@ -1,28 +1,23 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { getTransactionsByUser } from "../../utils/transactionUtils";
-import { getUserById } from "../../utils/userUtils";
+/**
+ * historySlice.js
+ *
+ * Uses GET /transactions/history (paginated, user-friendly logs)
+ * instead of the old Tonic Fabricate GET /users/:id/transactions.
+ */
 
-// Fetches transactions for the current user, enriched with recipient user data.
-// Uses GET /users/:userId/transactions (Tonic Fabricate endpoint).
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { fetchHistory } from "../../utils/api";
+
+/**
+ * Fetches paginated transaction history for the current user.
+ * Accepts { page, limit } options.
+ * Returns { items, page, limit, total }
+ */
 export const fetchHistoryWithUsers = createAsyncThunk(
   "history/fetchHistoryWithUsers",
-  async (userId, { rejectWithValue }) => {
+  async ({ page = 1, limit = 10 } = {}, { rejectWithValue }) => {
     try {
-      const historyItems = await getTransactionsByUser(userId);
-
-      // Enrich each transaction with the related user's data (for display)
-      const enrichedHistory = await Promise.all(
-        historyItems.map(async (item) => {
-          try {
-            const userData = await getUserById(item.userId);
-            return { ...item, user: userData };
-          } catch {
-            return { ...item, user: null };
-          }
-        }),
-      );
-
-      return enrichedHistory;
+      return await fetchHistory({ page, limit });
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -32,13 +27,19 @@ export const fetchHistoryWithUsers = createAsyncThunk(
 const historySlice = createSlice({
   name: "history",
   initialState: {
-    history: [],
+    items: [],
+    page: 1,
+    limit: 10,
+    total: 0,
     status: "idle", // idle | loading | succeeded | failed
     error: null,
   },
   reducers: {
     resetHistory: (state) => {
-      state.history = [];
+      state.items = [];
+      state.page = 1;
+      state.limit = 10;
+      state.total = 0;
       state.status = "idle";
       state.error = null;
     },
@@ -47,10 +48,14 @@ const historySlice = createSlice({
     builder
       .addCase(fetchHistoryWithUsers.pending, (state) => {
         state.status = "loading";
+        state.error = null;
       })
       .addCase(fetchHistoryWithUsers.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.history = action.payload;
+        state.items = action.payload.items;
+        state.page = action.payload.page;
+        state.limit = action.payload.limit;
+        state.total = action.payload.total;
       })
       .addCase(fetchHistoryWithUsers.rejected, (state, action) => {
         state.status = "failed";

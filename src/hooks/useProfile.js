@@ -1,85 +1,68 @@
+/**
+ * useProfile.js
+ *
+ * Hook untuk profile management.
+ * Reads from state.auth.user (persisted) and delegates to api.js functions.
+ *
+ * API endpoints used:
+ *   GET  /profile/info      → loadProfile
+ *   PATCH /profile/edit     → updateProfile
+ *   PATCH /profile/password → changePassword
+ *   PATCH /profile/change/pin → changePin
+ */
+
 import { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  fetchUserInfo,
+  updateProfile as updateProfileApi,
   changePasswordApi,
   changePinApi,
-  fetchUserInfo,
   mapUserFromInfo,
-  updateProfile,
 } from "../utils/api";
-import { mergeUser, setProfileError, setProfileLoading } from "../store/store";
+import { mergeUser } from "../store/slices/authSlice";
 
 export function useProfile() {
   const dispatch = useDispatch();
-  const { user, profileStatus } = useSelector((state) => state.auth);
+  const user = useSelector((state) => state.auth.user);
 
+  /**
+   * Fetches latest user info from GET /profile/info and merges into Redux
+   */
   const loadProfile = useCallback(async () => {
-    dispatch(setProfileLoading(true));
-    dispatch(setProfileError(null));
-    try {
+    const info = await fetchUserInfo();
+    const mapped = mapUserFromInfo(info, user?.token);
+    dispatch(mergeUser(mapped));
+    return mapped;
+  }, [dispatch, user?.token]);
+
+  /**
+   * Updates profile fields via PATCH /profile/edit, then re-fetches
+   */
+  const updateProfileFields = useCallback(
+    async ({ fullName, phone, photoFile }) => {
+      await updateProfileApi({ fullName, phone, photoFile });
       const info = await fetchUserInfo();
       const mapped = mapUserFromInfo(info, user?.token);
       dispatch(mergeUser(mapped));
       return mapped;
-    } catch (err) {
-      dispatch(setProfileError(err.message));
-      throw err;
-    } finally {
-      dispatch(setProfileLoading(false));
-    }
-  }, [dispatch, user?.token]);
-
-  const updateProfileFields = useCallback(
-    async ({ fullName, phone, photoFile }) => {
-      dispatch(setProfileLoading(true));
-      dispatch(setProfileError(null));
-      try {
-        await updateProfile({ fullName, phone, photoFile });
-        const info = await fetchUserInfo();
-        const mapped = mapUserFromInfo(info, user?.token);
-        dispatch(mergeUser(mapped));
-        return mapped;
-      } catch (err) {
-        dispatch(setProfileError(err.message));
-        throw err;
-      } finally {
-        dispatch(setProfileLoading(false));
-      }
     },
     [dispatch, user?.token],
   );
 
-  const changePassword = useCallback(
-    async (oldPassword, newPassword) => {
-      dispatch(setProfileLoading(true));
-      dispatch(setProfileError(null));
-      try {
-        await changePasswordApi(oldPassword, newPassword);
-      } catch (err) {
-        dispatch(setProfileError(err.message));
-        throw err;
-      } finally {
-        dispatch(setProfileLoading(false));
-      }
-    },
-    [dispatch],
-  );
+  /**
+   * Changes login password via PATCH /profile/password
+   */
+  const changePassword = useCallback(async (oldPassword, newPassword) => {
+    await changePasswordApi(oldPassword, newPassword);
+  }, []);
 
-  const changePin = useCallback(
-    async (currentPin, newPin) => {
-      dispatch(setProfileLoading(true));
-      dispatch(setProfileError(null));
-      try {
-        await changePinApi(currentPin, newPin);
-      } catch (err) {
-        dispatch(setProfileError(err.message));
-        throw err;
-      } finally {
-        dispatch(setProfileLoading(false));
-      }
-    },
-    [dispatch],
-  );
+  /**
+   * Changes PIN via PATCH /profile/change/pin
+   */
+  const changePin = useCallback(async (currentPin, newPin) => {
+    await changePinApi(currentPin, newPin);
+  }, []);
 
   return {
     user,
@@ -87,9 +70,8 @@ export function useProfile() {
     updateProfile: updateProfileFields,
     changePassword,
     changePin,
-    loading: profileStatus?.loading ?? false,
-    profileLoading: profileStatus?.loading ?? false,
-    error: profileStatus?.error ?? null,
-    profileError: profileStatus?.error ?? null,
+    // Kept for backward compatibility with components that check these
+    profileLoading: false,
+    profileError: null,
   };
 }

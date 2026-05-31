@@ -1,68 +1,87 @@
+/**
+ * profileSlice.js
+ *
+ * Manages user profile state. All API calls aligned to Swagger spec:
+ *   GET  /profile/info  → fetchUserInfo (balance + stats)
+ *   GET  /profile       → fetchProfile  (basic profile)
+ *   PATCH /profile/edit → updateProfile
+ *   PATCH /profile/password → changePasswordApi
+ *   PATCH /profile/change/pin → changePinApi
+ */
+
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { login, logout } from "./authSlice";
-import { register, createPin } from "./registerSlice";
+import { register } from "./registerSlice";
 import {
-  updateUser,
-  changePassword as changePasswordApi,
+  fetchUserInfo,
+  fetchProfile,
+  updateProfile as updateProfileApi,
+  changePasswordApi,
   changePinApi,
-  verifyPin,
-} from "../../utils/userUtils";
-import { getBalance } from "../../utils/balanceUtils";
+  mapUserFromInfo,
+} from "../../utils/api";
 
 // ─── Thunks ──────────────────────────────────────────────────────────────────
 
-export const fetchProfile = createAsyncThunk(
+/**
+ * Loads full user profile + stats from GET /profile/info
+ */
+export const fetchProfileThunk = createAsyncThunk(
   "profile/fetchProfile",
-  async (userId, { rejectWithValue }) => {
+  async (_, { rejectWithValue, getState }) => {
     try {
-      const { getUserById } = await import("../../utils/userUtils");
-      return await getUserById(userId);
+      const state = getState();
+      const token = state.auth?.user?.token;
+      const info = await fetchUserInfo();
+      return mapUserFromInfo(info, token);
     } catch (err) {
       return rejectWithValue(err.message);
     }
   },
 );
 
-// Separate thunk for balance — hits GET /balances/:userId
-export const fetchBalance = createAsyncThunk(
-  "profile/fetchBalance",
-  async (userId, { rejectWithValue }) => {
-    try {
-      return await getBalance(userId);
-    } catch (err) {
-      return rejectWithValue(err.message);
-    }
-  },
-);
-
+/**
+ * Updates profile fields via PATCH /profile/edit
+ * Re-fetches profile after update to sync state
+ */
 export const updateProfile = createAsyncThunk(
   "profile/updateProfile",
-  async ({ userId, payload }, { rejectWithValue }) => {
+  async ({ fullName, phone, photoFile }, { rejectWithValue, getState }) => {
     try {
-      return await updateUser(userId, payload);
+      await updateProfileApi({ fullName, phone, photoFile });
+      const state = getState();
+      const token = state.auth?.user?.token;
+      const info = await fetchUserInfo();
+      return mapUserFromInfo(info, token);
     } catch (err) {
       return rejectWithValue(err.message);
     }
   },
 );
 
+/**
+ * Changes login password via PATCH /profile/password
+ */
 export const changePassword = createAsyncThunk(
   "profile/changePassword",
-  async ({ userId, oldPassword, newPassword }, { rejectWithValue }) => {
+  async ({ oldPassword, newPassword }, { rejectWithValue }) => {
     try {
-      await changePasswordApi({ userId, oldPassword, newPassword });
+      await changePasswordApi(oldPassword, newPassword);
     } catch (err) {
       return rejectWithValue(err.message);
     }
   },
 );
 
+/**
+ * Changes PIN via PATCH /profile/change/pin
+ */
 export const changePin = createAsyncThunk(
   "profile/changePin",
-  async ({ userId, currentPin, newPin }, { rejectWithValue }) => {
+  async ({ currentPin, newPin }, { rejectWithValue }) => {
     try {
-      await verifyPin(userId, currentPin);
-      return await changePinApi(userId, newPin);
+      await changePinApi(currentPin, newPin);
+      return { pinUpdated: true };
     } catch (err) {
       return rejectWithValue(err.message);
     }
@@ -73,10 +92,7 @@ export const changePin = createAsyncThunk(
 
 const initialState = {
   user: null,
-  balance: null,        // { userId, balance, updatedAt }
-  avatarPath: null,
   loading: false,
-  balanceLoading: false,
   error: null,
 };
 
@@ -89,63 +105,37 @@ const profileSlice = createSlice({
     clearProfileError(state) {
       state.error = null;
     },
-    setAvatar(state, action) {
-      state.avatarPath = action.payload;
-    },
   },
   extraReducers: (builder) => {
     // ── Auth cross-slice effects ──
     builder
       .addCase(login.fulfilled, (state, action) => {
         state.user = action.payload;
-        state.balance = null; // will be fetched separately
         state.error = null;
       })
       .addCase(register.fulfilled, (state, action) => {
         state.user = action.payload;
-        state.balance = null;
         state.error = null;
       })
       .addCase(logout, (state) => {
         state.user = null;
-        state.balance = null;
-        state.avatarPath = null;
         state.loading = false;
         state.error = null;
       });
 
-    builder.addCase(createPin.fulfilled, (state, action) => {
-      if (action.payload && state.user) {
-        state.user = { ...state.user, ...action.payload };
-      }
-    });
-
-    // ── fetchProfile ──
+    // ── fetchProfileThunk ──
     builder
-      .addCase(fetchProfile.pending, (state) => {
+      .addCase(fetchProfileThunk.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchProfile.fulfilled, (state, action) => {
+      .addCase(fetchProfileThunk.fulfilled, (state, action) => {
         state.loading = false;
         state.user = action.payload;
       })
-      .addCase(fetchProfile.rejected, (state, action) => {
+      .addCase(fetchProfileThunk.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-      });
-
-    // ── fetchBalance ──
-    builder
-      .addCase(fetchBalance.pending, (state) => {
-        state.balanceLoading = true;
-      })
-      .addCase(fetchBalance.fulfilled, (state, action) => {
-        state.balanceLoading = false;
-        state.balance = action.payload;
-      })
-      .addCase(fetchBalance.rejected, (state) => {
-        state.balanceLoading = false;
       });
 
     // ── updateProfile ──
@@ -156,7 +146,7 @@ const profileSlice = createSlice({
       })
       .addCase(updateProfile.fulfilled, (state, action) => {
         state.loading = false;
-        state.user = { ...state.user, ...action.payload };
+        state.user = action.payload;
       })
       .addCase(updateProfile.rejected, (state, action) => {
         state.loading = false;
@@ -183,11 +173,8 @@ const profileSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(changePin.fulfilled, (state, action) => {
+      .addCase(changePin.fulfilled, (state) => {
         state.loading = false;
-        if (action.payload) {
-          state.user = { ...state.user, ...action.payload };
-        }
       })
       .addCase(changePin.rejected, (state, action) => {
         state.loading = false;
@@ -196,5 +183,8 @@ const profileSlice = createSlice({
   },
 });
 
-export const { clearProfileError, setAvatar } = profileSlice.actions;
+export const { clearProfileError } = profileSlice.actions;
 export default profileSlice.reducer;
+
+// ── backward-compat alias ──
+export { fetchProfileThunk as fetchProfile };
