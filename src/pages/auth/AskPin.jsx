@@ -9,7 +9,7 @@ import LoginHeadline from "../../components/login/LoginHeadline";
 import Submit from "../../components/Submit";
 import LoginSubtext from "../../components/LoginSubtext";
 import { setPinApi, fetchUserInfo, mapUserFromInfo } from "../../utils/api";
-import { mergeUser } from "../../store/slices/authSlice";
+import { setUser } from "../../store/slices/authSlice";
 import loginPhoneImage from "../../assets/img/3d-hand-phone.png";
 
 const PIN_LENGTH = 6;
@@ -48,11 +48,9 @@ export default function AskPin() {
     setError("");
     try {
       await setPinApi(pin);
-
       const info = await fetchUserInfo();
       const updated = mapUserFromInfo(info, user.token);
-      dispatch(mergeUser(updated));
-
+      dispatch(setUser(updated));
       navigate("/dashboard");
     } catch (err) {
       setError(err.message || "Failed to set PIN. Please try again.");

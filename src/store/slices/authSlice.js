@@ -42,7 +42,6 @@ export const logout = createAsyncThunk(
     try {
       await logoutApi();
     } catch (err) {
-      // Always clear local state even if server call fails
       clearToken();
       return rejectWithValue(err.message);
     }
@@ -95,11 +94,9 @@ const authSlice = createSlice({
     error: null,
   },
   reducers: {
-    /** Merge partial user updates (e.g. after setPinApi or profile edit) */
-    mergeUser(state, action) {
-      if (state.user) {
-        state.user = { ...state.user, ...action.payload };
-      }
+    /** Set or replace the current user (used after register + after PIN update) */
+    setUser(state, action) {
+      state.user = action.payload;
     },
     clearError(state) {
       state.error = null;
@@ -129,7 +126,6 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(logout.rejected, (state) => {
-        // Clear user regardless of server error
         state.user = null;
         state.loading = false;
         state.error = null;
@@ -180,5 +176,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { mergeUser, clearError } = authSlice.actions;
+export const { setUser, clearError } = authSlice.actions;
 export default authSlice.reducer;

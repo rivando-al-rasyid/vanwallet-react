@@ -1,53 +1,44 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useEffect, useCallback, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router";
+import { useDispatch, useSelector } from "react-redux";
 import Stepper from "../../components/Stepper";
 import SearchInput from "../../components/SearchInput";
 import TableRow from "../../components/TableRow";
 import { Pagination } from "../../components/Pagination";
-import { searchReceivers } from "../../utils/api";
+import { fetchAllUsers, resetTransfer } from "../../store/slices/transferSlice";
 
 const ITEMS_PER_PAGE = 6;
 
 export default function Transfer() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [contacts, setContacts] = useState([]);
-  const [totalItems, setTotalItems] = useState(0);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+
+  const { users, total, status, error } = useSelector((state) => state.transfer);
+
   const search = searchParams.get("search") || "";
   const currentPage = Number(searchParams.get("page") || "1");
 
-  const fetchContacts = useCallback(async () => {
-    if (search.trim().length < 2) {
-      setContacts([]);
-      setTotalItems(0);
-      setError("");
-      return;
-    }
-
-    setLoading(true);
-    setError("");
-    try {
-      const result = await searchReceivers({
+  // Fetch receivers on mount and whenever search/page changes.
+  // When search is empty, fetch all contacts (no `q` param sent).
+  useEffect(() => {
+    dispatch(
+      fetchAllUsers({
         q: search.trim(),
         page: currentPage,
         limit: ITEMS_PER_PAGE,
-      });
-      setContacts(result.items);
-      setTotalItems(result.total);
-    } catch (err) {
-      setError(err.message || "Failed to load contacts");
-    } finally {
-      setLoading(false);
-    }
-  }, [search, currentPage]);
+      }),
+    );
+  }, [dispatch, search, currentPage]);
 
+  // Clean up Redux state when leaving this page
   useEffect(() => {
-    fetchContacts();
-  }, [fetchContacts]);
+    return () => {
+      dispatch(resetTransfer());
+    };
+  }, [dispatch]);
 
-  const totalPages = Math.max(1, Math.ceil(totalItems / ITEMS_PER_PAGE));
+  const totalPages = Math.max(1, Math.ceil(total / ITEMS_PER_PAGE));
   const safePage = Math.min(Math.max(currentPage, 1), totalPages);
 
   const handleSearchChange = useCallback(
@@ -88,18 +79,22 @@ export default function Transfer() {
   );
 
   const handleRetry = useCallback(() => {
-    fetchContacts();
-  }, [fetchContacts]);
+    dispatch(
+      fetchAllUsers({
+        q: search.trim(),
+        page: currentPage,
+        limit: ITEMS_PER_PAGE,
+      }),
+    );
+  }, [dispatch, search, currentPage]);
 
   const resultsText = useMemo(() => {
-    if (loading) return "Memuat kontak...";
-    if (search.trim().length < 2) {
-      return "Ketik minimal 2 karakter untuk mencari penerima";
-    }
-    const count = totalItems;
-    const baseText = `${count} Result Found`;
-    return search ? `${baseText} For "${search}"` : baseText;
-  }, [loading, totalItems, search]);
+    if (status === "loading") return "Memuat kontak...";
+    if (search) return `${total} Result Found For "${search}"`;
+    return `${total} Contact${total !== 1 ? "s" : ""} Available`;
+  }, [status, total, search]);
+
+  const loading = status === "loading";
 
   return (
     <>
@@ -172,23 +167,17 @@ export default function Transfer() {
           </div>
         )}
 
-        {!loading && !error && search.trim().length >= 2 && (
+        {!loading && !error && (
           <>
-            <TableRow items={contacts} onRowClick={handleRowClick} />
+            <TableRow items={users} onRowClick={handleRowClick} />
             <Pagination
               currentPage={safePage}
               totalPages={totalPages}
               onPageChange={handlePageChange}
-              visibleCount={contacts.length}
-              totalItems={totalItems}
+              visibleCount={users.length}
+              totalItems={total}
             />
           </>
-        )}
-
-        {!loading && !error && search.trim().length < 2 && (
-          <div className="py-20 text-center text-sm text-slate-400">
-            Search for a recipient by name or phone number.
-          </div>
         )}
       </div>
     </>

@@ -1,8 +1,12 @@
 /**
  * transferSlice.js
  *
- * Uses GET /transactions/receivers?q=&page=&limit= (search system profiles)
- * instead of the old GET /users (Tonic Fabricate).
+ * Manages receiver search state for the Transfer flow (Step 1).
+ * Calls GET /transaction/receiver?q=&page=&limit=
+ *
+ * When `q` is empty, the API returns all available receivers (no filter).
+ * The Transfer page dispatches fetchAllUsers on mount so contacts are
+ * visible immediately without requiring the user to type anything first.
  */
 
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
@@ -10,7 +14,7 @@ import { searchReceivers } from "../../utils/api";
 
 export const fetchAllUsers = createAsyncThunk(
   "transfer/fetchAllUsers",
-  async ({ q = "", page = 1, limit = 10 } = {}, { rejectWithValue }) => {
+  async ({ q = "", page = 1, limit = 6 } = {}, { rejectWithValue }) => {
     try {
       const result = await searchReceivers({ q, page, limit });
       return result;
@@ -26,7 +30,7 @@ const transferSlice = createSlice({
     users: [],
     total: 0,
     page: 1,
-    limit: 10,
+    limit: 6,
     status: "idle", // idle | loading | succeeded | failed
     error: null,
   },
@@ -35,6 +39,7 @@ const transferSlice = createSlice({
       state.users = [];
       state.total = 0;
       state.page = 1;
+      state.limit = 6;
       state.status = "idle";
       state.error = null;
     },
