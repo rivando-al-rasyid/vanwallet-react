@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import { useProfile } from "../../hooks/useProfile";
+import { useDispatch, useSelector } from "react-redux";
+import { changePassword } from "../../store/slices/authSlice";
 
 export default function ChangePassword() {
   const navigate = useNavigate();
-  const { changePassword, profileLoading, profileError } = useProfile();
+  const dispatch = useDispatch();
+  const { loading, error: reduxError } = useSelector((state) => state.auth);
 
   const [form, setForm] = useState({
     currentPassword: "",
@@ -35,29 +37,30 @@ export default function ChangePassword() {
       setLocalError("Semua field password wajib diisi.");
       return;
     }
-
     if (form.newPassword.length < 8) {
       setLocalError("Password baru minimal 8 karakter.");
       return;
     }
-
     if (form.newPassword !== form.confirmNewPassword) {
       setLocalError("Konfirmasi password baru tidak cocok.");
       return;
     }
-
     if (form.currentPassword === form.newPassword) {
       setLocalError("Password baru tidak boleh sama dengan password lama.");
       return;
     }
 
-    try {
-      await changePassword(form.currentPassword, form.newPassword);
+    const result = await dispatch(
+      changePassword({
+        oldPassword: form.currentPassword,
+        newPassword: form.newPassword,
+      }),
+    );
+
+    if (changePassword.fulfilled.match(result)) {
       setSuccess("Password berhasil diupdate!");
       setForm({ currentPassword: "", newPassword: "", confirmNewPassword: "" });
       setTimeout(() => navigate("/dashboard/profile"), 1200);
-    } catch {
-      // error handled by Redux via profileError
     }
   };
 
@@ -89,9 +92,8 @@ export default function ChangePassword() {
     { name: "confirmNewPassword", label: "Confirm New Password", placeholder: "Re-Type Your New Password" },
   ];
 
-  const error = localError || profileError;
+  const error = localError || reduxError;
 
-  // Real-time confirm match hint
   const confirmMismatch =
     form.confirmNewPassword.length > 0 &&
     form.newPassword !== form.confirmNewPassword;
@@ -114,9 +116,7 @@ export default function ChangePassword() {
 
       <div className="rounded-2xl bg-white p-8 shadow-sm">
         <div className="w-full">
-          <h2 className="mb-4 text-base font-bold text-gray-800">
-            Change Password
-          </h2>
+          <h2 className="mb-4 text-base font-bold text-gray-800">Change Password</h2>
 
           <div className="flex w-full flex-col gap-5">
             {fields.map(({ name, label, placeholder }) => (
@@ -159,10 +159,10 @@ export default function ChangePassword() {
 
             <button
               onClick={handleSubmit}
-              disabled={profileLoading}
+              disabled={loading}
               className="w-full rounded-xl bg-blue-600 py-3.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-60"
             >
-              {profileLoading ? "Menyimpan..." : "Submit"}
+              {loading ? "Menyimpan..." : "Submit"}
             </button>
           </div>
         </div>

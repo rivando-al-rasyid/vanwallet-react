@@ -1,57 +1,82 @@
 /**
  * TopUp.jsx
  *
- * Two-step top-up flow aligned to Swagger spec:
- *   Step 1: POST /transactions/topup         → initiates deposit, returns { id }
- *   Step 2: POST /transactions/topup/{id}/confirm → finalizes the deposit
+ * Two-step top-up flow:
+ *   Step 1 (PIN):    POST /transaction/topup   { wallet_id, amount, payment_method, pin }
+ *   Step 2 (confirm): PATCH /transaction/topup/:id/confirm
+ *
+ * wallet_id comes from auth.user (first wallet in summary, or stored on user).
+ * PIN is collected in Step 1 before initiating.
  */
 
 import { useMemo, useState } from "react";
-import { useAuth } from "../../hooks/useAuth";
-import { initiateTopup, confirmTopup } from "../../utils/api";
+import { useSelector } from "react-redux";
+import { FormProvider, useForm } from "react-hook-form";
+import Joi from "joi";
+import { joiResolver } from "@hookform/resolvers/joi";
+
+import PinInput from "../../components/PinInput";
+import Modal from "../../components/Modal";
+import { initiateTopup, confirmTopup, fetchSummary } from "../../utils/api";
 
 const TAX_RATE = 0.1;
 
 const PAYMENT_METHODS = [
   {
-    id: "bri",
+    id: "BRI",
     name: "Bank Rakyat Indonesia",
     logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/BRI_2025.svg/500px-BRI_2025.svg.png",
   },
   {
-    id: "dana",
+    id: "DANA",
     name: "Dana",
     logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Logo_dana_blue.svg/500px-Logo_dana_blue.svg.png",
   },
   {
-    id: "bca",
+    id: "BCA",
     name: "Bank Central Asia",
     logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Bank_Central_Asia.svg/500px-Bank_Central_Asia.svg.png",
   },
   {
-    id: "gopay",
+    id: "GOPAY",
     name: "Gopay",
     logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Gopay_logo.svg/500px-Gopay_logo.svg.png",
   },
   {
-    id: "ovo",
+    id: "OVO",
     name: "Ovo",
     logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Logo_ovo_purple.svg/500px-Logo_ovo_purple.svg.png",
   },
 ];
 
-// Step states
-const STEP = { FORM: "form", CONFIRM: "confirm", SUCCESS: "success" };
+const STEP = { FORM: "form", PIN: "pin", CONFIRM: "confirm", SUCCESS: "success" };
+
+const PIN_LENGTH = 6;
+const defaultPin = Array.from({ length: PIN_LENGTH }, () => ({ value: "" }));
+
+const pinSchema = Joi.object({
+  pin: Joi.array()
+    .items(Joi.object({ value: Joi.string().length(1).pattern(/^\d$/).required() }))
+    .length(PIN_LENGTH)
+    .required(),
+});
 
 export default function TopUp() {
-  const { user: currentUser } = useAuth();
+  const currentUser = useSelector((state) => state.auth.user);
 
   const [amount, setAmount] = useState("");
-  const [selectedMethod, setSelectedMethod] = useState("bri");
+  const [selectedMethod, setSelectedMethod] = useState("BRI");
   const [step, setStep] = useState(STEP.FORM);
   const [pendingTopupId, setPendingTopupId] = useState(null);
+  const [walletId, setWalletId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const methods = useForm({
+    resolver: joiResolver(pinSchema),
+    defaultValues: { pin: defaultPin },
+    mode: "onChange",
+  });
 
   const user = useMemo(() => {
     if (!currentUser?.id) return null;
@@ -69,23 +94,46 @@ export default function TopUp() {
   const fmtIdr = (val = 0) =>
     val === 0 ? "Idr. 0" : `Idr. ${val.toLocaleString("id-ID")}`;
 
-  /**
-   * Step 1: POST /transactions/topup
-   * Initiates the deposit pipeline, receives a topup ID for confirmation
-   */
-  const handleInitiate = async () => {
+  // Step 1a: validate form → open PIN modal
+  const handleFormSubmit = async () => {
     if (!amount || order <= 0) {
       setError("Masukkan nominal top up yang valid.");
       return;
     }
     setError("");
+
+    // Resolve wallet_id from summary (first wallet)
+    setLoading(true);
+    try {
+      const summary = await fetchSummary();
+      const firstWallet = summary?.wallets?.[0];
+      if (!firstWallet?.id) {
+        setError("Wallet tidak ditemukan. Hubungi support.");
+        return;
+      }
+      setWalletId(firstWallet.id);
+      setStep(STEP.PIN);
+    } catch (err) {
+      setError(err.message || "Gagal mengambil data wallet.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Step 1b: submit PIN → POST /transaction/topup
+  const handlePinSubmit = async (data) => {
+    const pin = data.pin.map((p) => p.value).join("");
+    setError("");
     setLoading(true);
     try {
       const result = await initiateTopup({
+        walletId,
         amount: subTotal,
         paymentMethod: selectedMethod,
+        pin,
       });
       setPendingTopupId(result?.id);
+      methods.reset({ pin: defaultPin });
       setStep(STEP.CONFIRM);
     } catch (err) {
       setError(err.message || "Gagal memulai top up. Coba lagi.");
@@ -94,10 +142,7 @@ export default function TopUp() {
     }
   };
 
-  /**
-   * Step 2: POST /transactions/topup/{id}/confirm
-   * Finalizes the pending top-up event
-   */
+  // Step 2: PATCH /transaction/topup/:id/confirm
   const handleConfirm = async () => {
     if (!pendingTopupId) return;
     setError("");
@@ -114,10 +159,12 @@ export default function TopUp() {
 
   const handleReset = () => {
     setAmount("");
-    setSelectedMethod("bri");
+    setSelectedMethod("BRI");
     setPendingTopupId(null);
+    setWalletId(null);
     setStep(STEP.FORM);
     setError("");
+    methods.reset({ pin: defaultPin });
   };
 
   const methodName =
@@ -125,7 +172,6 @@ export default function TopUp() {
 
   return (
     <>
-      {/* Page Title */}
       <div className="mb-4 flex items-center gap-2 sm:mb-6 sm:gap-3">
         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 sm:h-10 sm:w-10">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="sm:h-4 sm:w-4">
@@ -138,18 +184,12 @@ export default function TopUp() {
         <h1 className="section-title">Top Up Account</h1>
       </div>
 
-      {/* ── SUCCESS STATE ───────────────────────────────────────── */}
+      {/* SUCCESS */}
       {step === STEP.SUCCESS && (
         <div className="card flex flex-col items-center gap-6 py-16 text-center">
           <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-              <path
-                d="M20 6L9 17l-5-5"
-                stroke="#16a34a"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
+              <path d="M20 6L9 17l-5-5" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </div>
           <div>
@@ -164,7 +204,7 @@ export default function TopUp() {
         </div>
       )}
 
-      {/* ── CONFIRM STATE ───────────────────────────────────────── */}
+      {/* CONFIRM */}
       {step === STEP.CONFIRM && (
         <div className="flex flex-col items-start gap-4 sm:gap-6 lg:flex-row">
           <div className="card w-full">
@@ -188,23 +228,17 @@ export default function TopUp() {
               </div>
             </div>
 
-            {error && (
-              <p className="mb-4 text-sm font-medium text-red-500">{error}</p>
-            )}
+            {error && <p className="mb-4 text-sm font-medium text-red-500">{error}</p>}
 
             <div className="flex gap-3">
               <button
-                onClick={() => setStep(STEP.FORM)}
+                onClick={handleReset}
                 className="flex-1 rounded-xl border border-gray-200 py-3 text-sm font-semibold text-gray-600 transition hover:bg-gray-50"
                 disabled={loading}
               >
-                Kembali
+                Batal
               </button>
-              <button
-                onClick={handleConfirm}
-                className="btn-primary flex-1"
-                disabled={loading}
-              >
+              <button onClick={handleConfirm} className="btn-primary flex-1" disabled={loading}>
                 {loading ? "Memproses..." : "Konfirmasi"}
               </button>
             </div>
@@ -212,10 +246,9 @@ export default function TopUp() {
         </div>
       )}
 
-      {/* ── FORM STATE ──────────────────────────────────────────── */}
-      {step === STEP.FORM && (
+      {/* FORM */}
+      {(step === STEP.FORM || step === STEP.PIN) && (
         <div className="flex flex-col items-start gap-4 sm:gap-6 lg:flex-row">
-          {/* Left Panel */}
           <div className="card w-full">
             <h2 className="section-title mb-3 sm:mb-4">Account Information</h2>
             <div className="mb-6 rounded-lg bg-gray-50 p-3 sm:mb-8 sm:rounded-xl sm:p-4">
@@ -231,9 +264,7 @@ export default function TopUp() {
                     }}
                   />
                   <div>
-                    <p className="text-sm font-semibold text-gray-800 sm:text-base">
-                      {user.name}
-                    </p>
+                    <p className="text-sm font-semibold text-gray-800 sm:text-base">{user.name}</p>
                     <p className="text-xs text-gray-500 sm:text-sm">{user.phone}</p>
                     <span className="badge badge-success mt-1">Verified</span>
                   </div>
@@ -249,7 +280,6 @@ export default function TopUp() {
               )}
             </div>
 
-            {/* Amount Input */}
             <div className="mb-6 sm:mb-8">
               <h2 className="section-title mb-1">Amount</h2>
               <p className="mb-2 text-xs text-gray-400 sm:mb-3 sm:text-sm">
@@ -258,17 +288,13 @@ export default function TopUp() {
               <input
                 type="number"
                 value={amount}
-                onChange={(e) => {
-                  setAmount(e.target.value);
-                  setError("");
-                }}
+                onChange={(e) => { setAmount(e.target.value); setError(""); }}
                 placeholder="Enter Nominal Transfer"
                 className="form-input"
                 min="0"
               />
             </div>
 
-            {/* Payment Methods */}
             <div>
               <h2 className="section-title mb-1">Payment Method</h2>
               <p className="mb-3 text-xs text-gray-400 sm:mb-4 sm:text-sm">
@@ -297,9 +323,7 @@ export default function TopUp() {
                         src={method.logo}
                         alt={method.name}
                         className="max-h-full max-w-full object-contain"
-                        onError={(e) => {
-                          e.currentTarget.src = "https://placehold.co/40x24?text=Pay";
-                        }}
+                        onError={(e) => { e.currentTarget.src = "https://placehold.co/40x24?text=Pay"; }}
                       />
                     </div>
                     <span className="text-xs font-medium text-gray-700 sm:text-sm">
@@ -311,38 +335,27 @@ export default function TopUp() {
             </div>
           </div>
 
-          {/* Summary Sidebar */}
           <div className="card w-full shrink-0 lg:w-72">
             <h2 className="section-title mb-3 sm:mb-6">Payment</h2>
             <div className="mb-3 flex flex-col gap-3 sm:mb-6 sm:gap-4">
               <div className="flex items-center justify-between">
                 <span className="text-xs text-gray-500 sm:text-sm">Order</span>
-                <span className="text-xs font-semibold text-gray-800 sm:text-sm">
-                  {fmtIdr(order)}
-                </span>
+                <span className="text-xs font-semibold text-gray-800 sm:text-sm">{fmtIdr(order)}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-xs text-gray-500 sm:text-sm">Tax (10%)</span>
-                <span className="text-xs font-semibold text-gray-800 sm:text-sm">
-                  {fmtIdr(tax)}
-                </span>
+                <span className="text-xs font-semibold text-gray-800 sm:text-sm">{fmtIdr(tax)}</span>
               </div>
               <div className="flex items-center justify-between border-t border-gray-100 pt-3 sm:pt-4">
-                <span className="text-xs font-bold text-gray-800 sm:text-sm">
-                  Sub Total
-                </span>
-                <span className="text-xs font-bold text-gray-800 sm:text-sm">
-                  {fmtIdr(subTotal)}
-                </span>
+                <span className="text-xs font-bold text-gray-800 sm:text-sm">Sub Total</span>
+                <span className="text-xs font-bold text-gray-800 sm:text-sm">{fmtIdr(subTotal)}</span>
               </div>
             </div>
 
-            {error && (
-              <p className="mb-3 text-xs font-medium text-red-500">{error}</p>
-            )}
+            {error && <p className="mb-3 text-xs font-medium text-red-500">{error}</p>}
 
             <button
-              onClick={handleInitiate}
+              onClick={handleFormSubmit}
               className="btn-primary w-full"
               disabled={loading}
             >
@@ -351,6 +364,44 @@ export default function TopUp() {
           </div>
         </div>
       )}
+
+      {/* PIN Modal */}
+      <Modal open={step === STEP.PIN}>
+        <h3 className="mb-1 text-left text-2xl font-bold">Enter Your PIN 🔐</h3>
+        <p className="mb-8 text-left text-sm text-gray-400">
+          Enter your 6-digit PIN to confirm this top up
+        </p>
+
+        <FormProvider {...methods}>
+          <form onSubmit={methods.handleSubmit(handlePinSubmit)} className="mb-2">
+            <div className="mb-8 flex justify-center">
+              <PinInput />
+            </div>
+
+            {methods.formState.errors.pin && (
+              <p className="mb-4 text-sm text-red-500">
+                Masukkan PIN lengkap ({PIN_LENGTH} digit)
+              </p>
+            )}
+            {error && <p className="mb-4 text-sm text-red-500">{error}</p>}
+
+            <button
+              type="submit"
+              className="btn-primary mb-4 w-full"
+              disabled={loading}
+            >
+              {loading ? "Memproses..." : "Konfirmasi PIN"}
+            </button>
+          </form>
+        </FormProvider>
+
+        <button
+          onClick={() => { setStep(STEP.FORM); setError(""); methods.reset({ pin: defaultPin }); }}
+          className="w-full text-sm text-gray-400 hover:text-gray-600"
+        >
+          ← Kembali
+        </button>
+      </Modal>
     </>
   );
 }

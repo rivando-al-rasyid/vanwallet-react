@@ -10,9 +10,13 @@ import ProtectedRoute from "./components/ProtectedRoute.jsx";
 
 import Login from "./pages/auth/Login.jsx";
 import Register from "./pages/auth/Register.jsx";
-import ForgotPassword from "./pages/auth/ForgotPassword.jsx";
 import AskPin from "./pages/auth/AskPin.jsx";
 import RegisterPin from "./pages/auth/RegisterPin.jsx";
+
+// Forgot-password 3-step flow
+import ForgotPassword from "./pages/auth/ForgotPassword.jsx";
+import ConfirmReset from "./pages/auth/ConfirmReset.jsx";
+import ChangePasswordReset from "./pages/auth/ChangePasswordReset.jsx";
 
 import Index from "./pages/dashboards/Index.jsx";
 import Transfer from "./pages/dashboards/Transfer.jsx";
@@ -41,7 +45,13 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           </Route>
           <Route path="register" element={<Register />} />
           <Route path="register/pin" element={<RegisterPin />} />
-          <Route path="forgotpassword" element={<ForgotPassword />} />
+
+          {/* Forgot-password: 3-step flow */}
+          <Route path="forgotpassword">
+            <Route index element={<ForgotPassword />} />
+            <Route path="confirm" element={<ConfirmReset />} />
+            <Route path="change" element={<ChangePasswordReset />} />
+          </Route>
 
           {/* Protected routes — redirect to /login if not authenticated */}
           <Route element={<ProtectedRoute />}>
@@ -51,9 +61,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
               {/* Transfer: 3-step flow */}
               <Route path="transfer">
                 <Route index element={<Transfer />} />
-                {/* Step 2: set amount + note */}
                 <Route path=":id" element={<SetNominal />} />
-                {/* Step 3: PIN confirmation + POST /transactions/transfer */}
                 <Route path=":id/confirm" element={<TransferModal />} />
               </Route>
 

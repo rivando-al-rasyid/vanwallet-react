@@ -9,7 +9,7 @@ import LoginHeadline from "../../components/login/LoginHeadline";
 import Submit from "../../components/Submit";
 import LoginSubtext from "../../components/LoginSubtext";
 import { setPinApi, fetchUserInfo, mapUserFromInfo } from "../../utils/api";
-import { mergeUser } from "../../store/store";
+import { mergeUser } from "../../store/slices/authSlice";
 import loginPhoneImage from "../../assets/img/3d-hand-phone.png";
 
 const PIN_LENGTH = 6;
@@ -49,8 +49,6 @@ export default function AskPin() {
     try {
       await setPinApi(pin);
 
-      // Refresh user profile so user.pin is updated in Redux
-      // before ProtectedRoute checks it
       const info = await fetchUserInfo();
       const updated = mapUserFromInfo(info, user.token);
       dispatch(mergeUser(updated));

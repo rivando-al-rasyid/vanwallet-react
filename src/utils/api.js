@@ -1,24 +1,24 @@
 /**
  * api.js — Central API utility for VanWallet
- * Aligned to Swagger spec: Vanwallet 1.0 (Gin backend, base: localhost:8080/)
  *
- * Swagger endpoints used:
- *   Auth:         POST /auth/login, POST /auth/logout, POST /auth/register
- *                 GET  /auth/pin, POST /auth/pin/verify
- *   Profile:      GET  /profile, GET /profile/info
- *                 PATCH /profile/edit, PATCH /profile/password, PATCH /profile/change/pin
- *   Transactions: GET  /transactions, GET /transactions/history, GET /transactions/{id}
- *                 GET  /transactions/summary, GET /transactions/report
- *                 GET  /transactions/receivers
- *                 POST /transactions/topup, POST /transactions/topup/{id}/confirm
- *                 POST /transactions/transfer, POST /transactions/withdraw
- *                 POST /transactions/expense
+ * Backend routes (Gin, base: VITE_API_BASE_URL):
+ *   Auth:         POST /auth/login, /auth/register, /auth/logout
+ *                 GET  /auth/pin
+ *                 POST /auth/pin/verify
+ *                 POST /auth/reset, /auth/reset/confirm, /auth/change-password
+ *   Profile:      GET  /profile, /profile/info
+ *                 PATCH /profile/edit
+ *                 PATCH /profile/change/pin
+ *                 PATCH /profile/change/password
+ *   Transactions: GET  /transaction, /transaction/history, /transaction/:id
+ *                 GET  /transaction/summary, /transaction/report, /transaction/receiver
+ *                 POST /transaction/topup
+ *                 PATCH /transaction/topup/:id/confirm
+ *                 POST /transaction/transfer, /transaction/withdrawal, /transaction/expense
  */
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const TOKEN_KEY = "vanwallet_token";
-
-const INCOME_TYPES = new Set(["TOPUP", "TRANSFER_IN"]);
 
 // ─── URL & Token helpers ──────────────────────────────────────────────────────
 
@@ -61,7 +61,7 @@ export function formatRupiahShort(amount) {
   return formatRupiah(value);
 }
 
-// ─── Data Mappers ─────────────────────────────────────────────────────────────
+// ─── Data Mapper ──────────────────────────────────────────────────────────────
 
 export function mapUserFromInfo(info, token) {
   return {
@@ -73,33 +73,15 @@ export function mapUserFromInfo(info, token) {
       resolveAssetUrl(info?.photo) ||
       `https://ui-avatars.com/api/?name=${encodeURIComponent(info?.full_name || info?.email || "User")}&background=EBF4FF&color=7F9CF5`,
     currentBalance: info?.current_balance ?? 0,
+    // pin_hash is a plain string from the server; empty string means no PIN set
     pin: info?.pin_hash && info.pin_hash.trim() !== "" ? info.pin_hash : null,
     token,
   };
 }
 
-export function mapHistoryItem(item) {
-  const direction =
-    item.direction || (INCOME_TYPES.has(item.type) ? "income" : "expense");
-  const name = item.title || item.note || item.type || "Transaction";
-  return {
-    id: item.id,
-    img: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=EBF4FF&color=7F9CF5`,
-    name,
-    phone: item.payment_method || item.status || item.source,
-    amount: formatRupiah(item.amount),
-    type: direction,
-    createdAt: item.created_at,
-  };
-}
-
 // ─── Core HTTP helpers ────────────────────────────────────────────────────────
 
-export async function requestJson(
-  path,
-  options = {},
-  fallbackMessage = "Request failed",
-) {
+export async function requestJson(path, options = {}, fallbackMessage = "Request failed") {
   const headers = { ...(options.headers || {}) };
   const token = getToken();
 
@@ -115,10 +97,7 @@ export async function requestJson(
     headers["Content-Type"] = "application/json";
   }
 
-  const res = await fetch(`${resolveApiRoot()}${path}`, {
-    ...options,
-    headers,
-  });
+  const res = await fetch(`${resolveApiRoot()}${path}`, { ...options, headers });
 
   let body = null;
   try {
@@ -134,267 +113,238 @@ export async function requestJson(
   return body;
 }
 
-export async function requestData(
-  path,
-  options = {},
-  fallbackMessage = "Request failed",
-) {
+export async function requestData(path, options = {}, fallbackMessage = "Request failed") {
   const envelope = await requestJson(path, options, fallbackMessage);
   return envelope?.data;
 }
 
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 
-/**
- * GET /auth/pin
- * Returns the PIN hash sequence for the current user (used to check if PIN is set)
- */
+/** POST /auth/login — returns JWT token in data field */
+export async function loginApi({ email, password }) {
+  const envelope = await requestJson(
+    "/auth/login",
+    { method: "POST", body: JSON.stringify({ email, password }) },
+    "Login failed",
+  );
+  const token = envelope.data;
+  setToken(token);
+  const info = await fetchUserInfo();
+  return mapUserFromInfo(info, token);
+}
+
+/** POST /auth/register — creates user, then auto-login */
+export async function registerApi({ email, password }) {
+  await requestJson(
+    "/auth/register",
+    { method: "POST", body: JSON.stringify({ email, password }) },
+    "Registration failed",
+  );
+  return loginApi({ email, password });
+}
+
+/** POST /auth/logout — invalidates server session */
+export async function logoutApi() {
+  try {
+    await requestJson("/auth/logout", { method: "POST" }, "Logout failed");
+  } finally {
+    clearToken();
+  }
+}
+
+/** GET /auth/pin — checks whether PIN is set */
 export async function fetchPinStatus() {
   return requestData("/auth/pin", {}, "Failed to fetch PIN status");
 }
 
-/**
- * POST /auth/pin/verify
- * Verifies validity of PIN entry blocks
- */
+/** POST /auth/pin/verify */
 export async function verifyPinApi(pin) {
   await requestJson(
     "/auth/pin/verify",
-    {
-      method: "POST",
-      body: JSON.stringify({ pin }),
-    },
+    { method: "POST", body: JSON.stringify({ pin }) },
     "Invalid PIN. Please try again.",
   );
   return true;
 }
 
-// ─── Profile ──────────────────────────────────────────────────────────────────
-
-/**
- * GET /profile
- * Returns the current user's profile details
- */
-export async function fetchProfile() {
-  return requestData("/profile", {}, "Failed to fetch profile");
+/** POST /auth/reset — request a password-reset token */
+export async function requestPasswordReset(email) {
+  return requestData(
+    "/auth/reset",
+    { method: "POST", body: JSON.stringify({ email }) },
+    "Failed to request password reset",
+  );
 }
 
-/**
- * GET /profile/info
- * Returns unified user statistics (balance, income, expense, etc.)
- */
-export async function fetchUserInfo() {
-  return requestData("/profile/info", {}, "Failed to fetch user info");
-}
-
-/**
- * PATCH /profile/edit
- * Updates name, phone, and optionally photo (multipart/form-data)
- */
-export async function updateProfile({ fullName, phone, photoFile }) {
-  const formData = new FormData();
-  if (fullName) formData.append("full_name", fullName);
-  if (phone) formData.append("phone", phone);
-  if (photoFile) formData.append("photo", photoFile);
-
-  await requestJson(
-    "/profile/edit",
-    { method: "PATCH", body: formData },
-    "Failed to update profile",
+/** POST /auth/reset/confirm — exchange opaque token for a reset JWT */
+export async function confirmPasswordReset(token) {
+  return requestData(
+    "/auth/reset/confirm",
+    { method: "POST", body: JSON.stringify({ token }) },
+    "Failed to confirm reset token",
   );
 }
 
 /**
- * PATCH /profile/password
- * Changes the user's login password
+ * POST /auth/change-password
+ * Requires the short-lived reset JWT (from confirmPasswordReset) as Bearer token.
  */
+export async function changePasswordWithResetToken(resetJwt, newPassword) {
+  const res = await fetch(`${resolveApiRoot()}/auth/change-password`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${resetJwt}`,
+    },
+    body: JSON.stringify({ new_password: newPassword }),
+  });
+  const body = await res.json().catch(() => null);
+  if (!res.ok || body?.isSuccess === false) {
+    throw new Error(body?.error || body?.message || "Failed to change password");
+  }
+  return body;
+}
+
+// ─── Profile ──────────────────────────────────────────────────────────────────
+
+/** GET /profile/info — unified user stats */
+export async function fetchUserInfo() {
+  return requestData("/profile/info", {}, "Failed to fetch user info");
+}
+
+/** GET /profile — basic profile details */
+export async function fetchProfile() {
+  return requestData("/profile", {}, "Failed to fetch profile");
+}
+
+/** PATCH /profile/edit — update name, phone, photo (multipart) */
+export async function updateProfileApi({ fullName, phone, photoFile }) {
+  const formData = new FormData();
+  if (fullName) formData.append("full_name", fullName);
+  if (phone) formData.append("phone", phone);
+  if (photoFile) formData.append("photo", photoFile);
+  await requestJson("/profile/edit", { method: "PATCH", body: formData }, "Failed to update profile");
+}
+
+/** PATCH /profile/change/pin — first-time setup (no old_pin) or change */
+export async function setPinApi(pin) {
+  await requestJson(
+    "/profile/change/pin",
+    { method: "PATCH", body: JSON.stringify({ pin_hash: pin }) },
+    "Failed to set PIN",
+  );
+}
+
+/** PATCH /profile/change/pin — change existing PIN (requires old_pin) */
+export async function changePinApi(currentPin, newPin) {
+  await requestJson(
+    "/profile/change/pin",
+    { method: "PATCH", body: JSON.stringify({ old_pin: currentPin, pin_hash: newPin }) },
+    "Failed to change PIN",
+  );
+}
+
+/** PATCH /profile/change/password — change password while logged in */
 export async function changePasswordApi(oldPassword, newPassword) {
   await requestJson(
-    "/profile/password",
+    "/profile/change/password",
     {
       method: "PATCH",
-      body: JSON.stringify({
-        old_password: oldPassword,
-        password: newPassword,
-      }),
+      body: JSON.stringify({ old_password: oldPassword, password: newPassword }),
     },
     "Failed to change password",
   );
 }
 
-/**
- * PATCH /profile/change/pin  — First-time PIN setup (no old_pin)
- */
-export async function setPinApi(pin) {
-  await requestJson(
-    "/profile/change/pin",
-    {
-      method: "PATCH",
-      body: JSON.stringify({ pin_hash: pin }),
-    },
-    "Failed to set PIN",
-  );
-}
-
-/**
- * PATCH /profile/change/pin  — Change existing PIN (requires old_pin verification)
- */
-export async function changePinApi(currentPin, newPin) {
-  await requestJson(
-    "/profile/change/pin",
-    {
-      method: "PATCH",
-      body: JSON.stringify({
-        old_pin: currentPin,
-        pin_hash: newPin,
-      }),
-    },
-    "Failed to change PIN",
-  );
-}
-
 // ─── Transactions ─────────────────────────────────────────────────────────────
 
-/**
- * GET /transactions/summary
- * Returns current_balance, total_income, total_expense
- */
+/** GET /transaction/summary */
 export async function fetchSummary() {
-  return requestData("/transactions/summary", {}, "Failed to fetch summary");
+  return requestData("/transaction/summary", {}, "Failed to fetch summary");
 }
 
-/**
- * GET /transactions/report?range=7days&type=both
- * Returns chart report analytics with daily points
- */
+/** GET /transaction/report?range=7days&type=both */
 export async function fetchReport({ range = "7days", type = "both" } = {}) {
   const params = new URLSearchParams({ range, type });
-  return requestData(
-    `/transactions/report?${params.toString()}`,
-    {},
-    "Failed to fetch report",
-  );
+  return requestData(`/transaction/report?${params}`, {}, "Failed to fetch report");
 }
 
-/**
- * GET /transactions/history?page=1&limit=10
- * Returns paginated, user-friendly historical transaction logs
- */
+/** GET /transaction/history?page=1&limit=10 */
 export async function fetchHistory({ page = 1, limit = 10 } = {}) {
-  const params = new URLSearchParams({
-    page: String(page),
-    limit: String(limit),
-  });
-  const data = await requestData(
-    `/transactions/history?${params.toString()}`,
-    {},
-    "Failed to fetch history",
-  );
-
-  const items = (data?.data || []).map(mapHistoryItem);
+  const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+  const data = await requestData(`/transaction/history?${params}`, {}, "Failed to fetch history");
   return {
-    items,
+    items: data?.data ?? [],
     page: data?.page ?? page,
     limit: data?.limit ?? limit,
-    total: data?.total ?? items.length,
+    total: data?.total ?? 0,
   };
 }
 
-/**
- * GET /transactions
- * Returns all raw technical ledger records
- */
-export async function fetchAllTransactions() {
-  return requestData("/transactions", {}, "Failed to fetch transactions");
+/** GET /transaction?page=1&limit=10 — raw ledger */
+export async function fetchAllTransactions({ page = 1, limit = 10 } = {}) {
+  const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+  return requestData(`/transaction?${params}`, {}, "Failed to fetch transactions");
 }
 
-/**
- * GET /transactions/{id}
- * Returns a single transaction detail
- */
+/** GET /transaction/:id */
 export async function fetchTransactionById(id) {
-  return requestData(`/transactions/${id}`, {}, "Failed to fetch transaction");
+  return requestData(`/transaction/${id}`, {}, "Failed to fetch transaction");
 }
 
-/**
- * GET /transactions/receivers?q=&page=1&limit=10
- * Searches profiles available as transfer recipients
- */
+/** GET /transaction/receiver?q=&page=1&limit=10 */
 export async function searchReceivers({ q, page = 1, limit = 10 }) {
-  const params = new URLSearchParams({
-    q,
-    page: String(page),
-    limit: String(limit),
-  });
-  const data = await requestData(
-    `/transactions/receivers?${params.toString()}`,
-    {},
-    "Failed to search receivers",
-  );
+  const params = new URLSearchParams({ q, page: String(page), limit: String(limit) });
+  const data = await requestData(`/transaction/receiver?${params}`, {}, "Failed to search receivers");
 
-  const items = (data?.data || []).map((receiver) => ({
-    id: receiver.wallet_id,
-    userId: receiver.user_id,
-    walletId: receiver.wallet_id,
-    name: receiver.full_name || receiver.email,
-    phone: receiver.phone || receiver.wallet_label,
+  const items = (data?.data || []).map((r) => ({
+    id: r.wallet_id,
+    userId: r.user_id,
+    walletId: r.wallet_id,
+    name: r.full_name || r.email,
+    phone: r.phone || r.wallet_label,
     img:
-      resolveAssetUrl(receiver.photo) ||
-      `https://ui-avatars.com/api/?name=${encodeURIComponent(receiver.full_name || receiver.email)}&background=EBF4FF&color=7F9CF5`,
-    email: receiver.email,
+      resolveAssetUrl(r.photo) ||
+      `https://ui-avatars.com/api/?name=${encodeURIComponent(r.full_name || r.email)}&background=EBF4FF&color=7F9CF5`,
+    email: r.email,
   }));
 
-  return {
-    items,
-    page: data?.page ?? page,
-    limit: data?.limit ?? limit,
-    total: data?.total ?? items.length,
-  };
+  return { items, page: data?.page ?? page, limit: data?.limit ?? limit, total: data?.total ?? 0 };
 }
 
 /**
- * POST /transactions/topup
- * Initiates a top-up deposit pipeline. Returns { id, ... } for confirmation.
+ * POST /transaction/topup
+ * Requires wallet_id, amount, payment_method, pin in body.
  */
-export async function initiateTopup({ amount, paymentMethod }) {
+export async function initiateTopup({ walletId, amount, paymentMethod, pin }) {
   return requestData(
-    "/transactions/topup",
+    "/transaction/topup",
     {
       method: "POST",
       body: JSON.stringify({
+        wallet_id: walletId,
         amount: Number(amount),
         payment_method: paymentMethod,
+        pin,
       }),
     },
     "Failed to initiate top up",
   );
 }
 
-/**
- * POST /transactions/topup/{id}/confirm
- * Finalizes (confirms) a pending top-up event
- */
+/** PATCH /transaction/topup/:id/confirm */
 export async function confirmTopup(topupId) {
   return requestData(
-    `/transactions/topup/${topupId}/confirm`,
-    { method: "POST" },
+    `/transaction/topup/${topupId}/confirm`,
+    { method: "PATCH" },
     "Failed to confirm top up",
   );
 }
 
-/**
- * POST /transactions/transfer
- * Inter-wallet peer asset migration (requires PIN)
- */
-export async function createTransfer({
-  senderWalletId,
-  recipientWalletId,
-  amount,
-  note,
-  pin,
-}) {
+/** POST /transaction/transfer — requires sender_wallet_id, recipient_wallet_id, amount, pin */
+export async function createTransfer({ senderWalletId, recipientWalletId, amount, note, pin }) {
   return requestData(
-    "/transactions/transfer",
+    "/transaction/transfer",
     {
       method: "POST",
       body: JSON.stringify({
@@ -409,19 +359,18 @@ export async function createTransfer({
   );
 }
 
-/**
- * POST /transactions/withdraw
- * Executes a capital exit (withdrawal) pipeline
- */
-export async function createWithdraw({ amount, bankAccount, bankName, pin }) {
+/** POST /transaction/withdrawal — requires wallet_id, amount, bank details, pin */
+export async function createWithdraw({ walletId, amount, bankName, accountNumber, accountHolder, pin }) {
   return requestData(
-    "/transactions/withdraw",
+    "/transaction/withdrawal",
     {
       method: "POST",
       body: JSON.stringify({
+        wallet_id: walletId,
         amount: Number(amount),
-        bank_account: bankAccount,
         bank_name: bankName,
+        account_number: accountNumber,
+        account_holder: accountHolder,
         pin,
       }),
     },
@@ -429,36 +378,22 @@ export async function createWithdraw({ amount, bankAccount, bankName, pin }) {
   );
 }
 
-/**
- * POST /transactions/expense
- * Logs an outward operational purchase (expense)
- */
-export async function createExpense({ amount, note, category, pin }) {
+/** POST /transaction/expense — requires wallet_id, amount, pin */
+export async function createExpense({ walletId, amount, adminFee, category, merchantName, note, pin }) {
   return requestData(
-    "/transactions/expense",
+    "/transaction/expense",
     {
       method: "POST",
       body: JSON.stringify({
+        wallet_id: walletId,
         amount: Number(amount),
-        note: note || "",
+        admin_fee: adminFee ?? 0,
         category: category || "",
+        merchant_name: merchantName || "",
+        note: note || "",
         pin,
       }),
     },
     "Failed to log expense",
   );
-}
-
-// ─── Auth session ─────────────────────────────────────────────────────────────
-
-/**
- * POST /auth/logout
- * Terminates the server-side session token, then clears local token
- */
-export async function logoutApi() {
-  try {
-    await requestJson("/auth/logout", { method: "POST" }, "Logout failed");
-  } finally {
-    clearToken();
-  }
 }

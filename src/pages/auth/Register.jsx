@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
+import { useDispatch, useSelector } from "react-redux";
 import { faEnvelope, faLock } from "@fortawesome/free-solid-svg-icons";
-import { useAuth } from "../../hooks/useAuth";
+import { register } from "../../store/slices/registerSlice";
 import Brand from "../../components/Brand";
 import LoginHeadline from "../../components/login/LoginHeadline";
 import SocialLogin from "../../components/SocialLogin";
@@ -13,7 +14,8 @@ import walletHandImage from "../../assets/img/3d-hand-wallet.png";
 
 export default function Register() {
   const navigate = useNavigate();
-  const { register, loading, error } = useAuth();
+  const dispatch = useDispatch();
+  const { loading, error } = useSelector((state) => state.register);
 
   const [form, setForm] = useState({
     email: "",
@@ -41,14 +43,12 @@ export default function Register() {
       return;
     }
 
-    try {
-      await register({
-        email: form.email,
-        password: form.password,
-      });
+    const result = await dispatch(
+      register({ email: form.email, password: form.password }),
+    );
+
+    if (register.fulfilled.match(result)) {
       navigate("/register/pin");
-    } catch (err) {
-      // Error is already set in context
     }
   };
 

@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useLocation, NavLink } from "react-router";
+import { useDispatch, useSelector } from "react-redux";
 import { faEnvelope, faLock } from "@fortawesome/free-solid-svg-icons";
-import { useAuth } from "../../hooks/useAuth";
+import { login } from "../../store/slices/authSlice";
 import Brand from "../../components/Brand";
 import LoginHeadline from "../../components/login/LoginHeadline";
 import SocialLogin from "../../components/SocialLogin";
@@ -13,7 +14,12 @@ import loginPhoneImage from "../../assets/img/3d-hand-phone.png";
 
 export default function Login() {
   const navigate = useNavigate();
-  const { login, loading, error } = useAuth();
+  const location = useLocation();
+  const dispatch = useDispatch();
+  const { loading, error } = useSelector((state) => state.auth);
+
+  // Show success banner when redirected back from password-reset flow
+  const passwordReset = location.state?.passwordReset === true;
 
   const [form, setForm] = useState({ email: "", password: "" });
   const [validationError, setValidationError] = useState("");
@@ -32,15 +38,15 @@ export default function Login() {
       return;
     }
 
-    try {
-      const loggedInUser = await login(form);
-      if (!loggedInUser?.pin) {
+    const result = await dispatch(login(form));
+
+    if (login.fulfilled.match(result)) {
+      const user = result.payload;
+      if (!user?.pin) {
         navigate("/login/pin", { replace: true });
       } else {
         navigate("/dashboard", { replace: true });
       }
-    } catch (err) {
-      // Error is already set in context
     }
   };
 
@@ -56,6 +62,13 @@ export default function Login() {
             }
           />
           <SocialLogin />
+
+          {/* Password-reset success banner */}
+          {passwordReset && (
+            <div className="mb-4 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm font-medium text-green-700">
+              ✓ Password changed successfully! Please log in with your new password.
+            </div>
+          )}
 
           {(validationError || error) && (
             <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-600">
@@ -82,6 +95,17 @@ export default function Login() {
               value={form.password}
               onChange={handleChange}
             />
+
+            {/* Forgot password link */}
+            <div className="flex justify-end">
+              <NavLink
+                to="/forgotpassword"
+                className="text-sm font-semibold text-[#6379F4] hover:underline"
+              >
+                Forgot Password?
+              </NavLink>
+            </div>
+
             <Submit name={loading ? "Loading..." : "Login"} />
           </form>
 

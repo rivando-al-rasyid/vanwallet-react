@@ -1,96 +1,104 @@
 /**
  * registerSlice.js
  *
- * Handles:
- *   - POST /auth/register  → create user
- *   - PATCH /profile/change/pin → set initial PIN (no old_pin)
+ * Handles the registration flow:
+ *   1. register   POST /auth/register → auto-login → stores user in auth slice
+ *   2. createPin  PATCH /profile/change/pin (first-time, no old_pin)
+ *
+ * After createPin succeeds the caller navigates to /dashboard.
+ * This slice owns only its own loading/error; user state lives in authSlice.
  */
 
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { registerUser } from "../../utils/auth";
-import { setPinApi } from "../../utils/api";
+import { registerApi, setPinApi, getToken, mapUserFromInfo, fetchUserInfo } from "../../utils/api";
+import { mergeUser } from "./authSlice";
 
+// ─── Thunks ───────────────────────────────────────────────────────────────────
+
+/**
+ * POST /auth/register → auto-login.
+ * On success, dispatches the resulting user into authSlice.
+ */
 export const register = createAsyncThunk(
-  "register/create",
-  async ({ email, password }, { rejectWithValue }) => {
+  "register/register",
+  async ({ email, password }, { dispatch, rejectWithValue }) => {
     try {
-      // POST /auth/register then auto-login → returns full user object
-      return await registerUser({ email, password });
+      const user = await registerApi({ email, password });
+      // Push authenticated user into the persisted auth slice
+      dispatch(mergeUser(user));
+      return user;
     } catch (err) {
       return rejectWithValue(err.message);
     }
   },
 );
 
+/**
+ * PATCH /profile/change/pin — first-time setup, only pin_hash required.
+ * After success, re-fetches user info to update pin field in auth.user.
+ */
 export const createPin = createAsyncThunk(
   "register/createPin",
-  async ({ pin }, { rejectWithValue }) => {
+  async ({ pin }, { dispatch, getState, rejectWithValue }) => {
     try {
-      // PATCH /profile/change/pin — first-time setup, no old_pin required
       await setPinApi(pin);
-      return { pinSet: true };
+      const token = getState().auth.user?.token || getToken();
+      const info = await fetchUserInfo();
+      const updated = mapUserFromInfo(info, token);
+      dispatch(mergeUser(updated));
+      return updated;
     } catch (err) {
       return rejectWithValue(err.message);
     }
   },
 );
 
-const initialState = {
-  registerData: null,
-  registerLoading: false,
-  registerError: null,
-
-  pinLoading: false,
-  pinError: null,
-  pinSuccess: false,
-};
+// ─── Slice ────────────────────────────────────────────────────────────────────
 
 const registerSlice = createSlice({
   name: "register",
-  initialState,
+  initialState: {
+    loading: false,
+    pinLoading: false,
+    error: null,
+    pinError: null,
+  },
   reducers: {
-    resetRegisterState: (state) => {
-      state.registerData = null;
-      state.registerLoading = false;
-      state.registerError = null;
-      state.pinLoading = false;
+    clearRegisterErrors(state) {
+      state.error = null;
       state.pinError = null;
-      state.pinSuccess = false;
     },
   },
   extraReducers: (builder) => {
+    // ── register ──
     builder
-      // register
       .addCase(register.pending, (state) => {
-        state.registerLoading = true;
-        state.registerError = null;
+        state.loading = true;
+        state.error = null;
       })
-      .addCase(register.fulfilled, (state, action) => {
-        state.registerLoading = false;
-        state.registerData = action.payload;
+      .addCase(register.fulfilled, (state) => {
+        state.loading = false;
       })
       .addCase(register.rejected, (state, action) => {
-        state.registerLoading = false;
-        state.registerError = action.payload;
-      })
+        state.loading = false;
+        state.error = action.payload;
+      });
 
-      // createPin
+    // ── createPin ──
+    builder
       .addCase(createPin.pending, (state) => {
         state.pinLoading = true;
         state.pinError = null;
-        state.pinSuccess = false;
       })
       .addCase(createPin.fulfilled, (state) => {
         state.pinLoading = false;
-        state.pinSuccess = true;
       })
       .addCase(createPin.rejected, (state, action) => {
         state.pinLoading = false;
         state.pinError = action.payload;
-        state.pinSuccess = false;
       });
   },
 });
 
-export const { resetRegisterState } = registerSlice.actions;
+export const { clearRegisterErrors } = registerSlice.actions;
 export default registerSlice.reducer;
