@@ -8,7 +8,7 @@ RUN npm run build
 
 # Stage 2: Jalankan Nginx
 
-FROM nginx:alpine
+FROM nginx:1.31.1-alpine3.23-perl
 
 # Menghapus file bawaan Nginx
 RUN rm -rf /usr/share/nginx/html/*
