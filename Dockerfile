@@ -1,5 +1,5 @@
 # build package  for web
-FROM node:trixie AS build
+FROM node:alpine AS build
 
 WORKDIR /app
 
