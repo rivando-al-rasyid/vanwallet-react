@@ -22,7 +22,7 @@ import {
  */
 export async function loginUser({ email, password }) {
   const envelope = await requestJson(
-    "/api/auth/login",
+    "/auth/login",
     {
       method: "POST",
       body: JSON.stringify({ email, password }),

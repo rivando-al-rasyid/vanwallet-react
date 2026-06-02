@@ -17,18 +17,11 @@
  *                 POST /transaction/transfer, /transaction/withdrawal, /transaction/expense
  */
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const TOKEN_KEY = "vanwallet_token";
 
-// ─── URL & Token helpers ──────────────────────────────────────────────────────
-
 export function resolveApiRoot() {
-  const raw = String(BASE_URL || "").replace(/\/+$/, "");
-  if (!raw) return "";
-  if (raw.startsWith("http://") || raw.startsWith("https://")) return raw;
-  return `http://${raw}`;
+  return "/api";
 }
-
 export function getToken() {
   return localStorage.getItem(TOKEN_KEY);
 }
