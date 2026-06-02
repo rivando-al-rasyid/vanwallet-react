@@ -10,7 +10,6 @@ import {
   clearToken,
   fetchUserInfo,
   mapUserFromInfo,
-  requestData,
   requestJson,
   setToken,
 } from "./api";
@@ -23,7 +22,7 @@ import {
  */
 export async function loginUser({ email, password }) {
   const envelope = await requestJson(
-    "/auth/login",
+    "/api/auth/login",
     {
       method: "POST",
       body: JSON.stringify({ email, password }),
