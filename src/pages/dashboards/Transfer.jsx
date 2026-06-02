@@ -1,44 +1,46 @@
-import { useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router";
-import { useDispatch, useSelector } from "react-redux";
 import Stepper from "../../components/Stepper";
 import SearchInput from "../../components/SearchInput";
 import TableRow from "../../components/TableRow";
 import { Pagination } from "../../components/Pagination";
-import { fetchAllUsers, resetTransfer } from "../../store/slices/transferSlice";
+import { searchReceivers } from "../../utils/api";
 
 const ITEMS_PER_PAGE = 6;
 
 export default function Transfer() {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
   const [searchParams, setSearchParams] = useSearchParams();
-
-  const { users, total, status, error } = useSelector((state) => state.transfer);
-
+  const [contacts, setContacts] = useState([]);
+  const [totalItems, setTotalItems] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const search = searchParams.get("search") || "";
   const currentPage = Number(searchParams.get("page") || "1");
 
-  // Fetch receivers on mount and whenever search/page changes.
-  // When search is empty, fetch all contacts (no `q` param sent).
-  useEffect(() => {
-    dispatch(
-      fetchAllUsers({
+  const fetchContacts = useCallback(async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const result = await searchReceivers({
         q: search.trim(),
         page: currentPage,
         limit: ITEMS_PER_PAGE,
-      }),
-    );
-  }, [dispatch, search, currentPage]);
+      });
+      setContacts(result.items);
+      setTotalItems(result.total);
+    } catch (err) {
+      setError(err.message || "Failed to load contacts");
+    } finally {
+      setLoading(false);
+    }
+  }, [search, currentPage]);
 
-  // Clean up Redux state when leaving this page
   useEffect(() => {
-    return () => {
-      dispatch(resetTransfer());
-    };
-  }, [dispatch]);
+    fetchContacts();
+  }, [fetchContacts]);
 
-  const totalPages = Math.max(1, Math.ceil(total / ITEMS_PER_PAGE));
+  const totalPages = Math.max(1, Math.ceil(totalItems / ITEMS_PER_PAGE));
   const safePage = Math.min(Math.max(currentPage, 1), totalPages);
 
   const handleSearchChange = useCallback(
@@ -79,22 +81,18 @@ export default function Transfer() {
   );
 
   const handleRetry = useCallback(() => {
-    dispatch(
-      fetchAllUsers({
-        q: search.trim(),
-        page: currentPage,
-        limit: ITEMS_PER_PAGE,
-      }),
-    );
-  }, [dispatch, search, currentPage]);
+    fetchContacts();
+  }, [fetchContacts]);
 
   const resultsText = useMemo(() => {
-    if (status === "loading") return "Memuat kontak...";
-    if (search) return `${total} Result Found For "${search}"`;
-    return `${total} Contact${total !== 1 ? "s" : ""} Available`;
-  }, [status, total, search]);
-
-  const loading = status === "loading";
+    if (loading) return "Memuat kontak...";
+    if (search.trim().length < 2) {
+      return "Ketik minimal 2 karakter untuk mencari penerima";
+    }
+    const count = totalItems;
+    const baseText = `${count} Result Found`;
+    return search ? `${baseText} For "${search}"` : baseText;
+  }, [loading, totalItems, search]);
 
   return (
     <>
@@ -167,17 +165,23 @@ export default function Transfer() {
           </div>
         )}
 
-        {!loading && !error && (
+        {!loading && !error && search.trim().length >= 2 && (
           <>
-            <TableRow items={users} onRowClick={handleRowClick} />
+            <TableRow items={contacts} onRowClick={handleRowClick} />
             <Pagination
               currentPage={safePage}
               totalPages={totalPages}
               onPageChange={handlePageChange}
-              visibleCount={users.length}
-              totalItems={total}
+              visibleCount={contacts.length}
+              totalItems={totalItems}
             />
           </>
+        )}
+
+        {!loading && !error && search.trim().length < 2 && (
+          <div className="py-20 text-center text-sm text-slate-400">
+            Search for a recipient by name or phone number.
+          </div>
         )}
       </div>
     </>

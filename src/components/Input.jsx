@@ -1,4 +1,4 @@
-import { memo, useState, useCallback, forwardRef } from "react";
+import { memo, useState, useCallback } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
@@ -17,34 +17,31 @@ const InputIcon = memo(({ icon }) => (
   </div>
 ));
 
-/**
- * A labeled text/password input, compatible with react-hook-form via forwardRef.
- *
- * Usage with RHF:
- *   <Input label="Email" icon={faEnvelope} {...register("email")} />
- *
- * Usage controlled (legacy):
- *   <Input label="Email" value={val} onChange={handler} />
- */
-const Input = forwardRef(function Input(
-  {
-    label,
-    type = "text",
-    icon,
-    placeholder,
-    value,
-    onChange,
-    name,
-    className = "",
-    required = false,
-    ...rest
-  },
-  ref,
-) {
+const InputField = memo(({ paddingClasses, className, ...props }) => (
+  <input
+    {...props}
+    className={`w-full rounded-2xl border border-transparent bg-slate-50 py-4 text-sm text-[#3A3D42] transition-all outline-none placeholder:text-slate-300 focus:border-[#6379F4] focus:bg-white ${paddingClasses} ${className || ""}`}
+  />
+));
+
+const Input = memo(function Input({
+  label,
+  type = "text",
+  icon,
+  placeholder,
+  value,
+  onChange,
+  name,
+  className = "",
+  required = false, // Now configurable
+  ...rest
+}) {
   const [showPassword, setShowPassword] = useState(false);
 
   const isPassword = type === "password";
   const inputId = name ? `input-${name}` : undefined;
+
+  // Logic to prevent text overlap with icons/buttons
   const paddingClasses = `${icon ? "pl-12" : "pl-4"} ${isPassword ? "pr-12" : "pr-4"}`;
 
   const handleToggle = useCallback(() => {
@@ -58,9 +55,8 @@ const Input = forwardRef(function Input(
       <div className="group relative">
         {icon && <InputIcon icon={icon} />}
 
-        <input
+        <InputField
           {...rest}
-          ref={ref}
           id={inputId}
           name={name}
           required={required}
@@ -68,7 +64,7 @@ const Input = forwardRef(function Input(
           value={value}
           onChange={onChange}
           placeholder={placeholder}
-          className={`w-full rounded-2xl border border-transparent bg-slate-50 py-4 text-sm text-[#3A3D42] transition-all outline-none placeholder:text-slate-300 focus:border-[#6379F4] focus:bg-white ${paddingClasses}`}
+          paddingClasses={paddingClasses}
         />
 
         {isPassword && (

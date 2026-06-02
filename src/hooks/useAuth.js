@@ -7,7 +7,7 @@
 
 import { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { login, logout } from "../store/slices/authSlice";
+import { login, logout, mergeUser } from "../store/slices/authSlice";
 import { register } from "../store/slices/registerSlice";
 import { clearToken } from "../utils/api";
 
@@ -32,7 +32,7 @@ export function useAuth() {
   );
 
   /**
-   * Dispatches register thunk → POST /auth/register → login thunk
+   * Dispatches register thunk → POST /auth/register → auto-login
    */
   const registerFn = useCallback(
     async (data) => {
@@ -46,12 +46,21 @@ export function useAuth() {
   );
 
   /**
-   * Clears local token + Redux auth state
+   * Clears local token + Redux auth state (server logout handled in useLogout)
    */
   const logoutFn = useCallback(() => {
     clearToken();
     dispatch(logout());
   }, [dispatch]);
+
+  /**
+   * Merges partial user updates into auth.user
+   * (e.g. after setPinApi or profile edit to update user.pin flag)
+   */
+  const mergeUserFn = useCallback(
+    (partial) => dispatch(mergeUser(partial)),
+    [dispatch],
+  );
 
   return {
     user,
@@ -61,5 +70,6 @@ export function useAuth() {
     login: loginFn,
     register: registerFn,
     logout: logoutFn,
+    mergeUser: mergeUserFn,
   };
 }

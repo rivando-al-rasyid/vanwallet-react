@@ -1,36 +1,42 @@
 /**
  * transactionSlice.js
  *
- * Manages paginated transaction list state.
- * NOT persisted — data is re-fetched on mount.
+ * Owns all read-side transaction state (history, receiver search).
+ * Write operations (topup, transfer, withdrawal, expense) are called
+ * directly from component handlers via the api.js functions — they
+ * don't need global loading/error state beyond local useState.
  *
- * Actions:
- *   fetchTransactions({ page, limit }) — async thunk: GET /transaction
- *   resetTransactions()                — resets to initial state
- *
- * State shape:
- *   {
- *     items: Transaction[],
- *     page: number,
- *     limit: number,
- *     total: number,
- *     status: 'idle' | 'loading' | 'succeeded' | 'failed',
- *     error: string | null,
- *   }
+ * Thunks:
+ *   fetchHistory    GET /transaction/history?page=&limit=
+ *   searchReceivers GET /transaction/receiver?q=&page=&limit=
  */
 
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { fetchAllTransactions } from "../../utils/api";
+import {
+  fetchHistory as apiFetchHistory,
+  searchReceivers as apiSearchReceivers,
+} from "../../utils/api";
 
-// ─── Async thunk ──────────────────────────────────────────────────────────────
+// ─── Thunks ───────────────────────────────────────────────────────────────────
 
-export const fetchTransactions = createAsyncThunk(
-  "transaction/fetchAll",
+export const fetchHistory = createAsyncThunk(
+  "transaction/fetchHistory",
   async ({ page = 1, limit = 10 } = {}, { rejectWithValue }) => {
     try {
-      return await fetchAllTransactions({ page, limit });
+      return await apiFetchHistory({ page, limit });
     } catch (err) {
-      return rejectWithValue(err.message || "Failed to fetch transactions");
+      return rejectWithValue(err.message);
+    }
+  },
+);
+
+export const searchReceivers = createAsyncThunk(
+  "transaction/searchReceivers",
+  async ({ q = "", page = 1, limit = 10 } = {}, { rejectWithValue }) => {
+    try {
+      return await apiSearchReceivers({ q, page, limit });
+    } catch (err) {
+      return rejectWithValue(err.message);
     }
   },
 );
@@ -40,43 +46,85 @@ export const fetchTransactions = createAsyncThunk(
 const transactionSlice = createSlice({
   name: "transaction",
   initialState: {
-    items: [],
-    page: 1,
-    limit: 10,
-    total: 0,
-    status: "idle",
-    error: null,
+    // History
+    history: {
+      items: [],
+      page: 1,
+      limit: 10,
+      total: 0,
+      status: "idle", // idle | loading | succeeded | failed
+      error: null,
+    },
+    // Receiver search
+    receivers: {
+      items: [],
+      page: 1,
+      limit: 10,
+      total: 0,
+      status: "idle",
+      error: null,
+    },
   },
   reducers: {
-    resetTransactions(state) {
-      state.items = [];
-      state.page = 1;
-      state.total = 0;
-      state.status = "idle";
-      state.error = null;
+    resetHistory(state) {
+      state.history = {
+        items: [],
+        page: 1,
+        limit: 10,
+        total: 0,
+        status: "idle",
+        error: null,
+      };
+    },
+    resetReceivers(state) {
+      state.receivers = {
+        items: [],
+        page: 1,
+        limit: 10,
+        total: 0,
+        status: "idle",
+        error: null,
+      };
     },
   },
   extraReducers: (builder) => {
+    // ── fetchHistory ──
     builder
-      .addCase(fetchTransactions.pending, (state) => {
-        state.status = "loading";
-        state.error = null;
+      .addCase(fetchHistory.pending, (state) => {
+        state.history.status = "loading";
+        state.history.error = null;
       })
-      .addCase(fetchTransactions.fulfilled, (state, action) => {
-        state.status = "succeeded";
-        // Backend returns { data: [], page, limit, total } inside envelope.data
-        const payload = action.payload;
-        state.items = payload?.data ?? payload ?? [];
-        state.page = payload?.page ?? state.page;
-        state.limit = payload?.limit ?? state.limit;
-        state.total = payload?.total ?? 0;
+      .addCase(fetchHistory.fulfilled, (state, action) => {
+        state.history.status = "succeeded";
+        state.history.items = action.payload.items;
+        state.history.page = action.payload.page;
+        state.history.limit = action.payload.limit;
+        state.history.total = action.payload.total;
       })
-      .addCase(fetchTransactions.rejected, (state, action) => {
-        state.status = "failed";
-        state.error = action.payload || "Failed to fetch transactions";
+      .addCase(fetchHistory.rejected, (state, action) => {
+        state.history.status = "failed";
+        state.history.error = action.payload;
+      });
+
+    // ── searchReceivers ──
+    builder
+      .addCase(searchReceivers.pending, (state) => {
+        state.receivers.status = "loading";
+        state.receivers.error = null;
+      })
+      .addCase(searchReceivers.fulfilled, (state, action) => {
+        state.receivers.status = "succeeded";
+        state.receivers.items = action.payload.items;
+        state.receivers.page = action.payload.page;
+        state.receivers.limit = action.payload.limit;
+        state.receivers.total = action.payload.total;
+      })
+      .addCase(searchReceivers.rejected, (state, action) => {
+        state.receivers.status = "failed";
+        state.receivers.error = action.payload;
       });
   },
 });
 
-export const { resetTransactions } = transactionSlice.actions;
+export const { resetHistory, resetReceivers } = transactionSlice.actions;
 export default transactionSlice.reducer;

@@ -10,6 +10,7 @@ import {
   clearToken,
   fetchUserInfo,
   mapUserFromInfo,
+  requestData,
   requestJson,
   setToken,
 } from "./api";

@@ -1,90 +1,63 @@
 /**
  * transferSlice.js
  *
- * Manages the Transfer flow — Step 1: receiver search.
- * NOT persisted — cleared on page reload.
- *
- * Actions:
- *   searchTransferReceivers({ q, page, limit }) — async thunk: GET /transaction/receiver
- *   setSelectedReceiver(receiver)               — stores picked receiver for step 2
- *   resetTransfer()                             — resets entire transfer flow state
- *
- * State shape:
- *   {
- *     receivers: Receiver[],
- *     page: number,
- *     limit: number,
- *     total: number,
- *     selectedReceiver: Receiver | null,
- *     status: 'idle' | 'loading' | 'succeeded' | 'failed',
- *     error: string | null,
- *   }
+ * Uses GET /transactions/receivers?q=&page=&limit= (search system profiles)
+ * instead of the old GET /users (Tonic Fabricate).
  */
 
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { searchReceivers } from "../../utils/api";
 
-// ─── Async thunk ──────────────────────────────────────────────────────────────
-
-export const searchTransferReceivers = createAsyncThunk(
-  "transfer/searchReceivers",
+export const fetchAllUsers = createAsyncThunk(
+  "transfer/fetchAllUsers",
   async ({ q = "", page = 1, limit = 10 } = {}, { rejectWithValue }) => {
     try {
-      return await searchReceivers({ q, page, limit });
-    } catch (err) {
-      return rejectWithValue(err.message || "Failed to search receivers");
+      const result = await searchReceivers({ q, page, limit });
+      return result;
+    } catch (error) {
+      return rejectWithValue(error.message);
     }
   },
 );
 
-// ─── Slice ────────────────────────────────────────────────────────────────────
-
 const transferSlice = createSlice({
   name: "transfer",
   initialState: {
-    receivers: [],
+    users: [],
+    total: 0,
     page: 1,
     limit: 10,
-    total: 0,
-    selectedReceiver: null,
-    status: "idle",
+    status: "idle", // idle | loading | succeeded | failed
     error: null,
   },
   reducers: {
-    /** Stores the receiver the user picked in Step 1 */
-    setSelectedReceiver(state, action) {
-      state.selectedReceiver = action.payload;
-    },
-
-    /** Resets all transfer flow state — call when navigating away */
-    resetTransfer(state) {
-      state.receivers = [];
-      state.page = 1;
+    resetTransfer: (state) => {
+      state.users = [];
       state.total = 0;
-      state.selectedReceiver = null;
+      state.page = 1;
       state.status = "idle";
       state.error = null;
     },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(searchTransferReceivers.pending, (state) => {
+      .addCase(fetchAllUsers.pending, (state) => {
         state.status = "loading";
         state.error = null;
       })
-      .addCase(searchTransferReceivers.fulfilled, (state, action) => {
+      .addCase(fetchAllUsers.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.receivers = action.payload.items ?? [];
-        state.page = action.payload.page ?? state.page;
-        state.limit = action.payload.limit ?? state.limit;
-        state.total = action.payload.total ?? 0;
+        state.users = action.payload.items;
+        state.total = action.payload.total;
+        state.page = action.payload.page;
+        state.limit = action.payload.limit;
       })
-      .addCase(searchTransferReceivers.rejected, (state, action) => {
+      .addCase(fetchAllUsers.rejected, (state, action) => {
         state.status = "failed";
-        state.error = action.payload || "Failed to search receivers";
+        state.error = action.payload;
       });
   },
 });
 
-export const { setSelectedReceiver, resetTransfer } = transferSlice.actions;
+export const { resetTransfer } = transferSlice.actions;
 export default transferSlice.reducer;

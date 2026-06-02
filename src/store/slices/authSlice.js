@@ -1,30 +1,86 @@
 /**
  * authSlice.js
  *
- * Manages the authenticated user session.
- * Persisted to localStorage via redux-persist (whitelist: ['user']).
+ * Owns the user session (persisted) and profile mutations.
  *
- * Actions:
- *   login(credentials)  — async thunk: POST /auth/login → GET /profile/info
- *   logout()            — synchronous: clears user from state
- *   mergeUser(partial)  — synchronous: shallow-merges fields into user
- *
- * State shape:
- *   { user: User | null, loading: bool, error: string | null }
+ * Thunks:
+ *   login          POST /auth/login → setToken → GET /profile/info
+ *   logout         POST /auth/logout → clearToken
+ *   updateProfile  PATCH /profile/edit → re-fetch GET /profile/info
+ *   changePassword PATCH /profile/change/password
+ *   changePin      PATCH /profile/change/pin
  */
 
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { loginUser } from "../../utils/auth";
+import {
+  loginApi,
+  logoutApi,
+  fetchUserInfo,
+  updateProfileApi,
+  changePasswordApi,
+  changePinApi,
+  mapUserFromInfo,
+  clearToken,
+} from "../../utils/api";
 
-// ─── Async thunk ──────────────────────────────────────────────────────────────
+// ─── Thunks ───────────────────────────────────────────────────────────────────
 
 export const login = createAsyncThunk(
   "auth/login",
   async (credentials, { rejectWithValue }) => {
     try {
-      return await loginUser(credentials);
+      return await loginApi(credentials);
     } catch (err) {
-      return rejectWithValue(err.message || "Login failed");
+      return rejectWithValue(err.message);
+    }
+  },
+);
+
+export const logout = createAsyncThunk(
+  "auth/logout",
+  async (_, { rejectWithValue }) => {
+    try {
+      await logoutApi();
+    } catch (err) {
+      // Always clear local state even if server call fails
+      clearToken();
+      return rejectWithValue(err.message);
+    }
+  },
+);
+
+export const updateProfile = createAsyncThunk(
+  "auth/updateProfile",
+  async ({ fullName, phone, photoFile }, { rejectWithValue, getState }) => {
+    try {
+      await updateProfileApi({ fullName, phone, photoFile });
+      const token = getState().auth.user?.token;
+      const info = await fetchUserInfo();
+      return mapUserFromInfo(info, token);
+    } catch (err) {
+      return rejectWithValue(err.message);
+    }
+  },
+);
+
+export const changePassword = createAsyncThunk(
+  "auth/changePassword",
+  async ({ oldPassword, newPassword }, { rejectWithValue }) => {
+    try {
+      await changePasswordApi(oldPassword, newPassword);
+    } catch (err) {
+      return rejectWithValue(err.message);
+    }
+  },
+);
+
+export const changePin = createAsyncThunk(
+  "auth/changePin",
+  async ({ currentPin, newPin }, { rejectWithValue }) => {
+    try {
+      await changePinApi(currentPin, newPin);
+    } catch (err) {
+      return rejectWithValue(err.message);
     }
   },
 );
@@ -39,23 +95,18 @@ const authSlice = createSlice({
     error: null,
   },
   reducers: {
-    /** Clears the session — called on logout */
-    logout(state) {
-      state.user = null;
-      state.loading = false;
-      state.error = null;
-    },
-
-    /** Shallow-merges updated fields into the current user (e.g. after profile edit) */
+    /** Merge partial user updates (e.g. after setPinApi or profile edit) */
     mergeUser(state, action) {
       if (state.user) {
         state.user = { ...state.user, ...action.payload };
-      } else {
-        state.user = action.payload;
       }
+    },
+    clearError(state) {
+      state.error = null;
     },
   },
   extraReducers: (builder) => {
+    // ── login ──
     builder
       .addCase(login.pending, (state) => {
         state.loading = true;
@@ -67,10 +118,67 @@ const authSlice = createSlice({
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload || "Login failed";
+        state.error = action.payload;
+      });
+
+    // ── logout ──
+    builder
+      .addCase(logout.fulfilled, (state) => {
+        state.user = null;
+        state.loading = false;
+        state.error = null;
+      })
+      .addCase(logout.rejected, (state) => {
+        // Clear user regardless of server error
+        state.user = null;
+        state.loading = false;
+        state.error = null;
+      });
+
+    // ── updateProfile ──
+    builder
+      .addCase(updateProfile.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateProfile.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload;
+      })
+      .addCase(updateProfile.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
+
+    // ── changePassword ──
+    builder
+      .addCase(changePassword.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(changePassword.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(changePassword.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
+
+    // ── changePin ──
+    builder
+      .addCase(changePin.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(changePin.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(changePin.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   },
 });
 
-export const { logout, mergeUser } = authSlice.actions;
+export const { mergeUser, clearError } = authSlice.actions;
 export default authSlice.reducer;
