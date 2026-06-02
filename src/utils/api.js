@@ -1,7 +1,10 @@
 /**
  * api.js — Central API utility for VanWallet
  *
- * Backend routes (Gin, base: VITE_API_BASE_URL):
+ * All requests go to /api/* — proxied by Nginx to http://backend:8080/
+ * (single port-80 setup; no VITE_API_BASE_URL env var needed).
+ *
+ * Backend routes (Gin):
  *   Auth:         POST /auth/login, /auth/register, /auth/logout
  *                 GET  /auth/pin
  *                 POST /auth/pin/verify
@@ -234,6 +237,9 @@ export async function updateProfileApi({ fullName, phone, photoFile }) {
     "Failed to update profile",
   );
 }
+
+/** Alias — imported as `updateProfile` by useProfile.js and userUtils.js */
+export const updateProfile = updateProfileApi;
 
 /** PATCH /profile/change/pin — first-time setup (no old_pin) or change */
 export async function setPinApi(pin) {

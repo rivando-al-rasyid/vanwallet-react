@@ -25,6 +25,7 @@ import authReducer from "./slices/authSlice";
 import registerReducer from "./slices/registerSlice";
 import transactionReducer from "./slices/transactionSlice";
 import transferReducer from "./slices/transferSlice";
+import historyReducer from "./slices/historySlice";
 
 const authPersistConfig = {
   key: "auth",
@@ -38,6 +39,7 @@ export const store = configureStore({
     register: registerReducer,
     transaction: transactionReducer,
     transfer: transferReducer,
+    history: historyReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
