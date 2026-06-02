@@ -2,10 +2,11 @@ import { useState } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { useNavigate } from "react-router";
+import { useDispatch, useSelector } from "react-redux";
 import Joi from "joi";
 
 import PinInput from "../../components/PinInput";
-import { useProfile } from "../../hooks/useProfile";
+import { changePin } from "../../store/slices/authSlice";
 
 const defaultPin = Array(6)
   .fill(null)
@@ -24,7 +25,8 @@ const pinSchema = Joi.object({
 
 export default function ChangePin() {
   const navigate = useNavigate();
-  const { changePin, profileLoading, profileError } = useProfile();
+  const dispatch = useDispatch();
+  const { loading, error: reduxError } = useSelector((state) => state.auth);
 
   const [step, setStep] = useState("current"); // "current" | "new" | "confirm"
   const [currentPinValue, setCurrentPinValue] = useState("");
@@ -54,24 +56,23 @@ export default function ChangePin() {
       setStep("confirm");
       methods.reset({ pin: defaultPin });
     } else if (step === "confirm") {
-      const confirmPin = pin;
-      if (confirmPin !== newPinValue) {
+      if (pin !== newPinValue) {
         setLocalError("PIN baru tidak cocok. Silakan ulangi.");
         methods.reset({ pin: defaultPin });
         return;
       }
-      submitPin(confirmPin);
+      submitPin(pin);
     }
   });
 
   const submitPin = async (confirmPin) => {
     setSuccess("");
-    try {
-      await changePin(currentPinValue, confirmPin);
+    const result = await dispatch(
+      changePin({ currentPin: currentPinValue, newPin: confirmPin }),
+    );
+    if (changePin.fulfilled.match(result)) {
       setSuccess("PIN berhasil diupdate!");
       setTimeout(() => navigate("/dashboard/profile"), 1200);
-    } catch {
-      // error handled by Redux via profileError
     }
   };
 
@@ -89,12 +90,12 @@ export default function ChangePin() {
     confirm: {
       title: "Confirm New PIN",
       description: "Re-enter your new PIN to confirm.",
-      button: profileLoading ? "Menyimpan..." : "Submit",
+      button: loading ? "Menyimpan..." : "Submit",
     },
   };
 
   const config = stepConfig[step];
-  const error = localError || profileError;
+  const error = localError || reduxError;
 
   return (
     <>
@@ -114,7 +115,6 @@ export default function ChangePin() {
 
       <div className="rounded-2xl bg-white p-8 shadow-sm">
         <div className="mx-auto w-full max-w-3xl text-center">
-          {/* Step indicator */}
           <div className="mb-6 flex items-center justify-center gap-2">
             {["current", "new", "confirm"].map((s, i) => (
               <div key={s} className="flex items-center gap-2">
@@ -141,10 +141,7 @@ export default function ChangePin() {
           <p className="mb-8 text-sm text-gray-400">{config.description}</p>
 
           <FormProvider {...methods}>
-            <form
-              onSubmit={handleNext}
-              className="flex flex-col items-center"
-            >
+            <form onSubmit={handleNext} className="flex flex-col items-center">
               <PinInput key={step} />
 
               {methods.formState.errors.pin && (
@@ -152,16 +149,14 @@ export default function ChangePin() {
                   Please complete the 6-digit PIN.
                 </p>
               )}
-              {error && (
-                <p className="mt-4 text-sm text-red-500">{error}</p>
-              )}
+              {error && <p className="mt-4 text-sm text-red-500">{error}</p>}
               {success && (
                 <p className="mt-4 text-sm text-green-600">{success}</p>
               )}
 
               <button
                 type="submit"
-                disabled={profileLoading}
+                disabled={loading}
                 className="mt-10 w-full rounded-xl bg-blue-600 py-3.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-60"
               >
                 {config.button}

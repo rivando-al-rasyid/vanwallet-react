@@ -1,3 +1,11 @@
+/**
+ * ForgotPassword.jsx — Step 1 of 3
+ *
+ * Collects the user's email and calls POST /auth/reset.
+ * On success, navigates to /forgotpassword/confirm passing the email
+ * in route state so the next step can display it.
+ */
+
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { faEnvelope } from "@fortawesome/free-solid-svg-icons";
@@ -5,6 +13,8 @@ import Brand from "../../components/Brand";
 import LoginHeadline from "../../components/login/LoginHeadline";
 import Input from "../../components/Input";
 import Submit from "../../components/Submit";
+import LoginSubtext from "../../components/LoginSubtext";
+import { requestPasswordReset } from "../../utils/api";
 
 export default function ForgotPassword() {
   const navigate = useNavigate();
@@ -23,20 +33,43 @@ export default function ForgotPassword() {
     }
 
     setLoading(true);
-
-    setTimeout(() => {
+    try {
+      await requestPasswordReset(email.trim());
+      navigate("/forgotpassword/confirm", { state: { email: email.trim() } });
+    } catch (err) {
+      setError(err.message || "Gagal mengirim permintaan. Coba lagi.");
+    } finally {
       setLoading(false);
-      navigate("/login/pin", { state: { email } });
-    }, 500);
+    }
   };
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[#2948FF] px-6 py-10">
+    <main className="grid min-h-screen grid-cols-1 place-items-center bg-[#2948FF] px-6 py-10">
       <section className="w-full max-w-xl rounded-3xl bg-white p-8 shadow-xl sm:p-10">
         <Brand />
+
+        {/* Step indicator */}
+        <div className="mb-6 flex items-center gap-2">
+          {[1, 2, 3].map((n) => (
+            <div key={n} className="flex items-center gap-2">
+              <div
+                className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold ${
+                  n === 1
+                    ? "bg-[#6379F4] text-white"
+                    : "bg-gray-100 text-gray-400"
+                }`}
+              >
+                {n}
+              </div>
+              {n < 3 && <div className="h-px w-8 bg-gray-200" />}
+            </div>
+          ))}
+          <span className="ml-2 text-xs text-gray-400">Enter Email</span>
+        </div>
+
         <LoginHeadline
-          title={"Fill Out Form Correctly 👋"}
-          text={"We will send new password to your email"}
+          title="Forgot Password? 🔑"
+          text="Enter your registered email and we'll generate a reset token for you."
         />
 
         {error && (
@@ -51,12 +84,18 @@ export default function ForgotPassword() {
             type="email"
             name="email"
             icon={faEnvelope}
-            placeholder="Enter your email"
+            placeholder="Enter your registered email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => { setEmail(e.target.value); setError(""); }}
           />
-          <Submit name={loading ? "Loading..." : "Submit"} disabled={loading} />
+          <Submit name={loading ? "Sending..." : "Send Reset Token"} disabled={loading} />
         </form>
+
+        <LoginSubtext
+          text="Remember your password? "
+          link="/login"
+          linklabel="Back to Login"
+        />
       </section>
     </main>
   );

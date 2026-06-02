@@ -1,38 +1,28 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router";
-import { useSelector } from "react-redux";
-import { useProfile } from "../../hooks/useProfile";
+import { useDispatch, useSelector } from "react-redux";
+import { updateProfile } from "../../store/slices/authSlice";
 
 export default function Profile() {
   const navigate = useNavigate();
-  const reduxUser = useSelector((state) => state.auth.user);
-  const { updateProfile, loadProfile, profileLoading, profileError } =
-    useProfile();
+  const dispatch = useDispatch();
+  const { user, loading, error } = useSelector((state) => state.auth);
 
-  const [form, setForm] = useState({
-    name: "",
-    phone: "",
-    email: "",
-    avatar: "",
-  });
+  const [form, setForm] = useState({ name: "", phone: "", email: "", avatar: "" });
   const [photoFile, setPhotoFile] = useState(null);
   const [success, setSuccess] = useState("");
   const fileInputRef = useRef(null);
 
   useEffect(() => {
-    loadProfile().catch(() => {});
-  }, [loadProfile]);
-
-  useEffect(() => {
-    if (reduxUser) {
+    if (user) {
       setForm({
-        name: reduxUser.name || "",
-        phone: reduxUser.phone || "",
-        email: reduxUser.email || "",
-        avatar: reduxUser.avatar || "",
+        name: user.name || "",
+        phone: user.phone || "",
+        email: user.email || "",
+        avatar: user.avatar || "",
       });
     }
-  }, [reduxUser]);
+  }, [user]);
 
   const handleChange = (e) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -43,8 +33,7 @@ export default function Profile() {
     if (!file) return;
     setPhotoFile(file);
     const reader = new FileReader();
-    reader.onload = () =>
-      setForm((prev) => ({ ...prev, avatar: reader.result }));
+    reader.onload = () => setForm((prev) => ({ ...prev, avatar: reader.result }));
     reader.readAsDataURL(file);
   };
 
@@ -55,16 +44,12 @@ export default function Profile() {
 
   const handleSubmit = async () => {
     setSuccess("");
-    try {
-      await updateProfile({
-        fullName: form.name,
-        phone: form.phone,
-        photoFile,
-      });
+    const result = await dispatch(
+      updateProfile({ fullName: form.name, phone: form.phone, photoFile }),
+    );
+    if (updateProfile.fulfilled.match(result)) {
       setPhotoFile(null);
       setSuccess("Profile berhasil diupdate!");
-    } catch {
-      // error is handled via profileError
     }
   };
 
@@ -85,7 +70,7 @@ export default function Profile() {
       </div>
 
       <div className="rounded-2xl bg-white p-4 shadow-sm sm:p-6 lg:p-8">
-        {!reduxUser ? (
+        {!user ? (
           <div className="flex items-center justify-center py-20 text-sm text-gray-400">
             Memuat data profile...
           </div>
@@ -116,7 +101,6 @@ export default function Profile() {
                 >
                   Change Profile
                 </button>
-
                 <button
                   onClick={handleDeleteAvatar}
                   className="flex items-center justify-center gap-2 rounded-xl border border-red-400 px-4 py-2 text-sm font-medium text-red-500 transition hover:bg-red-50"
@@ -203,17 +187,15 @@ export default function Profile() {
                 </button>
               </div>
 
-              {profileError && (
-                <p className="text-sm text-red-500">{profileError}</p>
-              )}
+              {error && <p className="text-sm text-red-500">{error}</p>}
               {success && <p className="text-sm text-green-600">{success}</p>}
 
               <button
                 onClick={handleSubmit}
-                disabled={profileLoading}
+                disabled={loading}
                 className="mt-2 w-full rounded-xl bg-blue-600 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-60 sm:py-3.5"
               >
-                {profileLoading ? "Menyimpan..." : "Submit"}
+                {loading ? "Menyimpan..." : "Submit"}
               </button>
             </div>
           </>

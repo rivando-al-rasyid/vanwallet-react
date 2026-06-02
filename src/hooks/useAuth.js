@@ -1,69 +1,65 @@
+/**
+ * useAuth.js
+ *
+ * Hook untuk login, register, dan logout.
+ * Reads from state.auth (persisted slice).
+ */
+
 import { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { login, logout } from "../store/slices/authSlice";
+import { register } from "../store/slices/registerSlice";
 import { clearToken } from "../utils/api";
-import { loginUser, registerUser } from "../utils/auth";
-import {
-  clearAuth,
-  setAuthError,
-  setAuthLoading,
-  setUser,
-} from "../store/store";
 
 export function useAuth() {
   const dispatch = useDispatch();
-  const { user, authStatus } = useSelector((state) => state.auth);
+  const user = useSelector((state) => state.auth.user);
+  const loading = useSelector((state) => state.auth.loading);
+  const error = useSelector((state) => state.auth.error);
 
-  const login = useCallback(
+  /**
+   * Dispatches login thunk → POST /auth/login → GET /profile/info
+   */
+  const loginFn = useCallback(
     async (credentials) => {
-      dispatch(setAuthLoading(true));
-      dispatch(setAuthError(null));
-      try {
-        const loggedInUser = await loginUser(credentials);
-        dispatch(setUser(loggedInUser));
-        return loggedInUser;
-      } catch (err) {
-        dispatch(setAuthError(err.message));
-        throw err;
-      } finally {
-        dispatch(setAuthLoading(false));
+      const result = await dispatch(login(credentials));
+      if (login.fulfilled.match(result)) {
+        return result.payload;
       }
+      throw new Error(result.payload || "Login failed");
     },
     [dispatch],
   );
 
-  const register = useCallback(
+  /**
+   * Dispatches register thunk → POST /auth/register → login thunk
+   */
+  const registerFn = useCallback(
     async (data) => {
-      dispatch(setAuthLoading(true));
-      dispatch(setAuthError(null));
-      try {
-        const created = await registerUser({
-          email: data.email,
-          password: data.password,
-        });
-        dispatch(setUser(created));
-        return created;
-      } catch (err) {
-        dispatch(setAuthError(err.message));
-        throw err;
-      } finally {
-        dispatch(setAuthLoading(false));
+      const result = await dispatch(register(data));
+      if (register.fulfilled.match(result)) {
+        return result.payload;
       }
+      throw new Error(result.payload || "Registration failed");
     },
     [dispatch],
   );
 
-  const logout = useCallback(() => {
+  /**
+   * Clears local token + Redux auth state
+   */
+  const logoutFn = useCallback(() => {
     clearToken();
-    dispatch(clearAuth());
+    dispatch(logout());
   }, [dispatch]);
 
   return {
     user,
     isLoggedIn: !!user,
-    loading: authStatus?.loading ?? false,
-    error: authStatus?.error ?? null,
-    login,
-    register,
-    logout,
+    loading,
+    error,
+    login: loginFn,
+    register: registerFn,
+    logout: logoutFn,
   };
 }
