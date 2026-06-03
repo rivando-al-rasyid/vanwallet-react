@@ -110,7 +110,9 @@ export default function TopUp() {
       ).unwrap();
 
       if (!result?.id) {
-        throw new Error("Top up berhasil dibuat, tetapi ID transaksi tidak ditemukan.");
+        throw new Error(
+          "Top up berhasil dibuat, tetapi ID transaksi tidak ditemukan.",
+        );
       }
 
       setPendingTopupId(result.id);
@@ -131,7 +133,9 @@ export default function TopUp() {
       await dispatch(confirmTopup(pendingTopupId)).unwrap();
       setStep(STEP.SUCCESS);
     } catch (err) {
-      setError(err?.message || err || "Gagal mengkonfirmasi top up. Coba lagi.");
+      setError(
+        err?.message || err || "Gagal mengkonfirmasi top up. Coba lagi.",
+      );
     }
   };
 
@@ -183,9 +187,12 @@ export default function TopUp() {
           </div>
 
           <div>
-            <h2 className="text-lg font-bold text-gray-800">Top Up Berhasil!</h2>
+            <h2 className="text-lg font-bold text-gray-800">
+              Top Up Berhasil!
+            </h2>
             <p className="mt-1 text-sm text-gray-500">
-              {fmtIdr(subTotal)} via {methodName} telah ditambahkan ke saldo Anda.
+              {fmtIdr(subTotal)} via {methodName} telah ditambahkan ke saldo
+              Anda.
             </p>
           </div>
 
@@ -203,17 +210,23 @@ export default function TopUp() {
             <div className="mb-6 flex flex-col gap-3 rounded-xl bg-gray-50 p-4">
               <div className="flex justify-between text-sm">
                 <span className="text-gray-500">Metode Pembayaran</span>
-                <span className="font-semibold text-gray-800">{methodName}</span>
+                <span className="font-semibold text-gray-800">
+                  {methodName}
+                </span>
               </div>
 
               <div className="flex justify-between text-sm">
                 <span className="text-gray-500">Nominal</span>
-                <span className="font-semibold text-gray-800">{fmtIdr(order)}</span>
+                <span className="font-semibold text-gray-800">
+                  {fmtIdr(order)}
+                </span>
               </div>
 
               <div className="flex justify-between text-sm">
                 <span className="text-gray-500">Tax (10%)</span>
-                <span className="font-semibold text-gray-800">{fmtIdr(tax)}</span>
+                <span className="font-semibold text-gray-800">
+                  {fmtIdr(tax)}
+                </span>
               </div>
 
               <div className="flex justify-between border-t border-gray-200 pt-3 text-sm font-bold">
@@ -222,7 +235,9 @@ export default function TopUp() {
               </div>
             </div>
 
-            {error && <p className="mb-4 text-sm font-medium text-red-500">{error}</p>}
+            {error && (
+              <p className="mb-4 text-sm font-medium text-red-500">{error}</p>
+            )}
 
             <div className="flex gap-3">
               <button
@@ -267,7 +282,9 @@ export default function TopUp() {
                     <p className="text-sm font-semibold text-gray-800 sm:text-base">
                       {user.name}
                     </p>
-                    <p className="text-xs text-gray-500 sm:text-sm">{user.phone}</p>
+                    <p className="text-xs text-gray-500 sm:text-sm">
+                      {user.phone}
+                    </p>
                     <span className="badge badge-success mt-1">Verified</span>
                   </div>
                 </div>
@@ -332,7 +349,8 @@ export default function TopUp() {
                         alt={method.name}
                         className="max-h-full max-w-full object-contain"
                         onError={(event) => {
-                          event.currentTarget.src = "https://placehold.co/40x24?text=Pay";
+                          event.currentTarget.src =
+                            "https://placehold.co/40x24?text=Pay";
                         }}
                       />
                     </div>
@@ -358,7 +376,9 @@ export default function TopUp() {
               </div>
 
               <div className="flex items-center justify-between">
-                <span className="text-xs text-gray-500 sm:text-sm">Tax (10%)</span>
+                <span className="text-xs text-gray-500 sm:text-sm">
+                  Tax (10%)
+                </span>
                 <span className="text-xs font-semibold text-gray-800 sm:text-sm">
                   {fmtIdr(tax)}
                 </span>
@@ -374,7 +394,9 @@ export default function TopUp() {
               </div>
             </div>
 
-            {error && <p className="mb-3 text-xs font-medium text-red-500">{error}</p>}
+            {error && (
+              <p className="mb-3 text-xs font-medium text-red-500">{error}</p>
+            )}
 
             <button
               onClick={handleFormSubmit}
