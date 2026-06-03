@@ -1,30 +1,36 @@
 /**
  * registerSlice.js
  *
- * Handles the registration flow:
- *   1. register   POST /auth/register → auto-login → stores user in auth slice
- *   2. createPin  PATCH /profile/change/pin (first-time, no old_pin)
+ * Owns the registration flow:
+ *   register   POST /auth/register → auto-login → store user
+ *   createPin  PATCH /profile/change/pin (first-time setup, no old_pin)
  *
- * After createPin succeeds the caller navigates to /dashboard.
- * This slice owns only its own loading/error; user state lives in authSlice.
+ * This slice is NOT persisted — state resets on page reload after
+ * registration is complete.
  */
 
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { registerApi, setPinApi, getToken, mapUserFromInfo, fetchUserInfo } from "../../utils/api";
+import {
+  registerApi,
+  setPinApi,
+  fetchUserInfo,
+  mapUserFromInfo,
+  getToken,
+} from "../../utils/api";
 import { mergeUser } from "./authSlice";
 
 // ─── Thunks ───────────────────────────────────────────────────────────────────
 
 /**
- * POST /auth/register → auto-login.
- * On success, dispatches the resulting user into authSlice.
+ * POST /auth/register then auto-login.
+ * Returns a mapped user object (same shape as auth.user).
  */
 export const register = createAsyncThunk(
   "register/register",
-  async ({ email, password }, { dispatch, rejectWithValue }) => {
+  async ({ email, password }, { rejectWithValue, dispatch }) => {
     try {
       const user = await registerApi({ email, password });
-      // Push authenticated user into the persisted auth slice
+      // Sync the persisted auth slice so ProtectedRoute passes
       dispatch(mergeUser(user));
       return user;
     } catch (err) {
@@ -34,17 +40,18 @@ export const register = createAsyncThunk(
 );
 
 /**
- * PATCH /profile/change/pin — first-time setup, only pin_hash required.
- * After success, re-fetches user info to update pin field in auth.user.
+ * PATCH /profile/change/pin — first-time PIN setup (no old_pin).
+ * After saving, re-fetches /profile/info so auth.user.pin is updated.
  */
 export const createPin = createAsyncThunk(
   "register/createPin",
-  async ({ pin }, { dispatch, getState, rejectWithValue }) => {
+  async ({ pin }, { rejectWithValue, dispatch }) => {
     try {
       await setPinApi(pin);
-      const token = getState().auth.user?.token || getToken();
+      const token = getToken();
       const info = await fetchUserInfo();
       const updated = mapUserFromInfo(info, token);
+      // Keep auth slice in sync
       dispatch(mergeUser(updated));
       return updated;
     } catch (err) {
@@ -58,15 +65,17 @@ export const createPin = createAsyncThunk(
 const registerSlice = createSlice({
   name: "register",
   initialState: {
+    user: null,
     loading: false,
     pinLoading: false,
     error: null,
-    pinError: null,
   },
   reducers: {
-    clearRegisterErrors(state) {
+    clearRegisterError(state) {
       state.error = null;
-      state.pinError = null;
+    },
+    resetRegister() {
+      return { user: null, loading: false, pinLoading: false, error: null };
     },
   },
   extraReducers: (builder) => {
@@ -76,8 +85,9 @@ const registerSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(register.fulfilled, (state) => {
+      .addCase(register.fulfilled, (state, action) => {
         state.loading = false;
+        state.user = action.payload;
       })
       .addCase(register.rejected, (state, action) => {
         state.loading = false;
@@ -88,17 +98,18 @@ const registerSlice = createSlice({
     builder
       .addCase(createPin.pending, (state) => {
         state.pinLoading = true;
-        state.pinError = null;
+        state.error = null;
       })
-      .addCase(createPin.fulfilled, (state) => {
+      .addCase(createPin.fulfilled, (state, action) => {
         state.pinLoading = false;
+        state.user = action.payload;
       })
       .addCase(createPin.rejected, (state, action) => {
         state.pinLoading = false;
-        state.pinError = action.payload;
+        state.error = action.payload;
       });
   },
 });
 
-export const { clearRegisterErrors } = registerSlice.actions;
+export const { clearRegisterError, resetRegister } = registerSlice.actions;
 export default registerSlice.reducer;

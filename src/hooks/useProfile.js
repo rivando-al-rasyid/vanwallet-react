@@ -15,7 +15,7 @@ import { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchUserInfo,
-  updateProfile as updateProfileApi,
+  updateProfileApi,
   changePasswordApi,
   changePinApi,
   mapUserFromInfo,

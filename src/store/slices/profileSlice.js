@@ -15,7 +15,7 @@ import { register } from "./registerSlice";
 import {
   fetchUserInfo,
   fetchProfile,
-  updateProfile as updateProfileApi,
+  updateProfileApi,
   changePasswordApi,
   changePinApi,
   mapUserFromInfo,
