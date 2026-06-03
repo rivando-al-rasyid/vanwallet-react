@@ -323,27 +323,27 @@ export async function requestData(
 
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 
-export async function loginApi({ email, password }) {
-  const envelope = await requestJson(
-    "/auth/login",
-    {
-      method: "POST",
-      body: createJsonBody({ email, password }),
-    },
-    "Login failed",
-  );
+export async function fetchUserInfo() {
+  const token = getToken();
 
-  const token = envelope?.data;
+  try {
+    const response = await fetch("/api/profile/info", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
-  if (!token) {
-    throw new Error("Login failed: token was not returned by server");
+    const envelope = await response.json();
+
+    if (!response.ok) {
+      throw new Error(envelope?.message || "Failed to fetch user info");
+    }
+
+    return envelope?.data;
+  } catch (error) {
+    throw new Error(error.message || "Failed to fetch user info");
   }
-
-  setToken(token);
-
-  const userInfo = await fetchUserInfo();
-
-  return mapUserFromInfo(userInfo, token);
 }
 
 export async function registerApi({ email, password }) {
