@@ -1,7 +1,7 @@
 /**
  * api.js — Central API utility for VanWallet
  *
- * Backend routes (Gin, base: VITE_API_BASE_URL):
+ * Backend routes (Gin, base: /api):
  *   Auth:         POST /auth/login, /auth/register, /auth/logout
  *                 GET  /auth/pin
  *                 POST /auth/pin/verify
@@ -17,16 +17,13 @@
  *                 POST /transaction/transfer, /transaction/withdrawal, /transaction/expense
  */
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const BASE_URL = "/api";
 const TOKEN_KEY = "vanwallet_token";
 
 // ─── URL & Token helpers ──────────────────────────────────────────────────────
 
 export function resolveApiRoot() {
-  const raw = String(BASE_URL || "").replace(/\/+$/, "");
-  if (!raw) return "";
-  if (raw.startsWith("http://") || raw.startsWith("https://")) return raw;
-  return `http://${raw}`;
+  return BASE_URL.replace(/\/+$/, "");
 }
 
 export function getToken() {
