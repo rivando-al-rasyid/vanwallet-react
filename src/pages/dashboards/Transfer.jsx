@@ -5,13 +5,9 @@ import Stepper from "../../components/Stepper";
 import SearchInput from "../../components/SearchInput";
 import TableRow from "../../components/TableRow";
 import { Pagination } from "../../components/Pagination";
-import {
-  resetReceivers,
-  searchReceivers,
-} from "../../store/slices/transactionSlice";
+import { searchReceivers } from "../../store/slices/transactionSlice";
 
 const ITEMS_PER_PAGE = 6;
-const MIN_SEARCH_LENGTH = 2;
 
 export default function Transfer() {
   const navigate = useNavigate();
@@ -25,14 +21,8 @@ export default function Transfer() {
   );
 
   const loading = status === "loading";
-  const canSearch = search.trim().length >= MIN_SEARCH_LENGTH;
 
   const fetchContacts = useCallback(() => {
-    if (!canSearch) {
-      dispatch(resetReceivers());
-      return;
-    }
-
     dispatch(
       searchReceivers({
         q: search.trim(),
@@ -40,7 +30,7 @@ export default function Transfer() {
         limit: ITEMS_PER_PAGE,
       }),
     );
-  }, [canSearch, currentPage, dispatch, search]);
+  }, [currentPage, dispatch, search]);
 
   useEffect(() => {
     fetchContacts();
@@ -88,12 +78,9 @@ export default function Transfer() {
 
   const resultsText = useMemo(() => {
     if (loading) return "Memuat kontak...";
-    if (!canSearch) {
-      return "Ketik minimal 2 karakter untuk mencari penerima";
-    }
-    const baseText = `${total} Result Found`;
+    const baseText = `${total} User Found`;
     return search ? `${baseText} For "${search}"` : baseText;
-  }, [canSearch, loading, search, total]);
+  }, [loading, search, total]);
 
   return (
     <>
@@ -125,7 +112,7 @@ export default function Transfer() {
           <SearchInput
             value={search}
             onChange={handleSearchChange}
-            placeholder="Search by name or phone"
+            placeholder="Search by name, email, phone"
           />
         </div>
 
@@ -166,7 +153,7 @@ export default function Transfer() {
           </div>
         )}
 
-        {!loading && !error && canSearch && (
+        {!loading && !error && (
           <>
             <TableRow items={contacts} onRowClick={handleRowClick} />
             <Pagination
@@ -175,14 +162,9 @@ export default function Transfer() {
               onPageChange={handlePageChange}
               visibleCount={contacts.length}
               totalItems={total}
+              itemLabel="User"
             />
           </>
-        )}
-
-        {!loading && !error && !canSearch && (
-          <div className="py-20 text-center text-sm text-slate-400">
-            Search for a recipient by name or phone number.
-          </div>
         )}
       </div>
     </>
