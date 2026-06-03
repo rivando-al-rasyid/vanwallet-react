@@ -1,12 +1,12 @@
 /**
  * profileSlice.js
  *
- * Manages user profile state. All API calls aligned to Swagger spec:
- *   GET  /profile/info  → fetchUserInfo (balance + stats)
- *   GET  /profile       → fetchProfile  (basic profile)
- *   PATCH /profile/edit → updateProfile
- *   PATCH /profile/password → changePasswordApi
- *   PATCH /profile/change/pin → changePinApi
+ * Manages user profile state using utils/api.js:
+ *   GET   /profile/info            → fetchUserInfo
+ *   GET   /profile                 → fetchProfile
+ *   PATCH /profile/edit            → updateProfileApi
+ *   PATCH /profile/change/password → changePasswordApi
+ *   PATCH /profile/change/pin      → changePinApi
  */
 
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
@@ -60,7 +60,7 @@ export const updateProfile = createAsyncThunk(
 );
 
 /**
- * Changes login password via PATCH /profile/password
+ * Changes login password via PATCH /profile/change/password
  */
 export const changePassword = createAsyncThunk(
   "profile/changePassword",
@@ -117,7 +117,12 @@ const profileSlice = createSlice({
         state.user = action.payload;
         state.error = null;
       })
-      .addCase(logout, (state) => {
+      .addCase(logout.fulfilled, (state) => {
+        state.user = null;
+        state.loading = false;
+        state.error = null;
+      })
+      .addCase(logout.rejected, (state) => {
         state.user = null;
         state.loading = false;
         state.error = null;

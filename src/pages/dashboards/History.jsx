@@ -1,51 +1,42 @@
-import { useState, useEffect, useCallback } from "react";
+import { useEffect, useMemo } from "react";
 import { useSearchParams } from "react-router";
+import { useDispatch, useSelector } from "react-redux";
 import TableRow from "../../components/TableRow";
 import SearchInput from "../../components/SearchInput";
 import { Pagination } from "../../components/Pagination";
-import { fetchHistory } from "../../utils/api";
+import { fetchHistory } from "../../store/slices/transactionSlice";
 
 const ITEMS_PER_PAGE = 6;
 
 export default function History() {
+  const dispatch = useDispatch();
   const [searchParams, setSearchParams] = useSearchParams();
   const search = searchParams.get("search") || "";
   const currentPage = Number(searchParams.get("page") || "1");
-  const [data, setData] = useState([]);
-  const [totalItems, setTotalItems] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
 
-  const loadHistory = useCallback(async () => {
-    setLoading(true);
-    setError("");
-    try {
-      const result = await fetchHistory({
-        page: currentPage,
-        limit: ITEMS_PER_PAGE,
-      });
-      setData(result.items);
-      setTotalItems(result.total);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  }, [currentPage]);
-
-  useEffect(() => {
-    loadHistory();
-  }, [loadHistory]);
-
-  const filtered = data.filter(
-    (item) =>
-      item.name.toLowerCase().includes(search.toLowerCase()) ||
-      String(item.phone || "").includes(search),
+  const { items, total, status, error } = useSelector(
+    (state) => state.transaction.history,
   );
 
-  const totalPages = Math.max(1, Math.ceil(totalItems / ITEMS_PER_PAGE));
+  const loading = status === "loading";
+
+  useEffect(() => {
+    dispatch(fetchHistory({ page: currentPage, limit: ITEMS_PER_PAGE }));
+  }, [dispatch, currentPage]);
+
+  const filtered = useMemo(
+    () =>
+      items.filter(
+        (item) =>
+          item.name.toLowerCase().includes(search.toLowerCase()) ||
+          String(item.phone || "").includes(search),
+      ),
+    [items, search],
+  );
+
+  const totalPages = Math.max(1, Math.ceil(total / ITEMS_PER_PAGE));
   const safePage = Math.min(Math.max(currentPage, 1), totalPages);
-  const paginated = search ? filtered : data;
+  const paginated = search ? filtered : items;
 
   const handleSearchChange = (e) => {
     const nextSearch = e.target.value;
@@ -67,6 +58,10 @@ export default function History() {
       next.set("page", String(page));
       return next;
     });
+  };
+
+  const handleRetry = () => {
+    dispatch(fetchHistory({ page: currentPage, limit: ITEMS_PER_PAGE }));
   };
 
   return (
@@ -148,7 +143,7 @@ export default function History() {
           <div className="flex flex-col items-center justify-center gap-3 py-20">
             <p className="text-sm font-semibold text-red-500">{error}</p>
             <button
-              onClick={loadHistory}
+              onClick={handleRetry}
               className="text-xs text-blue-600 underline"
             >
               Coba lagi
@@ -167,7 +162,7 @@ export default function History() {
                 totalPages={totalPages}
                 onPageChange={handlePageChange}
                 visibleCount={paginated.length}
-                totalItems={totalItems}
+                totalItems={total}
               />
             )}
             {search && paginated.length === 0 && (

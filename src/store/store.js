@@ -1,8 +1,9 @@
 /**
  * store.js
  *
- * Redux store with 3 slices:
+ * Redux store with 4 slices:
  *   auth        — user session (persisted to localStorage)
+ *   profile     — profile screen state
  *   register    — registration + first-time PIN flow (not persisted)
  *   transaction — history + receiver search (not persisted)
  */
@@ -21,6 +22,7 @@ import {
 import storage from "redux-persist/es/storage";
 
 import authReducer from "./slices/authSlice";
+import profileReducer from "./slices/profileSlice";
 import registerReducer from "./slices/registerSlice";
 import transactionReducer from "./slices/transactionSlice";
 
@@ -33,6 +35,7 @@ const authPersistConfig = {
 export const store = configureStore({
   reducer: {
     auth: persistReducer(authPersistConfig, authReducer),
+    profile: profileReducer,
     register: registerReducer,
     transaction: transactionReducer,
   },

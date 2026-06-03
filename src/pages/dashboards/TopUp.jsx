@@ -10,14 +10,19 @@
  */
 
 import { useMemo, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { FormProvider, useForm } from "react-hook-form";
 import Joi from "joi";
 import { joiResolver } from "@hookform/resolvers/joi";
 
 import PinInput from "../../components/PinInput";
 import Modal from "../../components/Modal";
-import { initiateTopup, confirmTopup, fetchSummary } from "../../utils/api";
+import {
+  confirmTopup,
+  fetchSummary,
+  initiateTopup,
+  resetTopup,
+} from "../../store/slices/transactionSlice";
 
 const TAX_RATE = 0.1;
 
@@ -62,7 +67,9 @@ const pinSchema = Joi.object({
 });
 
 export default function TopUp() {
+  const dispatch = useDispatch();
   const currentUser = useSelector((state) => state.auth.user);
+  const topupStatus = useSelector((state) => state.transaction.topup.status);
 
   const [amount, setAmount] = useState("");
   const [selectedMethod, setSelectedMethod] = useState("BRI");
@@ -71,6 +78,8 @@ export default function TopUp() {
   const [walletId, setWalletId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const isLoading = loading || topupStatus === "loading";
 
   const methods = useForm({
     resolver: joiResolver(pinSchema),
@@ -105,7 +114,7 @@ export default function TopUp() {
     // Resolve wallet_id from summary (first wallet)
     setLoading(true);
     try {
-      const summary = await fetchSummary();
+      const summary = await dispatch(fetchSummary()).unwrap();
       const firstWallet = summary?.wallets?.[0];
       if (!firstWallet?.id) {
         setError("Wallet tidak ditemukan. Hubungi support.");
@@ -114,7 +123,7 @@ export default function TopUp() {
       setWalletId(firstWallet.id);
       setStep(STEP.PIN);
     } catch (err) {
-      setError(err.message || "Gagal mengambil data wallet.");
+      setError(err || "Gagal mengambil data wallet.");
     } finally {
       setLoading(false);
     }
@@ -124,21 +133,20 @@ export default function TopUp() {
   const handlePinSubmit = async (data) => {
     const pin = data.pin.map((p) => p.value).join("");
     setError("");
-    setLoading(true);
     try {
-      const result = await initiateTopup({
-        walletId,
-        amount: subTotal,
-        paymentMethod: selectedMethod,
-        pin,
-      });
+      const result = await dispatch(
+        initiateTopup({
+          walletId,
+          amount: subTotal,
+          paymentMethod: selectedMethod,
+          pin,
+        }),
+      ).unwrap();
       setPendingTopupId(result?.id);
       methods.reset({ pin: defaultPin });
       setStep(STEP.CONFIRM);
     } catch (err) {
-      setError(err.message || "Gagal memulai top up. Coba lagi.");
-    } finally {
-      setLoading(false);
+      setError(err || "Gagal memulai top up. Coba lagi.");
     }
   };
 
@@ -146,14 +154,11 @@ export default function TopUp() {
   const handleConfirm = async () => {
     if (!pendingTopupId) return;
     setError("");
-    setLoading(true);
     try {
-      await confirmTopup(pendingTopupId);
+      await dispatch(confirmTopup(pendingTopupId)).unwrap();
       setStep(STEP.SUCCESS);
     } catch (err) {
-      setError(err.message || "Gagal mengkonfirmasi top up. Coba lagi.");
-    } finally {
-      setLoading(false);
+      setError(err || "Gagal mengkonfirmasi top up. Coba lagi.");
     }
   };
 
@@ -165,6 +170,7 @@ export default function TopUp() {
     setStep(STEP.FORM);
     setError("");
     methods.reset({ pin: defaultPin });
+    dispatch(resetTopup());
   };
 
   const methodName =
@@ -234,12 +240,12 @@ export default function TopUp() {
               <button
                 onClick={handleReset}
                 className="flex-1 rounded-xl border border-gray-200 py-3 text-sm font-semibold text-gray-600 transition hover:bg-gray-50"
-                disabled={loading}
+                disabled={isLoading}
               >
                 Batal
               </button>
-              <button onClick={handleConfirm} className="btn-primary flex-1" disabled={loading}>
-                {loading ? "Memproses..." : "Konfirmasi"}
+              <button onClick={handleConfirm} className="btn-primary flex-1" disabled={isLoading}>
+                {isLoading ? "Memproses..." : "Konfirmasi"}
               </button>
             </div>
           </div>
@@ -357,9 +363,9 @@ export default function TopUp() {
             <button
               onClick={handleFormSubmit}
               className="btn-primary w-full"
-              disabled={loading}
+              disabled={isLoading}
             >
-              {loading ? "Memproses..." : "Submit"}
+              {isLoading ? "Memproses..." : "Submit"}
             </button>
           </div>
         </div>
@@ -388,9 +394,9 @@ export default function TopUp() {
             <button
               type="submit"
               className="btn-primary mb-4 w-full"
-              disabled={loading}
+              disabled={isLoading}
             >
-              {loading ? "Memproses..." : "Konfirmasi PIN"}
+              {isLoading ? "Memproses..." : "Konfirmasi PIN"}
             </button>
           </form>
         </FormProvider>

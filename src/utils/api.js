@@ -4,8 +4,8 @@
  * Browser should call same-origin Nginx route:
  *   /api/...
  *
- * Nginx will proxy internally to:
- *   http://backend:8080/api/...
+ * Nginx will strip /api and proxy internally to:
+ *   http://backend:8080/...
  */
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -208,6 +208,7 @@ export function mapUserFromInfo(userInfo, token) {
     phone: userInfo?.phone || "",
     avatar: avatarUrl,
     currentBalance: userInfo?.current_balance ?? 0,
+    walletId: userInfo?.wallet_id || userInfo?.wallet?.id || userInfo?.wallets?.[0]?.id || null,
 
     // pin_hash is a plain string from the server.
     // Empty string means no PIN set.
@@ -323,27 +324,27 @@ export async function requestData(
 
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 
-export async function fetchUserInfo() {
-  const token = getToken();
+export async function loginApi({ email, password }) {
+  const envelope = await requestJson(
+    "/auth/login",
+    {
+      method: "POST",
+      body: createJsonBody({ email, password }),
+    },
+    "Login failed",
+  );
 
-  try {
-    const response = await fetch("/api/profile/info", {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+  const token = envelope?.data;
 
-    const envelope = await response.json();
-
-    if (!response.ok) {
-      throw new Error(envelope?.message || "Failed to fetch user info");
-    }
-
-    return envelope?.data;
-  } catch (error) {
-    throw new Error(error.message || "Failed to fetch user info");
+  if (!token) {
+    throw new Error("Login failed: token was not returned by server");
   }
+
+  setToken(token);
+
+  const userInfo = await fetchUserInfo();
+
+  return mapUserFromInfo(userInfo, token);
 }
 
 export async function registerApi({ email, password }) {

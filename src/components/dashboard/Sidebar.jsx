@@ -1,13 +1,24 @@
 import { NavLink } from "react-router";
 import { useEffect } from "react";
 import LogoutButton from "./LogoutButton";
-import { useLogout } from "../../hooks/useLogout";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router";
+import { logout } from "../../store/slices/authSlice";
 
 export default function Sidebar({ isOpen, setIsOpen }) {
-  const logoutAndRedirect = useLogout();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-  const handleLogout = () => {
-    logoutAndRedirect(() => setIsOpen(false));
+  const handleLogout = async () => {
+    const shouldLogout = window.confirm("Are you sure you want to logout?");
+
+    if (!shouldLogout) {
+      return;
+    }
+
+    await dispatch(logout());
+    setIsOpen(false);
+    navigate("/login");
   };
 
   useEffect(() => {

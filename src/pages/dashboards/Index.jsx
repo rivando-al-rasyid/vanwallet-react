@@ -1,13 +1,9 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router";
 import { Link } from "react-router";
-import {
-  fetchHistory,
-  fetchReport,
-  fetchSummary,
-  formatRupiah,
-  formatRupiahShort,
-} from "../../utils/api";
+import { useDispatch, useSelector } from "react-redux";
+import { formatRupiah, formatRupiahShort } from "../../utils/api";
+import { fetchDashboard } from "../../store/slices/transactionSlice";
 
 import { Bar } from "react-chartjs-2";
 import {
@@ -23,13 +19,15 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
 export default function Index() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [days, setDays] = useState("7");
   const [typeFilter, setTypeFilter] = useState("All");
-  const [summary, setSummary] = useState(null);
-  const [report, setReport] = useState(null);
-  const [transactionData, setTransactionData] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+
+  const { summary, report, recentTransactions, status, error } = useSelector(
+    (state) => state.transaction.dashboard,
+  );
+
+  const loading = status === "idle" || status === "loading";
 
   const reportRange = days === "30" ? "30days" : days === "14" ? "14days" : "7days";
   const reportType =
@@ -39,24 +37,9 @@ export default function Index() {
         ? "expense"
         : "both";
 
-  const loadDashboard = useCallback(async () => {
-    setLoading(true);
-    setError("");
-    try {
-      const [summaryData, reportData, historyData] = await Promise.all([
-        fetchSummary(),
-        fetchReport({ range: reportRange, type: reportType }),
-        fetchHistory({ page: 1, limit: 6 }),
-      ]);
-      setSummary(summaryData);
-      setReport(reportData);
-      setTransactionData(historyData.items);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  }, [reportRange, reportType]);
+  const loadDashboard = useCallback(() => {
+    dispatch(fetchDashboard({ range: reportRange, type: reportType, historyLimit: 6 }));
+  }, [dispatch, reportRange, reportType]);
 
   useEffect(() => {
     loadDashboard();
@@ -309,14 +292,14 @@ export default function Index() {
                 </button>
               </div>
             )}
-            {!loading && !error && transactionData.length === 0 && (
+            {!loading && !error && recentTransactions.length === 0 && (
               <div className="py-10 text-center text-xs text-slate-400">
                 No transactions yet.
               </div>
             )}
             {!loading &&
               !error &&
-              transactionData.map((tx) => (
+              recentTransactions.map((tx) => (
                 <div
                   key={tx.id}
                   className="flex cursor-pointer items-center gap-2 rounded-lg p-2 transition-colors hover:bg-slate-50 sm:gap-3 sm:p-3"

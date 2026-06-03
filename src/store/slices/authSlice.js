@@ -95,11 +95,11 @@ const authSlice = createSlice({
     error: null,
   },
   reducers: {
-    /** Merge partial user updates (e.g. after setPinApi or profile edit) */
+    /** Merge partial user updates, or set user when auth.user is still null. */
     mergeUser(state, action) {
-      if (state.user) {
-        state.user = { ...state.user, ...action.payload };
-      }
+      state.user = state.user
+        ? { ...state.user, ...action.payload }
+        : action.payload;
     },
     clearError(state) {
       state.error = null;

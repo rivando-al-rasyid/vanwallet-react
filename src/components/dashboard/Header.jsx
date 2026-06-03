@@ -1,17 +1,17 @@
 import Brand from "../Brand";
 import { useState, useRef, useEffect, useContext } from "react";
 import { useNavigate } from "react-router";
-import { useAuth } from "../../hooks/useAuth";
+import { useDispatch, useSelector } from "react-redux";
+import { logout } from "../../store/slices/authSlice";
 import DashboardContext from "../../context/dashboard/context";
 import { X, Menu } from "lucide-react";
 import LogoutButton from "./LogoutButton";
-import { useLogout } from "../../hooks/useLogout";
 
 export default function Header() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.auth.user);
   const { sidebarOpen, setSidebarOpen } = useContext(DashboardContext);
-  const logoutAndRedirect = useLogout();
 
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef(null);
@@ -26,8 +26,16 @@ export default function Header() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleLogout = () => {
-    logoutAndRedirect(() => setOpen(false));
+  const handleLogout = async () => {
+    const shouldLogout = window.confirm("Are you sure you want to logout?");
+
+    if (!shouldLogout) {
+      return;
+    }
+
+    await dispatch(logout());
+    setOpen(false);
+    navigate("/login");
   };
 
   return (

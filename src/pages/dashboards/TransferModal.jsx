@@ -16,8 +16,9 @@ import Joi from "joi";
 import PinInput from "../../components/PinInput";
 import Modal from "../../components/Modal";
 import Stepper from "../../components/Stepper";
-import { createTransfer, formatRupiah } from "../../utils/api";
-import { useAuth } from "../../hooks/useAuth";
+import { useDispatch, useSelector } from "react-redux";
+import { formatRupiah } from "../../utils/api";
+import { createTransfer, resetTransfer } from "../../store/slices/transactionSlice";
 import transferFailedImage from "../../assets/img/failed.png";
 import transferSuccessImage from "../../assets/img/success.png";
 
@@ -40,15 +41,17 @@ const MODAL_STEP = { PIN: "pin", SUCCESS: "success", FAILED: "failed" };
 export default function TransferModal() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user } = useAuth();
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.auth.user);
+  const transferStatus = useSelector((state) => state.transaction.transfer.status);
 
   const contact = location.state?.contact;
   const amount = location.state?.amount;
   const note = location.state?.note || "";
 
   const [modalStep, setModalStep] = useState(MODAL_STEP.PIN);
-  const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const loading = transferStatus === "loading";
 
   const methods = useForm({
     resolver: joiResolver(pinSchema),
@@ -67,26 +70,26 @@ export default function TransferModal() {
    */
   const handlePinSubmit = async ({ pin }) => {
     const pinValue = pin.map((p) => p.value).join("");
-    setLoading(true);
     setErrorMsg("");
     try {
-      await createTransfer({
-        senderWalletId: user?.walletId,
-        recipientWalletId: contact.walletId,
-        amount,
-        note,
-        pin: pinValue,
-      });
+      await dispatch(
+        createTransfer({
+          senderWalletId: user?.walletId,
+          recipientWalletId: contact.walletId,
+          amount,
+          note,
+          pin: pinValue,
+        }),
+      ).unwrap();
       setModalStep(MODAL_STEP.SUCCESS);
     } catch (err) {
-      setErrorMsg(err.message || "Transfer gagal.");
+      setErrorMsg(err || "Transfer gagal.");
       setModalStep(MODAL_STEP.FAILED);
-    } finally {
-      setLoading(false);
     }
   };
 
   const handleTryAgain = () => {
+    dispatch(resetTransfer());
     methods.reset({ pin: defaultPin });
     setErrorMsg("");
     setModalStep(MODAL_STEP.PIN);
