@@ -12,7 +12,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import {
   fetchSummary as apiFetchSummary,
-  fetchReport as apiFetchReport,
   fetchHistory as apiFetchHistory,
   searchReceivers as apiSearchReceivers,
   initiateTopup as apiInitiateTopup,
@@ -28,13 +27,136 @@ function getFirstWalletId(summary) {
   return summary?.wallets?.[0]?.id || summary?.wallet_id || summary?.walletId || null;
 }
 
+const DASHBOARD_HISTORY_PAGE_SIZE = 100;
+const DASHBOARD_HISTORY_MAX_PAGES = 10;
+
+function parseRangeDays(range) {
+  const parsedDays = Number.parseInt(String(range).replace(/\D/g, ""), 10);
+
+  if (Number.isFinite(parsedDays) && parsedDays > 0) {
+    return parsedDays;
+  }
+
+  return 7;
+}
+
+function toDateInputValue(date) {
+  return date.toISOString().slice(0, 10);
+}
+
+function getDateRange(days) {
+  const endDate = new Date();
+  const startDate = new Date(endDate);
+
+  startDate.setDate(endDate.getDate() - days + 1);
+
+  return {
+    startDate: toDateInputValue(startDate),
+    endDate: toDateInputValue(endDate),
+  };
+}
+
+function getGraphLabel(date) {
+  return new Intl.DateTimeFormat("en-US", {
+    weekday: "short",
+  }).format(date);
+}
+
+function createEmptyGraphBuckets(days) {
+  const buckets = new Map();
+  const today = new Date();
+
+  for (let index = days - 1; index >= 0; index -= 1) {
+    const date = new Date(today);
+    date.setDate(today.getDate() - index);
+
+    const key = toDateInputValue(date);
+
+    buckets.set(key, {
+      date: key,
+      label: getGraphLabel(date),
+      income: 0,
+      expense: 0,
+    });
+  }
+
+  return buckets;
+}
+
+function buildReportFromHistory(items, days) {
+  const buckets = createEmptyGraphBuckets(days);
+
+  items.forEach((transaction) => {
+    const createdAt = transaction.createdAt || transaction.created_at;
+
+    if (!createdAt) {
+      return;
+    }
+
+    const date = new Date(createdAt);
+
+    if (Number.isNaN(date.getTime())) {
+      return;
+    }
+
+    const key = toDateInputValue(date);
+    const bucket = buckets.get(key);
+
+    if (!bucket) {
+      return;
+    }
+
+    const amount = Number(transaction.rawAmount ?? transaction.amount ?? 0);
+
+    if (!Number.isFinite(amount)) {
+      return;
+    }
+
+    if (transaction.type === "income" || transaction.direction === "income") {
+      bucket.income += amount;
+      return;
+    }
+
+    bucket.expense += amount;
+  });
+
+  return {
+    points: Array.from(buckets.values()),
+  };
+}
+
+async function fetchDashboardGraphHistory({ range = "7days", type = "both" } = {}) {
+  const days = parseRangeDays(range);
+  const { startDate, endDate } = getDateRange(days);
+  const direction = type === "income" || type === "expense" ? type : "";
+  const items = [];
+  let page = 1;
+  let totalPages = 1;
+
+  do {
+    const history = await apiFetchHistory({
+      page,
+      limit: DASHBOARD_HISTORY_PAGE_SIZE,
+      direction,
+      startDate,
+      endDate,
+    });
+
+    items.push(...history.items);
+    totalPages = history.totalPages || 1;
+    page += 1;
+  } while (page <= totalPages && page <= DASHBOARD_HISTORY_MAX_PAGES);
+
+  return buildReportFromHistory(items, days);
+}
+
 export const fetchDashboard = createAsyncThunk(
   "transaction/fetchDashboard",
   async ({ range = "7days", type = "both", historyLimit = 6 } = {}, { rejectWithValue }) => {
     try {
       const [summary, report, history] = await Promise.all([
         apiFetchSummary(),
-        apiFetchReport({ range, type }),
+        fetchDashboardGraphHistory({ range, type }),
         apiFetchHistory({ page: 1, limit: historyLimit }),
       ]);
 
@@ -62,9 +184,9 @@ export const fetchSummary = createAsyncThunk(
 
 export const fetchHistory = createAsyncThunk(
   "transaction/fetchHistory",
-  async ({ page = 1, limit = 10 } = {}, { rejectWithValue }) => {
+  async (params = {}, { rejectWithValue }) => {
     try {
-      return await apiFetchHistory({ page, limit });
+      return await apiFetchHistory(params);
     } catch (error) {
       return rejectWithValue(getErrorMessage(error, "Failed to fetch history"));
     }
@@ -137,6 +259,7 @@ const emptyPaginatedState = {
   page: 1,
   limit: 10,
   total: 0,
+  totalPages: 1,
   status: "idle",
   error: null,
 };
@@ -228,6 +351,7 @@ const transactionSlice = createSlice({
         state.history.page = action.payload.page;
         state.history.limit = action.payload.limit;
         state.history.total = action.payload.total;
+        state.history.totalPages = action.payload.totalPages;
       })
       .addCase(fetchHistory.rejected, (state, action) => {
         state.history.status = "failed";
@@ -245,6 +369,7 @@ const transactionSlice = createSlice({
         state.receivers.page = action.payload.page;
         state.receivers.limit = action.payload.limit;
         state.receivers.total = action.payload.total;
+        state.receivers.totalPages = action.payload.totalPages;
       })
       .addCase(searchReceivers.rejected, (state, action) => {
         state.receivers.status = "failed";

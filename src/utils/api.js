@@ -170,19 +170,35 @@ function toOptionalText(value) {
   return value || "";
 }
 
-function createPaginationParams({ page = 1, limit = 10 } = {}) {
-  return new URLSearchParams({
+function createPaginationParams({ page = 1, limit = 10, ...filters } = {}) {
+  const params = new URLSearchParams({
     page: String(page),
     limit: String(limit),
   });
+
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value === undefined || value === null || value === "") {
+      return;
+    }
+
+    params.set(key, String(value).trim());
+  });
+
+  return params;
 }
 
-function normalizePaginatedResponse(data, fallbackPage, fallbackLimit) {
+function normalizePaginatedResponse(data, fallbackPage, fallbackLimit, mapItem = (item) => item) {
+  const rawItems = Array.isArray(data?.data) ? data.data : [];
+  const total = data?.total ?? rawItems.length;
+  const limit = data?.limit ?? fallbackLimit;
+  const totalPages = data?.total_pages ?? Math.max(1, Math.ceil(total / limit));
+
   return {
-    items: data?.data ?? [],
+    items: rawItems.map(mapItem),
     page: data?.page ?? fallbackPage,
-    limit: data?.limit ?? fallbackLimit,
-    total: data?.total ?? 0,
+    limit,
+    total,
+    totalPages,
   };
 }
 
@@ -206,6 +222,57 @@ export function mapUserFromInfo(userInfo, token) {
     pin: hasValidPinHash(userInfo?.pin_hash) ? userInfo.pin_hash : null,
 
     token,
+  };
+}
+
+
+function normalizeTransactionDirection(transaction) {
+  const direction = String(transaction?.direction || "").toLowerCase();
+
+  if (direction === "income" || direction === "expense") {
+    return direction;
+  }
+
+  const type = String(transaction?.type || "").toUpperCase();
+  return type === "TOPUP" || type === "TRANSFER_IN" ? "income" : "expense";
+}
+
+function getTransactionTitle(transaction) {
+  return (
+    transaction?.title ||
+    transaction?.merchant_name ||
+    transaction?.payment_method ||
+    transaction?.wallet_label ||
+    transaction?.type ||
+    "Transaction"
+  );
+}
+
+function buildTransactionIconUrl(direction) {
+  const background = direction === "income" ? "DCFCE7" : "FEE2E2";
+  const color = direction === "income" ? "16A34A" : "DC2626";
+  const icon = direction === "income" ? "%2B" : "%E2%88%92";
+
+  return `https://ui-avatars.com/api/?name=${icon}&background=${background}&color=${color}&bold=true`;
+}
+
+function mapHistoryItem(transaction) {
+  const direction = normalizeTransactionDirection(transaction);
+  const title = getTransactionTitle(transaction);
+
+  return {
+    ...transaction,
+    id: transaction?.id,
+    name: title,
+    phone: transaction?.note || transaction?.wallet_label || transaction?.status || transaction?.source || "-",
+    img: buildTransactionIconUrl(direction),
+    amount: formatRupiah(transaction?.amount ?? 0),
+    rawAmount: transaction?.amount ?? 0,
+    type: direction,
+    transactionType: transaction?.type || "",
+    status: transaction?.status || "",
+    source: transaction?.source || "",
+    createdAt: transaction?.created_at || transaction?.createdAt || transaction?.date || "",
   };
 }
 
@@ -526,8 +593,30 @@ export async function fetchReport({ range = "7days", type = "both" } = {}) {
   );
 }
 
-export async function fetchHistory({ page = 1, limit = 10 } = {}) {
-  const params = createPaginationParams({ page, limit });
+export async function fetchHistory({
+  page = 1,
+  limit = 10,
+  walletId = "",
+  source = "",
+  type = "",
+  status = "",
+  direction = "",
+  startDate = "",
+  endDate = "",
+  q = "",
+} = {}) {
+  const params = createPaginationParams({
+    page,
+    limit,
+    wallet_id: walletId,
+    source,
+    type,
+    status,
+    direction,
+    start_date: startDate,
+    end_date: endDate,
+    q,
+  });
 
   const data = await requestData(
     `/transaction/history?${params.toString()}`,
@@ -535,25 +624,7 @@ export async function fetchHistory({ page = 1, limit = 10 } = {}) {
     "Failed to fetch history",
   );
 
-  return normalizePaginatedResponse(data, page, limit);
-}
-
-export async function fetchAllTransactions({ page = 1, limit = 10 } = {}) {
-  const params = createPaginationParams({ page, limit });
-
-  return requestData(
-    `/transaction?${params.toString()}`,
-    {},
-    "Failed to fetch transactions",
-  );
-}
-
-export async function fetchTransactionById(transactionId) {
-  return requestData(
-    `/transaction/${transactionId}`,
-    {},
-    "Failed to fetch transaction",
-  );
+  return normalizePaginatedResponse(data, page, limit, mapHistoryItem);
 }
 
 export async function searchReceivers({ q = "", page = 1, limit = 10 } = {}) {
@@ -572,12 +643,12 @@ export async function searchReceivers({ q = "", page = 1, limit = 10 } = {}) {
 
   const receivers = data?.data ?? [];
 
-  return {
-    items: receivers.map(mapReceiver),
-    page: data?.page ?? page,
-    limit: data?.limit ?? limit,
-    total: data?.total ?? 0,
-  };
+  return normalizePaginatedResponse(
+    { ...data, data: receivers },
+    page,
+    limit,
+    mapReceiver,
+  );
 }
 
 export async function initiateTopup({

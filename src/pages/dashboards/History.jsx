@@ -6,62 +6,66 @@ import SearchInput from "../../components/SearchInput";
 import { Pagination } from "../../components/Pagination";
 import { fetchHistory } from "../../store/slices/transactionSlice";
 
-const ITEMS_PER_PAGE = 6;
+const DEFAULT_LIMIT = 10;
+
+function getPositiveNumber(value, fallback) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+}
 
 export default function History() {
   const dispatch = useDispatch();
   const [searchParams, setSearchParams] = useSearchParams();
-  const search = searchParams.get("search") || "";
-  const currentPage = Number(searchParams.get("page") || "1");
 
-  const { items, total, status, error } = useSelector(
+  const page = getPositiveNumber(searchParams.get("page"), 1);
+  const limit = DEFAULT_LIMIT;
+  const q = searchParams.get("q") || "";
+
+  const { items, total, totalPages, status, error } = useSelector(
     (state) => state.transaction.history,
   );
 
   const loading = status === "loading";
+  const safeTotalPages = Math.max(
+    1,
+    totalPages || Math.ceil(total / limit) || 1,
+  );
+  const safePage = Math.min(Math.max(page, 1), safeTotalPages);
+
+  const historyParams = useMemo(() => ({ page, limit, q }), [page, limit, q]);
 
   useEffect(() => {
-    dispatch(fetchHistory({ page: currentPage, limit: ITEMS_PER_PAGE }));
-  }, [dispatch, currentPage]);
+    dispatch(fetchHistory(historyParams));
+  }, [dispatch, historyParams]);
 
-  const filtered = useMemo(
-    () =>
-      items.filter(
-        (item) =>
-          item.name.toLowerCase().includes(search.toLowerCase()) ||
-          String(item.phone || "").includes(search),
-      ),
-    [items, search],
-  );
-
-  const totalPages = Math.max(1, Math.ceil(total / ITEMS_PER_PAGE));
-  const safePage = Math.min(Math.max(currentPage, 1), totalPages);
-  const paginated = search ? filtered : items;
-
-  const handleSearchChange = (e) => {
-    const nextSearch = e.target.value;
+  const updateParam = (key, value, resetPage = true) => {
     setSearchParams((prev) => {
       const next = new URLSearchParams(prev);
-      if (nextSearch) {
-        next.set("search", nextSearch);
+
+      if (value) {
+        next.set(key, value);
       } else {
-        next.delete("search");
+        next.delete(key);
       }
-      next.set("page", "1");
+
+      if (resetPage) {
+        next.set("page", "1");
+      }
+
       return next;
     });
   };
 
-  const handlePageChange = (page) => {
-    setSearchParams((prev) => {
-      const next = new URLSearchParams(prev);
-      next.set("page", String(page));
-      return next;
-    });
+  const handleSearchChange = (event) => {
+    updateParam("q", event.target.value.trim());
+  };
+
+  const handlePageChange = (nextPage) => {
+    updateParam("page", String(nextPage), false);
   };
 
   const handleRetry = () => {
-    dispatch(fetchHistory({ page: currentPage, limit: ITEMS_PER_PAGE }));
+    dispatch(fetchHistory(historyParams));
   };
 
   return (
@@ -101,13 +105,13 @@ export default function History() {
       </div>
 
       <div className="card min-h-150">
-        <div className="flex flex-col gap-4 border-b border-gray-100 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-5 lg:px-8">
-          <h2 className="section-title order-2 sm:order-1">Find Transaction</h2>
-          <div className="order-1 sm:order-2">
+        <div className="flex flex-col gap-4 border-b border-gray-100 px-4 py-4 sm:px-6 sm:py-5 lg:px-8">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <h2 className="section-title">Find Transaction</h2>
             <SearchInput
-              value={search}
+              value={q}
               onChange={handleSearchChange}
-              placeholder="Name or Number"
+              placeholder="Search title, note, wallet..."
             />
           </div>
         </div>
@@ -154,22 +158,16 @@ export default function History() {
         {!loading && !error && (
           <>
             <div className="overflow-x-auto">
-              <TableRow items={paginated} remove={false} />
+              <TableRow items={items} remove={false} showActions={false} />
             </div>
-            {!search && (
-              <Pagination
-                currentPage={safePage}
-                totalPages={totalPages}
-                onPageChange={handlePageChange}
-                visibleCount={paginated.length}
-                totalItems={total}
-              />
-            )}
-            {search && paginated.length === 0 && (
-              <div className="py-10 text-center text-sm text-slate-400">
-                No matching transactions on this page.
-              </div>
-            )}
+            <Pagination
+              currentPage={safePage}
+              totalPages={safeTotalPages}
+              onPageChange={handlePageChange}
+              visibleCount={items.length}
+              totalItems={total}
+              itemLabel="History"
+            />
           </>
         )}
       </div>

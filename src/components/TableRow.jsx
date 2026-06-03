@@ -9,6 +9,7 @@ import { faStar as faStarSolid } from "@fortawesome/free-solid-svg-icons";
 export default function TableRow({
   items,
   remove = false,
+  showActions = true,
   onDelete,
   onRowClick,
 }) {
@@ -84,40 +85,42 @@ export default function TableRow({
                   </td>
                 )}
 
-                <td className="rounded-r-lg px-2 py-2 text-right sm:rounded-r-xl sm:px-4 sm:py-3">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      remove
-                        ? handleDelete(contact.id)
-                        : toggleFavorite(contact.id);
-                    }}
-                    className={`transition-colors ${
-                      remove
-                        ? "text-red-400 hover:text-red-500"
-                        : contact.isFavorite
-                          ? "text-yellow-400 hover:text-yellow-500"
-                          : "text-gray-300 hover:text-yellow-400"
-                    }`}
-                  >
-                    <FontAwesomeIcon
-                      icon={
+                {showActions && (
+                  <td className="rounded-r-lg px-2 py-2 text-right sm:rounded-r-xl sm:px-4 sm:py-3">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
                         remove
-                          ? faTrashCan
+                          ? handleDelete(contact.id)
+                          : toggleFavorite(contact.id);
+                      }}
+                      className={`transition-colors ${
+                        remove
+                          ? "text-red-400 hover:text-red-500"
                           : contact.isFavorite
-                            ? faStarSolid
-                            : faStar
-                      }
-                    />
-                  </button>
-                </td>
+                            ? "text-yellow-400 hover:text-yellow-500"
+                            : "text-gray-300 hover:text-yellow-400"
+                      }`}
+                    >
+                      <FontAwesomeIcon
+                        icon={
+                          remove
+                            ? faTrashCan
+                            : contact.isFavorite
+                              ? faStarSolid
+                              : faStar
+                        }
+                      />
+                    </button>
+                  </td>
+                )}
               </tr>
             ))}
 
             {displayRows.length === 0 && (
               <tr>
                 <td
-                  colSpan={5}
+                  colSpan={showActions ? 5 : 4}
                   className="py-12 text-center text-xs text-gray-400 sm:py-20 sm:text-sm"
                 >
                   No data found.
