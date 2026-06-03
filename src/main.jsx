@@ -44,7 +44,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
             <Route path="pin" element={<AskPin />} />
           </Route>
           <Route path="register" element={<Register />} />
-          <Route path="register/pin" element={<RegisterPin />} />
+          <Route path="register/pin" element={<AskPin />} />
 
           {/* Forgot-password: 3-step flow */}
           <Route path="forgotpassword">
