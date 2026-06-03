@@ -1,13 +1,17 @@
 /**
  * api.js — Central API utility for VanWallet
  *
- * Backend routes base: /api
+ * Browser should call same-origin Nginx route:
+ *   /api/...
+ *
+ * Nginx will proxy internally to:
+ *   http://backend:8080/api/...
  */
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const TOKEN_STORAGE_KEY = "vanwallet_token";
-const DEFAULT_API_ROOT = "http://backend:8080";
 
+const DEFAULT_API_ROOT = "/api";
 const JSON_CONTENT_TYPE = "application/json";
 const DEFAULT_ERROR_MESSAGE = "Request failed";
 
@@ -17,26 +21,27 @@ function removeTrailingSlash(value) {
   return String(value || "").trim().replace(/\/+$/, "");
 }
 
+function removeLeadingSlash(value) {
+  return String(value || "").trim().replace(/^\/+/, "");
+}
+
 function hasProtocol(url) {
   return url.startsWith("http://") || url.startsWith("https://");
 }
 
-function isDockerBackendUrl(url) {
-  return url.includes("backend:8080");
-}
-
-function isLocalhostApiUrl(url) {
-  return url === "http://localhost:8080" || url === "https://localhost:8080";
-}
-
-function shouldUseDefaultApiRoot(url) {
-  return !url || isLocalhostApiUrl(url) || isDockerBackendUrl(url);
+function isBadBrowserApiUrl(url) {
+  return (
+    !url ||
+    url.includes("backend:8080") ||
+    url === "http://localhost:8080" ||
+    url === "https://localhost:8080"
+  );
 }
 
 export function resolveApiRoot() {
   const normalizedBaseUrl = removeTrailingSlash(API_BASE_URL);
 
-  if (shouldUseDefaultApiRoot(normalizedBaseUrl)) {
+  if (isBadBrowserApiUrl(normalizedBaseUrl)) {
     return DEFAULT_API_ROOT;
   }
 
@@ -44,7 +49,18 @@ export function resolveApiRoot() {
     return normalizedBaseUrl;
   }
 
-  return `http://${normalizedBaseUrl}`;
+  if (normalizedBaseUrl.startsWith("/")) {
+    return normalizedBaseUrl;
+  }
+
+  return `/${normalizedBaseUrl}`;
+}
+
+export function buildApiUrl(path) {
+  const apiRoot = resolveApiRoot();
+  const normalizedPath = `/${removeLeadingSlash(path)}`;
+
+  return `${apiRoot}${normalizedPath}`;
 }
 
 export function resolveAssetUrl(assetPath) {
@@ -52,13 +68,20 @@ export function resolveAssetUrl(assetPath) {
     return "";
   }
 
-  if (assetPath.startsWith("http") || assetPath.startsWith("data:")) {
+  if (assetPath.startsWith("http://") || assetPath.startsWith("https://") || assetPath.startsWith("data:")) {
     return assetPath;
   }
 
-  const normalizedPath = assetPath.startsWith("/") ? assetPath : `/${assetPath}`;
+  const normalizedPath = `/${removeLeadingSlash(assetPath)}`;
 
-  return `${resolveApiRoot()}${normalizedPath}`;
+  // Important:
+  // image path should be served through Nginx /img proxy,
+  // not through /api/img.
+  if (normalizedPath.startsWith("/img/")) {
+    return normalizedPath;
+  }
+
+  return normalizedPath;
 }
 
 // ─── Token Helpers ────────────────────────────────────────────────────────────
@@ -80,7 +103,7 @@ export function setToken(token) {
 
     localStorage.setItem(TOKEN_STORAGE_KEY, token);
   } catch {
-    // Ignore storage errors so the app does not crash in restricted browsers.
+    // Ignore storage errors.
   }
 }
 
@@ -88,7 +111,7 @@ export function clearToken() {
   try {
     localStorage.removeItem(TOKEN_STORAGE_KEY);
   } catch {
-    // Ignore storage errors so logout flow can still continue safely.
+    // Ignore storage errors.
   }
 }
 
@@ -268,7 +291,7 @@ export async function requestJson(
   fallbackMessage = DEFAULT_ERROR_MESSAGE,
 ) {
   const headers = buildHeaders(options);
-  const url = `${resolveApiRoot()}${path}`;
+  const url = buildApiUrl(path);
 
   let response;
 
@@ -300,10 +323,6 @@ export async function requestData(
 
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 
-/**
- * POST /auth/login
- * Returns JWT token in data field.
- */
 export async function loginApi({ email, password }) {
   const envelope = await requestJson(
     "/auth/login",
@@ -327,10 +346,6 @@ export async function loginApi({ email, password }) {
   return mapUserFromInfo(userInfo, token);
 }
 
-/**
- * POST /auth/register
- * Creates user, then auto-login.
- */
 export async function registerApi({ email, password }) {
   await requestJson(
     "/auth/register",
@@ -344,10 +359,6 @@ export async function registerApi({ email, password }) {
   return loginApi({ email, password });
 }
 
-/**
- * POST /auth/logout
- * Invalidates server session.
- */
 export async function logoutApi() {
   try {
     await requestJson(
@@ -360,10 +371,6 @@ export async function logoutApi() {
   }
 }
 
-/**
- * GET /auth/pin
- * Checks whether PIN is set.
- */
 export async function fetchPinStatus() {
   return requestData(
     "/auth/pin",
@@ -372,9 +379,6 @@ export async function fetchPinStatus() {
   );
 }
 
-/**
- * POST /auth/pin/verify
- */
 export async function verifyPinApi(pin) {
   await requestJson(
     "/auth/pin/verify",
@@ -388,10 +392,6 @@ export async function verifyPinApi(pin) {
   return true;
 }
 
-/**
- * POST /auth/reset
- * Request a password-reset token.
- */
 export async function requestPasswordReset(email) {
   return requestData(
     "/auth/reset",
@@ -403,10 +403,6 @@ export async function requestPasswordReset(email) {
   );
 }
 
-/**
- * POST /auth/reset/confirm
- * Exchange opaque token for a reset JWT.
- */
 export async function confirmPasswordReset(token) {
   return requestData(
     "/auth/reset/confirm",
@@ -418,10 +414,6 @@ export async function confirmPasswordReset(token) {
   );
 }
 
-/**
- * POST /auth/change-password
- * Requires the short-lived reset JWT from confirmPasswordReset as Bearer token.
- */
 export async function changePasswordWithResetToken(resetJwt, newPassword) {
   return requestJson(
     "/auth/change-password",
@@ -440,10 +432,6 @@ export async function changePasswordWithResetToken(resetJwt, newPassword) {
 
 // ─── Profile ──────────────────────────────────────────────────────────────────
 
-/**
- * GET /profile/info
- * Unified user stats.
- */
 export async function fetchUserInfo() {
   return requestData(
     "/profile/info",
@@ -452,10 +440,6 @@ export async function fetchUserInfo() {
   );
 }
 
-/**
- * GET /profile
- * Basic profile details.
- */
 export async function fetchProfile() {
   return requestData(
     "/profile",
@@ -464,10 +448,6 @@ export async function fetchProfile() {
   );
 }
 
-/**
- * PATCH /profile/edit
- * Update name, phone, photo using multipart form data.
- */
 export async function updateProfileApi({ fullName, phone, photoFile }) {
   const formData = new FormData();
 
@@ -493,10 +473,6 @@ export async function updateProfileApi({ fullName, phone, photoFile }) {
   );
 }
 
-/**
- * PATCH /profile/change/pin
- * First-time PIN setup.
- */
 export async function setPinApi(pin) {
   await requestJson(
     "/profile/change/pin",
@@ -510,10 +486,6 @@ export async function setPinApi(pin) {
   );
 }
 
-/**
- * PATCH /profile/change/pin
- * Change existing PIN.
- */
 export async function changePinApi(currentPin, newPin) {
   await requestJson(
     "/profile/change/pin",
@@ -528,10 +500,6 @@ export async function changePinApi(currentPin, newPin) {
   );
 }
 
-/**
- * PATCH /profile/change/password
- * Change password while logged in.
- */
 export async function changePasswordApi(oldPassword, newPassword) {
   await requestJson(
     "/profile/change/password",
@@ -548,9 +516,6 @@ export async function changePasswordApi(oldPassword, newPassword) {
 
 // ─── Transactions ─────────────────────────────────────────────────────────────
 
-/**
- * GET /transaction/summary
- */
 export async function fetchSummary() {
   return requestData(
     "/transaction/summary",
@@ -559,9 +524,6 @@ export async function fetchSummary() {
   );
 }
 
-/**
- * GET /transaction/report?range=7days&type=both
- */
 export async function fetchReport({ range = "7days", type = "both" } = {}) {
   const params = new URLSearchParams({ range, type });
 
@@ -572,9 +534,6 @@ export async function fetchReport({ range = "7days", type = "both" } = {}) {
   );
 }
 
-/**
- * GET /transaction/history?page=1&limit=10
- */
 export async function fetchHistory({ page = 1, limit = 10 } = {}) {
   const params = createPaginationParams({ page, limit });
 
@@ -587,10 +546,6 @@ export async function fetchHistory({ page = 1, limit = 10 } = {}) {
   return normalizePaginatedResponse(data, page, limit);
 }
 
-/**
- * GET /transaction?page=1&limit=10
- * Raw ledger.
- */
 export async function fetchAllTransactions({ page = 1, limit = 10 } = {}) {
   const params = createPaginationParams({ page, limit });
 
@@ -601,9 +556,6 @@ export async function fetchAllTransactions({ page = 1, limit = 10 } = {}) {
   );
 }
 
-/**
- * GET /transaction/:id
- */
 export async function fetchTransactionById(transactionId) {
   return requestData(
     `/transaction/${transactionId}`,
@@ -612,9 +564,6 @@ export async function fetchTransactionById(transactionId) {
   );
 }
 
-/**
- * GET /transaction/receiver?q=&page=1&limit=10
- */
 export async function searchReceivers({ q = "", page = 1, limit = 10 } = {}) {
   const params = createPaginationParams({ page, limit });
   const trimmedQuery = q.trim();
@@ -639,10 +588,6 @@ export async function searchReceivers({ q = "", page = 1, limit = 10 } = {}) {
   };
 }
 
-/**
- * POST /transaction/topup
- * Requires wallet_id, amount, payment_method, pin.
- */
 export async function initiateTopup({
   walletId,
   amount,
@@ -664,9 +609,6 @@ export async function initiateTopup({
   );
 }
 
-/**
- * PATCH /transaction/topup/:id/confirm
- */
 export async function confirmTopup(topupId) {
   return requestData(
     `/transaction/topup/${topupId}/confirm`,
@@ -677,10 +619,6 @@ export async function confirmTopup(topupId) {
   );
 }
 
-/**
- * POST /transaction/transfer
- * Requires sender_wallet_id, recipient_wallet_id, amount, pin.
- */
 export async function createTransfer({
   senderWalletId,
   recipientWalletId,
@@ -704,10 +642,6 @@ export async function createTransfer({
   );
 }
 
-/**
- * POST /transaction/withdrawal
- * Requires wallet_id, amount, bank details, pin.
- */
 export async function createWithdraw({
   walletId,
   amount,
@@ -733,10 +667,6 @@ export async function createWithdraw({
   );
 }
 
-/**
- * POST /transaction/expense
- * Requires wallet_id, amount, pin.
- */
 export async function createExpense({
   walletId,
   amount,
