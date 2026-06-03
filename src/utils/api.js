@@ -17,15 +17,23 @@
  *                 POST /transaction/transfer, /transaction/withdrawal, /transaction/expense
  */
 
-const BASE_URL = "/api";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const TOKEN_KEY = "vanwallet_token";
 
 // ─── URL & Token helpers ──────────────────────────────────────────────────────
 
 export function resolveApiRoot() {
-  return BASE_URL.replace(/\/+$/, "");
+  const raw = String(BASE_URL || "").replace(/\/+$/, "");
+  
+  // If no environment variable is provided, or if it points to a standard local setup,
+  // hardcode it to point to the backend container/service.
+  if (!raw || raw === "http://localhost:8080" || raw === "https://localhost:8080" || raw.includes("backend:8080")) {
+    return "http://backend:8080";
+  }
+  
+  if (raw.startsWith("http://") || raw.startsWith("https://")) return raw;
+  return `http://${raw}`;
 }
-
 export function getToken() {
   return localStorage.getItem(TOKEN_KEY);
 }
