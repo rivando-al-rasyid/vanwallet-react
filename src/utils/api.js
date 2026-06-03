@@ -1,12 +1,3 @@
-/**
- * api.js — Central API utility for VanWallet
- *
- * Browser should call same-origin Nginx route:
- *   /api/...
- *
- * Nginx will strip /api and proxy internally to:
- *   http://backend:8080/...
- */
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const TOKEN_STORAGE_KEY = "vanwallet_token";
