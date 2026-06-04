@@ -1,121 +1,324 @@
-# VanWallet - Digital Wallet Application
+# VanWallet React
 
-A modern, responsive e-wallet application built with React, Vite, and Tailwind CSS. VanWallet provides a seamless digital payment experience with an intuitive user interface and comprehensive wallet functionality.
+VanWallet React is a React dashboard application for managing wallet balance, top-up, transfer, withdrawal, expense, transaction history, profile, PIN, and password settings.
 
-## 🚀 Features
+The app is built with **React**, **Vite**, **Redux Toolkit**, **Tailwind CSS**, and **Chart.js**.
 
-- **Modern UI/UX**: Clean, responsive design built with Tailwind CSS
-- **User Authentication**: Secure sign-in and registration system
-- **Dashboard**: Comprehensive wallet overview with charts and analytics
-- **Transaction Management**: Send, receive, and track transactions
-- **Multi-platform**: Available on iOS and Android (Google Play Store & App Store)
-- **Real-time Updates**: Live transaction status and balance updates
-- **Charts & Analytics**: Visual representation of spending patterns using Chart.js
+## Tech Stack
 
-## 🛠️ Tech Stack
+* React
+* Vite
+* Redux Toolkit
+* React Router
+* Redux Persist
+* React Hook Form
+* Joi validation
+* Tailwind CSS
+* Chart.js
+* React Chart.js 2
+* Font Awesome
+* Docker
+* Nginx
 
-- **Frontend**: React 19.2.4
-- **Build Tool**: Vite 8.0.1
-- **Styling**: Tailwind CSS 4.2.2
-- **Routing**: React Router 7.14.0
-- **Forms**: React Hook Form with Joi validation
-- **Icons**: Font Awesome & Lucide React
-- **Charts**: Chart.js with react-chartjs-2
-- **Modals**: React Responsive Modal
-- **Linting**: ESLint with React-specific rules
+## Project Structure
 
-## 📦 Installation
-
-1. Clone the repository:
-
-```bash
-git clone https://github.com/rivando-al-rasyid/vanwallet-react.git
-cd vanwallet-react
+```txt
+frontend/
+├── src/
+│   ├── assets/
+│   ├── components/
+│   ├── context/
+│   ├── layouts/
+│   ├── pages/
+│   │   ├── auth/
+│   │   └── dashboards/
+│   ├── schemas/
+│   ├── store/
+│   │   └── slices/
+│   ├── utils/
+│   ├── App.jsx
+│   ├── main.jsx
+│   └── style.css
+├── Dockerfile
+├── nginx.conf
+├── package.json
+├── vite.config.js
+└── README.md
 ```
 
-2. Install dependencies:
+## Requirements
+
+* Node.js
+* npm
+* Backend API running
+* Docker, optional
+
+## Install Dependencies
 
 ```bash
 npm install
 ```
 
-3. Start the development server:
+## Environment Variables
+
+Create a `.env` file:
+
+```env
+VITE_API_BASE_URL=/api
+```
+
+For Docker/Nginx deployment, `/api` is recommended because Nginx proxies requests to the backend.
+
+For direct local backend access, you can use:
+
+```env
+VITE_API_BASE_URL=http://localhost:8080
+```
+
+But using `/api` is cleaner when frontend and backend are served together through Nginx.
+
+## Run Development Server
 
 ```bash
 npm run dev
 ```
 
-4. Open your browser and navigate to `http://localhost:5173`
+Default Vite URL:
 
-## 🛠️ Available Scripts
-
-- `npm run dev` - Start development server with hot reload
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint for code quality checks
-
-## 📱 Project Structure
-
-```
-src/
-├── components/          # Reusable UI components
-│   ├── Hero.jsx       # Landing page hero section
-│   ├── Features.jsx   # Feature showcase
-│   ├── About.jsx      # About section
-│   └── ...           # Other components
-├── layouts/           # Layout components
-│   ├── Navbar.jsx     # Navigation bar
-│   └── Footer.jsx     # Footer component
-├── pages/            # Page components
-├── utils/            # Utility functions
-├── App.jsx           # Main application component
-└── main.jsx          # Application entry point
+```txt
+http://localhost:5173
 ```
 
-## 🌟 Key Features
+## Build Production
 
-### Landing Page
+```bash
+npm run build
+```
 
-- Eye-catching hero section with app download CTAs
-- Feature highlights and benefits
-- User testimonials and partner logos
-- Responsive design for all devices
+Preview production build:
+
+```bash
+npm run preview
+```
+
+## Lint
+
+```bash
+npm run lint
+```
+
+## Docker
+
+Build and run through Docker Compose from the backend project if your compose file includes the frontend service.
+
+The frontend is served by Nginx on port `80`.
+
+```txt
+http://localhost
+```
+
+## Nginx Proxy
+
+The frontend Nginx config proxies API requests:
+
+```txt
+/api/ -> backend:8080
+/img/ -> backend:8080/img/
+```
+
+This allows frontend API calls to use:
+
+```txt
+/api
+```
+
+instead of calling the backend host directly.
+
+## Main Pages
+
+```txt
+/                         Home
+/login                    Login
+/register                 Register
+/dashboard                Dashboard
+/dashboard/history        Transaction History
+/dashboard/transfer       Transfer User List
+/dashboard/transfer/:id   Set Transfer Nominal
+/dashboard/topup          Top Up
+/dashboard/profile        Profile
+```
+
+## Main Features
 
 ### Authentication
 
-- Secure user registration and login
-- Form validation with Joi schemas
-- Smooth user experience with React Hook Form
+* Login
+* Register
+* Register PIN
+* Ask PIN
+* Forgot password
+* Reset password
+* Logout
 
 ### Dashboard
 
-- Real-time balance display
-- Transaction history with filters
-- Spending analytics with interactive charts
-- Quick action buttons for common tasks
+* Balance summary
+* Income summary
+* Expense summary
+* Financial chart
+* Recent transaction history
 
-## 🔧 Development
+### Financial Chart
 
-### Environment Variables
+The dashboard chart supports:
 
-Create a `.env` file in the root directory with your environment variables.
+```txt
+7 Days
+14 Days
+30 Days
+```
 
-### Code Quality
+Filter options:
 
-The project uses ESLint with React-specific rules to maintain code quality and consistency.
+```txt
+All
+Income
+Expense
+```
 
-### Build Optimization
+Behavior:
 
-The application is optimized for production with Vite's build system, providing fast load times and efficient bundle sizes.
+* `All` shows income and expense side by side.
+* `Income` shows only the blue income bars.
+* `Expense` shows only the red expense bars.
+* `7 Days` uses weekday labels.
+* `14 Days` and `30 Days` use date labels to avoid repeated weekday names.
 
-## 📄 License
+### Transaction History
 
-This project is private and proprietary.
+The history page uses:
 
-## 🤝 Contributing
+```txt
+GET /transaction/history
+```
 
-As this is a private project, contributions are managed internally.
+Supported filters:
 
----
+```txt
+page
+limit
+q
+source
+type
+status
+direction
+start_date
+end_date
+```
 
-**Built with ❤️ using React, Vite, and modern web technologies**
+The table supports pagination under the table:
+
+```txt
+Show 10 History of 100 History
+Prev 1 2 3 4 5 Next
+```
+
+### Transfer
+
+The transfer page uses:
+
+```txt
+GET /transaction/receiver
+```
+
+Supported query parameters:
+
+```txt
+page
+limit
+q
+query
+```
+
+The page shows all users by default and supports search later.
+
+Pagination appears under the table:
+
+```txt
+Show 10 User of 100 User
+Prev 1 2 3 4 5 Next
+```
+
+## API Utility
+
+The main API helper is located in:
+
+```txt
+src/utils/api.js
+```
+
+Redux transaction logic is located in:
+
+```txt
+src/store/slices/transactionSlice.js
+```
+
+## Important API Endpoints Used
+
+```txt
+POST /auth/login
+POST /auth/register
+POST /auth/logout
+GET  /profile/info
+
+GET  /transaction/summary
+GET  /transaction/history
+GET  /transaction/receiver
+
+POST /transaction/topup
+PATCH /transaction/topup/:id/confirm
+POST /transaction/transfer
+POST /transaction/withdrawal
+POST /transaction/expense
+```
+
+## Recommended Development Flow
+
+Start backend first:
+
+```bash
+docker compose up -d --build
+```
+
+Then start frontend locally:
+
+```bash
+npm run dev
+```
+
+Or run both through Docker Compose if frontend is included in the compose file.
+
+## Build Check
+
+Before committing changes:
+
+```bash
+npm run lint
+npm run build
+```
+
+## Development Notes
+
+* Keep API calls centralized in `src/utils/api.js`.
+* Keep async transaction state in `src/store/slices/transactionSlice.js`.
+* Use `/api` as the frontend API base when using Nginx.
+* Do not re-add old transaction list/detail endpoints on the frontend.
+* Use `GET /transaction/history` as the main transaction data source.
+* Use `GET /transaction/receiver` as the transfer receiver data source.
+
+
+## License
+
+This project is licensed under the MIT License.
+
+See the `LICENSE` file for details.
