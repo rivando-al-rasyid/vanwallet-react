@@ -23,6 +23,7 @@ import Profile from "./pages/dashboards/Profile.jsx";
 import ChangePassword from "./pages/dashboards/ChangePassword.jsx";
 import ChangePin from "./pages/dashboards/ChangePin.jsx";
 import { persistor, store } from "./store/store.js";
+import { dashboardLoader } from "./utils/loaders.js";
 
 const router = createBrowserRouter([
   {
@@ -69,6 +70,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/dashboard",
+    loader: dashboardLoader,
     element: <DashboardProvider />,
     children: [
       {

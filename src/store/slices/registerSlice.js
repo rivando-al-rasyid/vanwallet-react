@@ -30,7 +30,7 @@ export const register = createAsyncThunk(
   async ({ email, password }, { rejectWithValue, dispatch }) => {
     try {
       const user = await registerApi({ email, password });
-      // Sync the persisted auth slice so ProtectedRoute passes
+      // Sync the persisted auth slice so the next screen receives the latest user
       dispatch(mergeUser(user));
       return user;
     } catch (err) {
