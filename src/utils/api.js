@@ -66,7 +66,7 @@ export function resolveAssetUrl(assetPath) {
   const normalizedPath = `/${removeLeadingSlash(assetPath)}`;
 
   // Important:
-  // image path should be served through Nginx /img proxy,
+  // image path should be served through the frontend server /img proxy,
   // not through /api/img.
   if (normalizedPath.startsWith("/img/")) {
     return normalizedPath;

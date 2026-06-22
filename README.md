@@ -18,7 +18,7 @@ The app is built with **React**, **Vite**, **Redux Toolkit**, **Tailwind CSS**, 
 * React Chart.js 2
 * Font Awesome
 * Docker
-* Nginx
+* Node.js production server
 
 ## Project Structure
 
@@ -40,7 +40,7 @@ frontend/
 │   ├── main.jsx
 │   └── style.css
 ├── Dockerfile
-├── nginx.conf
+├── server.js
 ├── package.json
 ├── vite.config.js
 └── README.md
@@ -67,7 +67,7 @@ Create a `.env` file:
 VITE_API_BASE_URL=/api
 ```
 
-For Docker/Nginx deployment, `/api` is recommended because Nginx proxies requests to the backend.
+For Docker deployment, `/api` is recommended because `server.js` proxies requests to the backend.
 
 For direct local backend access, you can use:
 
@@ -75,7 +75,7 @@ For direct local backend access, you can use:
 VITE_API_BASE_URL=http://localhost:8080
 ```
 
-But using `/api` is cleaner when frontend and backend are served together through Nginx.
+Using `/api` is cleaner when the frontend container proxies requests to the backend.
 
 ## Run Development Server
 
@@ -111,15 +111,15 @@ npm run lint
 
 Build and run through Docker Compose from the backend project if your compose file includes the frontend service.
 
-The frontend is served by Nginx on port `80`.
+The frontend is served by `server.js` on Render's `$PORT`, with `8080` as the default.
 
 ```txt
 http://localhost
 ```
 
-## Nginx Proxy
+## Frontend Server Proxy
 
-The frontend Nginx config proxies API requests:
+The frontend `server.js` proxies API requests:
 
 ```txt
 /api/ -> backend:8080
@@ -311,7 +311,7 @@ npm run build
 
 * Keep API calls centralized in `src/utils/api.js`.
 * Keep async transaction state in `src/store/slices/transactionSlice.js`.
-* Use `/api` as the frontend API base when using Nginx.
+* Use `/api` as the frontend API base when using the Docker frontend server.
 * Do not re-add old transaction list/detail endpoints on the frontend.
 * Use `GET /transaction/history` as the main transaction data source.
 * Use `GET /transaction/receiver` as the transfer receiver data source.
