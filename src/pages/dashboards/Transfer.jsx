@@ -103,7 +103,7 @@ export default function Transfer() {
         <Stepper currentStep={1} />
       </div>
 
-      <div className="card min-h-150">
+      <div className="card bg-base-100 border border-base-200 shadow-sm min-h-150">
         <div className="mb-6 flex items-center justify-between">
           <div>
             <h2 className="section-title">Find People</h2>

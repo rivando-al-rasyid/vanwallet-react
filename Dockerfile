@@ -2,9 +2,8 @@ FROM node:22-alpine AS build
 
 WORKDIR /app
 
-# Vite reads VITE_* variables at build time.
-# Keep /api so the browser calls this same frontend container.
-# server.js proxies /api to the Render backend at runtime.
+# Build the React app to call this same frontend container.
+# Nginx will reverse-proxy /api and /img to the backend at runtime.
 ARG VITE_API_BASE_URL=/api
 ARG VITE_API_URL=/api
 ENV VITE_API_BASE_URL=${VITE_API_BASE_URL}
@@ -16,17 +15,14 @@ RUN npm ci
 COPY . .
 RUN npm run build
 
-FROM node:22-alpine AS runtime
+FROM nginx:1.27-alpine AS runtime
 
-WORKDIR /app
-
-ENV NODE_ENV=production
 ENV PORT=8080
 ENV BACKEND_URL=https://vanwallet-backend.onrender.com
 
-COPY --from=build /app/dist ./dist
-COPY server.js ./server.js
+COPY nginx.conf /etc/nginx/templates/default.conf.template
+COPY --from=build /app/dist /usr/share/nginx/html
 
 EXPOSE 8080
 
-CMD ["node", "server.js"]
+CMD ["nginx", "-g", "daemon off;"]

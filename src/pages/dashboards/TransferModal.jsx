@@ -113,7 +113,7 @@ export default function TransferModal() {
       </div>
 
       {/* Summary card */}
-      <div className="card mb-6">
+      <div className="card bg-base-100 border border-base-200 shadow-sm mb-6">
         <h2 className="section-title mb-4">Transfer Summary</h2>
         <div className="flex flex-col gap-3 rounded-xl bg-gray-50 p-4">
           <div className="flex justify-between text-sm">
@@ -167,7 +167,7 @@ export default function TransferModal() {
 
             <button
               type="submit"
-              className="btn-primary mb-4 w-full"
+              className="btn btn-primary mb-4 w-full"
               disabled={loading}
             >
               {loading ? "Memproses..." : "Confirm & Transfer"}
@@ -193,7 +193,7 @@ export default function TransferModal() {
         <p className="mb-8 text-sm text-gray-400">
           Sorry, there is an issue with your transfer. Try again!
         </p>
-        <button onClick={handleTryAgain} className="btn-primary mb-3 w-full">
+        <button onClick={handleTryAgain} className="btn btn-primary mb-3 w-full">
           Try Again
         </button>
         <button
@@ -213,7 +213,7 @@ export default function TransferModal() {
         <p className="mb-8 text-sm text-gray-400">
           {formatRupiah(amount)} berhasil dikirim ke {contact.name}.
         </p>
-        <button onClick={handleDone} className="btn-primary mb-3 w-full">
+        <button onClick={handleDone} className="btn btn-primary mb-3 w-full">
           Done
         </button>
         <button

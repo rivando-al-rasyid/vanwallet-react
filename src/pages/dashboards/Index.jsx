@@ -217,7 +217,7 @@ export default function Index() {
     <section className="flex flex-1 flex-col gap-4 overflow-hidden p-4 pt-4 sm:gap-6 sm:px-6 sm:pt-6 lg:px-8 lg:pt-8">
       <div className="flex flex-col gap-4 lg:gap-5">
         <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-3 lg:gap-6">
-          <div className="fade-in card flex flex-col gap-4 delay-1">
+          <div className="fade-in card bg-base-100 border border-base-200 shadow-sm flex flex-col gap-4 delay-1">
             <div className="flex items-center gap-2 text-xs font-medium text-slate-500">
               <svg
                 className="h-4 w-4"
@@ -263,21 +263,21 @@ export default function Index() {
             </div>
           </div>
 
-          <div className="fade-in card flex h-full items-center justify-between delay-2 lg:col-span-2">
+          <div className="fade-in card bg-base-100 border border-base-200 shadow-sm flex h-full items-center justify-between delay-2 lg:col-span-2">
             <div>
               <h2 className="section-title">Fast Service</h2>
             </div>
 
             <div className="flex flex-row gap-3">
               <button
-                className="btn-primary"
+                className="btn btn-primary"
                 onClick={() => navigate("/dashboard/topup")}
               >
                 <span className="text-lg">+</span> Top Up
               </button>
 
               <button
-                className="btn-primary"
+                className="btn btn-primary"
                 onClick={() => navigate("/dashboard/transfer")}
               >
                 <svg
@@ -295,7 +295,7 @@ export default function Index() {
       </div>
 
       <div className="fade-in grid grid-cols-1 gap-4 delay-3 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
-        <div className="card col-span-full lg:col-span-2">
+        <div className="card bg-base-100 border border-base-200 shadow-sm col-span-full lg:col-span-2">
           <div className="w-full rounded-xl border border-slate-100 p-4 sm:p-5">
             <div className="mb-4 flex flex-col sm:mb-6 sm:flex-row sm:items-center sm:justify-between">
               <h2 className="section-title">Financial Chart</h2>
@@ -335,7 +335,7 @@ export default function Index() {
           </div>
         </div>
 
-        <div className="card fade-in col-span-full flex h-full flex-col delay-4 lg:col-span-1">
+        <div className="card bg-base-100 border border-base-200 shadow-sm fade-in col-span-full flex h-full flex-col delay-4 lg:col-span-1">
           <div className="flex items-center justify-between">
             <h3 className="section-title">Transaction History</h3>
 

@@ -18,6 +18,13 @@ export default function Login() {
   const dispatch = useDispatch();
   const { loading, error } = useSelector((state) => state.auth);
 
+  const searchParams = new URLSearchParams(location.search);
+  const redirectParam = searchParams.get("redirectTo");
+  const redirectTo =
+    redirectParam?.startsWith("/") && !redirectParam.startsWith("//")
+      ? redirectParam
+      : "/dashboard";
+
   // Show success banner when redirected back from password-reset flow
   const passwordReset = location.state?.passwordReset === true;
 
@@ -43,9 +50,11 @@ export default function Login() {
     if (login.fulfilled.match(result)) {
       const user = result.payload;
       if (!user?.pin) {
-        navigate("/login/pin", { replace: true });
+        navigate(`/login/pin?redirectTo=${encodeURIComponent(redirectTo)}`, {
+          replace: true,
+        });
       } else {
-        navigate("/dashboard", { replace: true });
+        navigate(redirectTo, { replace: true });
       }
     }
   };

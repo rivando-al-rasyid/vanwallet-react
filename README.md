@@ -2,7 +2,7 @@
 
 VanWallet React is a React dashboard application for managing wallet balance, top-up, transfer, withdrawal, expense, transaction history, profile, PIN, and password settings.
 
-The app is built with **React**, **Vite**, **Redux Toolkit**, **Tailwind CSS**, and **Chart.js**.
+The app is built with **React**, **Vite**, **Redux Toolkit**, **Tailwind CSS**, **DaisyUI**, **Nginx**, and **Chart.js**.
 
 ## Tech Stack
 
@@ -14,11 +14,12 @@ The app is built with **React**, **Vite**, **Redux Toolkit**, **Tailwind CSS**, 
 * React Hook Form
 * Joi validation
 * Tailwind CSS
+* DaisyUI
 * Chart.js
 * React Chart.js 2
 * Font Awesome
 * Docker
-* Node.js production server
+* Nginx production server
 
 ## Project Structure
 
@@ -40,7 +41,7 @@ frontend/
 │   ├── main.jsx
 │   └── style.css
 ├── Dockerfile
-├── server.js
+├── nginx.conf
 ├── package.json
 ├── vite.config.js
 └── README.md
@@ -67,7 +68,7 @@ Create a `.env` file:
 VITE_API_BASE_URL=/api
 ```
 
-For Docker deployment, `/api` is recommended because `server.js` proxies requests to the backend.
+For Docker deployment, `/api` is recommended because Nginx reverse-proxies requests to the backend.
 
 For direct local backend access, you can use:
 
@@ -75,7 +76,7 @@ For direct local backend access, you can use:
 VITE_API_BASE_URL=http://localhost:8080
 ```
 
-Using `/api` is cleaner when the frontend container proxies requests to the backend.
+Using `/api` is cleaner when the frontend container reverse-proxies requests to the backend.
 
 ## Run Development Server
 
@@ -111,19 +112,27 @@ npm run lint
 
 Build and run through Docker Compose from the backend project if your compose file includes the frontend service.
 
-The frontend is served by `server.js` on Render's `$PORT`, with `8080` as the default.
+The frontend is served by Nginx on `$PORT`, with `8080` as the default.
 
-```txt
-http://localhost
+```bash
+docker build -t vanwallet-frontend .
+docker run --rm -p 8080:8080 \
+  -e PORT=8080 \
+  -e BACKEND_URL=https://vanwallet-backend.onrender.com \
+  vanwallet-frontend
 ```
 
-## Frontend Server Proxy
+```txt
+http://localhost:8080
+```
 
-The frontend `server.js` proxies API requests:
+## Reverse Proxy
+
+The frontend Nginx container proxies API and backend image requests:
 
 ```txt
-/api/ -> backend:8080
-/img/ -> backend:8080/img/
+/api/ -> BACKEND_URL/
+/img/ -> BACKEND_URL/img/
 ```
 
 This allows frontend API calls to use:

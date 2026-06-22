@@ -104,7 +104,7 @@ export default function History() {
         <h1 className="section-title">History Transaction</h1>
       </div>
 
-      <div className="card min-h-150">
+      <div className="card bg-base-100 border border-base-200 shadow-sm min-h-150">
         <div className="flex flex-col gap-4 border-b border-gray-100 px-4 py-4 sm:px-6 sm:py-5 lg:px-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <h2 className="section-title">Find Transaction</h2>

@@ -1,5 +1,5 @@
 import { FormProvider, useForm } from "react-hook-form";
-import { Navigate, useNavigate } from "react-router";
+import { Navigate, useLocation, useNavigate } from "react-router";
 import { useSelector, useDispatch } from "react-redux";
 import PinInput from "../../components/PinInput";
 import Brand from "../../components/Brand";
@@ -15,6 +15,7 @@ const defaultPin = Array.from({ length: PIN_LENGTH }, () => ({ value: "" }));
 
 export default function AskPin() {
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
   const { pinLoading, error } = useSelector((state) => state.register);
@@ -24,12 +25,19 @@ export default function AskPin() {
     mode: "onChange",
   });
 
+  const searchParams = new URLSearchParams(location.search);
+  const redirectParam = searchParams.get("redirectTo");
+  const redirectTo =
+    redirectParam?.startsWith("/") && !redirectParam.startsWith("//")
+      ? redirectParam
+      : "/dashboard";
+
   if (!user) {
     return <Navigate to="/login" replace />;
   }
 
   if (user.pin) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to={redirectTo} replace />;
   }
 
   const onSubmit = async (data) => {
@@ -45,7 +53,7 @@ export default function AskPin() {
     const result = await dispatch(createPin({ pin }));
 
     if (createPin.fulfilled.match(result)) {
-      navigate("/dashboard", { replace: true });
+      navigate(redirectTo, { replace: true });
     }
   };
 

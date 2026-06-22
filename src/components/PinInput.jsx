@@ -58,7 +58,6 @@ export default function PinInput() {
             key={index}
             index={index}
             value={values?.[index]?.value || ""}
-            isActive={isActive}
             onChange={handleChange}
             onKeyDown={handleKeyDown}
             inputRef={(el) => (inputsRef.current[index] = el)}
@@ -73,7 +72,6 @@ export default function PinInput() {
 function PinInputField({
   index,
   value,
-  isActive,
   onChange,
   onKeyDown,
   inputRef,

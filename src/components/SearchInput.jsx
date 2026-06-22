@@ -58,7 +58,7 @@ export default function SearchInput({
     const disabledClasses = disabled
       ? "bg-gray-100 cursor-not-allowed opacity-60"
       : "";
-    return `form-input pl-4 pr-10 ${disabledClasses} ${className}`.trim();
+    return `input input-bordered w-full pl-4 pr-10 ${disabledClasses} ${className}`.trim();
   }, [className, disabled]);
 
   return (

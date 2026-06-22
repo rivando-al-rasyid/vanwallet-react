@@ -52,7 +52,7 @@ export default function SetNominal() {
         <Stepper currentStep={2} />
       </div>
 
-      <div className="card">
+      <div className="card bg-base-100 border border-base-200 shadow-sm">
         <h2 className="section-title mb-6">Transfer Detail</h2>
 
         {/* Recipient Info */}
@@ -85,7 +85,7 @@ export default function SetNominal() {
               setError("");
             }}
             placeholder="Enter transfer amount"
-            className="form-input"
+            className="input input-bordered w-full"
             min="1"
           />
           {amount && parseFloat(amount) > 0 && (
@@ -105,7 +105,7 @@ export default function SetNominal() {
             value={note}
             onChange={(e) => setNote(e.target.value)}
             placeholder="Add a note..."
-            className="form-input"
+            className="input input-bordered w-full"
           />
         </div>
 
@@ -120,7 +120,7 @@ export default function SetNominal() {
           >
             Back
           </button>
-          <button onClick={handleSubmit} className="btn-primary flex-1">
+          <button onClick={handleSubmit} className="btn btn-primary flex-1">
             Continue
           </button>
         </div>

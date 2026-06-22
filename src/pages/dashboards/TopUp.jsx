@@ -173,7 +173,7 @@ export default function TopUp() {
       </div>
 
       {step === STEP.SUCCESS && (
-        <div className="card flex flex-col items-center gap-6 py-16 text-center">
+        <div className="card bg-base-100 border border-base-200 shadow-sm flex flex-col items-center gap-6 py-16 text-center">
           <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
               <path
@@ -196,7 +196,7 @@ export default function TopUp() {
             </p>
           </div>
 
-          <button onClick={handleReset} className="btn-primary">
+          <button onClick={handleReset} className="btn btn-primary">
             Top Up Lagi
           </button>
         </div>
@@ -204,7 +204,7 @@ export default function TopUp() {
 
       {step === STEP.CONFIRM && (
         <div className="flex flex-col items-start gap-4 sm:gap-6 lg:flex-row">
-          <div className="card w-full">
+          <div className="card bg-base-100 border border-base-200 shadow-sm w-full">
             <h2 className="section-title mb-4">Konfirmasi Top Up</h2>
 
             <div className="mb-6 flex flex-col gap-3 rounded-xl bg-gray-50 p-4">
@@ -250,7 +250,7 @@ export default function TopUp() {
 
               <button
                 onClick={handleConfirm}
-                className="btn-primary flex-1"
+                className="btn btn-primary flex-1"
                 disabled={isLoading}
               >
                 {isLoading ? "Memproses..." : "Konfirmasi"}
@@ -262,7 +262,7 @@ export default function TopUp() {
 
       {step === STEP.FORM && (
         <div className="flex flex-col items-start gap-4 sm:gap-6 lg:flex-row">
-          <div className="card w-full">
+          <div className="card bg-base-100 border border-base-200 shadow-sm w-full">
             <h2 className="section-title mb-3 sm:mb-4">Account Information</h2>
 
             <div className="mb-6 rounded-lg bg-gray-50 p-3 sm:mb-8 sm:rounded-xl sm:p-4">
@@ -313,7 +313,7 @@ export default function TopUp() {
                   setError("");
                 }}
                 placeholder="Enter Nominal Transfer"
-                className="form-input"
+                className="input input-bordered w-full"
                 min="0"
               />
             </div>
@@ -364,7 +364,7 @@ export default function TopUp() {
             </div>
           </div>
 
-          <div className="card w-full shrink-0 lg:w-72">
+          <div className="card bg-base-100 border border-base-200 shadow-sm w-full shrink-0 lg:w-72">
             <h2 className="section-title mb-3 sm:mb-6">Payment</h2>
 
             <div className="mb-3 flex flex-col gap-3 sm:mb-6 sm:gap-4">
@@ -400,7 +400,7 @@ export default function TopUp() {
 
             <button
               onClick={handleFormSubmit}
-              className="btn-primary w-full"
+              className="btn btn-primary w-full"
               disabled={isLoading}
             >
               {isLoading ? "Memproses..." : "Submit"}
