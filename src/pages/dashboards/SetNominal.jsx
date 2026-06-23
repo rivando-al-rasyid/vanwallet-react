@@ -42,21 +42,21 @@ export default function SetNominal() {
     <>
       <div className="mb-8">
         <div className="mb-6 flex items-center gap-3">
-          <span className="text-blue-600">
+          <span className="text-indigo-600">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
             </svg>
           </span>
-          <h1 className="section-title">Transfer Money</h1>
+          <h1 className="text-lg font-black text-slate-950">Transfer Money</h1>
         </div>
         <Stepper currentStep={2} />
       </div>
 
-      <div className="card bg-base-100 border border-base-200 shadow-sm">
-        <h2 className="section-title mb-6">Transfer Detail</h2>
+      <div className="rounded-[1.5rem] border border-slate-100 bg-white p-5 shadow-sm sm:p-6">
+        <h2 className="text-lg font-black text-slate-950 mb-6">Transfer Detail</h2>
 
         {/* Recipient Info */}
-        <div className="mb-6 flex items-center gap-3 rounded-xl bg-gray-50 p-4">
+        <div className="mb-6 flex items-center gap-3 rounded-xl bg-slate-50 p-4">
           <img
             src={contact.img}
             alt={contact.name}
@@ -67,14 +67,14 @@ export default function SetNominal() {
             }}
           />
           <div>
-            <p className="font-semibold text-gray-800">{contact.name}</p>
-            <p className="text-sm text-gray-500">{contact.phone || contact.email}</p>
+            <p className="font-semibold text-slate-800">{contact.name}</p>
+            <p className="text-sm text-slate-500">{contact.phone || contact.email}</p>
           </div>
         </div>
 
         {/* Amount */}
         <div className="mb-5">
-          <label className="mb-2 block text-sm font-semibold text-gray-700">
+          <label className="mb-2 block text-sm font-semibold text-slate-700">
             Amount
           </label>
           <input
@@ -85,11 +85,11 @@ export default function SetNominal() {
               setError("");
             }}
             placeholder="Enter transfer amount"
-            className="input input-bordered w-full"
+            className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
             min="1"
           />
           {amount && parseFloat(amount) > 0 && (
-            <p className="mt-1 text-xs text-gray-400">
+            <p className="mt-1 text-xs text-slate-400">
               {formatRupiah(parseFloat(amount))}
             </p>
           )}
@@ -97,30 +97,30 @@ export default function SetNominal() {
 
         {/* Note */}
         <div className="mb-6">
-          <label className="mb-2 block text-sm font-semibold text-gray-700">
-            Note <span className="font-normal text-gray-400">(optional)</span>
+          <label className="mb-2 block text-sm font-semibold text-slate-700">
+            Note <span className="font-normal text-slate-400">(optional)</span>
           </label>
           <input
             type="text"
             value={note}
             onChange={(e) => setNote(e.target.value)}
             placeholder="Add a note..."
-            className="input input-bordered w-full"
+            className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
           />
         </div>
 
         {error && (
-          <p className="mb-4 text-sm font-medium text-red-500">{error}</p>
+          <p className="mb-4 text-sm font-medium text-rose-500">{error}</p>
         )}
 
         <div className="flex gap-3">
           <button
             onClick={() => navigate("/dashboard/transfer")}
-            className="flex-1 rounded-xl border border-gray-200 py-3 text-sm font-semibold text-gray-600 transition hover:bg-gray-50"
+            className="flex-1 rounded-xl border border-slate-200 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50"
           >
             Back
           </button>
-          <button onClick={handleSubmit} className="btn btn-primary flex-1">
+          <button onClick={handleSubmit} className="rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 px-5 py-3 text-sm font-black text-white shadow-lg shadow-indigo-200 transition hover:from-indigo-700 hover:to-violet-700 disabled:opacity-60 flex-1">
             Continue
           </button>
         </div>

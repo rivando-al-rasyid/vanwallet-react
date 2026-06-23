@@ -1,40 +1,20 @@
-import { Headphones, ShieldCheck, Download } from "lucide-react";
+import { Download, Headphones, ShieldCheck } from "lucide-react";
 
 const FEATURES = [
-  {
-    Icon: Headphones,
-    title: "24 / 7 Support",
-    desc: "We have 24/7 contact support, so you can contact us whenever you want and we will respond quickly.",
-  },
-  {
-    Icon: ShieldCheck,
-    title: "Data Privacy",
-    desc: "We make sure your data is safe in our database and keep every submitted record protected.",
-  },
-  {
-    Icon: Download,
-    title: "Easy Download",
-    desc: "Zwallet is free to use and available on major mobile platforms for fast installation.",
-  },
+  { Icon: Headphones, title: "24 / 7 Support", desc: "Reach support whenever you need help with transfers or account access." },
+  { Icon: ShieldCheck, title: "Data Privacy", desc: "Sensitive wallet data is protected with a cleaner and more secure flow." },
+  { Icon: Download, title: "Easy Access", desc: "Use the wallet experience from mobile or desktop without friction." },
 ];
 
 export default function Features() {
   return (
     <section className="relative z-10 bg-white">
-      <div className="mx-auto grid max-w-7xl gap-6 px-4 py-8 sm:gap-8 sm:px-6 sm:py-10 lg:grid-cols-3 lg:px-10">
+      <div className="mx-auto grid max-w-7xl gap-4 px-4 py-8 sm:px-6 lg:grid-cols-3 lg:px-10">
         {FEATURES.map(({ Icon, title, desc }) => (
-          <div key={title} className="flex items-start gap-3 sm:gap-4">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 sm:h-12 sm:w-12">
-              <Icon size={22} className="text-blue-600" />
-            </div>
-            <div>
-              <h3 className="mb-2 text-base font-semibold text-gray-900 sm:text-lg">
-                {title}
-              </h3>
-              <p className="text-xs leading-5 text-gray-500 sm:text-sm sm:leading-6">
-                {desc}
-              </p>
-            </div>
+          <div key={title} className="rounded-[2rem] border border-slate-100 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-50"><Icon size={22} className="text-indigo-600" /></div>
+            <h3 className="mt-5 mb-2 text-lg font-black text-slate-950">{title}</h3>
+            <p className="text-sm leading-6 text-slate-500">{desc}</p>
           </div>
         ))}
       </div>

@@ -102,38 +102,38 @@ export default function TransferModal() {
     <>
       <div className="mb-8">
         <div className="mb-6 flex items-center gap-3">
-          <span className="text-blue-600">
+          <span className="text-indigo-600">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
             </svg>
           </span>
-          <h1 className="section-title">Transfer Money</h1>
+          <h1 className="text-lg font-black text-slate-950">Transfer Money</h1>
         </div>
         <Stepper currentStep={3} />
       </div>
 
       {/* Summary card */}
-      <div className="card bg-base-100 border border-base-200 shadow-sm mb-6">
-        <h2 className="section-title mb-4">Transfer Summary</h2>
-        <div className="flex flex-col gap-3 rounded-xl bg-gray-50 p-4">
+      <div className="rounded-[1.5rem] border border-slate-100 bg-white p-5 shadow-sm sm:p-6 mb-6">
+        <h2 className="text-lg font-black text-slate-950 mb-4">Transfer Summary</h2>
+        <div className="flex flex-col gap-3 rounded-xl bg-slate-50 p-4">
           <div className="flex justify-between text-sm">
-            <span className="text-gray-500">Recipient</span>
-            <span className="font-semibold text-gray-800">{contact.name}</span>
+            <span className="text-slate-500">Recipient</span>
+            <span className="font-semibold text-slate-800">{contact.name}</span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-gray-500">Phone / Email</span>
-            <span className="font-semibold text-gray-800">
+            <span className="text-slate-500">Phone / Email</span>
+            <span className="font-semibold text-slate-800">
               {contact.phone || contact.email}
             </span>
           </div>
-          <div className="flex justify-between border-t border-gray-200 pt-3 text-sm font-bold">
-            <span className="text-gray-800">Amount</span>
-            <span className="text-blue-600">{formatRupiah(amount)}</span>
+          <div className="flex justify-between border-t border-slate-200 pt-3 text-sm font-bold">
+            <span className="text-slate-800">Amount</span>
+            <span className="text-indigo-600">{formatRupiah(amount)}</span>
           </div>
           {note && (
             <div className="flex justify-between text-sm">
-              <span className="text-gray-500">Note</span>
-              <span className="text-gray-700">{note}</span>
+              <span className="text-slate-500">Note</span>
+              <span className="text-slate-700">{note}</span>
             </div>
           )}
         </div>
@@ -141,11 +141,11 @@ export default function TransferModal() {
 
       {/* PIN Modal */}
       <Modal open={modalStep === MODAL_STEP.PIN}>
-        <p className="mb-4 text-left text-xs font-semibold tracking-widest text-gray-400 uppercase">
+        <p className="mb-4 text-left text-xs font-semibold tracking-widest text-slate-400 uppercase">
           Transfer to {contact.name}
         </p>
         <h3 className="mb-1 text-left text-2xl font-bold">Enter Your Pin 👋</h3>
-        <p className="mb-8 text-left text-sm text-gray-400">
+        <p className="mb-8 text-left text-sm text-slate-400">
           Enter your 6-digit PIN to confirm this transfer
         </p>
 
@@ -156,18 +156,18 @@ export default function TransferModal() {
             </div>
 
             {methods.formState.errors.pin && (
-              <p className="mb-4 text-sm text-red-500">
+              <p className="mb-4 text-sm text-rose-500">
                 Masukkan PIN lengkap ({PIN_LENGTH} digit)
               </p>
             )}
 
             {errorMsg && (
-              <p className="mb-4 text-sm text-red-500">{errorMsg}</p>
+              <p className="mb-4 text-sm text-rose-500">{errorMsg}</p>
             )}
 
             <button
               type="submit"
-              className="btn btn-primary mb-4 w-full"
+              className="rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 px-5 py-3 text-sm font-black text-white shadow-lg shadow-indigo-200 transition hover:from-indigo-700 hover:to-violet-700 disabled:opacity-60 mb-4 w-full"
               disabled={loading}
             >
               {loading ? "Memproses..." : "Confirm & Transfer"}
@@ -177,7 +177,7 @@ export default function TransferModal() {
 
         <button
           onClick={() => navigate(-1)}
-          className="w-full text-sm text-gray-400 hover:text-gray-600"
+          className="w-full text-sm text-slate-400 hover:text-slate-600"
         >
           ← Back
         </button>
@@ -186,19 +186,19 @@ export default function TransferModal() {
       {/* Failed Modal */}
       <Modal open={modalStep === MODAL_STEP.FAILED}>
         <img src={transferFailedImage} alt="failed" className="mx-auto mb-4" />
-        <h3 className="section-title mb-2">
-          Oops Transfer <span className="text-red-500">Failed</span>
+        <h3 className="text-lg font-black text-slate-950 mb-2">
+          Oops Transfer <span className="text-rose-500">Failed</span>
         </h3>
-        <p className="mb-2 text-sm text-red-400">{errorMsg}</p>
-        <p className="mb-8 text-sm text-gray-400">
+        <p className="mb-2 text-sm text-rose-400">{errorMsg}</p>
+        <p className="mb-8 text-sm text-slate-400">
           Sorry, there is an issue with your transfer. Try again!
         </p>
-        <button onClick={handleTryAgain} className="btn btn-primary mb-3 w-full">
+        <button onClick={handleTryAgain} className="rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 px-5 py-3 text-sm font-black text-white shadow-lg shadow-indigo-200 transition hover:from-indigo-700 hover:to-violet-700 disabled:opacity-60 mb-3 w-full">
           Try Again
         </button>
         <button
           onClick={handleDone}
-          className="w-full rounded-xl border border-blue-600 py-3.5 text-blue-600"
+          className="w-full rounded-xl border border-indigo-600 py-3.5 text-indigo-600"
         >
           Back To Dashboard
         </button>
@@ -207,18 +207,18 @@ export default function TransferModal() {
       {/* Success Modal */}
       <Modal open={modalStep === MODAL_STEP.SUCCESS}>
         <img src={transferSuccessImage} alt="success" className="mx-auto mb-4" />
-        <h3 className="section-title mb-2">
-          Yeay Transfer <span className="text-green-500">Success</span>
+        <h3 className="text-lg font-black text-slate-950 mb-2">
+          Yeay Transfer <span className="text-emerald-500">Success</span>
         </h3>
-        <p className="mb-8 text-sm text-gray-400">
+        <p className="mb-8 text-sm text-slate-400">
           {formatRupiah(amount)} berhasil dikirim ke {contact.name}.
         </p>
-        <button onClick={handleDone} className="btn btn-primary mb-3 w-full">
+        <button onClick={handleDone} className="rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 px-5 py-3 text-sm font-black text-white shadow-lg shadow-indigo-200 transition hover:from-indigo-700 hover:to-violet-700 disabled:opacity-60 mb-3 w-full">
           Done
         </button>
         <button
           onClick={handleTransferAgain}
-          className="w-full rounded-xl border border-blue-600 py-3.5 text-blue-600"
+          className="w-full rounded-xl border border-indigo-600 py-3.5 text-indigo-600"
         >
           Transfer Again
         </button>

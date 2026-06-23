@@ -3,35 +3,19 @@ import aboutPhoneImage from "../../assets/img/phoneback.png";
 
 const About = memo(function About() {
   return (
-    <section className="mx-auto grid max-w-7xl grid-cols-1 gap-8 px-4 py-12 sm:gap-10 sm:px-6 sm:py-16 lg:grid-cols-2 lg:gap-12 lg:px-10 lg:py-24">
-      {/* Left Content */}
-      <div className="z-10 flex flex-col justify-center py-2 lg:pr-10">
-        <p className="text-xs font-bold tracking-[0.15em] text-blue-600 uppercase sm:text-sm sm:tracking-[0.2em]">
-          Welcome to E-Wallet
+    <section className="mx-auto grid max-w-7xl grid-cols-1 gap-10 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:px-10 lg:py-24">
+      <div className="z-10 flex flex-col justify-center lg:pr-10">
+        <p className="text-xs font-black tracking-[0.25em] text-indigo-600 uppercase">Welcome to E-Wallet</p>
+        <h2 className="mt-4 max-w-xl text-3xl leading-tight font-black text-slate-950 sm:text-4xl lg:text-5xl">Your all-in-one digital payment solution.</h2>
+        <p className="mt-6 max-w-lg text-base leading-8 text-slate-500">
+          Say goodbye to scattered payment flows. E-Wallet brings secure transfers, top ups, and history tracking into one simple product experience.
         </p>
-        <h2 className="mt-3 max-w-md text-2xl leading-tight font-bold text-gray-900 sm:mt-4 sm:text-3xl lg:text-4xl">
-          Your All-in-One Digital Payment Solution
-        </h2>
-        <p className="mt-4 max-w-lg text-sm leading-relaxed text-gray-500 sm:mt-6 sm:text-base">
-          Say goodbye to cash and hello to the future of payments! With
-          e-wallet, you have the power of secure, fast, and convenient digital
-          transactions right at your fingertips. Whether you're shopping, dining
-          out, or sending money to loved ones, we've got you covered.
-        </p>
-        <button className="mt-6 w-fit rounded-lg bg-blue-600 px-8 py-2.5 text-base font-semibold text-white shadow-lg transition-all hover:bg-blue-700 active:scale-95 sm:mt-8 sm:px-10 sm:py-3 sm:text-lg">
-          Get Started
-        </button>
+        <button className="mt-8 w-fit rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 px-8 py-3 text-base font-black text-white shadow-lg shadow-indigo-200 transition hover:-translate-y-0.5 hover:from-indigo-700 hover:to-violet-700">Get Started</button>
       </div>
-
-      {/* Right Content */}
       <div className="relative flex items-center justify-center lg:justify-end">
-        <div className="relative h-64 w-full overflow-hidden sm:h-80 md:h-96 lg:h-125">
-          <img
-            src={aboutPhoneImage}
-            alt="E-Wallet app interface preview"
-            loading="lazy"
-            className="h-full w-full object-cover object-center"
-          />
+        <div className="absolute inset-8 rounded-full bg-emerald-200/50 blur-3xl" />
+        <div className="relative h-80 w-full overflow-hidden rounded-[2.5rem] border border-white bg-white shadow-2xl sm:h-96 lg:h-[31.25rem]">
+          <img src={aboutPhoneImage} alt="E-Wallet app interface preview" loading="lazy" className="h-full w-full object-cover object-center" />
         </div>
       </div>
     </section>

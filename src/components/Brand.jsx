@@ -1,33 +1,22 @@
 import { memo } from "react";
 import logoImage from "../assets/img/logo.png";
 
-/**
- * Renders the company logo/brand mark.
- * @param {Object} props
- * @param {boolean} [props.isWhite=false] - If true, renders the light version of the brand.
- */
 const Brand = memo(function Brand({ isWhite = false }) {
   return (
-    <div className="group flex items-center gap-4">
+    <div className="group flex items-center gap-3">
       <div
-        className={`rounded-lg p-2 transition-colors ${
+        className={`flex h-11 w-11 items-center justify-center rounded-2xl border shadow-sm transition-all ${
           isWhite
-            ? "bg-white/20 group-hover:bg-white/40"
-            : "bg-[#6379F415] group-hover:bg-[#6379F4]"
+            ? "border-white/20 bg-white/15 shadow-black/10 group-hover:bg-white/25"
+            : "border-indigo-100 bg-gradient-to-br from-indigo-50 to-emerald-50 shadow-indigo-100 group-hover:scale-105"
         }`}
       >
-        <img
-          src={logoImage}
-          alt="E-Wallet logo"
-          className="h-6 w-6 object-contain"
-        />
+        <img src={logoImage} alt="E-Wallet logo" className="h-6 w-6 object-contain" />
       </div>
 
-      {/* Use <span> instead of <h1> — Brand appears in nav/header where
-          only one h1 should exist (the page title). */}
       <span
-        className={`text-2xl font-bold tracking-tight transition-colors ${
-          isWhite ? "text-white" : "text-[#6379F4]"
+        className={`text-2xl font-black tracking-tight ${
+          isWhite ? "text-white" : "text-slate-950"
         }`}
       >
         E-Wallet

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, useLocation, NavLink } from "react-router";
+import { NavLink, useLocation, useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { faEnvelope, faLock } from "@fortawesome/free-solid-svg-icons";
 import { login } from "../../store/slices/authSlice";
@@ -20,12 +20,7 @@ export default function Login() {
 
   const searchParams = new URLSearchParams(location.search);
   const redirectParam = searchParams.get("redirectTo");
-  const redirectTo =
-    redirectParam?.startsWith("/") && !redirectParam.startsWith("//")
-      ? redirectParam
-      : "/dashboard";
-
-  // Show success banner when redirected back from password-reset flow
+  const redirectTo = redirectParam?.startsWith("/") && !redirectParam.startsWith("//") ? redirectParam : "/dashboard";
   const passwordReset = location.state?.passwordReset === true;
 
   const [form, setForm] = useState({ email: "", password: "" });
@@ -46,13 +41,10 @@ export default function Login() {
     }
 
     const result = await dispatch(login(form));
-
     if (login.fulfilled.match(result)) {
       const user = result.payload;
       if (!user?.pin) {
-        navigate(`/login/pin?redirectTo=${encodeURIComponent(redirectTo)}`, {
-          replace: true,
-        });
+        navigate(`/login/pin?redirectTo=${encodeURIComponent(redirectTo)}`, { replace: true });
       } else {
         navigate(redirectTo, { replace: true });
       }
@@ -60,69 +52,28 @@ export default function Login() {
   };
 
   return (
-    <main className="grid min-h-screen grid-cols-1 bg-[#2948FF] lg:grid-cols-2">
-      <section className="auth-panel">
-        <div className="w-full max-w-175">
+    <main className="grid min-h-screen grid-cols-1 bg-slate-100 lg:grid-cols-2">
+      <section className="flex min-h-screen items-center justify-center px-5 py-10 sm:px-8 lg:px-12">
+        <div className="w-full max-w-xl rounded-[2rem] border border-white bg-white/90 p-6 shadow-2xl shadow-slate-200 backdrop-blur sm:p-10">
           <Brand />
-          <LoginHeadline
-            title={"Hello Welcome Back 👋"}
-            text={
-              "Fill out the form correctly or you can login with several options."
-            }
-          />
-          <SocialLogin />
+          <div className="mt-10">
+            <LoginHeadline title="Welcome back 👋" text="Log in to manage your balance, transfers, top ups, and transaction history." />
+            <SocialLogin />
 
-          {/* Password-reset success banner */}
-          {passwordReset && (
-            <div className="mb-4 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm font-medium text-green-700">
-              ✓ Password changed successfully! Please log in with your new password.
-            </div>
-          )}
+            {passwordReset && <div className="mb-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-700">✓ Password changed successfully. Please log in with your new password.</div>}
+            {(validationError || error) && <div className="mb-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-bold text-rose-600">{validationError || error}</div>}
 
-          {(validationError || error) && (
-            <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-600">
-              {validationError || error}
-            </div>
-          )}
+            <form className="space-y-6" onSubmit={handleSubmit}>
+              <Input label="Email" type="email" name="email" icon={faEnvelope} placeholder="Enter your email" value={form.email} onChange={handleChange} />
+              <Input label="Password" type="password" name="password" icon={faLock} placeholder="Enter your password" value={form.password} onChange={handleChange} />
+              <div className="flex justify-end">
+                <NavLink to="/forgotpassword" className="text-sm font-bold text-indigo-600 hover:text-indigo-700 hover:underline">Forgot Password?</NavLink>
+              </div>
+              <Submit name={loading ? "Loading..." : "Login"} disabled={loading} />
+            </form>
 
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            <Input
-              label="Email"
-              type="email"
-              name="email"
-              icon={faEnvelope}
-              placeholder="Enter your email"
-              value={form.email}
-              onChange={handleChange}
-            />
-            <Input
-              label="Password"
-              type="password"
-              name="password"
-              icon={faLock}
-              placeholder="Enter Your Password"
-              value={form.password}
-              onChange={handleChange}
-            />
-
-            {/* Forgot password link */}
-            <div className="flex justify-end">
-              <NavLink
-                to="/forgotpassword"
-                className="text-sm font-semibold text-[#6379F4] hover:underline"
-              >
-                Forgot Password?
-              </NavLink>
-            </div>
-
-            <Submit name={loading ? "Loading..." : "Login"} />
-          </form>
-
-          <LoginSubtext
-            text={"Not Have An Account? "}
-            link={"/register"}
-            linklabel={"Register"}
-          />
+            <LoginSubtext text="Not Have An Account? " link="/register" linklabel="Register" />
+          </div>
         </div>
       </section>
       <LoginImage img={loginPhoneImage} />

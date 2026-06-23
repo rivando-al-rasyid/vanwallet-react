@@ -1,94 +1,47 @@
-import { useFormContext } from "react-hook-form";
 import { useRef } from "react";
+import { useFormContext } from "react-hook-form";
 
-// Constants
 const PIN_LENGTH = 6;
-const BASE_INPUT_CLASSES = `
-  w-10 sm:w-12
-  text-center
-  text-2xl font-semibold
-  bg-transparent
-  border-b-2
-  outline-none
-  transition
-`;
+const BASE_INPUT_CLASSES = "h-14 w-10 rounded-2xl border bg-white text-center text-2xl font-black text-slate-800 shadow-sm outline-none transition sm:w-12";
 
 export default function PinInput() {
   const { setValue, watch } = useFormContext();
   const inputsRef = useRef([]);
-
   const values = watch("pin");
 
   const handleChange = (e, index) => {
     const numericValue = e.target.value.replace(/[^0-9]/g, "");
     const nextDigit = numericValue.slice(-1);
-
-    setValue(`pin.${index}.value`, nextDigit, {
-      shouldDirty: true,
-      shouldValidate: true,
-    });
-
-    // Auto-focus next input
-    if (nextDigit && inputsRef.current[index + 1]) {
-      inputsRef.current[index + 1].focus();
-    }
+    setValue(`pin.${index}.value`, nextDigit, { shouldDirty: true, shouldValidate: true });
+    if (nextDigit && inputsRef.current[index + 1]) inputsRef.current[index + 1].focus();
   };
 
   const handleKeyDown = (e, index) => {
-    // Handle backspace to go to previous input
-    if (e.key === "Backspace" && !values?.[index]?.value) {
-      if (inputsRef.current[index - 1]) {
-        inputsRef.current[index - 1].focus();
-      }
+    if (e.key === "Backspace" && !values?.[index]?.value && inputsRef.current[index - 1]) {
+      inputsRef.current[index - 1].focus();
     }
   };
 
-  const getInputClassName = (isActive) => {
-    const activeClasses = isActive ? "border-blue-500" : "border-gray-300";
-    return `${BASE_INPUT_CLASSES} ${activeClasses} focus:border-blue-500`;
-  };
+  const getInputClassName = (isActive) => `${BASE_INPUT_CLASSES} ${isActive ? "border-indigo-500 ring-4 ring-indigo-100" : "border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"}`;
 
   return (
-    <div className="flex justify-between gap-4">
+    <div className="flex justify-between gap-2 sm:gap-4">
       {Array.from({ length: PIN_LENGTH }).map((_, index) => {
         const isActive = values?.[index]?.value;
-
         return (
-          <PinInputField
+          <input
             key={index}
-            index={index}
+            ref={(el) => (inputsRef.current[index] = el)}
             value={values?.[index]?.value || ""}
-            onChange={handleChange}
-            onKeyDown={handleKeyDown}
-            inputRef={(el) => (inputsRef.current[index] = el)}
+            onChange={(e) => handleChange(e, index)}
+            onKeyDown={(e) => handleKeyDown(e, index)}
             className={getInputClassName(isActive)}
+            inputMode="numeric"
+            maxLength={1}
+            aria-label={`PIN digit ${index + 1}`}
           />
         );
       })}
     </div>
-  );
-}
-
-function PinInputField({
-  index,
-  value,
-  onChange,
-  onKeyDown,
-  inputRef,
-  className,
-}) {
-  return (
-    <input
-      type="password"
-      maxLength={1}
-      inputMode="numeric"
-      value={value}
-      ref={inputRef}
-      onChange={(e) => onChange(e, index)}
-      onKeyDown={(e) => onKeyDown(e, index)}
-      className={className}
-      aria-label={`PIN digit ${index + 1}`}
-      autoComplete={index === 0 ? "one-time-code" : "off"}
-    />
   );
 }

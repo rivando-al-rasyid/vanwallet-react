@@ -75,7 +75,7 @@ export default function Index() {
       datasets.push({
         label: "Income",
         data: points.map((point) => Math.abs(point.income || 0)),
-        backgroundColor: "#3B5BFF",
+        backgroundColor: "#4F46E5",
         borderRadius: 8,
         borderSkipped: false,
         categoryPercentage: 0.8,
@@ -88,7 +88,7 @@ export default function Index() {
       datasets.push({
         label: "Expense",
         data: points.map((point) => Math.abs(point.expense || 0)),
-        backgroundColor: "#D10000",
+        backgroundColor: "#E11D48",
         borderRadius: 8,
         borderSkipped: false,
         categoryPercentage: 0.8,
@@ -217,7 +217,7 @@ export default function Index() {
     <section className="flex flex-1 flex-col gap-4 overflow-hidden p-4 pt-4 sm:gap-6 sm:px-6 sm:pt-6 lg:px-8 lg:pt-8">
       <div className="flex flex-col gap-4 lg:gap-5">
         <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-3 lg:gap-6">
-          <div className="fade-in card bg-base-100 border border-base-200 shadow-sm flex flex-col gap-4 delay-1">
+          <div className="rounded-[1.5rem] border border-slate-100 bg-white p-5 shadow-sm sm:p-6 flex flex-col gap-4">
             <div className="flex items-center gap-2 text-xs font-medium text-slate-500">
               <svg
                 className="h-4 w-4"
@@ -254,7 +254,7 @@ export default function Index() {
                 <p className="mb-1 text-[10px] font-bold tracking-wider text-slate-400 uppercase">
                   Expense
                 </p>
-                <p className="flex items-center gap-1 text-sm font-semibold text-red-500">
+                <p className="flex items-center gap-1 text-sm font-semibold text-rose-500">
                   {loading
                     ? "..."
                     : formatRupiahShort(summary?.total_expense ?? 0)}
@@ -263,21 +263,21 @@ export default function Index() {
             </div>
           </div>
 
-          <div className="fade-in card bg-base-100 border border-base-200 shadow-sm flex h-full items-center justify-between delay-2 lg:col-span-2">
+          <div className="rounded-[1.5rem] border border-slate-100 bg-white p-5 shadow-sm sm:p-6 flex h-full items-center justify-between lg:col-span-2">
             <div>
-              <h2 className="section-title">Fast Service</h2>
+              <h2 className="text-lg font-black text-slate-950">Fast Service</h2>
             </div>
 
             <div className="flex flex-row gap-3">
               <button
-                className="btn btn-primary"
+                className="rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 px-5 py-3 text-sm font-black text-white shadow-lg shadow-indigo-200 transition hover:from-indigo-700 hover:to-violet-700 disabled:opacity-60"
                 onClick={() => navigate("/dashboard/topup")}
               >
                 <span className="text-lg">+</span> Top Up
               </button>
 
               <button
-                className="btn btn-primary"
+                className="rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 px-5 py-3 text-sm font-black text-white shadow-lg shadow-indigo-200 transition hover:from-indigo-700 hover:to-violet-700 disabled:opacity-60"
                 onClick={() => navigate("/dashboard/transfer")}
               >
                 <svg
@@ -294,17 +294,17 @@ export default function Index() {
         </div>
       </div>
 
-      <div className="fade-in grid grid-cols-1 gap-4 delay-3 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
-        <div className="card bg-base-100 border border-base-200 shadow-sm col-span-full lg:col-span-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
+        <div className="rounded-[1.5rem] border border-slate-100 bg-white p-5 shadow-sm sm:p-6 col-span-full lg:col-span-2">
           <div className="w-full rounded-xl border border-slate-100 p-4 sm:p-5">
             <div className="mb-4 flex flex-col sm:mb-6 sm:flex-row sm:items-center sm:justify-between">
-              <h2 className="section-title">Financial Chart</h2>
+              <h2 className="text-lg font-black text-slate-950">Financial Chart</h2>
 
               <div className="flex gap-2 sm:gap-3">
                 <select
                   value={days}
                   onChange={(event) => setDays(event.target.value)}
-                  className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 focus:ring-2 focus:ring-blue-200 focus:outline-none"
+                  className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 focus:ring-2 focus:ring-indigo-200 focus:outline-none"
                 >
                   <option value="7">7 Days</option>
                   <option value="14">14 Days</option>
@@ -314,7 +314,7 @@ export default function Index() {
                 <select
                   value={typeFilter}
                   onChange={(event) => setTypeFilter(event.target.value)}
-                  className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 focus:ring-2 focus:ring-blue-200 focus:outline-none"
+                  className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 focus:ring-2 focus:ring-indigo-200 focus:outline-none"
                 >
                   <option value="All">All</option>
                   <option value="Income">Income</option>
@@ -335,13 +335,13 @@ export default function Index() {
           </div>
         </div>
 
-        <div className="card bg-base-100 border border-base-200 shadow-sm fade-in col-span-full flex h-full flex-col delay-4 lg:col-span-1">
+        <div className="rounded-[1.5rem] border border-slate-100 bg-white p-5 shadow-sm sm:p-6 col-span-full flex h-full flex-col lg:col-span-1">
           <div className="flex items-center justify-between">
-            <h3 className="section-title">Transaction History</h3>
+            <h3 className="text-lg font-black text-slate-950">Transaction History</h3>
 
             <Link
               to="/dashboard/history"
-              className="text-xs font-semibold text-blue-600 hover:underline"
+              className="text-xs font-semibold text-indigo-600 hover:underline"
             >
               See All
             </Link>
@@ -349,9 +349,9 @@ export default function Index() {
 
           <div className="flex flex-1 flex-col gap-2 sm:gap-3">
             {loading && (
-              <div className="flex flex-col items-center justify-center gap-2 py-10 text-gray-400">
+              <div className="flex flex-col items-center justify-center gap-2 py-10 text-slate-400">
                 <svg
-                  className="h-6 w-6 animate-spin text-blue-500"
+                  className="h-6 w-6 animate-spin text-indigo-500"
                   fill="none"
                   viewBox="0 0 24 24"
                 >
@@ -376,11 +376,11 @@ export default function Index() {
 
             {!loading && error && (
               <div className="flex flex-col items-center justify-center gap-2 py-10">
-                <p className="text-xs font-semibold text-red-500">{error}</p>
+                <p className="text-xs font-semibold text-rose-500">{error}</p>
 
                 <button
                   onClick={loadDashboard}
-                  className="text-xs text-blue-600 underline"
+                  className="text-xs text-indigo-600 underline"
                 >
                   Try again
                 </button>
@@ -420,7 +420,7 @@ export default function Index() {
                     className={`shrink-0 text-xs font-bold sm:text-sm ${
                       transaction.type === "income"
                         ? "text-emerald-500"
-                        : "text-red-500"
+                        : "text-rose-500"
                     }`}
                   >
                     {transaction.type === "income" ? "+" : "-"}

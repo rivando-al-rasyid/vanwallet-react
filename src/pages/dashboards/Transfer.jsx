@@ -86,7 +86,7 @@ export default function Transfer() {
     <>
       <div className="mb-8">
         <div className="mb-6 flex items-center gap-3">
-          <span className="text-blue-600">
+          <span className="text-indigo-600">
             <svg
               width="24"
               height="24"
@@ -98,16 +98,16 @@ export default function Transfer() {
               <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
             </svg>
           </span>
-          <h1 className="section-title">Transfer Money</h1>
+          <h1 className="text-lg font-black text-slate-950">Transfer Money</h1>
         </div>
         <Stepper currentStep={1} />
       </div>
 
-      <div className="card bg-base-100 border border-base-200 shadow-sm min-h-150">
+      <div className="rounded-[1.5rem] border border-slate-100 bg-white p-5 shadow-sm sm:p-6 min-h-[37.5rem]">
         <div className="mb-6 flex items-center justify-between">
           <div>
-            <h2 className="section-title">Find People</h2>
-            <p className="text-xs text-gray-400">{resultsText}</p>
+            <h2 className="text-lg font-black text-slate-950">Find People</h2>
+            <p className="text-xs text-slate-400">{resultsText}</p>
           </div>
           <SearchInput
             value={search}
@@ -117,9 +117,9 @@ export default function Transfer() {
         </div>
 
         {loading && (
-          <div className="flex flex-col items-center justify-center gap-3 py-20 text-gray-400">
+          <div className="flex flex-col items-center justify-center gap-3 py-20 text-slate-400">
             <svg
-              className="h-8 w-8 animate-spin text-blue-500"
+              className="h-8 w-8 animate-spin text-indigo-500"
               fill="none"
               viewBox="0 0 24 24"
             >
@@ -143,10 +143,10 @@ export default function Transfer() {
 
         {!loading && error && (
           <div className="flex flex-col items-center justify-center gap-3 py-20">
-            <p className="text-sm font-semibold text-red-500">{error}</p>
+            <p className="text-sm font-semibold text-rose-500">{error}</p>
             <button
               onClick={fetchContacts}
-              className="text-xs text-blue-600 underline hover:text-blue-700"
+              className="text-xs text-indigo-600 underline hover:text-indigo-700"
             >
               Coba lagi
             </button>

@@ -71,7 +71,7 @@ export default function History() {
   return (
     <>
       <div className="mb-4 flex items-center gap-2 sm:mb-6 sm:gap-3">
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-100 sm:h-10 sm:w-10">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-100 sm:h-10 sm:w-10">
           <svg
             width="16"
             height="16"
@@ -81,33 +81,33 @@ export default function History() {
           >
             <path
               d="M12 8V12L14.5 14.5"
-              stroke="#2563EB"
+              stroke="#4F46E5"
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
             <path
               d="M5.07183 10.9999C5.55612 9.21564 6.62741 7.64082 8.11101 6.52659C9.59461 5.41236 11.4065 4.82128 13.2618 4.84455C15.1171 4.86782 16.9133 5.50418 18.3677 6.65488C19.8221 7.80559 20.8528 9.40555 21.2932 11.2019C21.7336 12.9982 21.5584 14.8905 20.7949 16.5757C20.0314 18.2608 18.7232 19.6435 17.0777 20.5031C15.4323 21.3627 13.5468 21.6497 11.7186 21.3185C9.89037 20.9872 8.22449 20.0567 6.99998 18.6799"
-              stroke="#2563EB"
+              stroke="#4F46E5"
               strokeWidth="2"
               strokeLinecap="round"
             />
             <path
               d="M2 9H7V4"
-              stroke="#2563EB"
+              stroke="#4F46E5"
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
           </svg>
         </div>
-        <h1 className="section-title">History Transaction</h1>
+        <h1 className="text-lg font-black text-slate-950">History Transaction</h1>
       </div>
 
-      <div className="card bg-base-100 border border-base-200 shadow-sm min-h-150">
-        <div className="flex flex-col gap-4 border-b border-gray-100 px-4 py-4 sm:px-6 sm:py-5 lg:px-8">
+      <div className="rounded-[1.5rem] border border-slate-100 bg-white p-5 shadow-sm sm:p-6 min-h-[37.5rem]">
+        <div className="flex flex-col gap-4 border-b border-slate-100 px-4 py-4 sm:px-6 sm:py-5 lg:px-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <h2 className="section-title">Find Transaction</h2>
+            <h2 className="text-lg font-black text-slate-950">Find Transaction</h2>
             <SearchInput
               value={q}
               onChange={handleSearchChange}
@@ -117,9 +117,9 @@ export default function History() {
         </div>
 
         {loading && (
-          <div className="flex flex-col items-center justify-center gap-3 py-12 text-gray-400 sm:py-20">
+          <div className="flex flex-col items-center justify-center gap-3 py-12 text-slate-400 sm:py-20">
             <svg
-              className="h-6 w-6 animate-spin text-blue-500 sm:h-8 sm:w-8"
+              className="h-6 w-6 animate-spin text-indigo-500 sm:h-8 sm:w-8"
               fill="none"
               viewBox="0 0 24 24"
             >
@@ -145,10 +145,10 @@ export default function History() {
 
         {!loading && error && (
           <div className="flex flex-col items-center justify-center gap-3 py-20">
-            <p className="text-sm font-semibold text-red-500">{error}</p>
+            <p className="text-sm font-semibold text-rose-500">{error}</p>
             <button
               onClick={handleRetry}
-              className="text-xs text-blue-600 underline"
+              className="text-xs text-indigo-600 underline"
             >
               Coba lagi
             </button>

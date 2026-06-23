@@ -1,18 +1,15 @@
 import { memo } from "react";
 
-/**
- * Renders the heading and sub-description for login/signup screens.
- * @param {Object} props
- * @param {string} props.title - The bold main heading text.
- * @param {string} props.text - The supporting description text below the title.
- */
 const LoginHeadline = memo(function LoginHeadline({ title, text }) {
   return (
-    <div className="mb-10">
-      <h2 className="mb-4 text-2xl leading-tight font-extrabold text-[#3A3D42]">
+    <div className="mb-8">
+      <span className="mb-4 inline-flex rounded-full border border-indigo-100 bg-indigo-50 px-3 py-1 text-xs font-bold tracking-wide text-indigo-700">
+        Secure wallet access
+      </span>
+      <h2 className="mb-4 text-2xl leading-tight font-black text-slate-950 sm:text-3xl">
         {title}
       </h2>
-      <p className="text-base leading-relaxed text-slate-400">{text}</p>
+      <p className="max-w-lg text-sm leading-relaxed text-slate-500 sm:text-base">{text}</p>
     </div>
   );
 });

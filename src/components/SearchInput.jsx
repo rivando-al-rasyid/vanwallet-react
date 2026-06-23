@@ -1,21 +1,7 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 
-/**
- * @typedef {Object} SearchInputProps
- * @property {string|number} value - Current search value
- * @property {(event: {target: {value: string}}) => void} onChange - Change handler
- * @property {string} [placeholder="Enter Number Or Full Name"] - Input placeholder
- * @property {number} [debounceMs=300] - Debounce delay in milliseconds
- * @property {string} [className] - Additional CSS classes
- * @property {boolean} [disabled=false] - Whether input is disabled
- */
-
-/**
- * A semantic search input component with debouncing support.
- * @type {React.FC<SearchInputProps>}
- */
 export default function SearchInput({
   value,
   onChange,
@@ -26,58 +12,38 @@ export default function SearchInput({
 }) {
   const [localValue, setLocalValue] = useState(String(value || ""));
 
-  // Update local value when prop value changes (e.g., from URL params)
   useEffect(() => {
     setLocalValue(String(value || ""));
   }, [value]);
 
-  // Memoized synthetic event creator
-  const createSyntheticEvent = useCallback(
-    (newValue) => ({
-      target: { value: newValue },
-    }),
-    [],
-  );
+  const createSyntheticEvent = useCallback((newValue) => ({ target: { value: newValue } }), []);
 
-  // Debounced onChange handler
   useEffect(() => {
     if (localValue === String(value || "")) return;
-
-    const timer = setTimeout(() => {
-      onChange(createSyntheticEvent(localValue));
-    }, debounceMs);
-
+    const timer = setTimeout(() => onChange(createSyntheticEvent(localValue)), debounceMs);
     return () => clearTimeout(timer);
   }, [localValue, onChange, debounceMs, value, createSyntheticEvent]);
 
-  const handleChange = useCallback((e) => {
-    setLocalValue(e.target.value);
-  }, []);
-
   const inputClassName = useMemo(() => {
-    const disabledClasses = disabled
-      ? "bg-gray-100 cursor-not-allowed opacity-60"
-      : "";
-    return `input input-bordered w-full pl-4 pr-10 ${disabledClasses} ${className}`.trim();
-  }, [className, disabled]);
+    const disabledClasses = disabled ? "cursor-not-allowed bg-slate-100 opacity-60" : "bg-white";
+    return `w-full rounded-2xl border border-slate-200 py-3 pr-10 pl-4 text-sm text-slate-700 shadow-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 ${disabledClasses}`.trim();
+  }, [disabled]);
 
   return (
-    <div role="search" className={`relative w-80 ${className}`}>
+    <div role="search" className={`relative w-full sm:w-80 ${className}`}>
       <input
         type="search"
         placeholder={placeholder}
         className={inputClassName}
         value={localValue}
-        onChange={handleChange}
+        onChange={(e) => setLocalValue(e.target.value)}
         disabled={disabled}
         aria-label={placeholder}
         aria-disabled={disabled}
       />
       <FontAwesomeIcon
         icon={faMagnifyingGlass}
-        className={`pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 transition-colors ${
-          disabled ? "text-gray-300" : "text-gray-400"
-        }`}
+        className={`pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 transition-colors ${disabled ? "text-slate-300" : "text-slate-400"}`}
         aria-hidden="true"
       />
     </div>

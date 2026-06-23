@@ -1,23 +1,11 @@
-import { useState, useEffect, useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar, faTrashCan } from "@fortawesome/free-regular-svg-icons";
 import { faStar as faStarSolid } from "@fortawesome/free-solid-svg-icons";
 
-/**
- * A versatile table component for displaying contact or transaction lists.
- */
-export default function TableRow({
-  items,
-  remove = false,
-  showActions = true,
-  onDelete,
-  onRowClick,
-}) {
-  const [rows, setRows] = useState(() =>
-    items.map((item) => ({ ...item, isFavorite: false })),
-  );
+export default function TableRow({ items, remove = false, showActions = true, onDelete, onRowClick }) {
+  const [rows, setRows] = useState(() => items.map((item) => ({ ...item, isFavorite: false })));
 
-  // Sync rows when items prop changes (only if not in 'remove' mode)
   useEffect(() => {
     if (remove) return;
     setRows(items.map((item) => ({ ...item, isFavorite: false })));
@@ -26,23 +14,15 @@ export default function TableRow({
   const toggleFavorite = useCallback((id) => {
     setRows((prev) =>
       [...prev]
-        .map((item) =>
-          item.id === id ? { ...item, isFavorite: !item.isFavorite } : item,
-        )
+        .map((item) => (item.id === id ? { ...item, isFavorite: !item.isFavorite } : item))
         .sort((a, b) => b.isFavorite - a.isFavorite),
     );
   }, []);
 
-  const handleDelete = useCallback(
-    (id) => {
-      if (onDelete) {
-        onDelete(id);
-      } else {
-        setRows((prev) => prev.filter((item) => item.id !== id));
-      }
-    },
-    [onDelete],
-  );
+  const handleDelete = useCallback((id) => {
+    if (onDelete) onDelete(id);
+    else setRows((prev) => prev.filter((item) => item.id !== id));
+  }, [onDelete]);
 
   const displayRows = remove ? items : rows;
 
@@ -51,78 +31,53 @@ export default function TableRow({
       <div className="overflow-x-auto px-3 py-3 sm:px-4 sm:py-4 lg:px-8">
         <table className="w-full border-separate border-spacing-y-2 text-sm sm:text-base">
           <tbody>
-            {displayRows.map((contact, index) => (
+            {displayRows.map((contact) => (
               <tr
                 key={contact.id}
                 onClick={() => onRowClick?.(contact)}
-                className={`group transition-colors hover:bg-blue-50 ${
-                  onRowClick ? "cursor-pointer" : "cursor-default"
-                } ${index % 2 !== 0 ? "bg-gray-50/50" : "bg-white"}`}
+                className={`group rounded-2xl transition-all hover:bg-indigo-50/80 ${onRowClick ? "cursor-pointer" : "cursor-default"}`}
               >
-                <td className="rounded-l-lg py-2 pl-1 sm:rounded-l-xl sm:py-3 sm:pl-2">
-                  <img
-                    src={contact.img}
-                    alt={contact.name}
-                    className="h-8 w-8 rounded-lg object-cover sm:h-10 sm:w-10 sm:rounded-xl lg:h-11 lg:w-11"
-                  />
+                <td className="rounded-l-2xl bg-white py-2 pl-2 group-hover:bg-indigo-50/80 sm:py-3">
+                  <img src={contact.img} alt={contact.name} className="h-9 w-9 rounded-xl object-cover sm:h-11 sm:w-11" />
                 </td>
-
-                <td className="px-2 py-2 text-xs font-semibold text-gray-700 sm:px-4 sm:py-3 sm:text-sm lg:text-base">
+                <td className="bg-white px-2 py-2 text-xs font-bold text-slate-800 group-hover:bg-indigo-50/80 sm:px-4 sm:py-3 sm:text-sm lg:text-base">
                   {contact.name}
                 </td>
-
-                <td className="px-2 py-2 text-xs font-medium text-gray-500 sm:px-4 sm:py-3 sm:text-sm">
-                  {contact.phone}
+                <td className="bg-white px-2 py-2 text-xs font-medium text-slate-500 group-hover:bg-indigo-50/80 sm:px-4 sm:py-3 sm:text-sm">
+                  {contact.phone || contact.email || contact.note || "-"}
                 </td>
-
                 {contact.amount && (
-                  <td className="px-2 py-2 sm:px-4 sm:py-3">
-                    <span
-                      className={`badge ${contact.type === "income" ? "badge-success" : "badge-error"}`}
-                    >
+                  <td className="bg-white px-2 py-2 group-hover:bg-indigo-50/80 sm:px-4 sm:py-3">
+                    <span className={`rounded-full px-3 py-1 text-xs font-bold ${contact.type === "income" ? "bg-emerald-50 text-emerald-600" : "bg-rose-50 text-rose-600"}`}>
                       {contact.type === "income" ? "+" : "-"} {contact.amount}
                     </span>
                   </td>
                 )}
-
                 {showActions && (
-                  <td className="rounded-r-lg px-2 py-2 text-right sm:rounded-r-xl sm:px-4 sm:py-3">
+                  <td className="rounded-r-2xl bg-white px-2 py-2 text-right group-hover:bg-indigo-50/80 sm:px-4 sm:py-3">
                     <button
+                      type="button"
                       onClick={(e) => {
                         e.stopPropagation();
-                        remove
-                          ? handleDelete(contact.id)
-                          : toggleFavorite(contact.id);
+                        remove ? handleDelete(contact.id) : toggleFavorite(contact.id);
                       }}
                       className={`transition-colors ${
                         remove
-                          ? "text-red-400 hover:text-red-500"
+                          ? "text-rose-400 hover:text-rose-600"
                           : contact.isFavorite
-                            ? "text-yellow-400 hover:text-yellow-500"
-                            : "text-gray-300 hover:text-yellow-400"
+                            ? "text-amber-400 hover:text-amber-500"
+                            : "text-slate-300 hover:text-amber-400"
                       }`}
                     >
-                      <FontAwesomeIcon
-                        icon={
-                          remove
-                            ? faTrashCan
-                            : contact.isFavorite
-                              ? faStarSolid
-                              : faStar
-                        }
-                      />
+                      <FontAwesomeIcon icon={remove ? faTrashCan : contact.isFavorite ? faStarSolid : faStar} />
                     </button>
                   </td>
                 )}
               </tr>
             ))}
-
             {displayRows.length === 0 && (
               <tr>
-                <td
-                  colSpan={showActions ? 5 : 4}
-                  className="py-12 text-center text-xs text-gray-400 sm:py-20 sm:text-sm"
-                >
+                <td colSpan={showActions ? 5 : 4} className="py-12 text-center text-xs text-slate-400 sm:py-20 sm:text-sm">
                   No data found.
                 </td>
               </tr>

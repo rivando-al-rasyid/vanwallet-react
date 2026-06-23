@@ -1,10 +1,3 @@
-/**
- * App.jsx - Main application component for the landing page
- *
- * This component renders the public-facing landing page with all marketing sections.
- * It includes navigation, hero section, features, about section, and footer.
- */
-
 import Navbar from "./layouts/Navbar";
 import Hero from "./components/home/Hero";
 import Features from "./components/home/Features";
@@ -17,7 +10,7 @@ import Footer from "./layouts/Footer";
 
 function App() {
   return (
-    <div className="min-h-screen bg-white font-sans text-gray-800">
+    <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
       <Navbar />
       <main className="overflow-x-hidden">
         <Hero />
