@@ -15,23 +15,6 @@ function getSafeRedirectPath(request) {
   return redirectTo;
 }
 
-function getPersistedAuthUser() {
-  try {
-    const persistedAuth = localStorage.getItem("persist:auth");
-
-    if (!persistedAuth) {
-      return null;
-    }
-
-    const parsedAuth = JSON.parse(persistedAuth);
-    const parsedUser = JSON.parse(parsedAuth.user || "null");
-
-    return parsedUser;
-  } catch {
-    return null;
-  }
-}
-
 function redirectToLogin(request) {
   const redirectTo = encodeURIComponent(getSafeRedirectPath(request));
 
@@ -54,13 +37,11 @@ async function refreshAuthenticatedUser() {
 }
 
 export async function dashboardLoader({ request }) {
-  const stateUser = store.getState().auth.user;
-  const persistedUser = getPersistedAuthUser();
-  let user = stateUser || persistedUser;
+  let user = store.getState().auth.user;
 
   try {
-    // The backend now authenticates with an HttpOnly access_token cookie.
-    // Always verify with /auth/me so stale persisted Redux state cannot open
+    // The backend authenticates with an HttpOnly access_token cookie.
+    // Always verify with /auth/me so stale Redux state cannot open
     // protected pages after the backend session has expired or been revoked.
     user = await refreshAuthenticatedUser();
   } catch {

@@ -5,8 +5,7 @@
  *   register   POST /auth/register → auto-login → store user
  *   createPin  PATCH /profile/change/pin (first-time setup, no old_pin)
  *
- * This slice is NOT persisted — state resets on page reload after
- * registration is complete.
+ * Registration state resets on page reload after registration is complete.
  */
 
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
@@ -29,7 +28,7 @@ export const register = createAsyncThunk(
   async ({ email, password }, { rejectWithValue, dispatch }) => {
     try {
       const user = await registerApi({ email, password });
-      // Sync the persisted auth slice so the next screen receives the latest user
+      // Sync auth state so the next screen receives the latest user
       dispatch(mergeUser(user));
       return user;
     } catch (err) {

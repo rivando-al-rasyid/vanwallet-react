@@ -1,6 +1,5 @@
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL;
-const TOKEN_STORAGE_KEY = "vanwallet_token";
 
 const DEFAULT_API_ROOT = "/api";
 const JSON_CONTENT_TYPE = "application/json";
@@ -68,37 +67,6 @@ export function resolveAssetUrl(assetPath) {
   }
 
   return normalizedPath;
-}
-
-// ─── Token Helpers ────────────────────────────────────────────────────────────
-
-export function getToken() {
-  try {
-    return localStorage.getItem(TOKEN_STORAGE_KEY);
-  } catch {
-    return null;
-  }
-}
-
-export function setToken(token) {
-  try {
-    if (!token) {
-      localStorage.removeItem(TOKEN_STORAGE_KEY);
-      return;
-    }
-
-    localStorage.setItem(TOKEN_STORAGE_KEY, token);
-  } catch {
-    // Ignore storage errors.
-  }
-}
-
-export function clearToken() {
-  try {
-    localStorage.removeItem(TOKEN_STORAGE_KEY);
-  } catch {
-    // Ignore storage errors.
-  }
 }
 
 // ─── Formatters ───────────────────────────────────────────────────────────────
@@ -199,7 +167,7 @@ function normalizePaginatedResponse(data, fallbackPage, fallbackLimit, mapItem =
 
 // ─── Data Mapper ──────────────────────────────────────────────────────────────
 
-export function mapUserFromInfo(userInfo, token = null) {
+export function mapUserFromInfo(userInfo) {
   const displayName = getDisplayName(userInfo);
   const avatarUrl = resolveAssetUrl(userInfo?.photo) || buildDefaultAvatarUrl(displayName);
 
@@ -215,8 +183,6 @@ export function mapUserFromInfo(userInfo, token = null) {
     // pin_hash is a plain string from the server.
     // Empty string means no PIN set.
     pin: hasValidPinHash(userInfo?.pin_hash) ? userInfo.pin_hash : null,
-
-    token,
   };
 }
 
@@ -294,9 +260,7 @@ function buildHeaders(options) {
   };
 
   // Normal authenticated requests use the backend HttpOnly access_token cookie.
-  // Do not attach a stale localStorage token here, because Authorization takes
-  // precedence over the cookie in the backend middleware. Reset-password flows
-  // can still pass an explicit Authorization header through options.headers.
+  // Reset-password flow can still pass an explicit Authorization header through options.headers.
 
   const hasBody = Boolean(options.body);
   const isFormData = options.body instanceof FormData;
@@ -378,8 +342,6 @@ export async function requestData(
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 
 export async function loginApi({ email, password }) {
-  clearToken();
-
   await requestJson(
     "/auth/login",
     {
@@ -408,15 +370,11 @@ export async function registerApi({ email, password }) {
 }
 
 export async function logoutApi() {
-  try {
-    await requestJson(
-      "/auth/logout",
-      { method: "POST" },
-      "Logout failed",
-    );
-  } finally {
-    clearToken();
-  }
+  await requestJson(
+    "/auth/logout",
+    { method: "POST" },
+    "Logout failed",
+  );
 }
 
 export async function requestPasswordReset(email) {

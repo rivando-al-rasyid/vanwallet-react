@@ -1,7 +1,7 @@
 /**
  * authSlice.js
  *
- * Owns the user session (persisted) and profile mutations.
+ * Owns the in-memory user session and profile mutations.
  *
  * Thunks:
  *   login          POST /auth/login → GET /auth/me
@@ -20,7 +20,6 @@ import {
   changePasswordApi,
   changePinApi,
   mapUserFromInfo,
-  clearToken,
 } from "../../utils/api";
 
 // ─── Thunks ───────────────────────────────────────────────────────────────────
@@ -42,8 +41,7 @@ export const logout = createAsyncThunk(
     try {
       await logoutApi();
     } catch (err) {
-      // Always clear local state even if server call fails
-      clearToken();
+      // Always clear local state even if server call fails.
       return rejectWithValue(err.message);
     }
   },

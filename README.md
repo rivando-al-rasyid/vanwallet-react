@@ -85,6 +85,11 @@ This version targets the newer VanWallet backend where:
 
 * Login sets the access token through an HttpOnly `access_token` cookie.
 * The frontend fetches the active user from `GET /auth/me`.
+
+### Auth session model
+
+The newer backend stores the access token in an HttpOnly cookie. The frontend does not persist auth state or store JWTs in `localStorage`. Protected dashboard routes verify the active session through `GET /auth/me`.
+
 * Manual top-up confirmation has been removed from the browser flow.
 * `POST /transaction/topup` only creates a `PENDING` top-up request; balance changes should happen after your backend payment webhook confirms the payment.
 

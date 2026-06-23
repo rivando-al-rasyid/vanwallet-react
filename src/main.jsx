@@ -1,7 +1,6 @@
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, Navigate, RouterProvider } from "react-router";
 import { Provider } from "react-redux";
-import { PersistGate } from "redux-persist/integration/react";
 
 import "./style.css";
 
@@ -22,7 +21,7 @@ import TopUp from "./pages/dashboards/TopUp.jsx";
 import Profile from "./pages/dashboards/Profile.jsx";
 import ChangePassword from "./pages/dashboards/ChangePassword.jsx";
 import ChangePin from "./pages/dashboards/ChangePin.jsx";
-import { persistor, store } from "./store/store.js";
+import { store } from "./store/store.js";
 import { dashboardLoader } from "./utils/loaders.js";
 
 const router = createBrowserRouter([
@@ -129,8 +128,6 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <Provider store={store}>
-    <PersistGate loading={null} persistor={persistor}>
-      <RouterProvider router={router} />
-    </PersistGate>
+    <RouterProvider router={router} />
   </Provider>,
 );
