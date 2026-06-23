@@ -2,13 +2,10 @@ import { useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import {
-  confirmTopup,
   fetchSummary,
   initiateTopup,
   resetTopup,
 } from "../../store/slices/transactionSlice";
-
-const TAX_RATE = 0.1;
 
 const PAYMENT_METHODS = [
   {
@@ -40,8 +37,7 @@ const PAYMENT_METHODS = [
 
 const STEP = {
   FORM: "form",
-  CONFIRM: "confirm",
-  SUCCESS: "success",
+  PENDING: "pending",
 };
 
 export default function TopUp() {
@@ -52,7 +48,7 @@ export default function TopUp() {
   const [amount, setAmount] = useState("");
   const [selectedMethod, setSelectedMethod] = useState("BRI");
   const [step, setStep] = useState(STEP.FORM);
-  const [pendingTopupId, setPendingTopupId] = useState(null);
+  const [topupResult, setTopupResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -68,9 +64,7 @@ export default function TopUp() {
     };
   }, [currentUser]);
 
-  const order = parseFloat(amount) || 0;
-  const tax = Math.round(order * TAX_RATE);
-  const subTotal = order + tax;
+  const topupAmount = parseFloat(amount) || 0;
 
   const fmtIdr = (value = 0) => {
     if (value === 0) return "Idr. 0";
@@ -90,7 +84,7 @@ export default function TopUp() {
   };
 
   const handleFormSubmit = async () => {
-    if (!amount || order <= 0) {
+    if (!amount || topupAmount <= 0) {
       setError("Masukkan nominal top up yang valid.");
       return;
     }
@@ -104,7 +98,7 @@ export default function TopUp() {
       const result = await dispatch(
         initiateTopup({
           walletId,
-          amount: subTotal,
+          amount: topupAmount,
           paymentMethod: selectedMethod,
         }),
       ).unwrap();
@@ -115,8 +109,8 @@ export default function TopUp() {
         );
       }
 
-      setPendingTopupId(result.id);
-      setStep(STEP.CONFIRM);
+      setTopupResult(result);
+      setStep(STEP.PENDING);
     } catch (err) {
       setError(err?.message || err || "Gagal memulai top up. Coba lagi.");
     } finally {
@@ -124,25 +118,10 @@ export default function TopUp() {
     }
   };
 
-  const handleConfirm = async () => {
-    if (!pendingTopupId) return;
-
-    setError("");
-
-    try {
-      await dispatch(confirmTopup(pendingTopupId)).unwrap();
-      setStep(STEP.SUCCESS);
-    } catch (err) {
-      setError(
-        err?.message || err || "Gagal mengkonfirmasi top up. Coba lagi.",
-      );
-    }
-  };
-
   const handleReset = () => {
     setAmount("");
     setSelectedMethod("BRI");
-    setPendingTopupId(null);
+    setTopupResult(null);
     setStep(STEP.FORM);
     setError("");
     dispatch(resetTopup());
@@ -172,13 +151,13 @@ export default function TopUp() {
         <h1 className="section-title">Top Up Account</h1>
       </div>
 
-      {step === STEP.SUCCESS && (
+      {step === STEP.PENDING && (
         <div className="card bg-base-100 border border-base-200 shadow-sm flex flex-col items-center gap-6 py-16 text-center">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-100">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
               <path
-                d="M20 6L9 17l-5-5"
-                stroke="#16a34a"
+                d="M12 8v5l3 2m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                stroke="#2563EB"
                 strokeWidth="2.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -188,75 +167,45 @@ export default function TopUp() {
 
           <div>
             <h2 className="text-lg font-bold text-gray-800">
-              Top Up Berhasil!
+              Top Up Request Created
             </h2>
-            <p className="mt-1 text-sm text-gray-500">
-              {fmtIdr(subTotal)} via {methodName} telah ditambahkan ke saldo
-              Anda.
+            <p className="mt-1 max-w-md text-sm text-gray-500">
+              {fmtIdr(topupResult?.amount ?? topupAmount)} via {methodName} is
+              now pending. Your balance will update after the payment webhook
+              confirms the transaction.
             </p>
           </div>
 
-          <button onClick={handleReset} className="btn btn-primary">
-            Top Up Lagi
-          </button>
-        </div>
-      )}
-
-      {step === STEP.CONFIRM && (
-        <div className="flex flex-col items-start gap-4 sm:gap-6 lg:flex-row">
-          <div className="card bg-base-100 border border-base-200 shadow-sm w-full">
-            <h2 className="section-title mb-4">Konfirmasi Top Up</h2>
-
-            <div className="mb-6 flex flex-col gap-3 rounded-xl bg-gray-50 p-4">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-500">Metode Pembayaran</span>
-                <span className="font-semibold text-gray-800">
-                  {methodName}
-                </span>
-              </div>
-
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-500">Nominal</span>
-                <span className="font-semibold text-gray-800">
-                  {fmtIdr(order)}
-                </span>
-              </div>
-
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-500">Tax (10%)</span>
-                <span className="font-semibold text-gray-800">
-                  {fmtIdr(tax)}
-                </span>
-              </div>
-
-              <div className="flex justify-between border-t border-gray-200 pt-3 text-sm font-bold">
-                <span className="text-gray-800">Total</span>
-                <span className="text-blue-600">{fmtIdr(subTotal)}</span>
-              </div>
+          <div className="w-full max-w-md rounded-xl bg-gray-50 p-4 text-left text-sm">
+            <div className="flex justify-between gap-4 py-1">
+              <span className="text-gray-500">Status</span>
+              <span className="font-semibold text-amber-600">
+                {topupResult?.status || "PENDING"}
+              </span>
             </div>
-
-            {error && (
-              <p className="mb-4 text-sm font-medium text-red-500">{error}</p>
+            <div className="flex justify-between gap-4 py-1">
+              <span className="text-gray-500">Payment Method</span>
+              <span className="font-semibold text-gray-800">{methodName}</span>
+            </div>
+            <div className="flex justify-between gap-4 py-1">
+              <span className="text-gray-500">Amount</span>
+              <span className="font-semibold text-gray-800">
+                {fmtIdr(topupResult?.amount ?? topupAmount)}
+              </span>
+            </div>
+            {topupResult?.external_reference && (
+              <div className="flex justify-between gap-4 py-1">
+                <span className="text-gray-500">Reference</span>
+                <span className="break-all text-right font-semibold text-gray-800">
+                  {topupResult.external_reference}
+                </span>
+              </div>
             )}
-
-            <div className="flex gap-3">
-              <button
-                onClick={handleReset}
-                className="flex-1 rounded-xl border border-gray-200 py-3 text-sm font-semibold text-gray-600 transition hover:bg-gray-50"
-                disabled={isLoading}
-              >
-                Batal
-              </button>
-
-              <button
-                onClick={handleConfirm}
-                className="btn btn-primary flex-1"
-                disabled={isLoading}
-              >
-                {isLoading ? "Memproses..." : "Konfirmasi"}
-              </button>
-            </div>
           </div>
+
+          <button onClick={handleReset} className="btn btn-primary">
+            Create Another Top Up
+          </button>
         </div>
       )}
 
@@ -302,7 +251,7 @@ export default function TopUp() {
             <div className="mb-6 sm:mb-8">
               <h2 className="section-title mb-1">Amount</h2>
               <p className="mb-2 text-xs text-gray-400 sm:mb-3 sm:text-sm">
-                Type the amount you want to add to your e-wallet account
+                Type the amount you want to add to your e-wallet account.
               </p>
 
               <input
@@ -312,7 +261,7 @@ export default function TopUp() {
                   setAmount(event.target.value);
                   setError("");
                 }}
-                placeholder="Enter Nominal Transfer"
+                placeholder="Enter top up amount"
                 className="input input-bordered w-full"
                 min="0"
               />
@@ -321,7 +270,7 @@ export default function TopUp() {
             <div>
               <h2 className="section-title mb-1">Payment Method</h2>
               <p className="mb-3 text-xs text-gray-400 sm:mb-4 sm:text-sm">
-                Choose your payment method for top up account
+                Choose your payment method for top up account.
               </p>
 
               <div className="flex flex-col gap-2 sm:gap-3">
@@ -369,30 +318,35 @@ export default function TopUp() {
 
             <div className="mb-3 flex flex-col gap-3 sm:mb-6 sm:gap-4">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-gray-500 sm:text-sm">Order</span>
+                <span className="text-xs text-gray-500 sm:text-sm">Amount</span>
                 <span className="text-xs font-semibold text-gray-800 sm:text-sm">
-                  {fmtIdr(order)}
+                  {fmtIdr(topupAmount)}
                 </span>
               </div>
 
               <div className="flex items-center justify-between">
                 <span className="text-xs text-gray-500 sm:text-sm">
-                  Tax (10%)
+                  Payment Method
                 </span>
                 <span className="text-xs font-semibold text-gray-800 sm:text-sm">
-                  {fmtIdr(tax)}
+                  {selectedMethod}
                 </span>
               </div>
 
               <div className="flex items-center justify-between border-t border-gray-100 pt-3 sm:pt-4">
                 <span className="text-xs font-bold text-gray-800 sm:text-sm">
-                  Sub Total
+                  Total
                 </span>
                 <span className="text-xs font-bold text-gray-800 sm:text-sm">
-                  {fmtIdr(subTotal)}
+                  {fmtIdr(topupAmount)}
                 </span>
               </div>
             </div>
+
+            <p className="mb-3 rounded-lg bg-blue-50 p-3 text-xs leading-relaxed text-blue-700">
+              The backend now creates a pending top up only. Balance crediting is
+              handled by your payment webhook.
+            </p>
 
             {error && (
               <p className="mb-3 text-xs font-medium text-red-500">{error}</p>
@@ -403,7 +357,7 @@ export default function TopUp() {
               className="btn btn-primary w-full"
               disabled={isLoading}
             >
-              {isLoading ? "Memproses..." : "Submit"}
+              {isLoading ? "Memproses..." : "Create Top Up"}
             </button>
           </div>
         </div>

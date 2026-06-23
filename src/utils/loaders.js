@@ -1,7 +1,8 @@
 import { redirect } from "react-router";
 
 import { store } from "../store/store.js";
-import { getToken } from "./api.js";
+import { fetchUserInfo, mapUserFromInfo } from "./api.js";
+import { mergeUser } from "../store/slices/authSlice.js";
 
 function getSafeRedirectPath(request) {
   const url = new URL(request.url);
@@ -31,22 +32,47 @@ function getPersistedAuthUser() {
   }
 }
 
-export function dashboardLoader({ request }) {
+function redirectToLogin(request) {
+  const redirectTo = encodeURIComponent(getSafeRedirectPath(request));
+
+  throw redirect(`/login?redirectTo=${redirectTo}`);
+}
+
+function redirectToPin(request) {
+  const redirectTo = encodeURIComponent(getSafeRedirectPath(request));
+
+  throw redirect(`/login/pin?redirectTo=${redirectTo}`);
+}
+
+async function refreshAuthenticatedUser() {
+  const info = await fetchUserInfo();
+  const user = mapUserFromInfo(info);
+
+  store.dispatch(mergeUser(user));
+
+  return user;
+}
+
+export async function dashboardLoader({ request }) {
   const stateUser = store.getState().auth.user;
   const persistedUser = getPersistedAuthUser();
-  const user = stateUser || persistedUser;
-  const token = user?.token || getToken();
+  let user = stateUser || persistedUser;
 
-  if (!user && !token) {
-    const redirectTo = encodeURIComponent(getSafeRedirectPath(request));
-
-    throw redirect(`/login?redirectTo=${redirectTo}`);
+  try {
+    // The backend now authenticates with an HttpOnly access_token cookie.
+    // Always verify with /auth/me so stale persisted Redux state cannot open
+    // protected pages after the backend session has expired or been revoked.
+    user = await refreshAuthenticatedUser();
+  } catch {
+    redirectToLogin(request);
   }
 
-  if (user && !user.pin) {
-    const redirectTo = encodeURIComponent(getSafeRedirectPath(request));
+  if (!user) {
+    redirectToLogin(request);
+  }
 
-    throw redirect(`/login/pin?redirectTo=${redirectTo}`);
+  if (!user.pin) {
+    redirectToPin(request);
   }
 
   return null;

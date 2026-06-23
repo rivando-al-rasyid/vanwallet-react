@@ -5,7 +5,7 @@
  *   - dashboard summary/report/recent history
  *   - history pagination
  *   - receiver search
- *   - top up request/confirmation
+ *   - top up request
  *   - transfer request
  */
 
@@ -15,7 +15,6 @@ import {
   fetchHistory as apiFetchHistory,
   searchReceivers as apiSearchReceivers,
   initiateTopup as apiInitiateTopup,
-  confirmTopup as apiConfirmTopup,
   createTransfer as apiCreateTransfer,
 } from "../../utils/api";
 
@@ -206,22 +205,11 @@ export const searchReceivers = createAsyncThunk(
 
 export const initiateTopup = createAsyncThunk(
   "transaction/initiateTopup",
-  async ({ walletId, amount, paymentMethod, pin }, { rejectWithValue }) => {
+  async ({ walletId, amount, paymentMethod }, { rejectWithValue }) => {
     try {
-      return await apiInitiateTopup({ walletId, amount, paymentMethod, pin });
+      return await apiInitiateTopup({ walletId, amount, paymentMethod });
     } catch (error) {
       return rejectWithValue(getErrorMessage(error, "Failed to initiate top up"));
-    }
-  },
-);
-
-export const confirmTopup = createAsyncThunk(
-  "transaction/confirmTopup",
-  async (topupId, { rejectWithValue }) => {
-    try {
-      return await apiConfirmTopup(topupId);
-    } catch (error) {
-      return rejectWithValue(getErrorMessage(error, "Failed to confirm top up"));
     }
   },
 );
@@ -386,18 +374,6 @@ const transactionSlice = createSlice({
         state.topup.pendingTopup = action.payload;
       })
       .addCase(initiateTopup.rejected, (state, action) => {
-        state.topup.status = "failed";
-        state.topup.error = action.payload;
-      })
-      .addCase(confirmTopup.pending, (state) => {
-        state.topup.status = "loading";
-        state.topup.error = null;
-      })
-      .addCase(confirmTopup.fulfilled, (state) => {
-        state.topup.status = "succeeded";
-        state.topup.pendingTopup = null;
-      })
-      .addCase(confirmTopup.rejected, (state, action) => {
         state.topup.status = "failed";
         state.topup.error = action.payload;
       });

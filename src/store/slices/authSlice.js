@@ -4,9 +4,9 @@
  * Owns the user session (persisted) and profile mutations.
  *
  * Thunks:
- *   login          POST /auth/login → setToken → GET /profile/info
- *   logout         POST /auth/logout → clearToken
- *   updateProfile  PATCH /profile/edit → re-fetch GET /profile/info
+ *   login          POST /auth/login → GET /auth/me
+ *   logout         POST /auth/logout → clear local user
+ *   updateProfile  PATCH /profile/edit → re-fetch GET /auth/me
  *   changePassword PATCH /profile/change/password
  *   changePin      PATCH /profile/change/pin
  */
@@ -51,12 +51,11 @@ export const logout = createAsyncThunk(
 
 export const updateProfile = createAsyncThunk(
   "auth/updateProfile",
-  async ({ fullName, phone, photoFile }, { rejectWithValue, getState }) => {
+  async ({ fullName, phone, photoFile }, { rejectWithValue }) => {
     try {
       await updateProfileApi({ fullName, phone, photoFile });
-      const token = getState().auth.user?.token;
       const info = await fetchUserInfo();
-      return mapUserFromInfo(info, token);
+      return mapUserFromInfo(info);
     } catch (err) {
       return rejectWithValue(err.message);
     }

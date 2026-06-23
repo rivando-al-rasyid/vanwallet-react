@@ -78,6 +78,16 @@ VITE_API_BASE_URL=http://localhost:8080
 
 Using `/api` is cleaner when the frontend container reverse-proxies requests to the backend.
 
+
+## Backend Compatibility Notes
+
+This version targets the newer VanWallet backend where:
+
+* Login sets the access token through an HttpOnly `access_token` cookie.
+* The frontend fetches the active user from `GET /auth/me`.
+* Manual top-up confirmation has been removed from the browser flow.
+* `POST /transaction/topup` only creates a `PENDING` top-up request; balance changes should happen after your backend payment webhook confirms the payment.
+
 ## Run Development Server
 
 ```bash
@@ -278,14 +288,13 @@ src/store/slices/transactionSlice.js
 POST /auth/login
 POST /auth/register
 POST /auth/logout
-GET  /profile/info
+GET  /auth/me
 
 GET  /transaction/summary
 GET  /transaction/history
 GET  /transaction/receiver
 
 POST /transaction/topup
-PATCH /transaction/topup/:id/confirm
 POST /transaction/transfer
 POST /transaction/withdrawal
 POST /transaction/expense

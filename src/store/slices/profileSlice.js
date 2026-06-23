@@ -2,7 +2,7 @@
  * profileSlice.js
  *
  * Manages user profile state using utils/api.js:
- *   GET   /profile/info            → fetchUserInfo
+ *   GET   /auth/me                 → fetchUserInfo
  *   GET   /profile                 → fetchProfile
  *   PATCH /profile/edit            → updateProfileApi
  *   PATCH /profile/change/password → changePasswordApi
@@ -24,16 +24,14 @@ import {
 // ─── Thunks ──────────────────────────────────────────────────────────────────
 
 /**
- * Loads full user profile + stats from GET /profile/info
+ * Loads current user summary from GET /auth/me
  */
 export const fetchProfileThunk = createAsyncThunk(
   "profile/fetchProfile",
-  async (_, { rejectWithValue, getState }) => {
+  async (_, { rejectWithValue }) => {
     try {
-      const state = getState();
-      const token = state.auth?.user?.token;
       const info = await fetchUserInfo();
-      return mapUserFromInfo(info, token);
+      return mapUserFromInfo(info);
     } catch (err) {
       return rejectWithValue(err.message);
     }
@@ -46,13 +44,11 @@ export const fetchProfileThunk = createAsyncThunk(
  */
 export const updateProfile = createAsyncThunk(
   "profile/updateProfile",
-  async ({ fullName, phone, photoFile }, { rejectWithValue, getState }) => {
+  async ({ fullName, phone, photoFile }, { rejectWithValue }) => {
     try {
       await updateProfileApi({ fullName, phone, photoFile });
-      const state = getState();
-      const token = state.auth?.user?.token;
       const info = await fetchUserInfo();
-      return mapUserFromInfo(info, token);
+      return mapUserFromInfo(info);
     } catch (err) {
       return rejectWithValue(err.message);
     }

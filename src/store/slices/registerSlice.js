@@ -15,7 +15,6 @@ import {
   setPinApi,
   fetchUserInfo,
   mapUserFromInfo,
-  getToken,
 } from "../../utils/api";
 import { mergeUser } from "./authSlice";
 
@@ -41,16 +40,15 @@ export const register = createAsyncThunk(
 
 /**
  * PATCH /profile/change/pin — first-time PIN setup (no old_pin).
- * After saving, re-fetches /profile/info so auth.user.pin is updated.
+ * After saving, re-fetches /auth/me so auth.user.pin is updated.
  */
 export const createPin = createAsyncThunk(
   "register/createPin",
   async ({ pin }, { rejectWithValue, dispatch }) => {
     try {
       await setPinApi(pin);
-      const token = getToken();
       const info = await fetchUserInfo();
-      const updated = mapUserFromInfo(info, token);
+      const updated = mapUserFromInfo(info);
       // Keep auth slice in sync
       dispatch(mergeUser(updated));
       return updated;

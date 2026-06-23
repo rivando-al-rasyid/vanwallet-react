@@ -21,12 +21,7 @@ function hasProtocol(url) {
 }
 
 function isBadBrowserApiUrl(url) {
-  return (
-    !url ||
-    url.includes("backend:8080") ||
-    url === "http://localhost:8080" ||
-    url === "https://localhost:8080"
-  );
+  return !url || url.includes("backend:8080");
 }
 
 export function resolveApiRoot() {
@@ -204,7 +199,7 @@ function normalizePaginatedResponse(data, fallbackPage, fallbackLimit, mapItem =
 
 // ─── Data Mapper ──────────────────────────────────────────────────────────────
 
-export function mapUserFromInfo(userInfo, token) {
+export function mapUserFromInfo(userInfo, token = null) {
   const displayName = getDisplayName(userInfo);
   const avatarUrl = resolveAssetUrl(userInfo?.photo) || buildDefaultAvatarUrl(displayName);
 
@@ -298,11 +293,10 @@ function buildHeaders(options) {
     ...(options.headers || {}),
   };
 
-  const token = getToken();
-
-  if (token && !headers.Authorization) {
-    headers.Authorization = `Bearer ${token}`;
-  }
+  // Normal authenticated requests use the backend HttpOnly access_token cookie.
+  // Do not attach a stale localStorage token here, because Authorization takes
+  // precedence over the cookie in the backend middleware. Reset-password flows
+  // can still pass an explicit Authorization header through options.headers.
 
   const hasBody = Boolean(options.body);
   const isFormData = options.body instanceof FormData;
@@ -356,6 +350,7 @@ export async function requestJson(
 
   try {
     response = await fetch(url, {
+      credentials: "include",
       ...options,
       headers,
     });
@@ -383,7 +378,9 @@ export async function requestData(
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 
 export async function loginApi({ email, password }) {
-  const envelope = await requestJson(
+  clearToken();
+
+  await requestJson(
     "/auth/login",
     {
       method: "POST",
@@ -392,17 +389,9 @@ export async function loginApi({ email, password }) {
     "Login failed",
   );
 
-  const token = envelope?.data;
-
-  if (!token) {
-    throw new Error("Login failed: token was not returned by server");
-  }
-
-  setToken(token);
-
   const userInfo = await fetchUserInfo();
 
-  return mapUserFromInfo(userInfo, token);
+  return mapUserFromInfo(userInfo);
 }
 
 export async function registerApi({ email, password }) {
@@ -428,27 +417,6 @@ export async function logoutApi() {
   } finally {
     clearToken();
   }
-}
-
-export async function fetchPinStatus() {
-  return requestData(
-    "/auth/pin",
-    {},
-    "Failed to fetch PIN status",
-  );
-}
-
-export async function verifyPinApi(pin) {
-  await requestJson(
-    "/auth/pin/verify",
-    {
-      method: "POST",
-      body: createJsonBody({ pin }),
-    },
-    "Invalid PIN. Please try again.",
-  );
-
-  return true;
 }
 
 export async function requestPasswordReset(email) {
@@ -493,7 +461,7 @@ export async function changePasswordWithResetToken(resetJwt, newPassword) {
 
 export async function fetchUserInfo() {
   return requestData(
-    "/profile/info",
+    "/auth/me",
     {},
     "Failed to fetch user info",
   );
@@ -655,7 +623,6 @@ export async function initiateTopup({
   walletId,
   amount,
   paymentMethod,
-  pin,
 }) {
   return requestData(
     "/transaction/topup",
@@ -665,20 +632,9 @@ export async function initiateTopup({
         wallet_id: walletId,
         amount: toPositiveNumber(amount),
         payment_method: paymentMethod,
-        pin,
       }),
     },
     "Failed to initiate top up",
-  );
-}
-
-export async function confirmTopup(topupId) {
-  return requestData(
-    `/transaction/topup/${topupId}/confirm`,
-    {
-      method: "PATCH",
-    },
-    "Failed to confirm top up",
   );
 }
 
