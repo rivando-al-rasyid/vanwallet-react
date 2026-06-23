@@ -10,7 +10,7 @@ import Footer from "./layouts/Footer";
 
 function App() {
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
+    <div className="min-h-screen bg-base-200 font-sans text-base-content">
       <Navbar />
       <main className="overflow-x-hidden">
         <Hero />

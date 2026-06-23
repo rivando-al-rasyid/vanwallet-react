@@ -3,7 +3,7 @@ import { useEffect } from "react";
 const toneMap = {
   success: "bg-emerald-600",
   error: "bg-rose-600",
-  info: "bg-indigo-600",
+  info: "bg-primary",
 };
 
 export default function Toast({

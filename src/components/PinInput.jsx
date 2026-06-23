@@ -2,7 +2,7 @@ import { useRef } from "react";
 import { useFormContext } from "react-hook-form";
 
 const PIN_LENGTH = 6;
-const BASE_INPUT_CLASSES = "h-14 w-10 rounded-2xl border bg-white text-center text-2xl font-black text-slate-800 shadow-sm outline-none transition sm:w-12";
+const BASE_INPUT_CLASSES = "h-14 w-10 rounded-2xl border bg-base-100 text-center text-2xl font-black text-base-content shadow-sm outline-none transition sm:w-12";
 
 export default function PinInput() {
   const { setValue, watch } = useFormContext();
@@ -22,7 +22,7 @@ export default function PinInput() {
     }
   };
 
-  const getInputClassName = (isActive) => `${BASE_INPUT_CLASSES} ${isActive ? "border-indigo-500 ring-4 ring-indigo-100" : "border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"}`;
+  const getInputClassName = (isActive) => `${BASE_INPUT_CLASSES} ${isActive ? "border-primary ring-4 ring-primary/20" : "border-base-300 focus:border-primary focus:ring-4 focus:ring-primary/20"}`;
 
   return (
     <div className="flex justify-between gap-2 sm:gap-4">

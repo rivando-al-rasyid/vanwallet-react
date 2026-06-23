@@ -35,26 +35,26 @@ export default function TableRow({ items, remove = false, showActions = true, on
               <tr
                 key={contact.id}
                 onClick={() => onRowClick?.(contact)}
-                className={`group rounded-2xl transition-all hover:bg-indigo-50/80 ${onRowClick ? "cursor-pointer" : "cursor-default"}`}
+                className={`group rounded-2xl transition-all hover:bg-primary/10 ${onRowClick ? "cursor-pointer" : "cursor-default"}`}
               >
-                <td className="rounded-l-2xl bg-white py-2 pl-2 group-hover:bg-indigo-50/80 sm:py-3">
+                <td className="rounded-l-2xl bg-base-100 py-2 pl-2 group-hover:bg-primary/10 sm:py-3">
                   <img src={contact.img} alt={contact.name} className="h-9 w-9 rounded-xl object-cover sm:h-11 sm:w-11" />
                 </td>
-                <td className="bg-white px-2 py-2 text-xs font-bold text-slate-800 group-hover:bg-indigo-50/80 sm:px-4 sm:py-3 sm:text-sm lg:text-base">
+                <td className="bg-base-100 px-2 py-2 text-xs font-bold text-base-content group-hover:bg-primary/10 sm:px-4 sm:py-3 sm:text-sm lg:text-base">
                   {contact.name}
                 </td>
-                <td className="bg-white px-2 py-2 text-xs font-medium text-slate-500 group-hover:bg-indigo-50/80 sm:px-4 sm:py-3 sm:text-sm">
+                <td className="bg-base-100 px-2 py-2 text-xs font-medium text-base-content/65 group-hover:bg-primary/10 sm:px-4 sm:py-3 sm:text-sm">
                   {contact.phone || contact.email || contact.note || "-"}
                 </td>
                 {contact.amount && (
-                  <td className="bg-white px-2 py-2 group-hover:bg-indigo-50/80 sm:px-4 sm:py-3">
-                    <span className={`rounded-full px-3 py-1 text-xs font-bold ${contact.type === "income" ? "bg-emerald-50 text-emerald-600" : "bg-rose-50 text-rose-600"}`}>
+                  <td className="bg-base-100 px-2 py-2 group-hover:bg-primary/10 sm:px-4 sm:py-3">
+                    <span className={`rounded-full px-3 py-1 text-xs font-bold ${contact.type === "income" ? "bg-success/10 text-success" : "bg-error/10 text-error"}`}>
                       {contact.type === "income" ? "+" : "-"} {contact.amount}
                     </span>
                   </td>
                 )}
                 {showActions && (
-                  <td className="rounded-r-2xl bg-white px-2 py-2 text-right group-hover:bg-indigo-50/80 sm:px-4 sm:py-3">
+                  <td className="rounded-r-2xl bg-base-100 px-2 py-2 text-right group-hover:bg-primary/10 sm:px-4 sm:py-3">
                     <button
                       type="button"
                       onClick={(e) => {
@@ -63,10 +63,10 @@ export default function TableRow({ items, remove = false, showActions = true, on
                       }}
                       className={`transition-colors ${
                         remove
-                          ? "text-rose-400 hover:text-rose-600"
+                          ? "text-error hover:text-error"
                           : contact.isFavorite
-                            ? "text-amber-400 hover:text-amber-500"
-                            : "text-slate-300 hover:text-amber-400"
+                            ? "text-warning hover:text-warning"
+                            : "text-base-content/50 hover:text-warning"
                       }`}
                     >
                       <FontAwesomeIcon icon={remove ? faTrashCan : contact.isFavorite ? faStarSolid : faStar} />
@@ -77,7 +77,7 @@ export default function TableRow({ items, remove = false, showActions = true, on
             ))}
             {displayRows.length === 0 && (
               <tr>
-                <td colSpan={showActions ? 5 : 4} className="py-12 text-center text-xs text-slate-400 sm:py-20 sm:text-sm">
+                <td colSpan={showActions ? 5 : 4} className="py-12 text-center text-xs text-base-content/50 sm:py-20 sm:text-sm">
                   No data found.
                 </td>
               </tr>

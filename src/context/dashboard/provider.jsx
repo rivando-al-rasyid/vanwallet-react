@@ -9,7 +9,7 @@ function DashboardProvider({ children }) {
 
   return (
     <DashboardContext.Provider value={{ sidebarOpen, setSidebarOpen }}>
-      <div className="min-h-screen bg-slate-100 text-slate-900">
+      <div className="min-h-screen bg-base-200 text-base-content">
         <Header />
         <main className="flex pt-16">
           <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />

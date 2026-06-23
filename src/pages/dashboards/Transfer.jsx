@@ -86,7 +86,7 @@ export default function Transfer() {
     <>
       <div className="mb-8">
         <div className="mb-6 flex items-center gap-3">
-          <span className="text-indigo-600">
+          <span className="text-primary">
             <svg
               width="24"
               height="24"
@@ -98,16 +98,16 @@ export default function Transfer() {
               <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
             </svg>
           </span>
-          <h1 className="text-lg font-black text-slate-950">Transfer Money</h1>
+          <h1 className="text-lg font-black text-base-content">Transfer Money</h1>
         </div>
         <Stepper currentStep={1} />
       </div>
 
-      <div className="rounded-[1.5rem] border border-slate-100 bg-white p-5 shadow-sm sm:p-6 min-h-[37.5rem]">
+      <div className="rounded-[1.5rem] border border-base-300 bg-base-100 p-5 shadow-sm sm:p-6 min-h-[37.5rem]">
         <div className="mb-6 flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-black text-slate-950">Find People</h2>
-            <p className="text-xs text-slate-400">{resultsText}</p>
+            <h2 className="text-lg font-black text-base-content">Find People</h2>
+            <p className="text-xs text-base-content/50">{resultsText}</p>
           </div>
           <SearchInput
             value={search}
@@ -117,9 +117,9 @@ export default function Transfer() {
         </div>
 
         {loading && (
-          <div className="flex flex-col items-center justify-center gap-3 py-20 text-slate-400">
+          <div className="flex flex-col items-center justify-center gap-3 py-20 text-base-content/50">
             <svg
-              className="h-8 w-8 animate-spin text-indigo-500"
+              className="h-8 w-8 animate-spin text-primary"
               fill="none"
               viewBox="0 0 24 24"
             >
@@ -143,10 +143,10 @@ export default function Transfer() {
 
         {!loading && error && (
           <div className="flex flex-col items-center justify-center gap-3 py-20">
-            <p className="text-sm font-semibold text-rose-500">{error}</p>
+            <p className="text-sm font-semibold text-error">{error}</p>
             <button
               onClick={fetchContacts}
-              className="text-xs text-indigo-600 underline hover:text-indigo-700"
+              className="text-xs text-primary underline hover:text-primary"
             >
               Coba lagi
             </button>

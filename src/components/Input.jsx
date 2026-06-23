@@ -3,13 +3,13 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
 const InputLabel = memo(({ htmlFor, label }) => (
-  <label htmlFor={htmlFor} className="ml-1 block text-sm font-bold text-slate-700">
+  <label htmlFor={htmlFor} className="ml-1 block text-sm font-bold text-base-content/80">
     {label}
   </label>
 ));
 
 const InputIcon = memo(({ icon }) => (
-  <div className="absolute top-1/2 left-4 -translate-y-1/2 text-slate-400 transition-colors group-focus-within:text-indigo-600">
+  <div className="absolute top-1/2 left-4 -translate-y-1/2 text-base-content/50 transition-colors group-focus-within:text-primary">
     <FontAwesomeIcon icon={icon} />
   </div>
 ));
@@ -17,7 +17,7 @@ const InputIcon = memo(({ icon }) => (
 const InputField = memo(({ paddingClasses, className, ...props }) => (
   <input
     {...props}
-    className={`w-full rounded-2xl border border-slate-200 bg-white/90 py-4 text-sm text-slate-800 shadow-sm transition-all outline-none placeholder:text-slate-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 ${paddingClasses} ${className || ""}`}
+    className={`w-full rounded-2xl border border-base-300 bg-base-100/90 py-4 text-sm text-base-content shadow-sm transition-all outline-none placeholder:text-base-content/50 focus:border-primary focus:ring-4 focus:ring-primary/20 ${paddingClasses} ${className || ""}`}
   />
 ));
 
@@ -61,7 +61,7 @@ const Input = memo(function Input({
           <button
             type="button"
             onClick={handleToggle}
-            className="absolute top-1/2 right-4 -translate-y-1/2 text-slate-400 transition-colors hover:text-indigo-600 focus:outline-none"
+            className="absolute top-1/2 right-4 -translate-y-1/2 text-base-content/50 transition-colors hover:text-primary focus:outline-none"
             aria-label={showPassword ? "Hide password" : "Show password"}
           >
             <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />

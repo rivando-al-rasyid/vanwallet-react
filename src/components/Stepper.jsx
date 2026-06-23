@@ -13,13 +13,13 @@ export default function Stepper({ currentStep }) {
 
         return (
           <Fragment key={step}>
-            <div className={`flex items-center gap-2 ${isHighlighted ? "text-indigo-700" : "text-slate-400"}`}>
-              <span className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-black transition-colors ${isHighlighted ? "bg-indigo-600 text-white shadow-sm" : "bg-slate-200 text-slate-500"}`}>
+            <div className={`flex items-center gap-2 ${isHighlighted ? "text-primary" : "text-base-content/50"}`}>
+              <span className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-black transition-colors ${isHighlighted ? "bg-primary text-primary-content shadow-sm" : "bg-base-300 text-base-content/65"}`}>
                 {isCompleted ? "✓" : stepNumber}
               </span>
               <span className={isActive ? "font-black" : ""}>{step}</span>
             </div>
-            {index < STEPS.length - 1 && <div className={`h-px w-10 border-t border-dashed transition-colors ${isCompleted ? "border-indigo-500" : "border-slate-300"}`} />}
+            {index < STEPS.length - 1 && <div className={`h-px w-10 border-t border-dashed transition-colors ${isCompleted ? "border-primary" : "border-base-300"}`} />}
           </Fragment>
         );
       })}

@@ -52,22 +52,22 @@ export default function Login() {
   };
 
   return (
-    <main className="grid min-h-screen grid-cols-1 bg-slate-100 lg:grid-cols-2">
+    <main className="grid min-h-screen grid-cols-1 bg-base-200 lg:grid-cols-2">
       <section className="flex min-h-screen items-center justify-center px-5 py-10 sm:px-8 lg:px-12">
-        <div className="w-full max-w-xl rounded-[2rem] border border-white bg-white/90 p-6 shadow-2xl shadow-slate-200 backdrop-blur sm:p-10">
+        <div className="w-full max-w-xl rounded-[2rem] border border-base-300 bg-base-100/90 p-6 shadow-2xl shadow-base-content/10 backdrop-blur sm:p-10">
           <Brand />
           <div className="mt-10">
             <LoginHeadline title="Welcome back 👋" text="Log in to manage your balance, transfers, top ups, and transaction history." />
             <SocialLogin />
 
-            {passwordReset && <div className="mb-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-700">✓ Password changed successfully. Please log in with your new password.</div>}
-            {(validationError || error) && <div className="mb-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-bold text-rose-600">{validationError || error}</div>}
+            {passwordReset && <div className="mb-4 rounded-2xl border border-success/30 bg-success/10 px-4 py-3 text-sm font-bold text-success">✓ Password changed successfully. Please log in with your new password.</div>}
+            {(validationError || error) && <div className="mb-4 rounded-2xl border border-error/30 bg-error/10 px-4 py-3 text-sm font-bold text-error">{validationError || error}</div>}
 
             <form className="space-y-6" onSubmit={handleSubmit}>
               <Input label="Email" type="email" name="email" icon={faEnvelope} placeholder="Enter your email" value={form.email} onChange={handleChange} />
               <Input label="Password" type="password" name="password" icon={faLock} placeholder="Enter your password" value={form.password} onChange={handleChange} />
               <div className="flex justify-end">
-                <NavLink to="/forgotpassword" className="text-sm font-bold text-indigo-600 hover:text-indigo-700 hover:underline">Forgot Password?</NavLink>
+                <NavLink to="/forgotpassword" className="text-sm font-bold text-primary hover:text-primary hover:underline">Forgot Password?</NavLink>
               </div>
               <Submit name={loading ? "Loading..." : "Login"} disabled={loading} />
             </form>

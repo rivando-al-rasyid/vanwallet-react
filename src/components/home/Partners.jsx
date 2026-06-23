@@ -12,10 +12,10 @@ const PARTNERS = [
 export default function Partners() {
   return (
     <section className="mx-auto max-w-7xl px-6 py-16 lg:px-10">
-      <div className="grid items-center gap-10 rounded-[2rem] border border-slate-100 bg-white p-8 shadow-sm lg:grid-cols-[1fr_2fr] lg:p-10">
+      <div className="grid items-center gap-10 rounded-[2rem] border border-base-300 bg-base-100 p-8 shadow-sm lg:grid-cols-[1fr_2fr] lg:p-10">
         <div>
-          <h2 className="text-3xl font-black text-slate-950 sm:text-4xl">100+ Trusted Partners</h2>
-          <p className="mt-4 max-w-sm text-base leading-7 text-slate-500">A cleaner partner section with better spacing and card hierarchy.</p>
+          <h2 className="text-3xl font-black text-base-content sm:text-4xl">100+ Trusted Partners</h2>
+          <p className="mt-4 max-w-sm text-base leading-7 text-base-content/65">A cleaner partner section with better spacing and card hierarchy.</p>
         </div>
         <div className="flex flex-wrap items-center justify-start gap-x-12 gap-y-8 lg:justify-between">
           {PARTNERS.map((partner) => (

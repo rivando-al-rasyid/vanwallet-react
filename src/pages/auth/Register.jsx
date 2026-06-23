@@ -40,14 +40,14 @@ export default function Register() {
   };
 
   return (
-    <main className="grid min-h-screen grid-cols-1 bg-slate-100 lg:grid-cols-2">
+    <main className="grid min-h-screen grid-cols-1 bg-base-200 lg:grid-cols-2">
       <section className="flex min-h-screen items-center justify-center px-5 py-10 sm:px-8 lg:px-12">
-        <div className="w-full max-w-xl rounded-[2rem] border border-white bg-white/90 p-6 shadow-2xl shadow-slate-200 backdrop-blur sm:p-10">
+        <div className="w-full max-w-xl rounded-[2rem] border border-base-300 bg-base-100/90 p-6 shadow-2xl shadow-base-content/10 backdrop-blur sm:p-10">
           <Brand />
           <div className="mt-10">
             <LoginHeadline title="Create your wallet account" text="Start managing transfers, top ups, and payments from one secure account." />
             <SocialLogin />
-            {(validationError || error) && <div className="mb-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-bold text-rose-600">{validationError || error}</div>}
+            {(validationError || error) && <div className="mb-4 rounded-2xl border border-error/30 bg-error/10 px-4 py-3 text-sm font-bold text-error">{validationError || error}</div>}
             <form className="space-y-6" onSubmit={handleSubmit}>
               <Input label="Email" type="email" name="email" icon={faEnvelope} placeholder="Enter your email" value={form.email} onChange={handleChange} />
               <Input label="Password" type="password" name="password" icon={faLock} placeholder="Enter your password" value={form.password} onChange={handleChange} />

@@ -7,7 +7,7 @@ export default function LogoutButton({
   return (
     <button
       onClick={onLogout}
-      className={`flex items-center gap-3 rounded-xl text-sm font-semibold text-rose-500 transition-colors hover:bg-rose-50 ${className}`}
+      className={`flex items-center gap-3 rounded-xl text-sm font-semibold text-error transition-colors hover:bg-error/10 ${className}`}
     >
       <svg
         className={iconClassName}

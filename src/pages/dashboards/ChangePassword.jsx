@@ -45,27 +45,27 @@ export default function ChangePassword() {
   return (
     <>
       <div>
-        <p className="text-xs font-black uppercase tracking-[0.25em] text-indigo-600">Security</p>
-        <h1 className="mt-2 text-2xl font-black text-slate-950">Change Password</h1>
+        <p className="text-xs font-black uppercase tracking-[0.25em] text-primary">Security</p>
+        <h1 className="mt-2 text-2xl font-black text-base-content">Change Password</h1>
       </div>
-      <div className="rounded-[1.5rem] border border-slate-100 bg-white p-6 shadow-sm">
+      <div className="rounded-[1.5rem] border border-base-300 bg-base-100 p-6 shadow-sm">
         <div className="max-w-2xl">
-          <p className="mb-6 text-sm leading-6 text-slate-500">Use a password that is different from your old one and at least 8 characters long.</p>
+          <p className="mb-6 text-sm leading-6 text-base-content/65">Use a password that is different from your old one and at least 8 characters long.</p>
           <div className="flex w-full flex-col gap-5">
             {fields.map(({ name, label, placeholder }) => (
               <div key={name}>
-                <label className="mb-2 block text-sm font-bold text-slate-700">{label}</label>
+                <label className="mb-2 block text-sm font-bold text-base-content/80">{label}</label>
                 <div className="relative">
-                  <span className="absolute top-1/2 left-4 -translate-y-1/2 text-slate-400"><LockIcon /></span>
-                  <input type={show[name] ? "text" : "password"} name={name} value={form[name]} onChange={handleChange} placeholder={placeholder} className={`w-full rounded-2xl border bg-white py-3 pr-12 pl-11 text-sm text-slate-800 shadow-sm outline-none transition placeholder:text-slate-400 focus:ring-4 focus:ring-indigo-100 ${name === "confirmNewPassword" && confirmMismatch ? "border-rose-400 focus:border-rose-400" : "border-slate-200 focus:border-indigo-500"}`} />
-                  <button type="button" onClick={() => toggleShow(name)} className="absolute top-1/2 right-4 -translate-y-1/2 text-slate-400 hover:text-indigo-600"><EyeIcon visible={show[name]} /></button>
+                  <span className="absolute top-1/2 left-4 -translate-y-1/2 text-base-content/50"><LockIcon /></span>
+                  <input type={show[name] ? "text" : "password"} name={name} value={form[name]} onChange={handleChange} placeholder={placeholder} className={`w-full rounded-2xl border bg-base-100 py-3 pr-12 pl-11 text-sm text-base-content shadow-sm outline-none transition placeholder:text-base-content/50 focus:ring-4 focus:ring-primary/20 ${name === "confirmNewPassword" && confirmMismatch ? "border-error focus:border-error" : "border-base-300 focus:border-primary"}`} />
+                  <button type="button" onClick={() => toggleShow(name)} className="absolute top-1/2 right-4 -translate-y-1/2 text-base-content/50 hover:text-primary"><EyeIcon visible={show[name]} /></button>
                 </div>
-                {name === "confirmNewPassword" && confirmMismatch && <p className="mt-1 text-xs font-bold text-rose-500">Password tidak cocok.</p>}
+                {name === "confirmNewPassword" && confirmMismatch && <p className="mt-1 text-xs font-bold text-error">Password tidak cocok.</p>}
               </div>
             ))}
-            {error && <p className="text-sm font-bold text-rose-500">{error}</p>}
-            {success && <p className="text-sm font-bold text-emerald-600">{success}</p>}
-            <button onClick={handleSubmit} disabled={loading} className="rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 px-5 py-3 text-sm font-black text-white shadow-lg shadow-indigo-200 transition hover:from-indigo-700 hover:to-violet-700 disabled:opacity-60">{loading ? "Menyimpan..." : "Save Password"}</button>
+            {error && <p className="text-sm font-bold text-error">{error}</p>}
+            {success && <p className="text-sm font-bold text-success">{success}</p>}
+            <button onClick={handleSubmit} disabled={loading} className="rounded-2xl bg-gradient-to-r from-primary to-secondary px-5 py-3 text-sm font-black text-white shadow-lg shadow-primary/20 transition hover:from-primary/90 hover:to-secondary/90 disabled:opacity-60">{loading ? "Menyimpan..." : "Save Password"}</button>
           </div>
         </div>
       </div>

@@ -25,8 +25,8 @@ export default function SearchInput({
   }, [localValue, onChange, debounceMs, value, createSyntheticEvent]);
 
   const inputClassName = useMemo(() => {
-    const disabledClasses = disabled ? "cursor-not-allowed bg-slate-100 opacity-60" : "bg-white";
-    return `w-full rounded-2xl border border-slate-200 py-3 pr-10 pl-4 text-sm text-slate-700 shadow-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 ${disabledClasses}`.trim();
+    const disabledClasses = disabled ? "cursor-not-allowed bg-base-200 opacity-60" : "bg-base-100";
+    return `w-full rounded-2xl border border-base-300 py-3 pr-10 pl-4 text-sm text-base-content/80 shadow-sm outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/20 ${disabledClasses}`.trim();
   }, [disabled]);
 
   return (
@@ -43,7 +43,7 @@ export default function SearchInput({
       />
       <FontAwesomeIcon
         icon={faMagnifyingGlass}
-        className={`pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 transition-colors ${disabled ? "text-slate-300" : "text-slate-400"}`}
+        className={`pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 transition-colors ${disabled ? "text-base-content/50" : "text-base-content/50"}`}
         aria-hidden="true"
       />
     </div>

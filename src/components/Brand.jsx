@@ -7,8 +7,8 @@ const Brand = memo(function Brand({ isWhite = false }) {
       <div
         className={`flex h-11 w-11 items-center justify-center rounded-2xl border shadow-sm transition-all ${
           isWhite
-            ? "border-white/20 bg-white/15 shadow-black/10 group-hover:bg-white/25"
-            : "border-indigo-100 bg-gradient-to-br from-indigo-50 to-emerald-50 shadow-indigo-100 group-hover:scale-105"
+            ? "border-neutral-content/20 bg-neutral-content/10 shadow-black/10 group-hover:bg-neutral-content/20"
+            : "border-primary/20 bg-gradient-to-br from-primary/10 to-success/10 shadow-primary/10 group-hover:scale-105"
         }`}
       >
         <img src={logoImage} alt="E-Wallet logo" className="h-6 w-6 object-contain" />
@@ -16,7 +16,7 @@ const Brand = memo(function Brand({ isWhite = false }) {
 
       <span
         className={`text-2xl font-black tracking-tight ${
-          isWhite ? "text-white" : "text-slate-950"
+          isWhite ? "text-neutral-content" : "text-base-content"
         }`}
       >
         E-Wallet

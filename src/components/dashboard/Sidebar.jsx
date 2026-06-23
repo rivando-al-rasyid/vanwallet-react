@@ -27,18 +27,18 @@ export default function Sidebar({ isOpen, setIsOpen }) {
   const navLinkClass = ({ isActive }) =>
     `flex items-center gap-3.5 rounded-2xl px-4 py-3 text-sm font-bold transition-all ${
       isActive
-        ? "bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-200"
-        : "text-slate-500 hover:bg-indigo-50 hover:text-indigo-700"
+        ? "bg-gradient-to-r from-primary to-secondary text-white shadow-lg shadow-primary/20"
+        : "text-base-content/65 hover:bg-primary/10 hover:text-primary"
     }`;
 
   return (
     <>
-      {isOpen && <div className="fixed inset-0 z-40 bg-slate-950/50 backdrop-blur-sm lg:hidden" onClick={() => setIsOpen(false)} />}
-      <aside className={`fixed top-16 right-0 z-50 flex h-[calc(100vh-4rem)] w-72 transform flex-col border-l border-slate-200 bg-white/95 transition-transform duration-300 ease-in-out lg:sticky lg:top-16 lg:left-0 lg:z-auto lg:h-[calc(100vh-4rem)] lg:w-64 lg:translate-x-0 lg:border-r lg:border-l-0 ${isOpen ? "translate-x-0" : "translate-x-full lg:translate-x-0"}`}>
+      {isOpen && <div className="fixed inset-0 z-40 bg-base-content/50 backdrop-blur-sm lg:hidden" onClick={() => setIsOpen(false)} />}
+      <aside className={`fixed top-16 right-0 z-50 flex h-[calc(100vh-4rem)] w-72 transform flex-col border-l border-base-300 bg-base-100/95 transition-transform duration-300 ease-in-out lg:sticky lg:top-16 lg:left-0 lg:z-auto lg:h-[calc(100vh-4rem)] lg:w-64 lg:translate-x-0 lg:border-r lg:border-l-0 ${isOpen ? "translate-x-0" : "translate-x-full lg:translate-x-0"}`}>
         <div className="px-4 pt-6">
-          <div className="rounded-[1.5rem] bg-slate-950 p-4 text-white">
-            <p className="text-xs font-black uppercase tracking-[0.2em] text-emerald-200">Wallet menu</p>
-            <p className="mt-2 text-sm leading-6 text-slate-300">Manage money with fast actions.</p>
+          <div className="rounded-[1.5rem] bg-neutral p-4 text-neutral-content">
+            <p className="text-xs font-black uppercase tracking-[0.2em] text-success">Wallet menu</p>
+            <p className="mt-2 text-sm leading-6 text-neutral-content/70">Manage money with fast actions.</p>
           </div>
         </div>
         <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-4 py-6">
@@ -63,7 +63,7 @@ export default function Sidebar({ isOpen, setIsOpen }) {
             Profile
           </NavLink>
         </nav>
-        <div className="border-t border-slate-100 px-4 py-6 lg:hidden">
+        <div className="border-t border-base-300 px-4 py-6 lg:hidden">
           <LogoutButton onLogout={handleLogout} className="w-full px-4 py-3" iconClassName="h-5 w-5" />
         </div>
       </aside>

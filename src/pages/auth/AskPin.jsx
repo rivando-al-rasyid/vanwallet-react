@@ -41,16 +41,16 @@ export default function AskPin() {
   const pinError = methods.formState.errors.pin?.message;
 
   return (
-    <main className="grid min-h-screen grid-cols-1 bg-slate-100 lg:grid-cols-2">
+    <main className="grid min-h-screen grid-cols-1 bg-base-200 lg:grid-cols-2">
       <section className="flex min-h-screen items-center justify-center px-5 py-10 sm:px-8 lg:px-12">
-        <div className="w-full max-w-xl rounded-[2rem] border border-white bg-white/90 p-6 shadow-2xl shadow-slate-200 backdrop-blur sm:p-10">
+        <div className="w-full max-w-xl rounded-[2rem] border border-base-300 bg-base-100/90 p-6 shadow-2xl shadow-base-content/10 backdrop-blur sm:p-10">
           <Brand />
           <div className="mt-10">
             <LoginHeadline title="Create your PIN 🔐" text="Set a 6-digit PIN to secure transfers and wallet actions." />
             <FormProvider {...methods}>
               <form className="space-y-8" onSubmit={methods.handleSubmit(onSubmit)}>
                 <PinInput />
-                {(pinError || error) && <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-bold text-rose-600">{pinError || error}</div>}
+                {(pinError || error) && <div className="rounded-2xl border border-error/30 bg-error/10 px-4 py-3 text-sm font-bold text-error">{pinError || error}</div>}
                 <Submit name={pinLoading ? "Saving..." : "Continue"} disabled={pinLoading} />
               </form>
             </FormProvider>

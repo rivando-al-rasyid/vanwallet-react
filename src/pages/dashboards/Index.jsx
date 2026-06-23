@@ -75,7 +75,7 @@ export default function Index() {
       datasets.push({
         label: "Income",
         data: points.map((point) => Math.abs(point.income || 0)),
-        backgroundColor: "#4F46E5",
+        tone: "income",
         borderRadius: 8,
         borderSkipped: false,
         categoryPercentage: 0.8,
@@ -88,7 +88,7 @@ export default function Index() {
       datasets.push({
         label: "Expense",
         data: points.map((point) => Math.abs(point.expense || 0)),
-        backgroundColor: "#E11D48",
+        tone: "expense",
         borderRadius: 8,
         borderSkipped: false,
         categoryPercentage: 0.8,
@@ -107,10 +107,25 @@ export default function Index() {
     if (!canvasRef.current || loading) return;
 
     const { maxValue, stepSize } = chartMetrics;
+    const styles = getComputedStyle(document.documentElement);
+    const cssColor = (name, fallback) =>
+      styles.getPropertyValue(name).trim() || fallback;
+    const primaryColor = cssColor("--color-primary", "#4F46E5");
+    const errorColor = cssColor("--color-error", "#E11D48");
+    const baseContentColor = cssColor("--color-base-content", "#64748b");
+    const neutralColor = cssColor("--color-neutral", "#0f172a");
+    const themedChartData = {
+      labels: chartData.labels,
+      datasets: chartData.datasets.map((dataset) => ({
+        ...dataset,
+        backgroundColor:
+          dataset.tone === "income" ? primaryColor : errorColor,
+      })),
+    };
 
     const config = {
       type: "bar",
-      data: chartData,
+      data: themedChartData,
       options: {
         responsive: true,
         maintainAspectRatio: false,
@@ -131,7 +146,7 @@ export default function Index() {
               boxWidth: 8,
               boxHeight: 8,
               padding: 28,
-              color: "#64748b",
+              color: baseContentColor,
               font: {
                 size: 12,
                 weight: "500",
@@ -142,7 +157,7 @@ export default function Index() {
             display: false,
           },
           tooltip: {
-            backgroundColor: "#0f172a",
+            backgroundColor: neutralColor,
             padding: 10,
             displayColors: true,
             callbacks: {
@@ -166,7 +181,7 @@ export default function Index() {
               display: false,
             },
             ticks: {
-              color: "#64748b",
+              color: baseContentColor,
               font: {
                 size: 12,
               },
@@ -183,7 +198,7 @@ export default function Index() {
             },
             ticks: {
               stepSize,
-              color: "#64748b",
+              color: baseContentColor,
               font: {
                 size: 11,
               },
@@ -217,8 +232,8 @@ export default function Index() {
     <section className="flex flex-1 flex-col gap-4 overflow-hidden p-4 pt-4 sm:gap-6 sm:px-6 sm:pt-6 lg:px-8 lg:pt-8">
       <div className="flex flex-col gap-4 lg:gap-5">
         <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-3 lg:gap-6">
-          <div className="rounded-[1.5rem] border border-slate-100 bg-white p-5 shadow-sm sm:p-6 flex flex-col gap-4">
-            <div className="flex items-center gap-2 text-xs font-medium text-slate-500">
+          <div className="rounded-[1.5rem] border border-base-300 bg-base-100 p-5 shadow-sm sm:p-6 flex flex-col gap-4">
+            <div className="flex items-center gap-2 text-xs font-medium text-base-content/65">
               <svg
                 className="h-4 w-4"
                 fill="none"
@@ -233,17 +248,17 @@ export default function Index() {
             </div>
 
             <div>
-              <p className="text-2xl font-extrabold tracking-tight text-slate-800 lg:text-3xl">
+              <p className="text-2xl font-extrabold tracking-tight text-base-content lg:text-3xl">
                 {loading ? "..." : formatRupiah(summary?.current_balance ?? 0)}
               </p>
             </div>
 
             <div className="flex gap-6">
               <div>
-                <p className="mb-1 text-[10px] font-bold tracking-wider text-slate-400 uppercase">
+                <p className="mb-1 text-[10px] font-bold tracking-wider text-base-content/50 uppercase">
                   Income
                 </p>
-                <p className="flex items-center gap-1 text-sm font-semibold text-emerald-500">
+                <p className="flex items-center gap-1 text-sm font-semibold text-success">
                   {loading
                     ? "..."
                     : formatRupiahShort(summary?.total_income ?? 0)}
@@ -251,10 +266,10 @@ export default function Index() {
               </div>
 
               <div>
-                <p className="mb-1 text-[10px] font-bold tracking-wider text-slate-400 uppercase">
+                <p className="mb-1 text-[10px] font-bold tracking-wider text-base-content/50 uppercase">
                   Expense
                 </p>
-                <p className="flex items-center gap-1 text-sm font-semibold text-rose-500">
+                <p className="flex items-center gap-1 text-sm font-semibold text-error">
                   {loading
                     ? "..."
                     : formatRupiahShort(summary?.total_expense ?? 0)}
@@ -263,21 +278,21 @@ export default function Index() {
             </div>
           </div>
 
-          <div className="rounded-[1.5rem] border border-slate-100 bg-white p-5 shadow-sm sm:p-6 flex h-full items-center justify-between lg:col-span-2">
+          <div className="rounded-[1.5rem] border border-base-300 bg-base-100 p-5 shadow-sm sm:p-6 flex h-full items-center justify-between lg:col-span-2">
             <div>
-              <h2 className="text-lg font-black text-slate-950">Fast Service</h2>
+              <h2 className="text-lg font-black text-base-content">Fast Service</h2>
             </div>
 
             <div className="flex flex-row gap-3">
               <button
-                className="rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 px-5 py-3 text-sm font-black text-white shadow-lg shadow-indigo-200 transition hover:from-indigo-700 hover:to-violet-700 disabled:opacity-60"
+                className="rounded-2xl bg-gradient-to-r from-primary to-secondary px-5 py-3 text-sm font-black text-white shadow-lg shadow-primary/20 transition hover:from-primary/90 hover:to-secondary/90 disabled:opacity-60"
                 onClick={() => navigate("/dashboard/topup")}
               >
                 <span className="text-lg">+</span> Top Up
               </button>
 
               <button
-                className="rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 px-5 py-3 text-sm font-black text-white shadow-lg shadow-indigo-200 transition hover:from-indigo-700 hover:to-violet-700 disabled:opacity-60"
+                className="rounded-2xl bg-gradient-to-r from-primary to-secondary px-5 py-3 text-sm font-black text-white shadow-lg shadow-primary/20 transition hover:from-primary/90 hover:to-secondary/90 disabled:opacity-60"
                 onClick={() => navigate("/dashboard/transfer")}
               >
                 <svg
@@ -295,16 +310,16 @@ export default function Index() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
-        <div className="rounded-[1.5rem] border border-slate-100 bg-white p-5 shadow-sm sm:p-6 col-span-full lg:col-span-2">
-          <div className="w-full rounded-xl border border-slate-100 p-4 sm:p-5">
+        <div className="rounded-[1.5rem] border border-base-300 bg-base-100 p-5 shadow-sm sm:p-6 col-span-full lg:col-span-2">
+          <div className="w-full rounded-xl border border-base-300 p-4 sm:p-5">
             <div className="mb-4 flex flex-col sm:mb-6 sm:flex-row sm:items-center sm:justify-between">
-              <h2 className="text-lg font-black text-slate-950">Financial Chart</h2>
+              <h2 className="text-lg font-black text-base-content">Financial Chart</h2>
 
               <div className="flex gap-2 sm:gap-3">
                 <select
                   value={days}
                   onChange={(event) => setDays(event.target.value)}
-                  className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 focus:ring-2 focus:ring-indigo-200 focus:outline-none"
+                  className="rounded-lg border border-base-300 bg-base-100 px-3 py-1.5 text-xs font-semibold text-base-content/75 focus:ring-2 focus:ring-primary/20 focus:outline-none"
                 >
                   <option value="7">7 Days</option>
                   <option value="14">14 Days</option>
@@ -314,7 +329,7 @@ export default function Index() {
                 <select
                   value={typeFilter}
                   onChange={(event) => setTypeFilter(event.target.value)}
-                  className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 focus:ring-2 focus:ring-indigo-200 focus:outline-none"
+                  className="rounded-lg border border-base-300 bg-base-100 px-3 py-1.5 text-xs font-semibold text-base-content/75 focus:ring-2 focus:ring-primary/20 focus:outline-none"
                 >
                   <option value="All">All</option>
                   <option value="Income">Income</option>
@@ -324,7 +339,7 @@ export default function Index() {
             </div>
 
             {loading ? (
-              <div className="flex h-[260px] items-center justify-center text-sm text-slate-400 sm:h-[300px]">
+              <div className="flex h-[260px] items-center justify-center text-sm text-base-content/50 sm:h-[300px]">
                 Loading chart...
               </div>
             ) : (
@@ -335,13 +350,13 @@ export default function Index() {
           </div>
         </div>
 
-        <div className="rounded-[1.5rem] border border-slate-100 bg-white p-5 shadow-sm sm:p-6 col-span-full flex h-full flex-col lg:col-span-1">
+        <div className="rounded-[1.5rem] border border-base-300 bg-base-100 p-5 shadow-sm sm:p-6 col-span-full flex h-full flex-col lg:col-span-1">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-black text-slate-950">Transaction History</h3>
+            <h3 className="text-lg font-black text-base-content">Transaction History</h3>
 
             <Link
               to="/dashboard/history"
-              className="text-xs font-semibold text-indigo-600 hover:underline"
+              className="text-xs font-semibold text-primary hover:underline"
             >
               See All
             </Link>
@@ -349,9 +364,9 @@ export default function Index() {
 
           <div className="flex flex-1 flex-col gap-2 sm:gap-3">
             {loading && (
-              <div className="flex flex-col items-center justify-center gap-2 py-10 text-slate-400">
+              <div className="flex flex-col items-center justify-center gap-2 py-10 text-base-content/50">
                 <svg
-                  className="h-6 w-6 animate-spin text-indigo-500"
+                  className="h-6 w-6 animate-spin text-primary"
                   fill="none"
                   viewBox="0 0 24 24"
                 >
@@ -376,11 +391,11 @@ export default function Index() {
 
             {!loading && error && (
               <div className="flex flex-col items-center justify-center gap-2 py-10">
-                <p className="text-xs font-semibold text-rose-500">{error}</p>
+                <p className="text-xs font-semibold text-error">{error}</p>
 
                 <button
                   onClick={loadDashboard}
-                  className="text-xs text-indigo-600 underline"
+                  className="text-xs text-primary underline"
                 >
                   Try again
                 </button>
@@ -388,7 +403,7 @@ export default function Index() {
             )}
 
             {!loading && !error && recentTransactions.length === 0 && (
-              <div className="py-10 text-center text-xs text-slate-400">
+              <div className="py-10 text-center text-xs text-base-content/50">
                 No transactions yet.
               </div>
             )}
@@ -398,7 +413,7 @@ export default function Index() {
               recentTransactions.map((transaction) => (
                 <div
                   key={transaction.id}
-                  className="flex cursor-pointer items-center gap-2 rounded-lg p-2 transition-colors hover:bg-slate-50 sm:gap-3 sm:p-3"
+                  className="flex cursor-pointer items-center gap-2 rounded-lg p-2 transition-colors hover:bg-base-200 sm:gap-3 sm:p-3"
                 >
                   <img
                     src={transaction.img}
@@ -407,11 +422,11 @@ export default function Index() {
                   />
 
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-xs font-semibold text-slate-800 sm:text-sm">
+                    <p className="truncate text-xs font-semibold text-base-content sm:text-sm">
                       {transaction.name}
                     </p>
 
-                    <p className="text-xs text-slate-400">
+                    <p className="text-xs text-base-content/50">
                       {transaction.type === "income" ? "Income" : "Expense"}
                     </p>
                   </div>
@@ -419,8 +434,8 @@ export default function Index() {
                   <span
                     className={`shrink-0 text-xs font-bold sm:text-sm ${
                       transaction.type === "income"
-                        ? "text-emerald-500"
-                        : "text-rose-500"
+                        ? "text-success"
+                        : "text-error"
                     }`}
                   >
                     {transaction.type === "income" ? "+" : "-"}

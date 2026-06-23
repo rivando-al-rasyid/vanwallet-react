@@ -19,7 +19,7 @@ export default function SocialLogin() {
         {SOCIAL_BUTTONS.map(({ label, icon }) => (
           <button
             key={label}
-            className="flex items-center justify-center gap-3 rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-bold text-slate-700 shadow-sm transition-all hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-lg"
+            className="flex items-center justify-center gap-3 rounded-2xl border border-base-300 bg-base-100 px-5 py-3 text-sm font-bold text-base-content/80 shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-lg"
           >
             {icon}
             <span>{label}</span>
@@ -27,9 +27,9 @@ export default function SocialLogin() {
         ))}
       </div>
       <div className="relative mb-8 flex items-center" aria-hidden="true">
-        <div className="grow border-t border-slate-200" />
-        <span className="mx-4 shrink rounded-full bg-white px-3 text-xs font-bold text-slate-400">Or</span>
-        <div className="grow border-t border-slate-200" />
+        <div className="grow border-t border-base-300" />
+        <span className="mx-4 shrink rounded-full bg-base-100 px-3 text-xs font-bold text-base-content/50">Or</span>
+        <div className="grow border-t border-base-300" />
       </div>
     </>
   );
