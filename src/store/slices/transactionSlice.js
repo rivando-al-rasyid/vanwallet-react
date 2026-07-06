@@ -23,7 +23,9 @@ function getErrorMessage(error, fallback = "Request failed") {
 }
 
 function getFirstWalletId(summary) {
-  return summary?.wallets?.[0]?.id || summary?.wallet_id || summary?.walletId || null;
+  return (
+    summary?.wallets?.[0]?.id || summary?.wallet_id || summary?.walletId || null
+  );
 }
 
 const DASHBOARD_HISTORY_PAGE_SIZE = 100;
@@ -124,7 +126,10 @@ function buildReportFromHistory(items, days) {
   };
 }
 
-async function fetchDashboardGraphHistory({ range = "7days", type = "both" } = {}) {
+async function fetchDashboardGraphHistory({
+  range = "7days",
+  type = "both",
+} = {}) {
   const days = parseRangeDays(range);
   const { startDate, endDate } = getDateRange(days);
   const direction = type === "income" || type === "expense" ? type : "";
@@ -151,7 +156,10 @@ async function fetchDashboardGraphHistory({ range = "7days", type = "both" } = {
 
 export const fetchDashboard = createAsyncThunk(
   "transaction/fetchDashboard",
-  async ({ range = "7days", type = "both", historyLimit = 6 } = {}, { rejectWithValue }) => {
+  async (
+    { range = "7days", type = "both", historyLimit = 6 } = {},
+    { rejectWithValue },
+  ) => {
     try {
       const [summary, report, history] = await Promise.all([
         apiFetchSummary(),
@@ -165,7 +173,9 @@ export const fetchDashboard = createAsyncThunk(
         recentTransactions: history.items,
       };
     } catch (error) {
-      return rejectWithValue(getErrorMessage(error, "Failed to load dashboard"));
+      return rejectWithValue(
+        getErrorMessage(error, "Failed to load dashboard"),
+      );
     }
   },
 );
@@ -198,7 +208,9 @@ export const searchReceivers = createAsyncThunk(
     try {
       return await apiSearchReceivers({ q, page, limit });
     } catch (error) {
-      return rejectWithValue(getErrorMessage(error, "Failed to fetch receivers"));
+      return rejectWithValue(
+        getErrorMessage(error, "Failed to fetch receivers"),
+      );
     }
   },
 );
@@ -209,14 +221,19 @@ export const initiateTopup = createAsyncThunk(
     try {
       return await apiInitiateTopup({ walletId, amount, paymentMethod });
     } catch (error) {
-      return rejectWithValue(getErrorMessage(error, "Failed to initiate top up"));
+      return rejectWithValue(
+        getErrorMessage(error, "Failed to initiate top up"),
+      );
     }
   },
 );
 
 export const createTransfer = createAsyncThunk(
   "transaction/createTransfer",
-  async ({ senderWalletId, recipientWalletId, amount, note, pin }, { rejectWithValue }) => {
+  async (
+    { senderWalletId, recipientWalletId, amount, note, pin },
+    { rejectWithValue },
+  ) => {
     try {
       let resolvedSenderWalletId = senderWalletId;
 
@@ -394,5 +411,6 @@ const transactionSlice = createSlice({
   },
 });
 
-export const { resetHistory, resetReceivers, resetTopup, resetTransfer } = transactionSlice.actions;
+export const { resetHistory, resetReceivers, resetTopup, resetTransfer } =
+  transactionSlice.actions;
 export default transactionSlice.reducer;

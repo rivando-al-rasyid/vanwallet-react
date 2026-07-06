@@ -16,9 +16,12 @@ export default function Transfer() {
   const search = searchParams.get("search") || "";
   const currentPage = Number(searchParams.get("page") || "1");
 
-  const { items: contacts, total, status, error } = useSelector(
-    (state) => state.transaction.receivers,
-  );
+  const {
+    items: contacts,
+    total,
+    status,
+    error,
+  } = useSelector((state) => state.transaction.receivers);
 
   const loading = status === "loading";
 
@@ -84,8 +87,8 @@ export default function Transfer() {
 
   return (
     <>
-      <div className="mb-8">
-        <div className="mb-6 flex items-center gap-3">
+      <div className="mb-6 sm:mb-8">
+        <div className="mb-5 flex items-center gap-3 sm:mb-6">
           <span className="text-primary">
             <svg
               width="24"
@@ -98,16 +101,20 @@ export default function Transfer() {
               <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
             </svg>
           </span>
-          <h1 className="text-lg font-black text-base-content">Transfer Money</h1>
+          <h1 className="text-base-content text-lg font-black">
+            Transfer Money
+          </h1>
         </div>
         <Stepper currentStep={1} />
       </div>
 
-      <div className="rounded-[1.5rem] border border-base-300 bg-base-100 p-5 shadow-sm sm:p-6 min-h-[37.5rem]">
-        <div className="mb-6 flex items-center justify-between">
+      <div className="border-base-300 bg-base-100 min-h-[28rem] min-w-0 rounded-[1.5rem] border p-4 shadow-sm sm:min-h-[37.5rem] sm:p-6">
+        <div className="mb-6 flex min-w-0 flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
-            <h2 className="text-lg font-black text-base-content">Find People</h2>
-            <p className="text-xs text-base-content/50">{resultsText}</p>
+            <h2 className="text-base-content text-lg font-black">
+              Find People
+            </h2>
+            <p className="text-base-content/50 text-xs">{resultsText}</p>
           </div>
           <SearchInput
             value={search}
@@ -117,9 +124,9 @@ export default function Transfer() {
         </div>
 
         {loading && (
-          <div className="flex flex-col items-center justify-center gap-3 py-20 text-base-content/50">
+          <div className="text-base-content/50 flex flex-col items-center justify-center gap-3 py-20">
             <svg
-              className="h-8 w-8 animate-spin text-primary"
+              className="text-primary h-8 w-8 animate-spin"
               fill="none"
               viewBox="0 0 24 24"
             >
@@ -143,10 +150,10 @@ export default function Transfer() {
 
         {!loading && error && (
           <div className="flex flex-col items-center justify-center gap-3 py-20">
-            <p className="text-sm font-semibold text-error">{error}</p>
+            <p className="text-error text-sm font-semibold">{error}</p>
             <button
               onClick={fetchContacts}
-              className="text-xs text-primary underline hover:text-primary"
+              className="text-primary hover:text-primary text-xs underline"
             >
               Coba lagi
             </button>
@@ -155,7 +162,9 @@ export default function Transfer() {
 
         {!loading && !error && (
           <>
-            <TableRow items={contacts} onRowClick={handleRowClick} />
+            <div className="min-w-0 overflow-x-auto">
+              <TableRow items={contacts} onRowClick={handleRowClick} />
+            </div>
             <Pagination
               currentPage={safePage}
               totalPages={totalPages}

@@ -18,7 +18,10 @@ import Modal from "../../components/Modal";
 import Stepper from "../../components/Stepper";
 import { useDispatch, useSelector } from "react-redux";
 import { formatRupiah } from "../../utils/api";
-import { createTransfer, resetTransfer } from "../../store/slices/transactionSlice";
+import {
+  createTransfer,
+  resetTransfer,
+} from "../../store/slices/transactionSlice";
 import transferFailedImage from "../../assets/img/failed.png";
 import transferSuccessImage from "../../assets/img/success.png";
 
@@ -43,7 +46,9 @@ export default function TransferModal() {
   const location = useLocation();
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
-  const transferStatus = useSelector((state) => state.transaction.transfer.status);
+  const transferStatus = useSelector(
+    (state) => state.transaction.transfer.status,
+  );
 
   const contact = location.state?.contact;
   const amount = location.state?.amount;
@@ -100,40 +105,57 @@ export default function TransferModal() {
 
   return (
     <>
-      <div className="mb-8">
-        <div className="mb-6 flex items-center gap-3">
+      <div className="mb-6 sm:mb-8">
+        <div className="mb-5 flex items-center gap-3 sm:mb-6">
           <span className="text-primary">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
               <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
             </svg>
           </span>
-          <h1 className="text-lg font-black text-base-content">Transfer Money</h1>
+          <h1 className="text-base-content text-lg font-black">
+            Transfer Money
+          </h1>
         </div>
         <Stepper currentStep={3} />
       </div>
 
       {/* Summary card */}
-      <div className="rounded-[1.5rem] border border-base-300 bg-base-100 p-5 shadow-sm sm:p-6 mb-6">
-        <h2 className="text-lg font-black text-base-content mb-4">Transfer Summary</h2>
-        <div className="flex flex-col gap-3 rounded-xl bg-base-200 p-4">
-          <div className="flex justify-between text-sm">
+      <div className="border-base-300 bg-base-100 mb-6 min-w-0 rounded-[1.5rem] border p-4 shadow-sm sm:p-6">
+        <h2 className="text-base-content mb-4 text-lg font-black">
+          Transfer Summary
+        </h2>
+        <div className="bg-base-200 flex flex-col gap-3 rounded-xl p-4">
+          <div className="flex flex-col gap-1 text-sm sm:flex-row sm:justify-between">
             <span className="text-base-content/65">Recipient</span>
-            <span className="font-semibold text-base-content">{contact.name}</span>
+            <span className="text-base-content font-semibold break-words sm:text-right">
+              {contact.name}
+            </span>
           </div>
-          <div className="flex justify-between text-sm">
+          <div className="flex flex-col gap-1 text-sm sm:flex-row sm:justify-between">
             <span className="text-base-content/65">Phone / Email</span>
-            <span className="font-semibold text-base-content">
+            <span className="text-base-content font-semibold break-all sm:text-right">
               {contact.phone || contact.email}
             </span>
           </div>
-          <div className="flex justify-between border-t border-base-300 pt-3 text-sm font-bold">
+          <div className="border-base-300 flex flex-col gap-1 border-t pt-3 text-sm font-bold sm:flex-row sm:justify-between">
             <span className="text-base-content">Amount</span>
-            <span className="text-primary">{formatRupiah(amount)}</span>
+            <span className="text-primary break-words sm:text-right">
+              {formatRupiah(amount)}
+            </span>
           </div>
           {note && (
-            <div className="flex justify-between text-sm">
+            <div className="flex flex-col gap-1 text-sm sm:flex-row sm:justify-between">
               <span className="text-base-content/65">Note</span>
-              <span className="text-base-content/80">{note}</span>
+              <span className="text-base-content/80 break-words sm:text-right">
+                {note}
+              </span>
             </div>
           )}
         </div>
@@ -141,33 +163,34 @@ export default function TransferModal() {
 
       {/* PIN Modal */}
       <Modal open={modalStep === MODAL_STEP.PIN}>
-        <p className="mb-4 text-left text-xs font-semibold tracking-widest text-base-content/50 uppercase">
+        <p className="text-base-content/50 mb-4 text-left text-xs font-semibold tracking-widest uppercase">
           Transfer to {contact.name}
         </p>
         <h3 className="mb-1 text-left text-2xl font-bold">Enter Your Pin 👋</h3>
-        <p className="mb-8 text-left text-sm text-base-content/50">
+        <p className="text-base-content/50 mb-8 text-left text-sm">
           Enter your 6-digit PIN to confirm this transfer
         </p>
 
         <FormProvider {...methods}>
-          <form onSubmit={methods.handleSubmit(handlePinSubmit)} className="mb-2">
-            <div className="mb-8 flex justify-center">
-              <PinInput />
+          <form
+            onSubmit={methods.handleSubmit(handlePinSubmit)}
+            className="mb-2"
+          >
+            <div className="mb-8 flex w-full justify-center">
+              <PinInput autoComplete="current-password" />
             </div>
 
             {methods.formState.errors.pin && (
-              <p className="mb-4 text-sm text-error">
+              <p className="text-error mb-4 text-sm">
                 Masukkan PIN lengkap ({PIN_LENGTH} digit)
               </p>
             )}
 
-            {errorMsg && (
-              <p className="mb-4 text-sm text-error">{errorMsg}</p>
-            )}
+            {errorMsg && <p className="text-error mb-4 text-sm">{errorMsg}</p>}
 
             <button
               type="submit"
-              className="rounded-2xl bg-gradient-to-r from-primary to-secondary px-5 py-3 text-sm font-black text-white shadow-lg shadow-primary/20 transition hover:from-primary/90 hover:to-secondary/90 disabled:opacity-60 mb-4 w-full"
+              className="from-primary to-secondary shadow-primary/20 hover:from-primary/90 hover:to-secondary/90 mb-4 w-full rounded-2xl bg-gradient-to-r px-5 py-3 text-sm font-black text-white shadow-lg transition disabled:opacity-60"
               disabled={loading}
             >
               {loading ? "Memproses..." : "Confirm & Transfer"}
@@ -177,7 +200,7 @@ export default function TransferModal() {
 
         <button
           onClick={() => navigate(-1)}
-          className="w-full text-sm text-base-content/50 hover:text-base-content/75"
+          className="text-base-content/50 hover:text-base-content/75 w-full text-sm"
         >
           ← Back
         </button>
@@ -185,20 +208,27 @@ export default function TransferModal() {
 
       {/* Failed Modal */}
       <Modal open={modalStep === MODAL_STEP.FAILED}>
-        <img src={transferFailedImage} alt="failed" className="mx-auto mb-4" />
-        <h3 className="text-lg font-black text-base-content mb-2">
+        <img
+          src={transferFailedImage}
+          alt="failed"
+          className="mx-auto mb-4 h-auto max-h-40 w-auto"
+        />
+        <h3 className="text-base-content mb-2 text-lg font-black">
           Oops Transfer <span className="text-error">Failed</span>
         </h3>
-        <p className="mb-2 text-sm text-error">{errorMsg}</p>
-        <p className="mb-8 text-sm text-base-content/50">
+        <p className="text-error mb-2 text-sm">{errorMsg}</p>
+        <p className="text-base-content/50 mb-8 text-sm">
           Sorry, there is an issue with your transfer. Try again!
         </p>
-        <button onClick={handleTryAgain} className="rounded-2xl bg-gradient-to-r from-primary to-secondary px-5 py-3 text-sm font-black text-white shadow-lg shadow-primary/20 transition hover:from-primary/90 hover:to-secondary/90 disabled:opacity-60 mb-3 w-full">
+        <button
+          onClick={handleTryAgain}
+          className="from-primary to-secondary shadow-primary/20 hover:from-primary/90 hover:to-secondary/90 mb-3 w-full rounded-2xl bg-gradient-to-r px-5 py-3 text-sm font-black text-white shadow-lg transition disabled:opacity-60"
+        >
           Try Again
         </button>
         <button
           onClick={handleDone}
-          className="w-full rounded-xl border border-primary py-3.5 text-primary"
+          className="border-primary text-primary w-full rounded-xl border py-3.5"
         >
           Back To Dashboard
         </button>
@@ -206,19 +236,26 @@ export default function TransferModal() {
 
       {/* Success Modal */}
       <Modal open={modalStep === MODAL_STEP.SUCCESS}>
-        <img src={transferSuccessImage} alt="success" className="mx-auto mb-4" />
-        <h3 className="text-lg font-black text-base-content mb-2">
+        <img
+          src={transferSuccessImage}
+          alt="success"
+          className="mx-auto mb-4 h-auto max-h-40 w-auto"
+        />
+        <h3 className="text-base-content mb-2 text-lg font-black">
           Yeay Transfer <span className="text-success">Success</span>
         </h3>
-        <p className="mb-8 text-sm text-base-content/50">
+        <p className="text-base-content/50 mb-8 text-sm">
           {formatRupiah(amount)} berhasil dikirim ke {contact.name}.
         </p>
-        <button onClick={handleDone} className="rounded-2xl bg-gradient-to-r from-primary to-secondary px-5 py-3 text-sm font-black text-white shadow-lg shadow-primary/20 transition hover:from-primary/90 hover:to-secondary/90 disabled:opacity-60 mb-3 w-full">
+        <button
+          onClick={handleDone}
+          className="from-primary to-secondary shadow-primary/20 hover:from-primary/90 hover:to-secondary/90 mb-3 w-full rounded-2xl bg-gradient-to-r px-5 py-3 text-sm font-black text-white shadow-lg transition disabled:opacity-60"
+        >
           Done
         </button>
         <button
           onClick={handleTransferAgain}
-          className="w-full rounded-xl border border-primary py-3.5 text-primary"
+          className="border-primary text-primary w-full rounded-xl border py-3.5"
         >
           Transfer Again
         </button>

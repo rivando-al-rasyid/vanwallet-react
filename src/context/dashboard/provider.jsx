@@ -9,12 +9,12 @@ function DashboardProvider({ children }) {
 
   return (
     <DashboardContext.Provider value={{ sidebarOpen, setSidebarOpen }}>
-      <div className="min-h-screen bg-base-200 text-base-content">
+      <div className="bg-base-200 text-base-content min-h-screen overflow-x-hidden">
         <Header />
-        <main className="flex pt-16">
+        <main className="flex min-w-0 pt-16">
           <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
-          <section className="min-h-[calc(100vh-4rem)] min-w-0 flex-1 overflow-auto p-4 sm:p-6 lg:p-8">
-            <div className="mx-auto flex w-full max-w-7xl flex-col gap-6">
+          <section className="min-h-[calc(100dvh-4rem)] min-w-0 flex-1 overflow-x-hidden p-3 sm:p-5 lg:p-8">
+            <div className="mx-auto flex w-full max-w-screen-2xl min-w-0 flex-col gap-5 sm:gap-6">
               {children ?? <Outlet />}
             </div>
           </section>

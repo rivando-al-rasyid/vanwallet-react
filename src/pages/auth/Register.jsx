@@ -16,7 +16,11 @@ export default function Register() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { loading, error } = useSelector((state) => state.register);
-  const [form, setForm] = useState({ email: "", password: "", confirmPassword: "" });
+  const [form, setForm] = useState({
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
   const [validationError, setValidationError] = useState("");
 
   const handleChange = (e) => {
@@ -35,26 +39,66 @@ export default function Register() {
       setValidationError("Password dan konfirmasi password tidak cocok.");
       return;
     }
-    const result = await dispatch(register({ email: form.email, password: form.password }));
+    const result = await dispatch(
+      register({ email: form.email, password: form.password }),
+    );
     if (register.fulfilled.match(result)) navigate("/register/pin");
   };
 
   return (
-    <main className="grid min-h-screen grid-cols-1 bg-base-200 lg:grid-cols-2">
-      <section className="flex min-h-screen items-center justify-center px-5 py-10 sm:px-8 lg:px-12">
-        <div className="w-full max-w-xl rounded-[2rem] border border-base-300 bg-base-100/90 p-6 shadow-2xl shadow-base-content/10 backdrop-blur sm:p-10">
+    <main className="bg-base-200 grid min-h-screen grid-cols-1 overflow-x-hidden lg:grid-cols-2">
+      <section className="flex min-h-screen items-center justify-center px-4 py-8 sm:px-8 lg:px-12">
+        <div className="border-base-300 bg-base-100/90 shadow-base-content/10 w-full max-w-xl rounded-[1.5rem] border p-5 shadow-2xl backdrop-blur sm:rounded-[2rem] sm:p-10">
           <Brand />
           <div className="mt-10">
-            <LoginHeadline title="Create your wallet account" text="Start managing transfers, top ups, and payments from one secure account." />
+            <LoginHeadline
+              title="Create your wallet account"
+              text="Start managing transfers, top ups, and payments from one secure account."
+            />
             <SocialLogin />
-            {(validationError || error) && <div className="mb-4 rounded-2xl border border-error/30 bg-error/10 px-4 py-3 text-sm font-bold text-error">{validationError || error}</div>}
+            {(validationError || error) && (
+              <div className="border-error/30 bg-error/10 text-error mb-4 rounded-2xl border px-4 py-3 text-sm font-bold">
+                {validationError || error}
+              </div>
+            )}
             <form className="space-y-6" onSubmit={handleSubmit}>
-              <Input label="Email" type="email" name="email" icon={faEnvelope} placeholder="Enter your email" value={form.email} onChange={handleChange} />
-              <Input label="Password" type="password" name="password" icon={faLock} placeholder="Enter your password" value={form.password} onChange={handleChange} />
-              <Input label="Confirm Password" type="password" name="confirmPassword" icon={faLock} placeholder="Enter your password again" value={form.confirmPassword} onChange={handleChange} />
-              <Submit name={loading ? "Loading..." : "Register"} disabled={loading} />
+              <Input
+                label="Email"
+                type="email"
+                name="email"
+                icon={faEnvelope}
+                placeholder="Enter your email"
+                value={form.email}
+                onChange={handleChange}
+              />
+              <Input
+                label="Password"
+                type="password"
+                name="password"
+                icon={faLock}
+                placeholder="Enter your password"
+                value={form.password}
+                onChange={handleChange}
+              />
+              <Input
+                label="Confirm Password"
+                type="password"
+                name="confirmPassword"
+                icon={faLock}
+                placeholder="Enter your password again"
+                value={form.confirmPassword}
+                onChange={handleChange}
+              />
+              <Submit
+                name={loading ? "Loading..." : "Register"}
+                disabled={loading}
+              />
             </form>
-            <LoginSubtext text="Have An Account? " link="/login" linklabel="Login" />
+            <LoginSubtext
+              text="Have An Account? "
+              link="/login"
+              linklabel="Login"
+            />
           </div>
         </div>
       </section>

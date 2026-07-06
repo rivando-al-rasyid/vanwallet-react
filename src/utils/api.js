@@ -1,5 +1,5 @@
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL;
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL;
 
 const DEFAULT_API_ROOT = "/api";
 const JSON_CONTENT_TYPE = "application/json";
@@ -8,11 +8,15 @@ const DEFAULT_ERROR_MESSAGE = "Request failed";
 // ─── URL Helpers ──────────────────────────────────────────────────────────────
 
 function removeTrailingSlash(value) {
-  return String(value || "").trim().replace(/\/+$/, "");
+  return String(value || "")
+    .trim()
+    .replace(/\/+$/, "");
 }
 
 function removeLeadingSlash(value) {
-  return String(value || "").trim().replace(/^\/+/, "");
+  return String(value || "")
+    .trim()
+    .replace(/^\/+/, "");
 }
 
 function hasProtocol(url) {
@@ -53,7 +57,11 @@ export function resolveAssetUrl(assetPath) {
     return "";
   }
 
-  if (assetPath.startsWith("http://") || assetPath.startsWith("https://") || assetPath.startsWith("data:")) {
+  if (
+    assetPath.startsWith("http://") ||
+    assetPath.startsWith("https://") ||
+    assetPath.startsWith("data:")
+  ) {
     return assetPath;
   }
 
@@ -150,7 +158,12 @@ function createPaginationParams({ page = 1, limit = 10, ...filters } = {}) {
   return params;
 }
 
-function normalizePaginatedResponse(data, fallbackPage, fallbackLimit, mapItem = (item) => item) {
+function normalizePaginatedResponse(
+  data,
+  fallbackPage,
+  fallbackLimit,
+  mapItem = (item) => item,
+) {
   const rawItems = Array.isArray(data?.data) ? data.data : [];
   const total = data?.total ?? rawItems.length;
   const limit = data?.limit ?? fallbackLimit;
@@ -169,7 +182,8 @@ function normalizePaginatedResponse(data, fallbackPage, fallbackLimit, mapItem =
 
 export function mapUserFromInfo(userInfo) {
   const displayName = getDisplayName(userInfo);
-  const avatarUrl = resolveAssetUrl(userInfo?.photo) || buildDefaultAvatarUrl(displayName);
+  const avatarUrl =
+    resolveAssetUrl(userInfo?.photo) || buildDefaultAvatarUrl(displayName);
 
   return {
     id: userInfo?.id,
@@ -178,14 +192,16 @@ export function mapUserFromInfo(userInfo) {
     phone: userInfo?.phone || "",
     avatar: avatarUrl,
     currentBalance: userInfo?.current_balance ?? 0,
-    walletId: userInfo?.wallet_id || userInfo?.wallet?.id || userInfo?.wallets?.[0]?.id || null,
+    walletId:
+      userInfo?.wallet_id ||
+      userInfo?.wallet?.id ||
+      userInfo?.wallets?.[0]?.id ||
+      null,
 
-    // pin_hash is a plain string from the server.
-    // Empty string means no PIN set.
-    pin: hasValidPinHash(userInfo?.pin_hash) ? userInfo.pin_hash : null,
+    // Keep only PIN existence on the client; never expose the PIN hash/value in UI state.
+    pin: hasValidPinHash(userInfo?.pin_hash),
   };
 }
-
 
 function normalizeTransactionDirection(transaction) {
   const direction = String(transaction?.direction || "").toLowerCase();
@@ -225,7 +241,12 @@ function mapHistoryItem(transaction) {
     ...transaction,
     id: transaction?.id,
     name: title,
-    phone: transaction?.note || transaction?.wallet_label || transaction?.status || transaction?.source || "-",
+    phone:
+      transaction?.note ||
+      transaction?.wallet_label ||
+      transaction?.status ||
+      transaction?.source ||
+      "-",
     img: buildTransactionIconUrl(direction),
     amount: formatRupiah(transaction?.amount ?? 0),
     rawAmount: transaction?.amount ?? 0,
@@ -233,13 +254,18 @@ function mapHistoryItem(transaction) {
     transactionType: transaction?.type || "",
     status: transaction?.status || "",
     source: transaction?.source || "",
-    createdAt: transaction?.created_at || transaction?.createdAt || transaction?.date || "",
+    createdAt:
+      transaction?.created_at ||
+      transaction?.createdAt ||
+      transaction?.date ||
+      "",
   };
 }
 
 function mapReceiver(receiver) {
   const displayName = receiver.full_name || receiver.email || "User";
-  const avatarUrl = resolveAssetUrl(receiver.photo) || buildDefaultAvatarUrl(displayName);
+  const avatarUrl =
+    resolveAssetUrl(receiver.photo) || buildDefaultAvatarUrl(displayName);
 
   return {
     id: receiver.wallet_id,
@@ -289,7 +315,9 @@ async function parseJsonResponse(response) {
 }
 
 function getErrorMessage(body, fallbackMessage) {
-  return body?.error || body?.message || fallbackMessage || DEFAULT_ERROR_MESSAGE;
+  return (
+    body?.error || body?.message || fallbackMessage || DEFAULT_ERROR_MESSAGE
+  );
 }
 
 function throwIfRequestFailed(response, body, fallbackMessage) {
@@ -319,7 +347,9 @@ export async function requestJson(
       headers,
     });
   } catch {
-    throw new Error("Unable to connect to the server. Please check your network or backend service.");
+    throw new Error(
+      "Unable to connect to the server. Please check your network or backend service.",
+    );
   }
 
   const body = await parseJsonResponse(response);
@@ -370,11 +400,7 @@ export async function registerApi({ email, password }) {
 }
 
 export async function logoutApi() {
-  await requestJson(
-    "/auth/logout",
-    { method: "POST" },
-    "Logout failed",
-  );
+  await requestJson("/auth/logout", { method: "POST" }, "Logout failed");
 }
 
 export async function requestPasswordReset(email) {
@@ -418,19 +444,11 @@ export async function changePasswordWithResetToken(resetJwt, newPassword) {
 // ─── Profile ──────────────────────────────────────────────────────────────────
 
 export async function fetchUserInfo() {
-  return requestData(
-    "/auth/me",
-    {},
-    "Failed to fetch user info",
-  );
+  return requestData("/auth/me", {}, "Failed to fetch user info");
 }
 
 export async function fetchProfile() {
-  return requestData(
-    "/profile",
-    {},
-    "Failed to fetch profile",
-  );
+  return requestData("/profile", {}, "Failed to fetch profile");
 }
 
 export async function updateProfileApi({ fullName, phone, photoFile }) {
@@ -502,11 +520,7 @@ export async function changePasswordApi(oldPassword, newPassword) {
 // ─── Transactions ─────────────────────────────────────────────────────────────
 
 export async function fetchSummary() {
-  return requestData(
-    "/transaction/summary",
-    {},
-    "Failed to fetch summary",
-  );
+  return requestData("/transaction/summary", {}, "Failed to fetch summary");
 }
 
 export async function fetchReport({ range = "7days", type = "both" } = {}) {
@@ -577,11 +591,7 @@ export async function searchReceivers({ q = "", page = 1, limit = 10 } = {}) {
   );
 }
 
-export async function initiateTopup({
-  walletId,
-  amount,
-  paymentMethod,
-}) {
+export async function initiateTopup({ walletId, amount, paymentMethod }) {
   return requestData(
     "/transaction/topup",
     {

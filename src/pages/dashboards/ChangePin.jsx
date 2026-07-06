@@ -40,8 +40,7 @@ export default function ChangePin() {
     mode: "onChange",
   });
 
-  const getPinFromData = (data) =>
-    data.pin.map((item) => item.value).join("");
+  const getPinFromData = (data) => data.pin.map((item) => item.value).join("");
 
   const handleNext = methods.handleSubmit((data) => {
     const pin = getPinFromData(data);
@@ -100,7 +99,7 @@ export default function ChangePin() {
   return (
     <>
       <div className="flex items-center gap-3">
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary">
+        <div className="bg-primary/15 text-primary flex h-8 w-8 shrink-0 items-center justify-center rounded-full">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
             <path
               fillRule="evenodd"
@@ -110,14 +109,17 @@ export default function ChangePin() {
             />
           </svg>
         </div>
-        <h1 className="text-xl font-bold text-base-content">Profile</h1>
+        <h1 className="text-base-content text-xl font-bold">Profile</h1>
       </div>
 
-      <div className="rounded-2xl bg-base-100 p-8 shadow-sm">
+      <div className="bg-base-100 min-w-0 rounded-2xl p-5 shadow-sm sm:p-8">
         <div className="mx-auto w-full max-w-3xl text-center">
-          <div className="mb-6 flex items-center justify-center gap-2">
+          <div className="mb-6 flex items-center justify-center gap-1.5 sm:gap-2">
             {["current", "new", "confirm"].map((s, i) => (
-              <div key={s} className="flex items-center gap-2">
+              <div
+                key={s}
+                className="flex shrink-0 items-center gap-1.5 sm:gap-2"
+              >
                 <div
                   className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold transition-colors ${
                     step === s
@@ -130,34 +132,36 @@ export default function ChangePin() {
                 >
                   {i + 1}
                 </div>
-                {i < 2 && <div className="h-px w-6 bg-base-300" />}
+                {i < 2 && <div className="bg-base-300 h-px w-4 sm:w-6" />}
               </div>
             ))}
           </div>
 
-          <h2 className="mb-1 text-base font-bold text-base-content">
+          <h2 className="text-base-content mb-1 text-base font-bold">
             {config.title}
           </h2>
-          <p className="mb-8 text-sm text-base-content/50">{config.description}</p>
+          <p className="text-base-content/50 mb-8 text-sm">
+            {config.description}
+          </p>
 
           <FormProvider {...methods}>
             <form onSubmit={handleNext} className="flex flex-col items-center">
-              <PinInput key={step} />
+              <PinInput key={step} autoComplete="current-password" />
 
               {methods.formState.errors.pin && (
-                <p className="mt-4 text-sm text-error">
+                <p className="text-error mt-4 text-sm">
                   Please complete the 6-digit PIN.
                 </p>
               )}
-              {error && <p className="mt-4 text-sm text-error">{error}</p>}
+              {error && <p className="text-error mt-4 text-sm">{error}</p>}
               {success && (
-                <p className="mt-4 text-sm text-success">{success}</p>
+                <p className="text-success mt-4 text-sm">{success}</p>
               )}
 
               <button
                 type="submit"
                 disabled={loading}
-                className="mt-10 w-full rounded-xl bg-primary py-3.5 text-sm font-semibold text-primary-content transition hover:bg-primary/90 disabled:opacity-60"
+                className="bg-primary text-primary-content hover:bg-primary/90 mt-8 w-full rounded-xl py-3.5 text-sm font-semibold transition disabled:opacity-60 sm:mt-10"
               >
                 {config.button}
               </button>
@@ -170,7 +174,7 @@ export default function ChangePin() {
                     setLocalError("");
                     methods.reset({ pin: defaultPin });
                   }}
-                  className="mt-3 text-sm text-base-content/50 hover:text-base-content/75"
+                  className="text-base-content/50 hover:text-base-content/75 mt-3 text-sm"
                 >
                   ← Back
                 </button>

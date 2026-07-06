@@ -134,7 +134,7 @@ export default function TopUp() {
   return (
     <>
       <div className="mb-4 flex items-center gap-2 sm:mb-6 sm:gap-3">
-        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/15 text-primary sm:h-10 sm:w-10">
+        <div className="bg-primary/15 text-primary flex h-8 w-8 items-center justify-center rounded-full sm:h-10 sm:w-10">
           <svg
             width="14"
             height="14"
@@ -148,12 +148,12 @@ export default function TopUp() {
             />
           </svg>
         </div>
-        <h1 className="text-lg font-black text-base-content">Top Up Account</h1>
+        <h1 className="text-base-content text-lg font-black">Top Up Account</h1>
       </div>
 
       {step === STEP.PENDING && (
-        <div className="rounded-[1.5rem] border border-base-300 bg-base-100 p-5 shadow-sm sm:p-6 flex flex-col items-center gap-6 py-16 text-center">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/15 text-primary">
+        <div className="border-base-300 bg-base-100 flex min-w-0 flex-col items-center gap-6 rounded-[1.5rem] border p-5 py-12 text-center shadow-sm sm:p-6 sm:py-16">
+          <div className="bg-primary/15 text-primary flex h-16 w-16 items-center justify-center rounded-full">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
               <path
                 d="M12 8v5l3 2m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
@@ -166,57 +166,64 @@ export default function TopUp() {
           </div>
 
           <div>
-            <h2 className="text-lg font-bold text-base-content">
+            <h2 className="text-base-content text-lg font-bold">
               Top Up Request Created
             </h2>
-            <p className="mt-1 max-w-md text-sm text-base-content/65">
+            <p className="text-base-content/65 mt-1 max-w-md text-sm">
               {fmtIdr(topupResult?.amount ?? topupAmount)} via {methodName} is
               now pending. Your balance will update after the payment webhook
               confirms the transaction.
             </p>
           </div>
 
-          <div className="w-full max-w-md rounded-xl bg-base-200 p-4 text-left text-sm">
-            <div className="flex justify-between gap-4 py-1">
+          <div className="bg-base-200 w-full max-w-md rounded-xl p-4 text-left text-sm">
+            <div className="flex flex-col gap-1 py-1 sm:flex-row sm:justify-between sm:gap-4">
               <span className="text-base-content/65">Status</span>
               <span className="font-semibold text-amber-600">
                 {topupResult?.status || "PENDING"}
               </span>
             </div>
-            <div className="flex justify-between gap-4 py-1">
+            <div className="flex flex-col gap-1 py-1 sm:flex-row sm:justify-between sm:gap-4">
               <span className="text-base-content/65">Payment Method</span>
-              <span className="font-semibold text-base-content">{methodName}</span>
+              <span className="text-base-content font-semibold break-words sm:text-right">
+                {methodName}
+              </span>
             </div>
-            <div className="flex justify-between gap-4 py-1">
+            <div className="flex flex-col gap-1 py-1 sm:flex-row sm:justify-between sm:gap-4">
               <span className="text-base-content/65">Amount</span>
-              <span className="font-semibold text-base-content">
+              <span className="text-base-content font-semibold break-words sm:text-right">
                 {fmtIdr(topupResult?.amount ?? topupAmount)}
               </span>
             </div>
             {topupResult?.external_reference && (
-              <div className="flex justify-between gap-4 py-1">
+              <div className="flex flex-col gap-1 py-1 sm:flex-row sm:justify-between sm:gap-4">
                 <span className="text-base-content/65">Reference</span>
-                <span className="break-all text-right font-semibold text-base-content">
+                <span className="text-base-content text-right font-semibold break-all">
                   {topupResult.external_reference}
                 </span>
               </div>
             )}
           </div>
 
-          <button onClick={handleReset} className="rounded-2xl bg-gradient-to-r from-primary to-secondary px-5 py-3 text-sm font-black text-white shadow-lg shadow-primary/20 transition hover:from-primary/90 hover:to-secondary/90 disabled:opacity-60">
+          <button
+            onClick={handleReset}
+            className="from-primary to-secondary shadow-primary/20 hover:from-primary/90 hover:to-secondary/90 rounded-2xl bg-gradient-to-r px-5 py-3 text-sm font-black text-white shadow-lg transition disabled:opacity-60"
+          >
             Create Another Top Up
           </button>
         </div>
       )}
 
       {step === STEP.FORM && (
-        <div className="flex flex-col items-start gap-4 sm:gap-6 lg:flex-row">
-          <div className="rounded-[1.5rem] border border-base-300 bg-base-100 p-5 shadow-sm sm:p-6 w-full">
-            <h2 className="text-lg font-black text-base-content mb-3 sm:mb-4">Account Information</h2>
+        <div className="flex min-w-0 flex-col items-start gap-4 sm:gap-6 xl:flex-row">
+          <div className="border-base-300 bg-base-100 w-full min-w-0 rounded-[1.5rem] border p-5 shadow-sm sm:p-6">
+            <h2 className="text-base-content mb-3 text-lg font-black sm:mb-4">
+              Account Information
+            </h2>
 
-            <div className="mb-6 rounded-lg bg-base-200 p-3 sm:mb-8 sm:rounded-xl sm:p-4">
+            <div className="bg-base-200 mb-6 rounded-lg p-3 sm:mb-8 sm:rounded-xl sm:p-4">
               {user ? (
-                <div className="flex items-center gap-2 sm:gap-3 lg:gap-4">
+                <div className="flex min-w-0 items-center gap-2 sm:gap-3 lg:gap-4">
                   <img
                     src={user.avatar}
                     alt={user.name}
@@ -227,30 +234,34 @@ export default function TopUp() {
                     }}
                   />
 
-                  <div>
-                    <p className="text-sm font-semibold text-base-content sm:text-base">
+                  <div className="min-w-0">
+                    <p className="text-base-content truncate text-sm font-semibold sm:text-base">
                       {user.name}
                     </p>
-                    <p className="text-xs text-base-content/65 sm:text-sm">
+                    <p className="text-base-content/65 truncate text-xs sm:text-sm">
                       {user.phone}
                     </p>
-                    <span className="mt-2 inline-flex rounded-full bg-success/10 px-3 py-1 text-xs font-black text-success">Verified</span>
+                    <span className="bg-success/10 text-success mt-2 inline-flex rounded-full px-3 py-1 text-xs font-black">
+                      Verified
+                    </span>
                   </div>
                 </div>
               ) : (
                 <div className="flex animate-pulse items-center gap-2 sm:gap-3 lg:gap-4">
-                  <div className="h-10 w-10 shrink-0 rounded-lg bg-base-300 sm:h-12 sm:w-12 sm:rounded-xl lg:h-14 lg:w-14" />
+                  <div className="bg-base-300 h-10 w-10 shrink-0 rounded-lg sm:h-12 sm:w-12 sm:rounded-xl lg:h-14 lg:w-14" />
                   <div className="flex flex-1 flex-col gap-2">
-                    <div className="h-3 w-24 rounded bg-base-300 sm:h-4 sm:w-32" />
-                    <div className="h-2.5 w-20 rounded bg-base-300 sm:h-3 sm:w-24" />
+                    <div className="bg-base-300 h-3 w-24 rounded sm:h-4 sm:w-32" />
+                    <div className="bg-base-300 h-2.5 w-20 rounded sm:h-3 sm:w-24" />
                   </div>
                 </div>
               )}
             </div>
 
             <div className="mb-6 sm:mb-8">
-              <h2 className="text-lg font-black text-base-content mb-1">Amount</h2>
-              <p className="mb-2 text-xs text-base-content/50 sm:mb-3 sm:text-sm">
+              <h2 className="text-base-content mb-1 text-lg font-black">
+                Amount
+              </h2>
+              <p className="text-base-content/50 mb-2 text-xs sm:mb-3 sm:text-sm">
                 Type the amount you want to add to your e-wallet account.
               </p>
 
@@ -262,14 +273,16 @@ export default function TopUp() {
                   setError("");
                 }}
                 placeholder="Enter top up amount"
-                className="w-full rounded-2xl border border-base-300 bg-base-100 px-4 py-3 text-sm text-base-content shadow-sm outline-none transition placeholder:text-base-content/50 focus:border-primary focus:ring-4 focus:ring-primary/20"
+                className="border-base-300 bg-base-100 text-base-content placeholder:text-base-content/50 focus:border-primary focus:ring-primary/20 w-full rounded-2xl border px-4 py-3 text-sm shadow-sm transition outline-none focus:ring-4"
                 min="0"
               />
             </div>
 
             <div>
-              <h2 className="text-lg font-black text-base-content mb-1">Payment Method</h2>
-              <p className="mb-3 text-xs text-base-content/50 sm:mb-4 sm:text-sm">
+              <h2 className="text-base-content mb-1 text-lg font-black">
+                Payment Method
+              </h2>
+              <p className="text-base-content/50 mb-3 text-xs sm:mb-4 sm:text-sm">
                 Choose your payment method for top up account.
               </p>
 
@@ -279,7 +292,7 @@ export default function TopUp() {
                     key={method.id}
                     className={`flex cursor-pointer items-center gap-2 rounded-lg border p-2 transition-all sm:gap-3 sm:rounded-xl sm:p-3 lg:gap-4 lg:p-4 ${
                       selectedMethod === method.id
-                        ? "border-primary/60 bg-primary/10/40"
+                        ? "border-primary/60 bg-primary/10"
                         : "border-base-300 bg-base-200 hover:border-base-300"
                     }`}
                   >
@@ -304,7 +317,7 @@ export default function TopUp() {
                       />
                     </div>
 
-                    <span className="text-xs font-medium text-base-content/80 sm:text-sm">
+                    <span className="text-base-content/80 min-w-0 text-xs font-medium break-words sm:text-sm">
                       {method.name}
                     </span>
                   </label>
@@ -313,48 +326,52 @@ export default function TopUp() {
             </div>
           </div>
 
-          <div className="rounded-[1.5rem] border border-base-300 bg-base-100 p-5 shadow-sm sm:p-6 w-full shrink-0 lg:w-72">
-            <h2 className="text-lg font-black text-base-content mb-3 sm:mb-6">Payment</h2>
+          <div className="border-base-300 bg-base-100 w-full min-w-0 shrink-0 rounded-[1.5rem] border p-5 shadow-sm sm:p-6 xl:w-80">
+            <h2 className="text-base-content mb-3 text-lg font-black sm:mb-6">
+              Payment
+            </h2>
 
             <div className="mb-3 flex flex-col gap-3 sm:mb-6 sm:gap-4">
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-base-content/65 sm:text-sm">Amount</span>
-                <span className="text-xs font-semibold text-base-content sm:text-sm">
+              <div className="flex items-start justify-between gap-3">
+                <span className="text-base-content/65 text-xs sm:text-sm">
+                  Amount
+                </span>
+                <span className="text-base-content text-right text-xs font-semibold break-words sm:text-sm">
                   {fmtIdr(topupAmount)}
                 </span>
               </div>
 
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-base-content/65 sm:text-sm">
+              <div className="flex items-start justify-between gap-3">
+                <span className="text-base-content/65 text-xs sm:text-sm">
                   Payment Method
                 </span>
-                <span className="text-xs font-semibold text-base-content sm:text-sm">
+                <span className="text-base-content text-right text-xs font-semibold break-words sm:text-sm">
                   {selectedMethod}
                 </span>
               </div>
 
-              <div className="flex items-center justify-between border-t border-base-300 pt-3 sm:pt-4">
-                <span className="text-xs font-bold text-base-content sm:text-sm">
+              <div className="border-base-300 flex items-center justify-between border-t pt-3 sm:pt-4">
+                <span className="text-base-content text-right text-xs font-bold break-words sm:text-sm">
                   Total
                 </span>
-                <span className="text-xs font-bold text-base-content sm:text-sm">
+                <span className="text-base-content text-right text-xs font-bold break-words sm:text-sm">
                   {fmtIdr(topupAmount)}
                 </span>
               </div>
             </div>
 
-            <p className="mb-3 rounded-lg bg-primary/10 p-3 text-xs leading-relaxed text-primary">
-              The backend now creates a pending top up only. Balance crediting is
-              handled by your payment webhook.
+            <p className="bg-primary/10 text-primary mb-3 rounded-lg p-3 text-xs leading-relaxed">
+              The backend now creates a pending top up only. Balance crediting
+              is handled by your payment webhook.
             </p>
 
             {error && (
-              <p className="mb-3 text-xs font-medium text-error">{error}</p>
+              <p className="text-error mb-3 text-xs font-medium">{error}</p>
             )}
 
             <button
               onClick={handleFormSubmit}
-              className="rounded-2xl bg-gradient-to-r from-primary to-secondary px-5 py-3 text-sm font-black text-white shadow-lg shadow-primary/20 transition hover:from-primary/90 hover:to-secondary/90 disabled:opacity-60 w-full"
+              className="from-primary to-secondary shadow-primary/20 hover:from-primary/90 hover:to-secondary/90 w-full rounded-2xl bg-gradient-to-r px-5 py-3 text-sm font-black text-white shadow-lg transition disabled:opacity-60"
               disabled={isLoading}
             >
               {isLoading ? "Memproses..." : "Create Top Up"}

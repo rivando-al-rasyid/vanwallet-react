@@ -19,11 +19,17 @@ export default function AskPin() {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
   const { pinLoading, error } = useSelector((state) => state.register);
-  const methods = useForm({ defaultValues: { pin: defaultPin }, mode: "onChange" });
+  const methods = useForm({
+    defaultValues: { pin: defaultPin },
+    mode: "onChange",
+  });
 
   const searchParams = new URLSearchParams(location.search);
   const redirectParam = searchParams.get("redirectTo");
-  const redirectTo = redirectParam?.startsWith("/") && !redirectParam.startsWith("//") ? redirectParam : "/dashboard";
+  const redirectTo =
+    redirectParam?.startsWith("/") && !redirectParam.startsWith("//")
+      ? redirectParam
+      : "/dashboard";
 
   if (!user) return <Navigate to="/login" replace />;
   if (user.pin) return <Navigate to={redirectTo} replace />;
@@ -31,30 +37,51 @@ export default function AskPin() {
   const onSubmit = async (data) => {
     const pin = data.pin.map((item) => item.value).join("");
     if (pin.length !== PIN_LENGTH) {
-      methods.setError("pin", { type: "manual", message: "Please complete the 6-digit PIN." });
+      methods.setError("pin", {
+        type: "manual",
+        message: "Please complete the 6-digit PIN.",
+      });
       return;
     }
     const result = await dispatch(createPin({ pin }));
-    if (createPin.fulfilled.match(result)) navigate(redirectTo, { replace: true });
+    if (createPin.fulfilled.match(result))
+      navigate(redirectTo, { replace: true });
   };
 
   const pinError = methods.formState.errors.pin?.message;
 
   return (
-    <main className="grid min-h-screen grid-cols-1 bg-base-200 lg:grid-cols-2">
-      <section className="flex min-h-screen items-center justify-center px-5 py-10 sm:px-8 lg:px-12">
-        <div className="w-full max-w-xl rounded-[2rem] border border-base-300 bg-base-100/90 p-6 shadow-2xl shadow-base-content/10 backdrop-blur sm:p-10">
+    <main className="bg-base-200 grid min-h-screen grid-cols-1 overflow-x-hidden lg:grid-cols-2">
+      <section className="flex min-h-screen items-center justify-center px-4 py-8 sm:px-8 lg:px-12">
+        <div className="border-base-300 bg-base-100/90 shadow-base-content/10 w-full max-w-xl rounded-[1.5rem] border p-5 shadow-2xl backdrop-blur sm:rounded-[2rem] sm:p-10">
           <Brand />
           <div className="mt-10">
-            <LoginHeadline title="Create your PIN 🔐" text="Set a 6-digit PIN to secure transfers and wallet actions." />
+            <LoginHeadline
+              title="Create your PIN 🔐"
+              text="Set a 6-digit PIN to secure transfers and wallet actions."
+            />
             <FormProvider {...methods}>
-              <form className="space-y-8" onSubmit={methods.handleSubmit(onSubmit)}>
-                <PinInput />
-                {(pinError || error) && <div className="rounded-2xl border border-error/30 bg-error/10 px-4 py-3 text-sm font-bold text-error">{pinError || error}</div>}
-                <Submit name={pinLoading ? "Saving..." : "Continue"} disabled={pinLoading} />
+              <form
+                className="space-y-8"
+                onSubmit={methods.handleSubmit(onSubmit)}
+              >
+                <PinInput autoComplete="new-password" />
+                {(pinError || error) && (
+                  <div className="border-error/30 bg-error/10 text-error rounded-2xl border px-4 py-3 text-sm font-bold">
+                    {pinError || error}
+                  </div>
+                )}
+                <Submit
+                  name={pinLoading ? "Saving..." : "Continue"}
+                  disabled={pinLoading}
+                />
               </form>
             </FormProvider>
-            <LoginSubtext text="Wrong account? " link="/login" linklabel="Back to Login" />
+            <LoginSubtext
+              text="Wrong account? "
+              link="/login"
+              linklabel="Back to Login"
+            />
           </div>
         </div>
       </section>

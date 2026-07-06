@@ -71,7 +71,7 @@ export default function History() {
   return (
     <>
       <div className="mb-4 flex items-center gap-2 sm:mb-6 sm:gap-3">
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary sm:h-10 sm:w-10">
+        <div className="bg-primary/15 text-primary flex h-8 w-8 shrink-0 items-center justify-center rounded-full sm:h-10 sm:w-10">
           <svg
             width="16"
             height="16"
@@ -101,13 +101,17 @@ export default function History() {
             />
           </svg>
         </div>
-        <h1 className="text-lg font-black text-base-content">History Transaction</h1>
+        <h1 className="text-base-content text-lg font-black">
+          History Transaction
+        </h1>
       </div>
 
-      <div className="rounded-[1.5rem] border border-base-300 bg-base-100 p-5 shadow-sm sm:p-6 min-h-[37.5rem]">
-        <div className="flex flex-col gap-4 border-b border-base-300 px-4 py-4 sm:px-6 sm:py-5 lg:px-8">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <h2 className="text-lg font-black text-base-content">Find Transaction</h2>
+      <div className="border-base-300 bg-base-100 min-h-[28rem] min-w-0 rounded-[1.5rem] border p-4 shadow-sm sm:min-h-[37.5rem] sm:p-6">
+        <div className="border-base-300 flex flex-col gap-4 border-b px-0 py-4 sm:px-2 sm:py-5 lg:px-4">
+          <div className="flex min-w-0 flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <h2 className="text-base-content text-lg font-black">
+              Find Transaction
+            </h2>
             <SearchInput
               value={q}
               onChange={handleSearchChange}
@@ -117,9 +121,9 @@ export default function History() {
         </div>
 
         {loading && (
-          <div className="flex flex-col items-center justify-center gap-3 py-12 text-base-content/50 sm:py-20">
+          <div className="text-base-content/50 flex flex-col items-center justify-center gap-3 py-12 sm:py-20">
             <svg
-              className="h-6 w-6 animate-spin text-primary sm:h-8 sm:w-8"
+              className="text-primary h-6 w-6 animate-spin sm:h-8 sm:w-8"
               fill="none"
               viewBox="0 0 24 24"
             >
@@ -145,10 +149,10 @@ export default function History() {
 
         {!loading && error && (
           <div className="flex flex-col items-center justify-center gap-3 py-20">
-            <p className="text-sm font-semibold text-error">{error}</p>
+            <p className="text-error text-sm font-semibold">{error}</p>
             <button
               onClick={handleRetry}
-              className="text-xs text-primary underline"
+              className="text-primary text-xs underline"
             >
               Coba lagi
             </button>
@@ -157,7 +161,7 @@ export default function History() {
 
         {!loading && !error && (
           <>
-            <div className="overflow-x-auto">
+            <div className="min-w-0 overflow-x-auto">
               <TableRow items={items} remove={false} showActions={false} />
             </div>
             <Pagination

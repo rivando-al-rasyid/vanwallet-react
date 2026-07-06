@@ -17,8 +17,11 @@ export default function Header() {
 
   useEffect(() => {
     function handleClickOutside(event) {
-      if (wrapperRef.current && !wrapperRef.current.contains(event.target)) setOpen(false);
+      if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
+        setOpen(false);
+      }
     }
+
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
@@ -26,52 +29,135 @@ export default function Header() {
   const handleLogout = async () => {
     const shouldLogout = window.confirm("Are you sure you want to logout?");
     if (!shouldLogout) return;
+
     await dispatch(logout());
     setOpen(false);
     navigate("/login");
   };
 
   return (
-    <header className="fixed top-0 right-0 left-0 z-50 w-full border-b border-base-300 bg-base-100/90 font-sans shadow-sm backdrop-blur-xl">
-      <nav className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
+    <header className="border-base-300 bg-base-100/90 fixed top-0 right-0 left-0 z-50 w-full border-b font-sans shadow-sm backdrop-blur-xl">
+      <nav className="mx-auto flex h-16 max-w-screen-2xl items-center justify-between gap-3 px-3 sm:px-5 lg:px-8">
         <Brand />
-        <div className="flex items-center gap-3">
-          <div className="hidden items-center gap-3 border-r border-base-300 pr-4 lg:flex">
-            <button className="flex h-10 w-10 items-center justify-center rounded-2xl text-base-content/50 transition-colors hover:bg-primary/10 hover:text-primary" aria-label="Search">
-              <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" /><path d="M21 21l-4.35-4.35" /></svg>
+
+        <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+          <div className="border-base-300 hidden items-center gap-2 border-r pr-3 xl:flex">
+            <button
+              className="text-base-content/50 hover:bg-primary/10 hover:text-primary flex h-10 w-10 items-center justify-center rounded-2xl transition-colors"
+              aria-label="Search"
+            >
+              <svg
+                className="h-5 w-5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+              >
+                <circle cx="11" cy="11" r="7" />
+                <path d="M21 21l-4.35-4.35" />
+              </svg>
             </button>
-            <button className="flex h-10 w-10 items-center justify-center rounded-2xl text-base-content/50 transition-colors hover:bg-primary/10 hover:text-primary" aria-label="Wallet">
-              <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" /><path d="M16 10a4 4 0 01-8 0" /></svg>
+            <button
+              className="text-base-content/50 hover:bg-primary/10 hover:text-primary flex h-10 w-10 items-center justify-center rounded-2xl transition-colors"
+              aria-label="Wallet"
+            >
+              <svg
+                className="h-5 w-5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+              >
+                <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+                <path d="M16 10a4 4 0 01-8 0" />
+              </svg>
             </button>
           </div>
 
           {user ? (
             <div className="relative hidden lg:block" ref={wrapperRef}>
-              <button onClick={() => setOpen((v) => !v)} className="flex items-center gap-3 rounded-2xl border border-transparent bg-base-200 p-1.5 pr-3 transition-all hover:border-primary/20 hover:bg-primary/10">
-                <img src={user.avatar} className="h-9 w-9 rounded-xl object-cover shadow-sm ring-2 ring-base-100" alt="avatar" />
-                <span className="max-w-32 truncate text-sm font-bold text-base-content/80">{user.name}</span>
-                <svg className={`h-4 w-4 text-base-content/50 transition-transform duration-300 ${open ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" /></svg>
+              <button
+                onClick={() => setOpen((v) => !v)}
+                className="bg-base-200 hover:border-primary/20 hover:bg-primary/10 flex max-w-56 items-center gap-3 rounded-2xl border border-transparent p-1.5 pr-3 transition-all"
+              >
+                <img
+                  src={user.avatar}
+                  className="ring-base-100 h-9 w-9 shrink-0 rounded-xl object-cover shadow-sm ring-2"
+                  alt="avatar"
+                />
+                <span className="text-base-content/80 truncate text-sm font-bold">
+                  {user.name}
+                </span>
+                <svg
+                  className={`text-base-content/50 h-4 w-4 shrink-0 transition-transform duration-300 ${
+                    open ? "rotate-180" : ""
+                  }`}
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M6 9l6 6 6-6" />
+                </svg>
               </button>
-              <div className={`absolute top-[calc(100%+12px)] right-0 w-64 origin-top-right overflow-hidden rounded-3xl border border-base-300 bg-base-100 shadow-2xl transition-all duration-200 ${open ? "translate-y-0 scale-100 opacity-100" : "pointer-events-none -translate-y-2 scale-95 opacity-0"}`}>
-                <div className="border-b border-base-300 bg-base-200 px-4 py-4">
-                  <p className="text-[10px] font-black tracking-widest text-base-content/50 uppercase">Akun Tersambung</p>
-                  <p className="truncate text-sm font-black text-base-content">{user.name}</p>
+
+              <div
+                className={`border-base-300 bg-base-100 absolute top-[calc(100%+12px)] right-0 w-64 origin-top-right overflow-hidden rounded-3xl border shadow-2xl transition-all duration-200 ${
+                  open
+                    ? "translate-y-0 scale-100 opacity-100"
+                    : "pointer-events-none -translate-y-2 scale-95 opacity-0"
+                }`}
+              >
+                <div className="border-base-300 bg-base-200 border-b px-4 py-4">
+                  <p className="text-base-content/50 text-[10px] font-black tracking-widest uppercase">
+                    Akun Tersambung
+                  </p>
+                  <p className="text-base-content truncate text-sm font-black">
+                    {user.name}
+                  </p>
                 </div>
                 <div className="p-2">
-                  <button onClick={() => { navigate("/dashboard/profile"); setOpen(false); }} className="flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-sm font-bold text-base-content/75 transition-colors hover:bg-primary/10 hover:text-primary">
-                    <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+                  <button
+                    onClick={() => {
+                      navigate("/dashboard/profile");
+                      setOpen(false);
+                    }}
+                    className="text-base-content/75 hover:bg-primary/10 hover:text-primary flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-sm font-bold transition-colors"
+                  >
+                    <svg
+                      className="h-4 w-4"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+                      <circle cx="12" cy="7" r="4" />
+                    </svg>
                     Profil Saya
                   </button>
-                  <hr className="my-1 border-base-300" />
-                  <LogoutButton onLogout={handleLogout} className="w-full px-3 py-3" />
+                  <hr className="border-base-300 my-1" />
+                  <LogoutButton
+                    onLogout={handleLogout}
+                    className="w-full px-3 py-3"
+                  />
                 </div>
               </div>
             </div>
           ) : (
-            <button onClick={() => navigate("/login")} className="hidden rounded-2xl bg-primary px-6 py-2.5 text-sm font-black text-primary-content transition-all hover:bg-primary/90 active:scale-95 lg:block">Masuk</button>
+            <button
+              onClick={() => navigate("/login")}
+              className="bg-primary text-primary-content hover:bg-primary/90 hidden rounded-2xl px-6 py-2.5 text-sm font-black transition-all active:scale-95 lg:block"
+            >
+              Masuk
+            </button>
           )}
 
-          <button onClick={() => setSidebarOpen((prev) => !prev)} className="flex items-center justify-center rounded-2xl p-2 text-base-content/75 transition hover:bg-base-200 lg:hidden" aria-label={sidebarOpen ? "Close sidebar" : "Open sidebar"}>
+          <button
+            onClick={() => setSidebarOpen((prev) => !prev)}
+            className="text-base-content/75 hover:bg-base-200 flex shrink-0 items-center justify-center rounded-2xl p-2 transition lg:hidden"
+            aria-label={sidebarOpen ? "Close sidebar" : "Open sidebar"}
+          >
             {sidebarOpen ? <X size={22} /> : <Menu size={22} />}
           </button>
         </div>

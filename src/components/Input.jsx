@@ -3,13 +3,16 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
 const InputLabel = memo(({ htmlFor, label }) => (
-  <label htmlFor={htmlFor} className="ml-1 block text-sm font-bold text-base-content/80">
+  <label
+    htmlFor={htmlFor}
+    className="text-base-content/80 ml-1 block text-sm font-bold"
+  >
     {label}
   </label>
 ));
 
 const InputIcon = memo(({ icon }) => (
-  <div className="absolute top-1/2 left-4 -translate-y-1/2 text-base-content/50 transition-colors group-focus-within:text-primary">
+  <div className="text-base-content/50 group-focus-within:text-primary absolute top-1/2 left-4 -translate-y-1/2 transition-colors">
     <FontAwesomeIcon icon={icon} />
   </div>
 ));
@@ -17,7 +20,7 @@ const InputIcon = memo(({ icon }) => (
 const InputField = memo(({ paddingClasses, className, ...props }) => (
   <input
     {...props}
-    className={`w-full rounded-2xl border border-base-300 bg-base-100/90 py-4 text-sm text-base-content shadow-sm transition-all outline-none placeholder:text-base-content/50 focus:border-primary focus:ring-4 focus:ring-primary/20 ${paddingClasses} ${className || ""}`}
+    className={`border-base-300 bg-base-100/90 text-base-content placeholder:text-base-content/50 focus:border-primary focus:ring-primary/20 w-full rounded-2xl border py-4 text-sm shadow-sm transition-all outline-none focus:ring-4 ${paddingClasses} ${className || ""}`}
   />
 ));
 
@@ -35,9 +38,12 @@ const Input = memo(function Input({
 }) {
   const [showPassword, setShowPassword] = useState(false);
 
+  const isPinLike = /pin|otp|passcode/i.test(`${name || ""} ${label || ""}`);
   const isPassword = type === "password";
+  const isSecret = isPassword || isPinLike;
+  const canToggleVisibility = isPassword && !isPinLike;
   const inputId = name ? `input-${name}` : undefined;
-  const paddingClasses = `${icon ? "pl-12" : "pl-4"} ${isPassword ? "pr-12" : "pr-4"}`;
+  const paddingClasses = `${icon ? "pl-12" : "pl-4"} ${canToggleVisibility ? "pr-12" : "pr-4"}`;
 
   const handleToggle = useCallback(() => setShowPassword((prev) => !prev), []);
 
@@ -51,17 +57,23 @@ const Input = memo(function Input({
           id={inputId}
           name={name}
           required={required}
-          type={isPassword && showPassword ? "text" : type}
+          type={
+            canToggleVisibility && showPassword
+              ? "text"
+              : isSecret
+                ? "password"
+                : type
+          }
           value={value}
           onChange={onChange}
           placeholder={placeholder}
           paddingClasses={paddingClasses}
         />
-        {isPassword && (
+        {canToggleVisibility && (
           <button
             type="button"
             onClick={handleToggle}
-            className="absolute top-1/2 right-4 -translate-y-1/2 text-base-content/50 transition-colors hover:text-primary focus:outline-none"
+            className="text-base-content/50 hover:text-primary absolute top-1/2 right-4 -translate-y-1/2 transition-colors focus:outline-none"
             aria-label={showPassword ? "Hide password" : "Show password"}
           >
             <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
