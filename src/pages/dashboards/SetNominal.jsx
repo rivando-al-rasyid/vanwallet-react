@@ -100,7 +100,7 @@ export default function SetNominal() {
               setError("");
             }}
             placeholder="Enter transfer amount"
-            className="border-base-300 bg-base-100 text-base-content placeholder:text-base-content/50 focus:border-primary focus:ring-primary/20 w-full rounded-2xl border px-4 py-3 text-sm shadow-sm transition outline-none focus:ring-4"
+            className="input input-bordered focus:input-primary w-full"
             min="1"
           />
           {amount && parseFloat(amount) > 0 && (
@@ -121,7 +121,7 @@ export default function SetNominal() {
             value={note}
             onChange={(e) => setNote(e.target.value)}
             placeholder="Add a note..."
-            className="border-base-300 bg-base-100 text-base-content placeholder:text-base-content/50 focus:border-primary focus:ring-primary/20 w-full rounded-2xl border px-4 py-3 text-sm shadow-sm transition outline-none focus:ring-4"
+            className="input input-bordered focus:input-primary w-full"
           />
         </div>
 
@@ -138,7 +138,7 @@ export default function SetNominal() {
           </button>
           <button
             onClick={handleSubmit}
-            className="w-full rounded-2xl bg-primary px-5 py-3 text-sm font-black text-primary-content shadow-lg transition disabled:opacity-60 sm:flex-1"
+            className="btn btn-primary sm:flex-1"
           >
             Continue
           </button>

@@ -171,7 +171,7 @@ export default function ChangePassword() {
             <button
               onClick={handleSubmit}
               disabled={loading}
-              className="rounded-2xl bg-primary px-5 py-3 text-sm font-black text-primary-content shadow-lg transition disabled:opacity-60"
+              className="btn btn-primary"
             >
               {loading ? "Menyimpan..." : "Save Password"}
             </button>

@@ -15,7 +15,9 @@ export default function FeatureList() {
             One visual language across landing, auth, and dashboard.
           </h2>
           <p className="mt-5 max-w-md text-base leading-8 text-base-content/65">
-            The basedtoast palette is dark by design, so cards, inputs, navigation, and charts should feel intentional instead of just inverted.
+            The VanWallet palette is a focused blue system that adapts to
+            light or dark automatically, so cards, inputs, navigation, and
+            charts stay consistent everywhere.
           </p>
           <ul className="mt-8 space-y-4">
             {FEATURES.map((feature) => (

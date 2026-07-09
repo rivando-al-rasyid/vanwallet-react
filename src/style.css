@@ -1,36 +1,78 @@
 @import "tailwindcss";
 @plugin "daisyui";
+
 @plugin "daisyui/theme" {
-  name: "basedtoast";
-  default: false;
+  name: "vanwallet";
+  default: true;
   prefersdark: false;
-  color-scheme: "dark";
-  --color-base-100: oklch(14% 0 0);
-  --color-base-200: oklch(20% 0 0);
-  --color-base-300: oklch(26% 0 0);
-  --color-base-content: oklch(97% 0 0);
-  --color-primary: oklch(78% 0.115 274.713);
-  --color-primary-content: oklch(25% 0.09 281.288);
-  --color-secondary: oklch(82% 0.111 230.318);
-  --color-secondary-content: oklch(29% 0.066 243.157);
-  --color-accent: oklch(81% 0.111 293.571);
-  --color-accent-content: oklch(28% 0.141 291.089);
-  --color-neutral: oklch(37% 0 0);
-  --color-neutral-content: oklch(98% 0 0);
-  --color-info: oklch(62% 0.214 259.815);
-  --color-info-content: oklch(97% 0.014 254.604);
-  --color-success: oklch(72% 0.219 149.579);
-  --color-success-content: oklch(98% 0.018 155.826);
-  --color-warning: oklch(76% 0.188 70.08);
-  --color-warning-content: oklch(98% 0.022 95.277);
-  --color-error: oklch(64% 0.246 16.439);
-  --color-error-content: oklch(96% 0.015 12.422);
-  --radius-selector: 0.25rem;
-  --radius-field: 1rem;
-  --radius-box: 0.5rem;
+  color-scheme: "light";
+  --color-base-100: oklch(100% 0 0);
+  --color-base-200: oklch(97% 0.01 250);
+  --color-base-300: oklch(92% 0.016 250);
+  --color-base-content: oklch(26% 0.03 255);
+  --color-primary: oklch(55% 0.19 258);
+  --color-primary-content: oklch(98% 0.01 258);
+  --color-secondary: oklch(68% 0.13 231);
+  --color-secondary-content: oklch(20% 0.04 231);
+  --color-accent: oklch(45% 0.19 266);
+  --color-accent-content: oklch(98% 0.01 266);
+  --color-neutral: oklch(28% 0.035 255);
+  --color-neutral-content: oklch(97% 0.01 255);
+  --color-info: oklch(60% 0.15 250);
+  --color-info-content: oklch(97% 0.01 250);
+  --color-success: oklch(70% 0.17 152);
+  --color-success-content: oklch(98% 0.02 155);
+  --color-warning: oklch(76% 0.16 80);
+  --color-warning-content: oklch(20% 0.03 80);
+  --color-error: oklch(62% 0.22 18);
+  --color-error-content: oklch(97% 0.01 18);
+  --radius-selector: 0.5rem;
+  --radius-field: 0.75rem;
+  --radius-box: 1rem;
   --size-selector: 0.25rem;
   --size-field: 0.25rem;
   --border: 1px;
   --depth: 0;
   --noise: 0;
+}
+
+@plugin "daisyui/theme" {
+  name: "vanwallet-dark";
+  default: false;
+  prefersdark: true;
+  color-scheme: "dark";
+  --color-base-100: oklch(19% 0.024 255);
+  --color-base-200: oklch(23% 0.026 255);
+  --color-base-300: oklch(29% 0.03 255);
+  --color-base-content: oklch(95% 0.01 255);
+  --color-primary: oklch(72% 0.15 258);
+  --color-primary-content: oklch(17% 0.04 258);
+  --color-secondary: oklch(76% 0.1 226);
+  --color-secondary-content: oklch(18% 0.04 226);
+  --color-accent: oklch(64% 0.17 266);
+  --color-accent-content: oklch(97% 0.01 266);
+  --color-neutral: oklch(15% 0.02 255);
+  --color-neutral-content: oklch(95% 0.01 255);
+  --color-info: oklch(70% 0.13 250);
+  --color-info-content: oklch(17% 0.03 250);
+  --color-success: oklch(72% 0.17 152);
+  --color-success-content: oklch(18% 0.03 155);
+  --color-warning: oklch(78% 0.16 80);
+  --color-warning-content: oklch(20% 0.03 80);
+  --color-error: oklch(68% 0.2 18);
+  --color-error-content: oklch(18% 0.02 18);
+  --radius-selector: 0.5rem;
+  --radius-field: 0.75rem;
+  --radius-box: 1rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
 }

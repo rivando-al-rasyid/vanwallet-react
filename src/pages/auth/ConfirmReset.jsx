@@ -4,7 +4,7 @@ import LoginHeadline from "../../components/login/LoginHeadline";
 import StepIndicator from "../../components/login/StepIndicator";
 import Submit from "../../components/Submit";
 import LoginSubtext from "../../components/LoginSubtext";
-import { AuthCenteredLayout } from "../../layouts/AuthLayout";
+import { CenteredAuthLayout } from "../../layouts/CenteredAuthLayout";
 import { confirmPasswordReset } from "../../utils/api";
 
 export default function ConfirmReset() {
@@ -38,7 +38,7 @@ export default function ConfirmReset() {
   };
 
   return (
-    <AuthCenteredLayout>
+    <CenteredAuthLayout>
       <StepIndicator currentStep={2} label="Enter Token" />
       <LoginHeadline
         title="Check your email 📬"
@@ -49,14 +49,19 @@ export default function ConfirmReset() {
         }
       />
       {error && (
-        <div className="border-error/30 bg-error/10 text-error mb-3 rounded-xl border px-3 py-2 text-xs font-bold">
+        <div
+          role="alert"
+          className="alert alert-error alert-soft mb-3 py-2 text-xs font-bold"
+        >
           {error}
         </div>
       )}
       <form className="space-y-3.5" onSubmit={handleSubmit}>
-        <div className="space-y-1.5">
-          <label className="text-base-content/80 ml-1 block text-xs font-bold sm:text-sm">
-            Reset Token
+        <div className="form-control w-full">
+          <label className="label pt-0 pb-1.5">
+            <span className="label-text text-xs font-bold sm:text-sm">
+              Reset Token
+            </span>
           </label>
           <input
             type="text"
@@ -66,12 +71,14 @@ export default function ConfirmReset() {
               setError("");
             }}
             placeholder="Paste your reset token here"
-            className="border-base-300 bg-base-100 text-base-content placeholder:text-base-content/50 focus:border-primary focus:ring-primary/20 w-full min-w-0 rounded-xl border px-3.5 py-2.5 text-sm shadow-sm transition outline-none focus:ring-4"
+            className="input input-bordered focus:input-primary w-full"
             autoComplete="one-time-code"
           />
-          <p className="text-base-content/50 ml-1 text-xs">
-            Token expires in 5 minutes. Check spam if you do not see it.
-          </p>
+          <label className="label pt-1.5 pb-0">
+            <span className="label-text-alt text-base-content/50 text-xs">
+              Token expires in 5 minutes. Check spam if you do not see it.
+            </span>
+          </label>
         </div>
         <Submit
           name={loading ? "Verifying..." : "Verify Token"}
@@ -83,6 +90,6 @@ export default function ConfirmReset() {
         link="/forgotpassword"
         linklabel="Try again"
       />
-    </AuthCenteredLayout>
+    </CenteredAuthLayout>
   );
 }

@@ -207,7 +207,7 @@ export default function TopUp() {
 
           <button
             onClick={handleReset}
-            className="rounded-2xl bg-primary px-5 py-3 text-sm font-black text-primary-content shadow-lg transition disabled:opacity-60"
+            className="btn btn-primary"
           >
             Create Another Top Up
           </button>
@@ -273,7 +273,7 @@ export default function TopUp() {
                   setError("");
                 }}
                 placeholder="Enter top up amount"
-                className="border-base-300 bg-base-100 text-base-content placeholder:text-base-content/50 focus:border-primary focus:ring-primary/20 w-full rounded-2xl border px-4 py-3 text-sm shadow-sm transition outline-none focus:ring-4"
+                className="input input-bordered focus:input-primary w-full"
                 min="0"
               />
             </div>
@@ -371,7 +371,7 @@ export default function TopUp() {
 
             <button
               onClick={handleFormSubmit}
-              className="w-full rounded-2xl bg-primary px-5 py-3 text-sm font-black text-primary-content shadow-lg transition disabled:opacity-60"
+              className="btn btn-primary btn-block"
               disabled={isLoading}
             >
               {isLoading ? "Memproses..." : "Create Top Up"}

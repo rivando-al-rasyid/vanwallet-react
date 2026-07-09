@@ -6,7 +6,7 @@ import StepIndicator from "../../components/login/StepIndicator";
 import Input from "../../components/Input";
 import Submit from "../../components/Submit";
 import LoginSubtext from "../../components/LoginSubtext";
-import { AuthCenteredLayout } from "../../layouts/AuthLayout";
+import { CenteredAuthLayout } from "../../layouts/CenteredAuthLayout";
 import { requestPasswordReset } from "../../utils/api";
 
 export default function ForgotPassword() {
@@ -34,14 +34,17 @@ export default function ForgotPassword() {
   };
 
   return (
-    <AuthCenteredLayout>
+    <CenteredAuthLayout>
       <StepIndicator currentStep={1} label="Email" />
       <LoginHeadline
         title="Reset your password"
         text="Enter your email and we will send you a reset token."
       />
       {error && (
-        <div className="border-error/30 bg-error/10 text-error mb-3 rounded-xl border px-3 py-2 text-xs font-bold">
+        <div
+          role="alert"
+          className="alert alert-error alert-soft mb-3 py-2 text-xs font-bold"
+        >
           {error}
         </div>
       )}
@@ -68,6 +71,6 @@ export default function ForgotPassword() {
         link="/login"
         linklabel="Back to Login"
       />
-    </AuthCenteredLayout>
+    </CenteredAuthLayout>
   );
 }

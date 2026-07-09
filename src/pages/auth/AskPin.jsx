@@ -6,7 +6,7 @@ import LoginImage from "../../components/login/LoginImage";
 import LoginHeadline from "../../components/login/LoginHeadline";
 import Submit from "../../components/Submit";
 import LoginSubtext from "../../components/LoginSubtext";
-import { AuthSplitLayout } from "../../layouts/AuthLayout";
+import { AuthLayout } from "../../layouts/AuthLayout";
 import { createPin } from "../../store/slices/registerSlice";
 import loginPhoneImage from "../../assets/img/3d-hand-phone.png";
 
@@ -51,7 +51,7 @@ export default function AskPin() {
   const pinError = methods.formState.errors.pin?.message;
 
   return (
-    <AuthSplitLayout aside={<LoginImage img={loginPhoneImage} />}>
+    <AuthLayout aside={<LoginImage img={loginPhoneImage} />}>
       <LoginHeadline
         title="Create your PIN 🔐"
         text="Set a 6-digit PIN to secure transfers and wallet actions."
@@ -60,7 +60,10 @@ export default function AskPin() {
         <form className="space-y-5" onSubmit={methods.handleSubmit(onSubmit)}>
           <PinInput autoComplete="new-password" />
           {(pinError || error) && (
-            <div className="border-error/30 bg-error/10 text-error rounded-xl border px-3 py-2 text-xs font-bold">
+            <div
+              role="alert"
+              className="alert alert-error alert-soft py-2 text-xs font-bold"
+            >
               {pinError || error}
             </div>
           )}
@@ -75,6 +78,6 @@ export default function AskPin() {
         link="/login"
         linklabel="Back to Login"
       />
-    </AuthSplitLayout>
+    </AuthLayout>
   );
 }

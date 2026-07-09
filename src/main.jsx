@@ -4,8 +4,6 @@ import { Provider } from "react-redux";
 
 import "./style.css";
 
-document.documentElement.setAttribute("data-theme", "basedtoast");
-
 import App from "./App.jsx";
 import Login from "./pages/auth/Login.jsx";
 import Register from "./pages/auth/Register.jsx";

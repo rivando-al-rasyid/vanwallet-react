@@ -8,7 +8,7 @@ import Input from "../../components/Input";
 import Submit from "../../components/Submit";
 import LoginImage from "../../components/login/LoginImage";
 import LoginSubtext from "../../components/LoginSubtext";
-import { AuthSplitLayout } from "../../layouts/AuthLayout";
+import { AuthLayout } from "../../layouts/AuthLayout";
 import loginPhoneImage from "../../assets/img/3d-hand-phone.png";
 
 export default function Login() {
@@ -56,23 +56,29 @@ export default function Login() {
   };
 
   return (
-    <AuthSplitLayout aside={<LoginImage img={loginPhoneImage} />}>
+    <AuthLayout aside={<LoginImage img={loginPhoneImage} />}>
       <LoginHeadline
         title="Welcome back 👋"
         text="Log in to manage your balance, transfers, top ups, and history."
       />
-      <div className="mb-4 rounded-xl border border-primary/20 bg-primary/10 px-3 py-2 text-xs font-bold text-primary">
+      <div role="alert" className="alert alert-info alert-soft mb-4 py-2 text-xs font-bold">
         Secure account access · Email and password only
       </div>
 
       {passwordReset && (
-        <div className="border-success/30 bg-success/10 text-success mb-3 rounded-xl border px-3 py-2 text-xs font-bold">
+        <div
+          role="alert"
+          className="alert alert-success alert-soft mb-3 py-2 text-xs font-bold"
+        >
           ✓ Password changed successfully. Please log in with your new
           password.
         </div>
       )}
       {(validationError || error) && (
-        <div className="border-error/30 bg-error/10 text-error mb-3 rounded-xl border px-3 py-2 text-xs font-bold">
+        <div
+          role="alert"
+          className="alert alert-error alert-soft mb-3 py-2 text-xs font-bold"
+        >
           {validationError || error}
         </div>
       )}
@@ -99,7 +105,7 @@ export default function Login() {
         <div className="flex justify-end">
           <NavLink
             to="/forgotpassword"
-            className="text-primary hover:text-primary text-xs font-bold hover:underline sm:text-sm"
+            className="link link-primary text-xs font-bold sm:text-sm"
           >
             Forgot Password?
           </NavLink>
@@ -112,6 +118,6 @@ export default function Login() {
         link="/register"
         linklabel="Register"
       />
-    </AuthSplitLayout>
+    </AuthLayout>
   );
 }

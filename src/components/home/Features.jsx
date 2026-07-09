@@ -14,7 +14,7 @@ const FEATURES = [
   {
     Icon: Headphones,
     title: "Support Ready",
-    desc: "Cards, states, and feedback messages now use the same basedtoast tone system.",
+    desc: "Cards, states, and feedback messages now use the same blue-first tone system.",
   },
 ];
 

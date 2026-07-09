@@ -6,7 +6,7 @@ import StepIndicator from "../../components/login/StepIndicator";
 import Input from "../../components/Input";
 import Submit from "../../components/Submit";
 import LoginSubtext from "../../components/LoginSubtext";
-import { AuthCenteredLayout } from "../../layouts/AuthLayout";
+import { CenteredAuthLayout } from "../../layouts/CenteredAuthLayout";
 import { changePasswordWithResetToken } from "../../utils/api";
 
 export default function ChangePasswordReset() {
@@ -62,7 +62,7 @@ export default function ChangePasswordReset() {
   };
 
   return (
-    <AuthCenteredLayout>
+    <CenteredAuthLayout>
       <StepIndicator currentStep={3} label="New Password" />
       {success ? (
         <div className="flex flex-col items-center gap-3 py-6 text-center">
@@ -84,7 +84,10 @@ export default function ChangePasswordReset() {
             text="Choose a strong password with at least 8 characters."
           />
           {error && (
-            <div className="border-error/30 bg-error/10 text-error mb-3 rounded-xl border px-3 py-2 text-xs font-bold">
+            <div
+              role="alert"
+              className="alert alert-error alert-soft mb-3 py-2 text-xs font-bold"
+            >
               {error}
             </div>
           )}
@@ -125,6 +128,6 @@ export default function ChangePasswordReset() {
           />
         </>
       )}
-    </AuthCenteredLayout>
+    </CenteredAuthLayout>
   );
 }

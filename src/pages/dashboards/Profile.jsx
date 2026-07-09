@@ -109,7 +109,7 @@ export default function Profile() {
               <div className="mt-6 grid gap-3">
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="rounded-2xl bg-primary px-5 py-3 text-sm font-black text-primary-content shadow-lg transition"
+                  className="btn btn-primary"
                 >
                   Change Photo
                 </button>
@@ -146,7 +146,7 @@ export default function Profile() {
                 value={form.name}
                 onChange={handleChange}
                 placeholder="Enter Full Name"
-                className="border-base-300 bg-base-100 text-base-content placeholder:text-base-content/50 focus:border-primary focus:ring-primary/20 w-full min-w-0 rounded-2xl border px-4 py-3 text-sm shadow-sm transition outline-none focus:ring-4"
+                className="input input-bordered focus:input-primary w-full min-w-0"
               />
             </div>
             <div>
@@ -159,7 +159,7 @@ export default function Profile() {
                 value={form.phone}
                 onChange={handleChange}
                 placeholder="+628123456789"
-                className="border-base-300 bg-base-100 text-base-content placeholder:text-base-content/50 focus:border-primary focus:ring-primary/20 w-full min-w-0 rounded-2xl border px-4 py-3 text-sm shadow-sm transition outline-none focus:ring-4"
+                className="input input-bordered focus:input-primary w-full min-w-0"
               />
             </div>
             <div>
@@ -197,7 +197,7 @@ export default function Profile() {
             <button
               onClick={handleSubmit}
               disabled={loading}
-              className="rounded-2xl bg-primary px-5 py-3 text-sm font-black text-primary-content shadow-lg transition disabled:opacity-60"
+              className="btn btn-primary"
             >
               {loading ? "Menyimpan..." : "Save Changes"}
             </button>
