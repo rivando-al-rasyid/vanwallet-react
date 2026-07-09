@@ -61,7 +61,7 @@ export default function SetNominal() {
         <Stepper currentStep={2} />
       </div>
 
-      <div className="border-base-300 bg-base-100 min-w-0 rounded-[1.5rem] border p-4 shadow-sm sm:p-6">
+      <div className="border-base-300 bg-base-200/80 min-w-0 rounded-box border p-4 shadow-sm sm:p-6">
         <h2 className="text-base-content mb-6 text-lg font-black">
           Transfer Detail
         </h2>
@@ -138,7 +138,7 @@ export default function SetNominal() {
           </button>
           <button
             onClick={handleSubmit}
-            className="from-primary to-secondary shadow-primary/20 hover:from-primary/90 hover:to-secondary/90 w-full rounded-2xl bg-gradient-to-r px-5 py-3 text-sm font-black text-white shadow-lg transition disabled:opacity-60 sm:flex-1"
+            className="w-full rounded-2xl bg-primary px-5 py-3 text-sm font-black text-primary-content shadow-lg transition disabled:opacity-60 sm:flex-1"
           >
             Continue
           </button>

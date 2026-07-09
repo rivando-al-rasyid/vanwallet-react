@@ -29,7 +29,7 @@ export default function Sidebar({ isOpen, setIsOpen }) {
   const navLinkClass = ({ isActive }) =>
     `flex items-center gap-3.5 rounded-2xl px-4 py-3 text-sm font-bold transition-all ${
       isActive
-        ? "bg-gradient-to-r from-primary to-secondary text-white shadow-lg shadow-primary/20"
+        ? "bg-primary text-primary-content shadow-lg shadow-primary/20"
         : "text-base-content/65 hover:bg-primary/10 hover:text-primary"
     }`;
 
@@ -37,22 +37,22 @@ export default function Sidebar({ isOpen, setIsOpen }) {
     <>
       {isOpen && (
         <div
-          className="bg-base-content/50 fixed inset-0 z-40 backdrop-blur-sm lg:hidden"
+          className="bg-base-100/70 fixed inset-0 z-40 backdrop-blur-sm lg:hidden"
           onClick={() => setIsOpen(false)}
         />
       )}
 
       <aside
-        className={`border-base-300 bg-base-100/95 fixed top-16 right-0 z-50 flex h-[calc(100dvh-4rem)] w-[min(18rem,calc(100vw-1rem))] transform flex-col border-l shadow-2xl transition-transform duration-300 ease-in-out lg:sticky lg:top-16 lg:left-0 lg:z-auto lg:h-[calc(100dvh-4rem)] lg:w-64 lg:translate-x-0 lg:border-r lg:border-l-0 lg:shadow-none ${
+        className={`border-base-300/80 bg-base-100/85 fixed top-16 right-0 z-50 flex h-[calc(100dvh-4rem)] w-[min(18rem,calc(100vw-1rem))] transform flex-col border-l shadow-2xl backdrop-blur-xl transition-transform duration-300 ease-in-out lg:sticky lg:top-16 lg:left-0 lg:z-auto lg:h-[calc(100dvh-4rem)] lg:w-64 lg:translate-x-0 lg:border-r lg:border-l-0 lg:shadow-none ${
           isOpen ? "translate-x-0" : "translate-x-full lg:translate-x-0"
         }`}
       >
         <div className="px-4 pt-5 sm:pt-6">
-          <div className="bg-neutral text-neutral-content rounded-[1.5rem] p-4">
-            <p className="text-success text-xs font-black tracking-[0.2em] uppercase">
+          <div className="rounded-box border border-base-300 bg-base-200 p-4">
+            <p className="text-primary text-xs font-black tracking-[0.2em] uppercase">
               Wallet menu
             </p>
-            <p className="text-neutral-content/70 mt-2 text-sm leading-6">
+            <p className="text-base-content/65 mt-2 text-sm leading-6">
               Manage money with fast actions.
             </p>
           </div>

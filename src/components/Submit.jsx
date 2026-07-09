@@ -7,7 +7,7 @@ const Submit = memo(function Submit({ label, name, disabled = false }) {
     <button
       type="submit"
       disabled={disabled}
-      className="from-primary to-secondary shadow-primary/20 hover:from-primary/90 hover:to-secondary/90 w-full rounded-2xl bg-gradient-to-r px-6 py-4 text-base font-bold text-white shadow-xl transition-all hover:-translate-y-0.5 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
+      className="bg-primary text-primary-content w-full rounded-xl px-6 py-3 text-sm font-bold shadow-xl transition-all hover:-translate-y-0.5 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
     >
       {text}
     </button>

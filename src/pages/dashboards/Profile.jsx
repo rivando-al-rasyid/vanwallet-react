@@ -71,14 +71,14 @@ export default function Profile() {
       </div>
 
       <div className="grid min-w-0 gap-5 sm:gap-6 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.4fr)]">
-        <aside className="border-base-300 bg-base-100 min-w-0 rounded-[1.5rem] border p-5 text-center shadow-sm sm:p-6">
+        <aside className="border-base-300 bg-base-200/80 min-w-0 rounded-box border p-5 text-center shadow-sm sm:p-6">
           {!user ? (
             <div className="text-base-content/50 flex items-center justify-center py-20 text-sm">
               Memuat data profile...
             </div>
           ) : (
             <>
-              <div className="border-base-300 bg-base-200 mx-auto flex h-28 w-28 items-center justify-center overflow-hidden rounded-[2rem] border shadow-inner">
+              <div className="border-base-300 bg-base-200 mx-auto flex h-28 w-28 items-center justify-center overflow-hidden rounded-box border shadow-inner">
                 {form.avatar ? (
                   <img
                     src={form.avatar}
@@ -109,7 +109,7 @@ export default function Profile() {
               <div className="mt-6 grid gap-3">
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="from-primary to-secondary shadow-primary/20 hover:from-primary/90 hover:to-secondary/90 rounded-2xl bg-gradient-to-r px-5 py-3 text-sm font-black text-white shadow-lg transition"
+                  className="rounded-2xl bg-primary px-5 py-3 text-sm font-black text-primary-content shadow-lg transition"
                 >
                   Change Photo
                 </button>
@@ -131,7 +131,7 @@ export default function Profile() {
           )}
         </aside>
 
-        <section className="border-base-300 bg-base-100 min-w-0 rounded-[1.5rem] border p-5 shadow-sm sm:p-6">
+        <section className="border-base-300 bg-base-200/80 min-w-0 rounded-box border p-5 shadow-sm sm:p-6">
           <h2 className="text-base-content text-lg font-black">
             Personal Information
           </h2>
@@ -197,7 +197,7 @@ export default function Profile() {
             <button
               onClick={handleSubmit}
               disabled={loading}
-              className="from-primary to-secondary shadow-primary/20 hover:from-primary/90 hover:to-secondary/90 rounded-2xl bg-gradient-to-r px-5 py-3 text-sm font-black text-white shadow-lg transition disabled:opacity-60"
+              className="rounded-2xl bg-primary px-5 py-3 text-sm font-black text-primary-content shadow-lg transition disabled:opacity-60"
             >
               {loading ? "Menyimpan..." : "Save Changes"}
             </button>

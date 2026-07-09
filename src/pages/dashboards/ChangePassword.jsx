@@ -125,7 +125,7 @@ export default function ChangePassword() {
           Change Password
         </h1>
       </div>
-      <div className="border-base-300 bg-base-100 min-w-0 rounded-[1.5rem] border p-5 shadow-sm sm:p-6">
+      <div className="border-base-300 bg-base-200/80 min-w-0 rounded-box border p-5 shadow-sm sm:p-6">
         <div className="max-w-2xl min-w-0">
           <p className="text-base-content/65 mb-6 text-sm leading-6">
             Use a password that is different from your old one and at least 8
@@ -171,7 +171,7 @@ export default function ChangePassword() {
             <button
               onClick={handleSubmit}
               disabled={loading}
-              className="from-primary to-secondary shadow-primary/20 hover:from-primary/90 hover:to-secondary/90 rounded-2xl bg-gradient-to-r px-5 py-3 text-sm font-black text-white shadow-lg transition disabled:opacity-60"
+              className="rounded-2xl bg-primary px-5 py-3 text-sm font-black text-primary-content shadow-lg transition disabled:opacity-60"
             >
               {loading ? "Menyimpan..." : "Save Password"}
             </button>

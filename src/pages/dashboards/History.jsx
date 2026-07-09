@@ -106,7 +106,7 @@ export default function History() {
         </h1>
       </div>
 
-      <div className="border-base-300 bg-base-100 min-h-[28rem] min-w-0 rounded-[1.5rem] border p-4 shadow-sm sm:min-h-[37.5rem] sm:p-6">
+      <div className="border-base-300 bg-base-200/80 min-h-[28rem] min-w-0 rounded-box border p-4 shadow-sm sm:min-h-[37.5rem] sm:p-6">
         <div className="border-base-300 flex flex-col gap-4 border-b px-0 py-4 sm:px-2 sm:py-5 lg:px-4">
           <div className="flex min-w-0 flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <h2 className="text-base-content text-lg font-black">

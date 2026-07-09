@@ -231,7 +231,7 @@ export default function Index() {
     <section className="flex min-w-0 flex-1 flex-col gap-4 sm:gap-6">
       <div className="flex flex-col gap-4 lg:gap-5">
         <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-3 lg:gap-6">
-          <div className="border-base-300 bg-base-100 flex min-w-0 flex-col gap-4 rounded-[1.5rem] border p-5 shadow-sm sm:p-6">
+          <div className="border-base-300 bg-base-200/80 flex min-w-0 flex-col gap-4 rounded-box border p-5 shadow-sm sm:p-6">
             <div className="text-base-content/65 flex items-center gap-2 text-xs font-medium">
               <svg
                 className="h-4 w-4"
@@ -277,7 +277,7 @@ export default function Index() {
             </div>
           </div>
 
-          <div className="border-base-300 bg-base-100 flex h-full min-w-0 flex-col gap-4 rounded-[1.5rem] border p-5 shadow-sm sm:p-6 md:flex-row md:items-center md:justify-between lg:col-span-2">
+          <div className="border-base-300 bg-base-200/80 flex h-full min-w-0 flex-col gap-4 rounded-box border p-5 shadow-sm sm:p-6 md:flex-row md:items-center md:justify-between lg:col-span-2">
             <div>
               <h2 className="text-base-content text-lg font-black">
                 Fast Service
@@ -286,14 +286,14 @@ export default function Index() {
 
             <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
               <button
-                className="from-primary to-secondary shadow-primary/20 hover:from-primary/90 hover:to-secondary/90 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r px-5 py-3 text-sm font-black text-white shadow-lg transition disabled:opacity-60 sm:w-auto"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3 text-sm font-black text-primary-content shadow-lg transition disabled:opacity-60 sm:w-auto"
                 onClick={() => navigate("/dashboard/topup")}
               >
                 <span className="text-lg">+</span> Top Up
               </button>
 
               <button
-                className="from-primary to-secondary shadow-primary/20 hover:from-primary/90 hover:to-secondary/90 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r px-5 py-3 text-sm font-black text-white shadow-lg transition disabled:opacity-60 sm:w-auto"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3 text-sm font-black text-primary-content shadow-lg transition disabled:opacity-60 sm:w-auto"
                 onClick={() => navigate("/dashboard/transfer")}
               >
                 <svg
@@ -311,7 +311,7 @@ export default function Index() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
-        <div className="border-base-300 bg-base-100 col-span-full min-w-0 rounded-[1.5rem] border p-4 shadow-sm sm:p-6 lg:col-span-2">
+        <div className="border-base-300 bg-base-200/80 col-span-full min-w-0 rounded-box border p-4 shadow-sm sm:p-6 lg:col-span-2">
           <div className="border-base-300 w-full rounded-xl border p-4 sm:p-5">
             <div className="mb-4 flex flex-col gap-3 sm:mb-6 sm:flex-row sm:items-center sm:justify-between">
               <h2 className="text-base-content text-lg font-black">
@@ -353,7 +353,7 @@ export default function Index() {
           </div>
         </div>
 
-        <div className="border-base-300 bg-base-100 col-span-full flex h-full min-w-0 flex-col rounded-[1.5rem] border p-5 shadow-sm sm:p-6 lg:col-span-1">
+        <div className="border-base-300 bg-base-200/80 col-span-full flex h-full min-w-0 flex-col rounded-box border p-5 shadow-sm sm:p-6 lg:col-span-1">
           <div className="flex items-center justify-between gap-3">
             <h3 className="text-base-content text-lg font-black">
               Transaction History

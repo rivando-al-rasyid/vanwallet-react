@@ -3,13 +3,12 @@ import { NavLink, useLocation, useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { faEnvelope, faLock } from "@fortawesome/free-solid-svg-icons";
 import { login } from "../../store/slices/authSlice";
-import Brand from "../../components/Brand";
 import LoginHeadline from "../../components/login/LoginHeadline";
-import SocialLogin from "../../components/SocialLogin";
 import Input from "../../components/Input";
 import Submit from "../../components/Submit";
 import LoginImage from "../../components/login/LoginImage";
 import LoginSubtext from "../../components/LoginSubtext";
+import { AuthSplitLayout } from "../../layouts/AuthLayout";
 import loginPhoneImage from "../../assets/img/3d-hand-phone.png";
 
 export default function Login() {
@@ -57,71 +56,62 @@ export default function Login() {
   };
 
   return (
-    <main className="bg-base-200 grid min-h-screen grid-cols-1 overflow-x-hidden lg:grid-cols-2">
-      <section className="flex min-h-screen items-center justify-center px-4 py-8 sm:px-8 lg:px-12">
-        <div className="border-base-300 bg-base-100/90 shadow-base-content/10 w-full max-w-xl rounded-[1.5rem] border p-5 shadow-2xl backdrop-blur sm:rounded-[2rem] sm:p-10">
-          <Brand />
-          <div className="mt-10">
-            <LoginHeadline
-              title="Welcome back 👋"
-              text="Log in to manage your balance, transfers, top ups, and transaction history."
-            />
-            <SocialLogin />
+    <AuthSplitLayout aside={<LoginImage img={loginPhoneImage} />}>
+      <LoginHeadline
+        title="Welcome back 👋"
+        text="Log in to manage your balance, transfers, top ups, and history."
+      />
+      <div className="mb-4 rounded-xl border border-primary/20 bg-primary/10 px-3 py-2 text-xs font-bold text-primary">
+        Secure account access · Email and password only
+      </div>
 
-            {passwordReset && (
-              <div className="border-success/30 bg-success/10 text-success mb-4 rounded-2xl border px-4 py-3 text-sm font-bold">
-                ✓ Password changed successfully. Please log in with your new
-                password.
-              </div>
-            )}
-            {(validationError || error) && (
-              <div className="border-error/30 bg-error/10 text-error mb-4 rounded-2xl border px-4 py-3 text-sm font-bold">
-                {validationError || error}
-              </div>
-            )}
-
-            <form className="space-y-6" onSubmit={handleSubmit}>
-              <Input
-                label="Email"
-                type="email"
-                name="email"
-                icon={faEnvelope}
-                placeholder="Enter your email"
-                value={form.email}
-                onChange={handleChange}
-              />
-              <Input
-                label="Password"
-                type="password"
-                name="password"
-                icon={faLock}
-                placeholder="Enter your password"
-                value={form.password}
-                onChange={handleChange}
-              />
-              <div className="flex justify-end">
-                <NavLink
-                  to="/forgotpassword"
-                  className="text-primary hover:text-primary text-sm font-bold hover:underline"
-                >
-                  Forgot Password?
-                </NavLink>
-              </div>
-              <Submit
-                name={loading ? "Loading..." : "Login"}
-                disabled={loading}
-              />
-            </form>
-
-            <LoginSubtext
-              text="Not Have An Account? "
-              link="/register"
-              linklabel="Register"
-            />
-          </div>
+      {passwordReset && (
+        <div className="border-success/30 bg-success/10 text-success mb-3 rounded-xl border px-3 py-2 text-xs font-bold">
+          ✓ Password changed successfully. Please log in with your new
+          password.
         </div>
-      </section>
-      <LoginImage img={loginPhoneImage} />
-    </main>
+      )}
+      {(validationError || error) && (
+        <div className="border-error/30 bg-error/10 text-error mb-3 rounded-xl border px-3 py-2 text-xs font-bold">
+          {validationError || error}
+        </div>
+      )}
+
+      <form className="space-y-3.5" onSubmit={handleSubmit}>
+        <Input
+          label="Email"
+          type="email"
+          name="email"
+          icon={faEnvelope}
+          placeholder="Enter your email"
+          value={form.email}
+          onChange={handleChange}
+        />
+        <Input
+          label="Password"
+          type="password"
+          name="password"
+          icon={faLock}
+          placeholder="Enter your password"
+          value={form.password}
+          onChange={handleChange}
+        />
+        <div className="flex justify-end">
+          <NavLink
+            to="/forgotpassword"
+            className="text-primary hover:text-primary text-xs font-bold hover:underline sm:text-sm"
+          >
+            Forgot Password?
+          </NavLink>
+        </div>
+        <Submit name={loading ? "Loading..." : "Login"} disabled={loading} />
+      </form>
+
+      <LoginSubtext
+        text="Not Have An Account? "
+        link="/register"
+        linklabel="Register"
+      />
+    </AuthSplitLayout>
   );
 }

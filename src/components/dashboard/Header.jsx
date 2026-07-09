@@ -36,14 +36,14 @@ export default function Header() {
   };
 
   return (
-    <header className="border-base-300 bg-base-100/90 fixed top-0 right-0 left-0 z-50 w-full border-b font-sans shadow-sm backdrop-blur-xl">
+    <header className="border-base-300/80 bg-base-100/80 fixed top-0 right-0 left-0 z-50 w-full border-b font-sans shadow-sm backdrop-blur-xl">
       <nav className="mx-auto flex h-16 max-w-screen-2xl items-center justify-between gap-3 px-3 sm:px-5 lg:px-8">
         <Brand />
 
         <div className="flex min-w-0 items-center gap-2 sm:gap-3">
           <div className="border-base-300 hidden items-center gap-2 border-r pr-3 xl:flex">
             <button
-              className="text-base-content/50 hover:bg-primary/10 hover:text-primary flex h-10 w-10 items-center justify-center rounded-2xl transition-colors"
+              className="btn btn-ghost btn-square rounded-field text-base-content/60 hover:text-primary"
               aria-label="Search"
             >
               <svg
@@ -58,7 +58,7 @@ export default function Header() {
               </svg>
             </button>
             <button
-              className="text-base-content/50 hover:bg-primary/10 hover:text-primary flex h-10 w-10 items-center justify-center rounded-2xl transition-colors"
+              className="btn btn-ghost btn-square rounded-field text-base-content/60 hover:text-primary"
               aria-label="Wallet"
             >
               <svg
@@ -78,7 +78,7 @@ export default function Header() {
             <div className="relative hidden lg:block" ref={wrapperRef}>
               <button
                 onClick={() => setOpen((v) => !v)}
-                className="bg-base-200 hover:border-primary/20 hover:bg-primary/10 flex max-w-56 items-center gap-3 rounded-2xl border border-transparent p-1.5 pr-3 transition-all"
+                className="flex max-w-56 items-center gap-3 rounded-field border border-base-300 bg-base-200 p-1.5 pr-3 transition-all hover:border-primary/40 hover:bg-primary/10"
               >
                 <img
                   src={user.avatar}
@@ -147,7 +147,7 @@ export default function Header() {
           ) : (
             <button
               onClick={() => navigate("/login")}
-              className="bg-primary text-primary-content hover:bg-primary/90 hidden rounded-2xl px-6 py-2.5 text-sm font-black transition-all active:scale-95 lg:block"
+              className="btn btn-primary btn-sm hidden rounded-field px-6 font-black lg:flex"
             >
               Masuk
             </button>
@@ -155,7 +155,7 @@ export default function Header() {
 
           <button
             onClick={() => setSidebarOpen((prev) => !prev)}
-            className="text-base-content/75 hover:bg-base-200 flex shrink-0 items-center justify-center rounded-2xl p-2 transition lg:hidden"
+            className="btn btn-ghost btn-square rounded-field lg:hidden"
             aria-label={sidebarOpen ? "Close sidebar" : "Open sidebar"}
           >
             {sidebarOpen ? <X size={22} /> : <Menu size={22} />}

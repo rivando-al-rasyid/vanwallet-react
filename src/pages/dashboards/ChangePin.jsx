@@ -112,7 +112,7 @@ export default function ChangePin() {
         <h1 className="text-base-content text-xl font-bold">Profile</h1>
       </div>
 
-      <div className="bg-base-100 min-w-0 rounded-2xl p-5 shadow-sm sm:p-8">
+      <div className="bg-base-200/80 min-w-0 rounded-2xl p-5 shadow-sm sm:p-8">
         <div className="mx-auto w-full max-w-3xl text-center">
           <div className="mb-6 flex items-center justify-center gap-1.5 sm:gap-2">
             {["current", "new", "confirm"].map((s, i) => (

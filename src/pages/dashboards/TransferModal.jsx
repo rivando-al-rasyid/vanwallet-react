@@ -127,7 +127,7 @@ export default function TransferModal() {
       </div>
 
       {/* Summary card */}
-      <div className="border-base-300 bg-base-100 mb-6 min-w-0 rounded-[1.5rem] border p-4 shadow-sm sm:p-6">
+      <div className="border-base-300 bg-base-100 mb-6 min-w-0 rounded-box border p-4 shadow-sm sm:p-6">
         <h2 className="text-base-content mb-4 text-lg font-black">
           Transfer Summary
         </h2>
@@ -190,7 +190,7 @@ export default function TransferModal() {
 
             <button
               type="submit"
-              className="from-primary to-secondary shadow-primary/20 hover:from-primary/90 hover:to-secondary/90 mb-4 w-full rounded-2xl bg-gradient-to-r px-5 py-3 text-sm font-black text-white shadow-lg transition disabled:opacity-60"
+              className="mb-4 w-full rounded-2xl bg-primary px-5 py-3 text-sm font-black text-primary-content shadow-lg transition disabled:opacity-60"
               disabled={loading}
             >
               {loading ? "Memproses..." : "Confirm & Transfer"}
@@ -222,7 +222,7 @@ export default function TransferModal() {
         </p>
         <button
           onClick={handleTryAgain}
-          className="from-primary to-secondary shadow-primary/20 hover:from-primary/90 hover:to-secondary/90 mb-3 w-full rounded-2xl bg-gradient-to-r px-5 py-3 text-sm font-black text-white shadow-lg transition disabled:opacity-60"
+          className="mb-3 w-full rounded-2xl bg-primary px-5 py-3 text-sm font-black text-primary-content shadow-lg transition disabled:opacity-60"
         >
           Try Again
         </button>
@@ -249,7 +249,7 @@ export default function TransferModal() {
         </p>
         <button
           onClick={handleDone}
-          className="from-primary to-secondary shadow-primary/20 hover:from-primary/90 hover:to-secondary/90 mb-3 w-full rounded-2xl bg-gradient-to-r px-5 py-3 text-sm font-black text-white shadow-lg transition disabled:opacity-60"
+          className="mb-3 w-full rounded-2xl bg-primary px-5 py-3 text-sm font-black text-primary-content shadow-lg transition disabled:opacity-60"
         >
           Done
         </button>

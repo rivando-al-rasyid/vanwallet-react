@@ -2,11 +2,11 @@ import { FormProvider, useForm } from "react-hook-form";
 import { Navigate, useLocation, useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import PinInput from "../../components/PinInput";
-import Brand from "../../components/Brand";
 import LoginImage from "../../components/login/LoginImage";
 import LoginHeadline from "../../components/login/LoginHeadline";
 import Submit from "../../components/Submit";
 import LoginSubtext from "../../components/LoginSubtext";
+import { AuthSplitLayout } from "../../layouts/AuthLayout";
 import { createPin } from "../../store/slices/registerSlice";
 import loginPhoneImage from "../../assets/img/3d-hand-phone.png";
 
@@ -51,41 +51,30 @@ export default function AskPin() {
   const pinError = methods.formState.errors.pin?.message;
 
   return (
-    <main className="bg-base-200 grid min-h-screen grid-cols-1 overflow-x-hidden lg:grid-cols-2">
-      <section className="flex min-h-screen items-center justify-center px-4 py-8 sm:px-8 lg:px-12">
-        <div className="border-base-300 bg-base-100/90 shadow-base-content/10 w-full max-w-xl rounded-[1.5rem] border p-5 shadow-2xl backdrop-blur sm:rounded-[2rem] sm:p-10">
-          <Brand />
-          <div className="mt-10">
-            <LoginHeadline
-              title="Create your PIN 🔐"
-              text="Set a 6-digit PIN to secure transfers and wallet actions."
-            />
-            <FormProvider {...methods}>
-              <form
-                className="space-y-8"
-                onSubmit={methods.handleSubmit(onSubmit)}
-              >
-                <PinInput autoComplete="new-password" />
-                {(pinError || error) && (
-                  <div className="border-error/30 bg-error/10 text-error rounded-2xl border px-4 py-3 text-sm font-bold">
-                    {pinError || error}
-                  </div>
-                )}
-                <Submit
-                  name={pinLoading ? "Saving..." : "Continue"}
-                  disabled={pinLoading}
-                />
-              </form>
-            </FormProvider>
-            <LoginSubtext
-              text="Wrong account? "
-              link="/login"
-              linklabel="Back to Login"
-            />
-          </div>
-        </div>
-      </section>
-      <LoginImage img={loginPhoneImage} />
-    </main>
+    <AuthSplitLayout aside={<LoginImage img={loginPhoneImage} />}>
+      <LoginHeadline
+        title="Create your PIN 🔐"
+        text="Set a 6-digit PIN to secure transfers and wallet actions."
+      />
+      <FormProvider {...methods}>
+        <form className="space-y-5" onSubmit={methods.handleSubmit(onSubmit)}>
+          <PinInput autoComplete="new-password" />
+          {(pinError || error) && (
+            <div className="border-error/30 bg-error/10 text-error rounded-xl border px-3 py-2 text-xs font-bold">
+              {pinError || error}
+            </div>
+          )}
+          <Submit
+            name={pinLoading ? "Saving..." : "Continue"}
+            disabled={pinLoading}
+          />
+        </form>
+      </FormProvider>
+      <LoginSubtext
+        text="Wrong account? "
+        link="/login"
+        linklabel="Back to Login"
+      />
+    </AuthSplitLayout>
   );
 }

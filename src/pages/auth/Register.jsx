@@ -3,13 +3,12 @@ import { useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { faEnvelope, faLock } from "@fortawesome/free-solid-svg-icons";
 import { register } from "../../store/slices/registerSlice";
-import Brand from "../../components/Brand";
 import LoginHeadline from "../../components/login/LoginHeadline";
-import SocialLogin from "../../components/SocialLogin";
 import Input from "../../components/Input";
 import Submit from "../../components/Submit";
 import LoginImage from "../../components/login/LoginImage";
 import LoginSubtext from "../../components/LoginSubtext";
+import { AuthSplitLayout } from "../../layouts/AuthLayout";
 import walletHandImage from "../../assets/img/3d-hand-wallet.png";
 
 export default function Register() {
@@ -46,63 +45,53 @@ export default function Register() {
   };
 
   return (
-    <main className="bg-base-200 grid min-h-screen grid-cols-1 overflow-x-hidden lg:grid-cols-2">
-      <section className="flex min-h-screen items-center justify-center px-4 py-8 sm:px-8 lg:px-12">
-        <div className="border-base-300 bg-base-100/90 shadow-base-content/10 w-full max-w-xl rounded-[1.5rem] border p-5 shadow-2xl backdrop-blur sm:rounded-[2rem] sm:p-10">
-          <Brand />
-          <div className="mt-10">
-            <LoginHeadline
-              title="Create your wallet account"
-              text="Start managing transfers, top ups, and payments from one secure account."
-            />
-            <SocialLogin />
-            {(validationError || error) && (
-              <div className="border-error/30 bg-error/10 text-error mb-4 rounded-2xl border px-4 py-3 text-sm font-bold">
-                {validationError || error}
-              </div>
-            )}
-            <form className="space-y-6" onSubmit={handleSubmit}>
-              <Input
-                label="Email"
-                type="email"
-                name="email"
-                icon={faEnvelope}
-                placeholder="Enter your email"
-                value={form.email}
-                onChange={handleChange}
-              />
-              <Input
-                label="Password"
-                type="password"
-                name="password"
-                icon={faLock}
-                placeholder="Enter your password"
-                value={form.password}
-                onChange={handleChange}
-              />
-              <Input
-                label="Confirm Password"
-                type="password"
-                name="confirmPassword"
-                icon={faLock}
-                placeholder="Enter your password again"
-                value={form.confirmPassword}
-                onChange={handleChange}
-              />
-              <Submit
-                name={loading ? "Loading..." : "Register"}
-                disabled={loading}
-              />
-            </form>
-            <LoginSubtext
-              text="Have An Account? "
-              link="/login"
-              linklabel="Login"
-            />
-          </div>
+    <AuthSplitLayout aside={<LoginImage img={walletHandImage} />}>
+      <LoginHeadline
+        title="Create your wallet account"
+        text="Start managing transfers, top ups, and payments from one account."
+      />
+      <div className="mb-4 rounded-xl border border-primary/20 bg-primary/10 px-3 py-2 text-xs font-bold text-primary">
+        Secure account access · Email and password only
+      </div>
+      {(validationError || error) && (
+        <div className="border-error/30 bg-error/10 text-error mb-3 rounded-xl border px-3 py-2 text-xs font-bold">
+          {validationError || error}
         </div>
-      </section>
-      <LoginImage img={walletHandImage} />
-    </main>
+      )}
+      <form className="space-y-3" onSubmit={handleSubmit}>
+        <Input
+          label="Email"
+          type="email"
+          name="email"
+          icon={faEnvelope}
+          placeholder="Enter your email"
+          value={form.email}
+          onChange={handleChange}
+        />
+        <Input
+          label="Password"
+          type="password"
+          name="password"
+          icon={faLock}
+          placeholder="Enter your password"
+          value={form.password}
+          onChange={handleChange}
+        />
+        <Input
+          label="Confirm Password"
+          type="password"
+          name="confirmPassword"
+          icon={faLock}
+          placeholder="Enter your password again"
+          value={form.confirmPassword}
+          onChange={handleChange}
+        />
+        <Submit
+          name={loading ? "Loading..." : "Register"}
+          disabled={loading}
+        />
+      </form>
+      <LoginSubtext text="Have An Account? " link="/login" linklabel="Login" />
+    </AuthSplitLayout>
   );
 }

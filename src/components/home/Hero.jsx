@@ -1,30 +1,44 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faApple, faGooglePlay } from "@fortawesome/free-brands-svg-icons";
+import { WalletCards, Send, ShieldCheck, ArrowRight } from "lucide-react";
 import phoneBigImage from "../../assets/img/phonebig.png";
 import phoneSmallImage from "../../assets/img/phonesmall.png";
 
-const AVATAR_IDS = [21, 22, 23, 24];
-const USER_COUNT = "4.6 M";
-const ICON_SIZE = 18;
+const METRICS = [
+  { label: "Daily limit", value: "24/7" },
+  { label: "Fee from", value: "0.5%" },
+  { label: "Tracked", value: "Real-time" },
+];
 
 export default function Hero() {
   return (
-    <header className="bg-neutral text-neutral-content relative overflow-hidden">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(79,70,229,0.55),transparent_30%),radial-gradient(circle_at_85%_30%,rgba(16,185,129,0.35),transparent_28%)]" />
+    <header className="relative overflow-hidden bg-base-100">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_18%,color-mix(in_oklch,var(--color-primary)_28%,transparent),transparent_28%),radial-gradient(circle_at_80%_8%,color-mix(in_oklch,var(--color-accent)_18%,transparent),transparent_24%)]" />
       <div className="relative mx-auto grid max-w-7xl items-center gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)] lg:px-10 lg:py-24">
         <div className="max-w-3xl min-w-0">
-          <span className="border-neutral-content/20 bg-neutral-content/10 text-success inline-flex rounded-full border px-4 py-2 text-xs font-black tracking-[0.25em] uppercase backdrop-blur">
-            Digital wallet
+          <span className="badge badge-primary badge-outline rounded-selector px-4 py-3 text-xs font-black tracking-[0.25em] uppercase">
+            Basedtoast Wallet UI
           </span>
-          <h1 className="mt-6 text-4xl leading-tight font-black tracking-tight sm:text-5xl lg:text-6xl xl:text-7xl">
-            Experience the future of digital payments.
+          <h1 className="mt-6 text-4xl leading-tight font-black tracking-tight text-base-content sm:text-5xl lg:text-6xl xl:text-7xl">
+            A sharper dark wallet dashboard for everyday payments.
           </h1>
-          <p className="text-neutral-content/70 mt-6 max-w-xl text-base leading-8 sm:text-lg">
-            Transfer, top up, and track your money from one polished dashboard
-            built for daily payments.
+          <p className="mt-6 max-w-xl text-base leading-8 text-base-content/70 sm:text-lg">
+            Transfer, top up, and monitor every rupiah through a focused dark interface built around your custom DaisyUI theme.
           </p>
-          <DownloadButtons />
-          <UserStats />
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:gap-4">
+            <a href="/register" className="btn btn-primary rounded-field px-7 font-black">
+              Create Wallet <ArrowRight size={18} />
+            </a>
+            <a href="/login" className="btn btn-outline rounded-field px-7 font-bold">
+              Open Dashboard
+            </a>
+          </div>
+          <div className="mt-10 grid max-w-2xl grid-cols-1 gap-3 sm:grid-cols-3">
+            {METRICS.map((metric) => (
+              <div key={metric.label} className="rounded-box border border-base-300 bg-base-200/70 p-4 backdrop-blur">
+                <p className="text-xs font-bold uppercase tracking-widest text-base-content/45">{metric.label}</p>
+                <p className="mt-2 text-xl font-black text-base-content">{metric.value}</p>
+              </div>
+            ))}
+          </div>
         </div>
         <PhoneMockup />
       </div>
@@ -35,62 +49,25 @@ export default function Hero() {
 function PhoneMockup() {
   return (
     <div className="relative flex min-w-0 justify-center lg:justify-end">
-      <div className="bg-primary/20 absolute inset-10 rounded-full blur-3xl" />
-      <div className="border-neutral-content/20 bg-neutral-content/10 relative w-fit max-w-full rounded-[2rem] border p-5 shadow-2xl backdrop-blur sm:rounded-[3rem] sm:p-8">
-        <img
-          src={phoneBigImage}
-          alt="Main app screen"
-          className="relative z-10 w-40 drop-shadow-2xl sm:w-56 lg:w-64 xl:w-72"
-        />
-        <img
-          src={phoneSmallImage}
-          alt="Secondary app screen"
-          className="absolute -right-2 bottom-6 z-20 w-28 drop-shadow-2xl sm:-right-4 sm:w-40 lg:-right-6 lg:w-48 xl:-right-8 xl:w-52"
-        />
-      </div>
-    </div>
-  );
-}
-
-function DownloadButtons() {
-  return (
-    <div className="mt-8 mb-8 flex flex-col gap-3 sm:flex-row sm:gap-4 lg:mb-10">
-      <button className="bg-base-100 text-primary hover:bg-success/10 flex w-full min-w-42 items-center justify-center gap-3 rounded-2xl px-6 py-3 font-bold shadow-lg transition hover:-translate-y-0.5 sm:w-auto">
-        <FontAwesomeIcon
-          icon={faGooglePlay}
-          height={ICON_SIZE}
-          width={ICON_SIZE}
-        />
-        <span>Play Store</span>
-      </button>
-      <button className="border-neutral-content/20 text-neutral-content hover:bg-neutral-content/10 flex w-full min-w-42 items-center justify-center gap-3 rounded-2xl border px-6 py-3 font-bold transition sm:w-auto">
-        <FontAwesomeIcon icon={faApple} height={ICON_SIZE} width={ICON_SIZE} />
-        <span>App Store</span>
-      </button>
-    </div>
-  );
-}
-
-function UserStats() {
-  return (
-    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-5">
-      <div className="text-4xl leading-none font-black sm:text-5xl">
-        {USER_COUNT}
-      </div>
-      <div>
-        <div className="mb-2 flex -space-x-3">
-          {AVATAR_IDS.map((id) => (
-            <img
-              key={id}
-              src={`https://i.pravatar.cc/100?img=${id}`}
-              alt="User avatar"
-              className="border-neutral h-10 w-10 rounded-full border-2 object-cover"
-            />
-          ))}
+      <div className="absolute inset-8 rounded-full bg-primary/20 blur-3xl" />
+      <div className="relative w-full max-w-md rounded-box border border-base-300 bg-base-200/80 p-5 shadow-2xl backdrop-blur sm:p-8">
+        <div className="mb-5 grid grid-cols-2 gap-3">
+          <div className="rounded-box bg-base-100 p-4">
+            <WalletCards className="text-primary" size={24} />
+            <p className="mt-4 text-xs text-base-content/50">Balance</p>
+            <p className="text-2xl font-black">Rp12.8M</p>
+          </div>
+          <div className="rounded-box bg-base-100 p-4">
+            <Send className="text-secondary" size={24} />
+            <p className="mt-4 text-xs text-base-content/50">Transfer</p>
+            <p className="text-2xl font-black">Fast</p>
+          </div>
         </div>
-        <p className="text-neutral-content/70 max-w-xs text-sm leading-6">
-          Happy users already trust the wallet for everyday payments.
-        </p>
+        <div className="relative flex justify-center overflow-hidden rounded-box bg-base-100 p-6">
+          <ShieldCheck className="absolute left-5 top-5 text-success" size={24} />
+          <img src={phoneBigImage} alt="Main app screen" className="relative z-10 w-40 drop-shadow-2xl sm:w-56 lg:w-64" />
+          <img src={phoneSmallImage} alt="Secondary app screen" className="absolute bottom-6 right-5 z-20 w-28 drop-shadow-2xl sm:w-40 lg:w-44" />
+        </div>
       </div>
     </div>
   );

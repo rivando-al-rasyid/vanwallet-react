@@ -152,7 +152,7 @@ export default function TopUp() {
       </div>
 
       {step === STEP.PENDING && (
-        <div className="border-base-300 bg-base-100 flex min-w-0 flex-col items-center gap-6 rounded-[1.5rem] border p-5 py-12 text-center shadow-sm sm:p-6 sm:py-16">
+        <div className="border-base-300 bg-base-200/80 flex min-w-0 flex-col items-center gap-6 rounded-box border p-5 py-12 text-center shadow-sm sm:p-6 sm:py-16">
           <div className="bg-primary/15 text-primary flex h-16 w-16 items-center justify-center rounded-full">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
               <path
@@ -207,7 +207,7 @@ export default function TopUp() {
 
           <button
             onClick={handleReset}
-            className="from-primary to-secondary shadow-primary/20 hover:from-primary/90 hover:to-secondary/90 rounded-2xl bg-gradient-to-r px-5 py-3 text-sm font-black text-white shadow-lg transition disabled:opacity-60"
+            className="rounded-2xl bg-primary px-5 py-3 text-sm font-black text-primary-content shadow-lg transition disabled:opacity-60"
           >
             Create Another Top Up
           </button>
@@ -216,7 +216,7 @@ export default function TopUp() {
 
       {step === STEP.FORM && (
         <div className="flex min-w-0 flex-col items-start gap-4 sm:gap-6 xl:flex-row">
-          <div className="border-base-300 bg-base-100 w-full min-w-0 rounded-[1.5rem] border p-5 shadow-sm sm:p-6">
+          <div className="border-base-300 bg-base-200/80 w-full min-w-0 rounded-box border p-5 shadow-sm sm:p-6">
             <h2 className="text-base-content mb-3 text-lg font-black sm:mb-4">
               Account Information
             </h2>
@@ -326,7 +326,7 @@ export default function TopUp() {
             </div>
           </div>
 
-          <div className="border-base-300 bg-base-100 w-full min-w-0 shrink-0 rounded-[1.5rem] border p-5 shadow-sm sm:p-6 xl:w-80">
+          <div className="border-base-300 bg-base-200/80 w-full min-w-0 shrink-0 rounded-box border p-5 shadow-sm sm:p-6 xl:w-80">
             <h2 className="text-base-content mb-3 text-lg font-black sm:mb-6">
               Payment
             </h2>
@@ -371,7 +371,7 @@ export default function TopUp() {
 
             <button
               onClick={handleFormSubmit}
-              className="from-primary to-secondary shadow-primary/20 hover:from-primary/90 hover:to-secondary/90 w-full rounded-2xl bg-gradient-to-r px-5 py-3 text-sm font-black text-white shadow-lg transition disabled:opacity-60"
+              className="w-full rounded-2xl bg-primary px-5 py-3 text-sm font-black text-primary-content shadow-lg transition disabled:opacity-60"
               disabled={isLoading}
             >
               {isLoading ? "Memproses..." : "Create Top Up"}
